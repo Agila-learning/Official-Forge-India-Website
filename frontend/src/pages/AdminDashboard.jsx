@@ -1962,7 +1962,7 @@ const AdminDashboard = () => {
                                 {selectedUserKYC.profileDocuments?.map((doc, i) => (
                                     <div key={i} className="flex flex-col gap-2">
                                         <a href={doc} target="_blank" rel="noopener noreferrer" className="px-8 py-5 bg-white dark:bg-dark-bg border-2 border-primary/20 text-primary rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all flex items-center gap-3">
-                                            <Shield size={18} /> Packet {i+1} Review
+                                            <ShieldCheck size={18} /> Packet {i+1} Review
                                         </a>
                                         <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest text-center">Encrypted Hash</p>
                                     </div>
