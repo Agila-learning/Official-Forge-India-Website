@@ -238,7 +238,7 @@ const Register = () => {
                   <RoleIcon size={20} />
                 </div>
                 <div className="text-left">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Joining as</p>
+                   <p className="text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-1">Joining as</p>
                    <p className="text-xs font-black text-primary leading-none uppercase">{formData.role}</p>
                 </div>
               </div>
@@ -281,14 +281,19 @@ const Register = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account Role</label>
                   <div className="relative">
-                    <select required value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="input-field !rounded-2xl py-4 appearance-none cursor-pointer pr-12">
-                      <option value="Customer">Customer / Individual</option>
-                      <option value="Candidate">Job Seeker / Candidate</option>
-                      <option value="Vendor">Vendor (Bulk/B2B)</option>
-                      <option value="Seller">Direct Product Seller</option>
-                      <option value="Service Provider">Local Service Provider</option>
-                      <option value="HR">HR / Recruiter</option>
-                      <option value="Delivery Partner">Delivery Partner</option>
+                    <select 
+                      required 
+                      value={formData.role} 
+                      onChange={e => setFormData({...formData, role: e.target.value})} 
+                      className="form-input !rounded-2xl py-4 appearance-none cursor-pointer pr-12 dark:bg-dark-bg dark:text-white"
+                    >
+                      <option value="Customer" className="text-slate-900 bg-white">Customer / Individual</option>
+                      <option value="Candidate" className="text-slate-900 bg-white">Job Seeker / Candidate</option>
+                      <option value="Vendor" className="text-slate-900 bg-white">Vendor (Bulk/B2B)</option>
+                      <option value="Seller" className="text-slate-900 bg-white">Direct Product Seller</option>
+                      <option value="Service Provider" className="text-slate-900 bg-white">Local Service Provider</option>
+                      <option value="HR" className="text-slate-900 bg-white">HR / Recruiter</option>
+                      <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
                     </select>
                     <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
