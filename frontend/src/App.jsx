@@ -12,7 +12,7 @@ import VendorDashboard from './pages/VendorDashboard';
 import HRDashboard from './pages/HRDashboard';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import CandidateDashboard from './pages/CandidateDashboard';
-import ServicePage from './pages/ServicePage';
+// import ServicePage from './pages/ServicePage'; // Redundant - using ServicesPage instead
 import Clientele from './pages/Clientele';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
@@ -143,7 +143,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
-          <Route path="/products/:id" element={<Navigate to="/services/:id" replace />} />
+          <Route path="/products/:id" element={<ProductRedirect />} />
         </Routes>
       </main>
       
@@ -188,5 +188,10 @@ function App() {
     </HelmetProvider>
   );
 }
+
+const ProductRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/services/${id}`} replace />;
+};
 
 export default App;

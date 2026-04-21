@@ -292,7 +292,7 @@ const CandidateDashboard = () => {
         <div className="space-y-12">
             <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
-                <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+                <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 md:space-y-12">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                         <div>
                             <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter uppercase italic leading-none font-poppins">
@@ -309,16 +309,16 @@ const CandidateDashboard = () => {
                     <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div className="p-8 bg-gradient-to-br from-gray-900 to-slate-800 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
+                        <div className="p-6 md:p-8 bg-gradient-to-br from-gray-900 to-slate-800 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
                             <div className="relative z-10">
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2">Marketplace Integration</p>
-                                <h4 className="text-2xl font-black italic tracking-tighter mb-4 uppercase">Direct <span className="text-primary italic">Shopping</span> Access</h4>
+                                <h4 className="text-xl md:text-2xl font-black italic tracking-tighter mb-4 uppercase">Direct <span className="text-primary italic">Shopping</span> Access</h4>
                                 <p className="text-xs text-gray-400 font-bold mb-8 leading-relaxed">
                                     As a verified Candidate, you have priority access to our curated service catalog. Browse now for professional kits and tools.
                                 </p>
                                 <button 
                                     onClick={() => navigate('/explore-shop')}
-                                    className="bg-primary hover:bg-blue-600 text-white font-black py-4 px-8 rounded-2xl text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-primary/20"
+                                    className="bg-primary hover:bg-blue-600 text-white font-black py-3 px-6 md:py-4 md:px-8 rounded-2xl text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-primary/20"
                                 >
                                     Shop Now <ShoppingCart size={16} />
                                 </button>
@@ -326,9 +326,9 @@ const CandidateDashboard = () => {
                             <ShoppingCart size={120} className="absolute -bottom-10 -right-10 text-white/5 group-hover:scale-110 transition-transform" />
                         </div>
 
-                        <div className="p-8 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-center">
+                        <div className="p-6 md:p-8 bg-white dark:bg-dark-card rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-center">
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Identity Hub</p>
-                            <h4 className="text-xl font-black text-gray-900 dark:text-white mb-4 uppercase italic tracking-tighter">Profile <span className="text-primary italic">Synchronization</span></h4>
+                            <h4 className="text-lg md:text-xl font-black text-gray-900 dark:text-white mb-4 uppercase italic tracking-tighter">Profile <span className="text-primary italic">Synchronization</span></h4>
                             <p className="text-xs text-gray-500 font-medium mb-6">Ensure your contact details and master resume are up-to-date for automated job matching.</p>
                             <button onClick={() => setActiveTab('profile')} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
                                 Verify Identity Assets <ChevronRight size={14} />

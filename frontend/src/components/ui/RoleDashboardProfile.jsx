@@ -70,7 +70,7 @@ const RoleDashboardProfile = ({ user, stats = {} }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative p-10 rounded-[3rem] overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shadow-2xl"
+        className="relative p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shadow-2xl"
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -ml-32 -mb-32"></div>
@@ -143,7 +143,7 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => {
   };
 
   return (
-    <div className="p-8 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-primary/50 transition-all duration-500">
+    <div className="p-5 md:p-8 bg-white dark:bg-dark-card rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-primary/50 transition-all duration-500">
       <div className="flex items-center justify-between mb-8">
         <div className={`p-4 rounded-2xl ${colors[color]} shrink-0 group-hover:scale-110 transition-transform`}>
           <Icon size={28} />

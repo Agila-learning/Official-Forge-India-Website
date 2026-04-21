@@ -12,14 +12,14 @@ const contactInfo = [
   {
     icon: MapPin,
     label: 'Head Office',
-    value: 'Krishnagiri, Tamil Nadu – 635 001',
-    href: 'https://maps.google.com/?q=Krishnagiri+Tamil+Nadu',
+    value: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002',
+    href: 'https://maps.google.com/?q=RK+Towers+Krishnagiri',
   },
   {
     icon: Phone,
     label: 'Call / WhatsApp',
-    value: '+91 90800 05550',
-    href: 'tel:+919080005550',
+    value: '+91 63694 06416',
+    href: 'tel:+916369406416',
   },
   {
     icon: Mail,
@@ -36,10 +36,9 @@ const contactInfo = [
 ];
 
 const socials = [
-  { icon: Facebook,  href: '#', label: 'Facebook' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Linkedin,  href: '#', label: 'LinkedIn' },
-  { icon: Youtube,   href: '#', label: 'YouTube' },
+  { icon: Facebook,  href: 'https://www.facebook.com/people/Forge-India-Connect/61583095918027', label: 'Facebook' },
+  { icon: Instagram, href: 'https://www.instagram.com/forgeindia_connect?igsh=MTF4Z2M4Z3p2OHA2YQ%3D%3D', label: 'Instagram' },
+  { icon: Linkedin,  href: 'https://www.linkedin.com/company/forge-india-connect-pvt-ltd/?viewAsMember=true', label: 'LinkedIn' },
 ];
 
 const ContactPage = () => (
@@ -159,9 +158,9 @@ const ContactPage = () => (
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
-            { city: 'Krishnagiri', type: 'Head Office', address: 'Main Road, Krishnagiri – 635 001, Tamil Nadu', phone: '+91 90800 05550' },
-            { city: 'Chennai',     type: 'Branch Office', address: 'Anna Nagar, Chennai – 600 040, Tamil Nadu', phone: '+91 90800 05551' },
-            { city: 'Bangalore',   type: 'Liaison Office', address: 'Koramangala, Bangalore – 560 034, Karnataka', phone: '+91 90800 05552' },
+            { city: 'Krishnagiri', type: 'Head Office', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', phone: '+91 63694 06416' },
+            { city: 'Chennai',     type: 'Branch Office', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', phone: '+91 63694 06416' },
+            { city: 'Bangalore',   type: 'Liaison Office', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', phone: '+91 63694 06416' },
           ].map((branch, i) => (
             <motion.div
               key={branch.city}

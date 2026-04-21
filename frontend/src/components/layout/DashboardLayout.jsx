@@ -198,9 +198,9 @@ const DashboardLayout = ({
                     <div className="w-10 h-10 bg-white dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-105 transition-transform p-1">
                         <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary leading-none mb-1">{role} Hub</span>
-                        <span className="text-sm font-black uppercase tracking-tighter italic leading-none text-gray-900 dark:text-white">FORGE INDIA <span className="text-primary italic">HUB</span></span>
+                    <div className="flex flex-col leading-none">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{role} Hub</span>
+                        <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-white">FORGE INDIA <span className="text-yellow-500">CONNECT</span></span>
                     </div>
                 </Link>
                 <button onClick={() => setIsSidebarOpen(true)} className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20">
@@ -217,7 +217,10 @@ const DashboardLayout = ({
                         </div>
                         {!isCollapsed && (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <h2 className="text-xl font-black uppercase tracking-tighter italic leading-none text-gray-900 dark:text-white">FORGE INDIA <br/><span className="text-primary">CONNECT</span></h2>
+                                <h2 className="text-xl font-black uppercase tracking-tighter leading-none text-gray-900 dark:text-white flex flex-col">
+                                    <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
+                                    <span className="text-yellow-500 mt-1">CONNECT</span>
+                                </h2>
                                 <p className="text-[8px] font-black uppercase tracking-[0.3em] text-gray-400 mt-2">{role} CONSOLE</p>
                             </motion.div>
                         )}
@@ -371,7 +374,7 @@ const DashboardLayout = ({
                 </header>
 
                 {/* Main Viewport */}
-                <div className="p-6 md:p-10 max-w-[1600px] mx-auto">
+                <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}

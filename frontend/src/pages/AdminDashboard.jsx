@@ -1065,8 +1065,8 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'users' && (
-            <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="space-y-6 md:space-y-12">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                         <div>
                             <h3 className="text-3xl font-black mb-1">Users & Partners</h3>
@@ -1085,7 +1085,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Manual Onboarding */}
-                    <div className="mb-12 p-8 bg-primary/5 dark:bg-primary/10 rounded-[2rem] border-2 border-dashed border-primary/20">
+                    <div className="mb-8 md:mb-12 p-4 md:p-8 bg-primary/5 dark:bg-primary/10 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed border-primary/20">
                         <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-6 flex items-center gap-3">
                             <UserPlus size={18} /> Manual Partner Onboarding
                         </h4>
@@ -1295,17 +1295,17 @@ const AdminDashboard = () => {
           const serviceProviders = vendors.filter(v => v.vendorType === 'Service Provider' || v.vendorType === 'Both');
           const list = vendorFilter === 'all' ? vendors : vendors.filter(v => v.vendorType === vendorFilter || v.vendorType === 'Both');
           return (
-            <div className="space-y-8">
-              <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="space-y-6 md:space-y-8">
+              <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
                   <div>
-                    <h3 className="text-3xl font-black mb-1 text-gray-900 dark:text-white">Vendor Registry</h3>
+                    <h3 className="text-2xl md:text-3xl font-black mb-1 text-gray-900 dark:text-white">Vendor Registry</h3>
                     <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-widest">{vendors.length} total vendors · {productSellers.length} sellers · {serviceProviders.length} service providers</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {['all', 'Product Seller', 'Service Provider'].map(f => (
                       <button key={f} onClick={() => setVendorFilter(f)}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${vendorFilter === f ? 'bg-primary text-white border-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-white dark:hover:bg-dark-bg'}`}>
+                        className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all border ${vendorFilter === f ? 'bg-primary text-white border-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-white dark:hover:bg-dark-bg'}`}>
                         {f === 'all' ? 'All Vendors' : f === 'Product Seller' ? 'Sellers' : 'Services'}
                       </button>
                     ))}

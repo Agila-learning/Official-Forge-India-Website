@@ -40,9 +40,9 @@ const footerLinks = [
 ];
 
 const branches = [
-  { city: 'Krishnagiri', type: 'Head Office', phone: '+91 90800 05550' },
-  { city: 'Chennai',     type: 'Branch Office', phone: '+91 90800 05551' },
-  { city: 'Bangalore',   type: 'Liaison Office', phone: '+91 90800 05552' },
+  { city: 'Krishnagiri', type: 'Head Office', phone: '+91 63694 06416', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002' },
+  { city: 'Chennai',     type: 'Branch Office', phone: '+91 63694 06416', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002' },
+  { city: 'Bangalore',   type: 'Liaison Office', phone: '+91 63694 06416', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.' },
 ];
 
 const Footer = () => {
@@ -95,8 +95,11 @@ const Footer = () => {
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-lg" />
               </div>
               <div className="flex flex-col text-left">
-                <span className="text-white font-black leading-none text-xl tracking-tighter italic">FORGE INDIA</span>
-                <span className="text-[10px] text-secondary font-black uppercase tracking-[0.2em] mt-1">Connect Ecosystem</span>
+                <span className="text-white font-black leading-none text-xl tracking-tighter uppercase flex flex-col">
+                  <span className="text-blue-500">FORGE INDIA</span>
+                  <span className="text-yellow-500 text-xs tracking-[0.2em] mt-1">CONNECT</span>
+                </span>
+                <span className="text-[10px] text-yellow-500 font-black uppercase tracking-[0.2em] mt-1">Connect Ecosystem</span>
               </div>
             </Link>
             
@@ -107,9 +110,9 @@ const Footer = () => {
 
             <div className="flex gap-4">
               {[
-                { icon: Facebook, href: 'https://www.facebook.com/people/Forge-India-Connect/61583095918027/', color: 'hover:bg-[#1877F2]' },
-                { icon: Linkedin, href: 'https://www.linkedin.com/company/forge-india-connect-pvt-ltd/', color: 'hover:bg-[#0A66C2]' },
-                { icon: Instagram, href: 'https://www.instagram.com/forgeindia_connect/', color: 'hover:bg-[#E4405F]' },
+                { icon: Facebook, href: 'https://www.facebook.com/people/Forge-India-Connect/61583095918027', color: 'hover:bg-[#1877F2]' },
+                { icon: Linkedin, href: 'https://www.linkedin.com/company/forge-india-connect-pvt-ltd/?viewAsMember=true', color: 'hover:bg-[#0A66C2]' },
+                { icon: Instagram, href: 'https://www.instagram.com/forgeindia_connect?igsh=MTF4Z2M4Z3p2OHA2YQ%3D%3D', color: 'hover:bg-[#E4405F]' },
                 { icon: Globe, href: '#', color: 'hover:bg-primary' },
               ].map((social, i) => (
                 <a 
@@ -170,6 +173,7 @@ const Footer = () => {
                     <MapPin size={16} className="text-primary" />
                     {branch.city}
                   </h5>
+                  <p className="text-slate-400 text-xs font-medium leading-relaxed">{branch.address}</p>
                   <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-slate-400 hover:text-secondary transition-colors text-sm font-bold flex items-center gap-2">
                     <Phone size={14} className="text-secondary" /> {branch.phone}
                   </a>

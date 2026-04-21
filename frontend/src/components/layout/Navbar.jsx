@@ -51,7 +51,7 @@ const AnimatedConnectText = () => (
             initial={{ opacity: 0, letterSpacing: "-0.1em", filter: "blur(4px)", scale: 0.9 }}
             animate={{ opacity: 1, letterSpacing: "0.2em", filter: "blur(0px)", scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 1.1 }}
-            className="text-secondary font-black uppercase tracking-[0.2em] text-[9px] absolute w-[80px] text-center"
+            className="text-yellow-500 font-black uppercase tracking-[0.2em] text-[9px] absolute w-[80px] text-center"
         >
             CONNECT
         </motion.div>
@@ -165,8 +165,8 @@ const Navbar = () => {
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase italic">
-                    <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-300">FORGE INDIA</span>
+                <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase">
+                    <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
                 <div className="mt-1">
                    <AnimatedConnectText key={location.pathname} />
@@ -317,7 +317,10 @@ const Navbar = () => {
                   <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center p-1.5 shadow-lg shadow-primary/20">
                     <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain invert grayscale brightness-200" />
                   </div>
-                  <span className="font-black text-xl tracking-tighter text-primary uppercase italic">FORGE INDIA</span>
+                  <div className="flex flex-col leading-none">
+                    <span className="font-black text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase">FORGE INDIA</span>
+                    <span className="font-black text-xs tracking-[0.2em] text-yellow-500 uppercase mt-1">CONNECT</span>
+                  </div>
                 </div>
                 <button 
                   onClick={() => setIsOpen(false)} 

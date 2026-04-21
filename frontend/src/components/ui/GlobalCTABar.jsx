@@ -9,7 +9,7 @@ import { Phone, MessageCircle, Briefcase, X, ChevronUp } from 'lucide-react';
 const GlobalCTABar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const WA_NUMBER = '919080005550'; // Replace with actual WhatsApp number
+  const WA_NUMBER = '916369406416'; // Standardized for all regions
   const WA_MSG = encodeURIComponent('Hi! I found FIC online and would like to know more about your services.');
 
   return (
@@ -38,7 +38,7 @@ const GlobalCTABar = () => {
                 WhatsApp Chat
               </a>
               <a
-                href="tel:+919080005550"
+                href="tel:+916369406416"
                 className="flex items-center gap-3 px-5 py-3 bg-primary text-white rounded-2xl font-bold text-sm shadow-xl shadow-primary/30 hover:bg-indigo-700 transition-all whitespace-nowrap"
                 aria-label="Call FIC"
               >
@@ -85,7 +85,7 @@ const GlobalCTABar = () => {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-dark-card border-t border-slate-100 dark:border-slate-800 shadow-2xl safe-area-bottom">
         <div className="grid grid-cols-4 divide-x divide-slate-100 dark:divide-slate-800">
           <a
-            href="tel:+919080005550"
+            href="tel:+916369406416"
             className="flex flex-col items-center gap-1 py-3 px-2 text-slate-600 dark:text-slate-400 hover:text-primary hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors min-h-[56px]"
             aria-label="Call"
           >

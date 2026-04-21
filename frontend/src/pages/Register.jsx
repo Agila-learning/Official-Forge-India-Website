@@ -104,14 +104,37 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.role) {
-      setError('Please fill in all required fields (including Last Name)');
+    
+    // 1. Basic Presence Validation
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.mobile || !formData.role) {
+      setError('Strategic Error: Please fill in all required operational fields.');
       return;
     }
 
+    // 2. Email Regex Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Invalid Signal: Please provide a valid professional email address.');
+      return;
+    }
+
+    // 3. Mobile Regex Validation (Indian Standard)
+    const mobileRegex = /^[6-9]\d{9}$/;
+    if (!mobileRegex.test(formData.mobile)) {
+      setError('Invalid Signal: Please provide a valid 10-digit mobile number.');
+      return;
+    }
+
+    // 4. Password Strength (Minimum 6 characters)
+    if (formData.password.length < 6) {
+      setError('Security Warning: Password must be at least 6 characters long.');
+      return;
+    }
+
+    // 5. Business Logic Validation
     if (formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') {
         if (!formData.businessName || !formData.gstNumber) {
-            setError('Business Name and GST are required for business roles');
+            setError('Operational Blocker: Business Name and GST/Tax ID are required for this role.');
             return;
         }
     }
