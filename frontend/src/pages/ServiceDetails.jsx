@@ -277,8 +277,9 @@ const ServiceDetails = () => {
                     </div>
                 </section>
             </div>
-        </>
-    );
+        </div>
+    </>
+);
 };
 
 export default ServiceDetails;
