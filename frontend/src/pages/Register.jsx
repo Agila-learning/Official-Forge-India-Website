@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Network, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Globe, Zap, ChevronDown, Loader2, FileText, Building2, UserCircle, Truck, Briefcase } from 'lucide-react';
+import { Network, ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, Globe, Zap, ChevronDown, Loader2, FileText, Building2, UserCircle, Truck, Briefcase, ShoppingBag, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import ShopLocationPicker from '../components/ui/ShopLocationPicker';
@@ -32,9 +32,10 @@ const Register = () => {
     refundPolicy: '',
     resumeUrl: '',
     domainInterest: 'IT',
-    candidateType: 'Standard', 
+    candidateType: 'Standard', // Standard (Free) or Premium (Paid 1500)
     acceptedTerms: false
   });
+
   const [error, setError] = useState('');
   const [showPayment, setShowPayment] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
@@ -59,46 +60,80 @@ const Register = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.firstName || !formData.email || !formData.password || !formData.role) {
-      setError('Please fill in all required fields');
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayment = async () => {
+    const res = await loadRazorpay();
+    if (!res) {
+      setError('Razorpay SDK failed to load. Are you online?');
       return;
     }
 
-    if (formData.role === 'Vendor') {
-        if (!formData.businessName || !formData.gstNumber) {
-            setError('Business Name and GST are required for Vendors');
-            return;
-        }
-        if (!formData.exactLocation.address) {
-            setError('Please select your shop location on the map');
-            return;
-        }
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_mock_key',
+      amount: 150000, // 1500.00
+      currency: 'INR',
+      name: 'Forge India Connect',
+      description: 'Job Consulting - Assured Placement Fee',
+      image: '/logo.jpg',
+      handler: function (response) {
+        handleRegistrationSubmit({ 
+            paymentId: response.razorpay_payment_id,
+            paymentStatus: 'Paid'
+        });
+      },
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        contact: formData.mobile
+      },
+      theme: { color: '#2563eb' }
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.role) {
+      setError('Please fill in all required fields (including Last Name)');
+      return;
     }
-    if (formData.role === 'Delivery Partner' && (!formData.vehicleDetails || !formData.licenseNumber)) {
-        setError('Vehicle and License details are required for Delivery Partners');
-        return;
+
+    if (formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') {
+        if (!formData.businessName || !formData.gstNumber) {
+            setError('Business Name and GST are required for business roles');
+            return;
+        }
     }
 
     setError('');
     
     const isPremiumCandidate = formData.role === 'Candidate' && formData.candidateType === 'Premium';
-    const isJobConsultingCustomer = formData.role === 'Customer' && formData.serviceInterest === 'Job Consulting';
-
-    if (isJobConsultingCustomer || isPremiumCandidate) {
-       setShowPayment(true);
+    
+    if (isPremiumCandidate) {
+       handlePayment();
     } else {
        handleRegistrationSubmit();
     }
   };
 
-  const handleRegistrationSubmit = async () => {
+  const handleRegistrationSubmit = async (paymentData = {}) => {
     setIsProcessing(true);
     try {
-      const { data } = await api.post('/auth/register', formData);
+      const submissionData = { ...formData, ...paymentData };
+      const { data } = await api.post('/auth/register', submissionData);
+      
       if (data.approvalStatus === 'Pending') {
-         setShowPayment(false);
          setShowPendingApproval(true);
       } else {
          localStorage.setItem('token', data.token);
@@ -107,7 +142,6 @@ const Register = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
-      setShowPayment(false);
     } finally {
       setIsProcessing(false);
     }
@@ -117,6 +151,8 @@ const Register = () => {
     Customer: UserCircle,
     Candidate: Briefcase,
     Vendor: Building2,
+    Seller: ShoppingBag,
+    'Service Provider': Wrench,
     HR: Network,
     'Delivery Partner': Truck
   };
@@ -203,7 +239,7 @@ const Register = () => {
                 </div>
                 <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-                  <input type="text" placeholder="Doe" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="form-input !rounded-2xl py-4 w-full" />
+                  <input type="text" required placeholder="Doe" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="form-input !rounded-2xl py-4 w-full" />
                 </div>
               </div>
 
@@ -225,7 +261,9 @@ const Register = () => {
                     <select required value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="input-field !rounded-2xl py-4 appearance-none cursor-pointer pr-12">
                       <option value="Customer">Customer / Individual</option>
                       <option value="Candidate">Job Seeker / Candidate</option>
-                      <option value="Vendor">Vendor / Business Seller</option>
+                      <option value="Vendor">Vendor (Bulk/B2B)</option>
+                      <option value="Seller">Direct Product Seller</option>
+                      <option value="Service Provider">Local Service Provider</option>
                       <option value="HR">HR / Recruiter</option>
                       <option value="Delivery Partner">Delivery Partner</option>
                     </select>
@@ -299,8 +337,8 @@ const Register = () => {
                   </motion.div>
                 )}
 
-                {formData.role === 'Vendor' && (
-                  <motion.div key="vend" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
+                {(formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') && (
+                  <motion.div key="biz" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Business Name</label>
@@ -312,7 +350,7 @@ const Register = () => {
                       </div>
                     </div>
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={14}/> Shop Location on Map</label>
+                      <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={14}/> {formData.role === 'Service Provider' ? 'Service Area' : 'Shop Location'} on Map</label>
                       <ShopLocationPicker onLocationSelect={loc => setFormData({...formData, exactLocation: loc})} />
                     </div>
                   </motion.div>

@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema(
     industry: { type: String }, // Optional now since some roles might not need it
     role: { 
       type: String, 
-      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate'], 
+      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider'], 
       default: 'Customer' 
     },
     approvalStatus: {
