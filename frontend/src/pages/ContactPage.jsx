@@ -13,7 +13,7 @@ const contactInfo = [
     icon: MapPin,
     label: 'Head Office',
     value: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002',
-    href: 'https://maps.google.com/?q=RK+Towers+Krishnagiri',
+    href: 'https://www.google.com/maps/search/?api=1&query=RK+Towers+Krishnagiri+Tamil+Nadu+635002',
   },
   {
     icon: Phone,
@@ -127,7 +127,7 @@ const ContactPage = () => (
             <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-52">
               <iframe
                 title="Forge India Connect Location"
-                src="https://maps.google.com/maps?q=Krishnagiri,Tamil+Nadu&output=embed"
+                src="https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed"
                 className="w-full h-full"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
