@@ -166,7 +166,7 @@ const Navbar = () => {
             </div>
             <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase italic">
-                    <span className="text-primary dark:text-white">FORGE INDIA</span>
+                    <span className="bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-300">FORGE INDIA</span>
                 </span>
                 <div className="mt-1">
                    <AnimatedConnectText key={location.pathname} />
@@ -180,8 +180,8 @@ const Navbar = () => {
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
                   <div className="relative group py-4">
-                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[11px] uppercase tracking-[0.2em] transition-all">
-                      {link.name} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] uppercase tracking-[0.25em] transition-all">
+                      {link.name} <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
                     </button>
                     <div className="absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 w-72 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left">
                       <div className="grid grid-cols-1 gap-2">
@@ -208,7 +208,7 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="nav-link-underline text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[11px] uppercase tracking-[0.2em] transition-all"
+                    className="nav-link-underline text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] uppercase tracking-[0.25em] transition-all"
                   >
                     {link.name}
                   </Link>

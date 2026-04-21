@@ -607,7 +607,7 @@ const FICQuippy = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.92 }}
         onClick={() => setIsOpen(o => !o)}
-        className="fixed bottom-28 right-6 md:bottom-32 md:right-12 z-[998] w-[60px] h-[60px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
+        className="fixed bottom-28 left-6 md:bottom-32 md:left-12 z-[998] w-[60px] h-[60px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
         style={{
           background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
           boxShadow: '0 8px 32px rgba(99,102,241,0.4), 0 0 0 4px rgba(99,102,241,0.1)'
@@ -643,15 +643,15 @@ const FICQuippy = () => {
           <motion.div
             initial={{ opacity: 0, x: 20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
-            className="fixed bottom-36 right-24 md:bottom-40 md:right-28 z-[997] max-w-[200px]"
+            exit={{ opacity: 0, x: -20, scale: 0.9 }}
+            className="fixed bottom-36 left-24 md:bottom-40 md:left-28 z-[997] max-w-[200px]"
           >
             <div className="bg-white dark:bg-gray-900 p-3 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800">
               <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
                 👋 Hey! I'm <span className="text-violet-600 font-black">FIC Quippy</span>. Need help finding the right service?
               </p>
             </div>
-            <div className="absolute -bottom-1 right-4 w-3 h-3 bg-white dark:bg-gray-900 rotate-45 border-r border-b border-gray-100 dark:border-gray-800" />
+            <div className="absolute -bottom-1 left-4 w-3 h-3 bg-white dark:bg-gray-900 rotate-45 border-r border-b border-gray-100 dark:border-gray-800" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -660,11 +660,11 @@ const FICQuippy = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 30, x: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 30, x: 20 }}
+            exit={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed bottom-48 right-4 md:bottom-52 md:right-12 z-[998] w-[400px] max-w-[92vw] h-[550px] max-h-[70vh] flex flex-col overflow-hidden"
+            className="fixed bottom-48 left-4 md:bottom-52 md:left-12 z-[998] w-[400px] max-w-[92vw] h-[550px] max-h-[70vh] flex flex-col overflow-hidden"
             style={{
               background: QUIPPY_BG,
               borderRadius: '1.8rem',

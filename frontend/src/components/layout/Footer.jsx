@@ -55,6 +55,37 @@ const Footer = () => {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] translate-y-1/2" />
 
       <div className="container-xl relative z-10">
+        {/* Newsletter / CTA Section */}
+        <div className="mb-24 p-10 md:p-16 rounded-[4rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-3xl flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2 group-hover:bg-primary/30 transition-colors duration-700" />
+          
+          <div className="max-w-2xl relative z-10">
+            <h3 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight text-left">
+              Ready to Accelerate Your <br/>
+              <span className="text-secondary italic">Business Growth?</span>
+            </h3>
+            <p className="text-slate-400 text-lg font-medium leading-relaxed text-left">
+              Join 5,000+ professionals and enterprises receiving our weekly insights on recruitment, digital transformation, and market trends.
+            </p>
+          </div>
+
+          <div className="w-full lg:w-auto relative z-10">
+            <form className="flex flex-col sm:flex-row gap-4" onSubmit={(e) => e.preventDefault()}>
+              <input 
+                type="email" 
+                placeholder="Enter your work email"
+                className="px-8 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-primary transition-all text-white font-bold w-full sm:w-80"
+              />
+              <button className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:bg-indigo-600 transition-all uppercase tracking-widest text-[10px]">
+                Subscribe Now
+              </button>
+            </form>
+            <p className="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center lg:text-left">
+              No spam. Just value. Unsubscribe anytime.
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           
           {/* Brand Column */}
@@ -63,15 +94,15 @@ const Footer = () => {
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1 group-hover:rotate-12 transition-transform shadow-2xl">
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-lg" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-white font-black leading-none text-xl tracking-tighter">FORGE INDIA</span>
-                <span className="text-[10px] text-secondary font-black uppercase tracking-[0.2em] mt-1">Connect</span>
+              <div className="flex flex-col text-left">
+                <span className="text-white font-black leading-none text-xl tracking-tighter italic">FORGE INDIA</span>
+                <span className="text-[10px] text-secondary font-black uppercase tracking-[0.2em] mt-1">Connect Ecosystem</span>
               </div>
             </Link>
             
-            <p className="text-slate-400 text-lg leading-relaxed max-w-sm">
-              South India's premier gateway for career placement, business excellence, and digital transformation. 
-              Bridging talent with global opportunities.
+            <p className="text-slate-400 text-lg leading-relaxed max-w-sm text-left">
+              India's premier gateway for career placement, business excellence, and digital transformation. 
+              Bridging talent with global opportunities through a verified partner network.
             </p>
 
             <div className="flex gap-4">
@@ -79,6 +110,7 @@ const Footer = () => {
                 { icon: Facebook, href: 'https://www.facebook.com/people/Forge-India-Connect/61583095918027/', color: 'hover:bg-[#1877F2]' },
                 { icon: Linkedin, href: 'https://www.linkedin.com/company/forge-india-connect-pvt-ltd/', color: 'hover:bg-[#0A66C2]' },
                 { icon: Instagram, href: 'https://www.instagram.com/forgeindia_connect/', color: 'hover:bg-[#E4405F]' },
+                { icon: Globe, href: '#', color: 'hover:bg-primary' },
               ].map((social, i) => (
                 <a 
                   key={i} 
@@ -92,13 +124,13 @@ const Footer = () => {
               ))}
             </div>
 
-            <div className="p-6 bg-white/5 border border-white/10 rounded-3xl space-y-4">
+            <div className="p-8 bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl space-y-4">
                <div className="flex items-center gap-3 text-secondary">
                   <ShieldCheck size={20} />
-                  <span className="text-xs font-black uppercase tracking-widest text-white">Verified Platform</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-white">ISO 9001:2015 Certified</span>
                </div>
-               <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-                 ISO 9001:2015 Certified | Government Approved Job Consultancy | Trusted by 180+ Enterprise Partners.
+               <p className="text-[11px] text-slate-400 leading-relaxed font-medium text-left">
+                 Government Approved Job Consultancy | MSME Registered | Trusted by 180+ Enterprise Partners across South India.
                </p>
             </div>
           </div>
@@ -107,7 +139,7 @@ const Footer = () => {
           <div className="lg:col-span-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
               {footerLinks.map((group) => (
-                <div key={group.title}>
+                <div key={group.title} className="text-left">
                   <h4 className="text-white font-black text-sm uppercase tracking-widest mb-8 flex items-center gap-2">
                     <span className="w-2 h-2 bg-secondary rounded-full" />
                     {group.title}
@@ -130,11 +162,14 @@ const Footer = () => {
             </div>
 
             {/* Regional Offices Row */}
-            <div className="mt-16 pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="mt-16 pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               {branches.map(branch => (
-                <div key={branch.city} className="space-y-2">
+                <div key={branch.city} className="space-y-3 p-6 rounded-2xl bg-white/5 border border-transparent hover:border-white/10 transition-all">
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{branch.type}</p>
-                  <h5 className="text-white font-black text-lg">{branch.city}</h5>
+                  <h5 className="text-white font-black text-lg flex items-center gap-2">
+                    <MapPin size={16} className="text-primary" />
+                    {branch.city}
+                  </h5>
                   <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-slate-400 hover:text-secondary transition-colors text-sm font-bold flex items-center gap-2">
                     <Phone size={14} className="text-secondary" /> {branch.phone}
                   </a>
@@ -147,22 +182,19 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-6">
-            <p className="text-slate-500 text-xs font-bold">
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
               &copy; {currentYear} Forge India Connect Pvt. Ltd.
             </p>
             <div className="hidden sm:flex gap-4">
                <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-600 uppercase tracking-tighter">
                   <CheckCircle2 size={12} className="text-secondary" /> Skill India Partner
                </div>
-               <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-600 uppercase tracking-tighter">
-                  <CheckCircle2 size={12} className="text-secondary" /> MSME Registered
-               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6">
-            <Link to="/privacy" className="text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Privacy</Link>
-            <Link to="/terms" className="text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Terms</Link>
+          <div className="flex flex-wrap justify-center gap-8">
+            <Link to="/privacy" className="text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Terms of Service</Link>
             <button 
               onClick={() => {
                 localStorage.removeItem('fic_cookie_consent');
@@ -170,7 +202,7 @@ const Footer = () => {
               }} 
               className="text-slate-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors"
             >
-              Cookies
+              Cookie Settings
             </button>
           </div>
         </div>
