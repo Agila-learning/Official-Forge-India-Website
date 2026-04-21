@@ -45,6 +45,30 @@ const staticServices = {
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
     included: ['SEO & SEM Optimization', 'Social Media Management', 'Analytics Reporting'],
     excluded: ['Ad Spend', 'Content Production Fees']
+  },
+  'app-development': {
+    name: 'App Development',
+    description: 'High-performance mobile applications engineered for seamless user experiences on iOS and Android.',
+    price: 45000,
+    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80',
+    included: ['Native Swift & Kotlin Development', 'React Native & Flutter Hybrid Apps', 'Ultra-Low Latency Backend API', 'Biometric & Secure Payment Integration'],
+    excluded: ['App Store Fees', 'Third-party API Costs']
+  },
+  'website-development': {
+    name: 'Website Development',
+    description: 'Modern, scalable web platforms built with cutting-edge tech stacks like React, Next.js, and Node.js.',
+    price: 35000,
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    included: ['Dynamic & Responsive PWAs', 'E-commerce & Custom Marketplace', 'Headless CMS Integrations', 'SEO-First Architecture'],
+    excluded: ['Domain & Hosting', 'Premium Plugin Licenses']
+  },
+  'insurance-services': {
+    name: 'Insurance Services',
+    description: 'Comprehensive risk management and insurance solutions for corporate and individual safety.',
+    price: 5000,
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
+    included: ['Bespoke Health & Life Plans', 'Commercial Property & Asset Guard', 'Liability & Indemnity Coverage', 'Fast-track Claims Assistance'],
+    excluded: ['Premium Installments', 'Deductibles']
   }
 };
 

@@ -196,10 +196,10 @@ const HomeServices = () => {
                     <div className="max-w-3xl text-left">
                         <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
                             <span className="px-6 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-primary/20">Authorized Operational Hub</span>
-                            <h1 className="hero-title text-7xl md:text-[10rem] font-black mt-12 mb-12 uppercase tracking-tighter italic leading-[0.8] text-white">
-                                {uiConfig?.hero?.title || 'Advanced'} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 italic">{uiConfig?.hero?.highlightedText || 'Service'}</span> Engine.
+                            <h1 className="hero-title text-5xl md:text-7xl font-black mt-12 mb-12 uppercase tracking-tighter leading-[0.8] text-white">
+                                {uiConfig?.hero?.title || 'Advanced'} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">{uiConfig?.hero?.highlightedText || 'Service'}</span> Engine.
                             </h1>
-                            <p className="hero-sub text-2xl text-gray-400 font-medium leading-relaxed max-w-xl mb-16 italic">
+                            <p className="hero-sub text-lg text-gray-400 font-medium leading-relaxed max-w-xl mb-16">
                                 {uiConfig?.hero?.subtitle || 'Deploying industrial-grade domestic operational standards across elite residential sectors.'}
                             </p>
                             
@@ -244,8 +244,8 @@ const HomeServices = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-32">
                         <span className="text-primary font-black uppercase tracking-[0.5em] text-[10px]">Strategic Portfolio</span>
-                        <h2 className="text-6xl md:text-8xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic leading-none mt-6">
-                            Authorized <span className="text-primary italic">Sectors</span>.
+                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mt-6">
+                            Authorized <span className="text-primary">Sectors</span>.
                         </h2>
                     </div>
 
@@ -263,7 +263,7 @@ const HomeServices = () => {
                                     <div className={`w-20 h-20 bg-gradient-to-br ${cat.color} rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl`}>
                                         <cat.icon size={40} />
                                     </div>
-                                    <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-6">{cat.title}</h3>
+                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">{cat.title}</h3>
                                     <p className="text-gray-300 font-medium mb-10 leading-relaxed">{cat.desc}</p>
                                     
                                     <div className="space-y-4 mb-12">
@@ -342,7 +342,7 @@ const HomeServices = () => {
                                         <div className="px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[8px] font-black text-white uppercase tracking-[0.3em] italic">FIC Optimized</div>
                                     </div>
                                     
-                                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic mb-4 leading-tight">{s.name}</h3>
+                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-4 leading-tight">{s.name}</h3>
                                     <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-10 group-hover:line-clamp-none group-hover:mb-12 transition-all">{s.description}</p>
                                     
                                     <div className="flex justify-between items-center pt-8 border-t border-white/10">
@@ -371,8 +371,8 @@ const HomeServices = () => {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="mb-32">
                         <span className="text-primary font-black uppercase tracking-[0.8em] text-[10px]">Operational Protocol</span>
-                        <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter italic leading-none mt-8">
-                            Execution <span className="text-primary italic">Process</span>.
+                        <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mt-8">
+                            Execution <span className="text-primary">Process</span>.
                         </h2>
                     </div>
 
@@ -389,7 +389,7 @@ const HomeServices = () => {
                                 <div className="w-20 h-20 bg-primary/20 rounded-3xl flex items-center justify-center text-primary mb-10 shadow-2xl shadow-primary/10">
                                     <step.icon size={36} />
                                 </div>
-                                <h4 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-4">{step.title}</h4>
+                                <h4 className="text-lg font-black text-white uppercase tracking-tighter mb-4">{step.title}</h4>
                                 <p className="text-sm text-gray-500 font-medium leading-relaxed mb-12">{step.desc}</p>
                                 
                                 <div className="h-32 w-32 mx-auto">
@@ -407,11 +407,11 @@ const HomeServices = () => {
                     <div className="flex flex-col lg:flex-row items-center gap-32">
                         <div className="lg:w-1/2">
                             <span className="px-6 py-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-secondary/20">Industrial Standards</span>
-                            <h2 className="text-6xl md:text-9xl font-black mt-12 mb-12 text-gray-900 dark:text-white uppercase tracking-tighter italic leading-[0.8]">
-                                Impact <br/><span className="text-secondary italic">Differential</span>.
+                            <h2 className="text-5xl md:text-7xl font-black mt-12 mb-12 text-gray-900 dark:text-white uppercase tracking-tighter leading-[0.8]">
+                                Impact <br/><span className="text-secondary">Differential</span>.
                             </h2>
-                            <p className="text-2xl text-gray-500 font-medium leading-relaxed mb-16 italic">
-                                Observe the absolute variance in operational output. We don\'t just maintain; we restore assets to their peak strategic configuration.
+                            <p className="text-lg text-gray-500 font-medium leading-relaxed mb-16">
+                                Observe the absolute variance in operational output. We don't just maintain; we restore assets to their peak strategic configuration.
                             </p>
                             <div className="space-y-8">
                                 {['100% Sanitization Protocol', 'Industrial-Grade Reagents', 'Certified Mission Specialists'].map((item, idx) => (
@@ -419,7 +419,7 @@ const HomeServices = () => {
                                         <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
                                             <CheckCircle2 size={24} />
                                         </div>
-                                        <span className="text-xl font-black italic uppercase tracking-tighter text-gray-900 dark:text-white">{item}</span>
+                                        <span className="text-base font-black uppercase tracking-tighter text-gray-900 dark:text-white">{item}</span>
                                     </div>
                                 ))}
                             </div>
@@ -442,8 +442,8 @@ const HomeServices = () => {
             <section className="py-48 bg-gray-50 dark:bg-dark-bg">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-32">
-                        <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic leading-none mb-10 text-gray-900 dark:text-white">
-                            Client <span className="text-secondary italic">Briefings</span>.
+                        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-10 text-gray-900 dark:text-white">
+                            Client <span className="text-secondary">Briefings</span>.
                         </h2>
                     </div>
 
@@ -485,11 +485,11 @@ const HomeServices = () => {
                                     <div className="flex gap-12">
                                         <div>
                                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Protocol ID</span>
-                                            <span className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">FIC-{selectedService?._id?.toString().slice(-6).toUpperCase()}</span>
+                                            <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">FIC-{selectedService?._id?.toString().slice(-6).toUpperCase()}</span>
                                         </div>
                                         <div>
                                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Initiation Price</span>
-                                            <span className="text-lg font-black text-primary uppercase tracking-tighter italic">₹{selectedService.price}</span>
+                                            <span className="text-sm font-black text-primary uppercase tracking-tighter">₹{selectedService.price}</span>
                                         </div>
                                     </div>
                                     <button onClick={() => setSelectedService(null)} className="w-16 h-16 bg-gray-100 dark:bg-dark-bg rounded-2xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all">
