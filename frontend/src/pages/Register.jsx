@@ -196,25 +196,25 @@ const Register = () => {
             </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name</label>
-                  <input type="text" required placeholder="John" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="input-field !rounded-2xl py-4" />
+                  <input type="text" required placeholder="John" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="form-input !rounded-2xl py-4 w-full" />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 flex flex-col">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-                  <input type="text" placeholder="Doe" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="input-field !rounded-2xl py-4" />
+                  <input type="text" placeholder="Doe" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="form-input !rounded-2xl py-4 w-full" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                  <input type="email" required placeholder="john@example.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="input-field !rounded-2xl py-4" />
+                  <input type="email" required placeholder="john@example.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="form-input !rounded-2xl py-4" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile</label>
-                  <input type="tel" required placeholder="+91 00000 00000" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} className="input-field !rounded-2xl py-4" />
+                  <input type="tel" required placeholder="+91 00000 00000" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} className="form-input !rounded-2xl py-4" />
                 </div>
               </div>
 
@@ -234,7 +234,7 @@ const Register = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Secure Password</label>
-                  <input type="password" required placeholder="••••••••" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="input-field !rounded-2xl py-4" />
+                  <input type="password" required placeholder="••••••••" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="form-input !rounded-2xl py-4" />
                 </div>
               </div>
 
@@ -270,7 +270,7 @@ const Register = () => {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Domain</label>
-                        <select required value={formData.domainInterest} onChange={e => setFormData({...formData, domainInterest: e.target.value})} className="input-field !rounded-2xl py-4">
+                        <select required value={formData.domainInterest} onChange={e => setFormData({...formData, domainInterest: e.target.value})} className="form-input !rounded-2xl py-4">
                           <option value="IT">IT / Software</option>
                           <option value="Banking">Banking & Finance</option>
                           <option value="Manufacturing">Manufacturing</option>
@@ -304,11 +304,11 @@ const Register = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Business Name</label>
-                        <input type="text" required placeholder="FIC Enterprises" value={formData.businessName} onChange={e => setFormData({...formData, businessName: e.target.value})} className="input-field !rounded-2xl py-4" />
+                        <input type="text" required placeholder="FIC Enterprises" value={formData.businessName} onChange={e => setFormData({...formData, businessName: e.target.value})} className="form-input !rounded-2xl py-4" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">GST/TAX ID</label>
-                        <input type="text" required placeholder="29XXXXX..." value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} className="input-field !rounded-2xl py-4" />
+                        <input type="text" required placeholder="29XXXXX..." value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} className="form-input !rounded-2xl py-4" />
                       </div>
                     </div>
                     <div className="space-y-4">

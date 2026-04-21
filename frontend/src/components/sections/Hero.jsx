@@ -16,7 +16,7 @@ const segments = [
     cta: { label: 'Apply for Placement', to: '/jobs' },
     cta2: { label: 'Book Consultation', to: '/contact' },
     accent: 'from-indigo-600 to-indigo-900',
-    bg: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1920&auto=format&fit=crop',
+    bg: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1920&auto=format&fit=crop',
     stats: [
       { v: '2,400+', l: 'Candidates Placed' },
       { v: '95%', l: 'Success Rate' },
@@ -32,7 +32,7 @@ const segments = [
     cta: { label: 'Hire Through FIC', to: '/contact' },
     cta2: { label: 'View Plans', to: '/services' },
     accent: 'from-teal-600 to-teal-900',
-    bg: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1920&auto=format&fit=crop',
+    bg: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1920&auto=format&fit=crop',
     stats: [
       { v: '180+', l: 'Hiring Partners' },
       { v: '48 hrs', l: 'Avg. Turnaround' },
@@ -48,7 +48,7 @@ const segments = [
     cta: { label: 'Start Partnership', to: '/contact' },
     cta2: { label: 'Learn More', to: '/services' },
     accent: 'from-violet-600 to-violet-900',
-    bg: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1920&auto=format&fit=crop',
+    bg: 'https://images.unsplash.com/photo-1523240715639-963c6a0289bc?q=80&w=1920&auto=format&fit=crop',
     stats: [
       { v: '40+', l: 'College Partners' },
       { v: '3,000+', l: 'Students Trained' },
@@ -64,7 +64,7 @@ const segments = [
     cta: { label: 'Explore Services', to: '/services' },
     cta2: { label: 'Get a Quote', to: '/contact' },
     accent: 'from-amber-600 to-amber-900',
-    bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1920&auto=format&fit=crop',
+    bg: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1920&auto=format&fit=crop',
     stats: [
       { v: '500+', l: 'Business Clients' },
       { v: '10+', l: 'Service Categories' },

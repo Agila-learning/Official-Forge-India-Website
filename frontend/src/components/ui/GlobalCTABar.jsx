@@ -7,16 +7,7 @@ import { Phone, MessageCircle, Briefcase, X, ChevronUp } from 'lucide-react';
  * Floating WhatsApp button (desktop) + sticky bottom CTA strip (mobile)
  */
 const GlobalCTABar = () => {
-  const [showScroll, setShowScroll] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setShowScroll(window.scrollY > 400);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const WA_NUMBER = '919080005550'; // Replace with actual WhatsApp number
   const WA_MSG = encodeURIComponent('Hi! I found FIC online and would like to know more about your services.');
@@ -25,21 +16,7 @@ const GlobalCTABar = () => {
     <>
       {/* ── Desktop: WhatsApp FAB ── */}
       <div className="hidden md:flex fixed bottom-8 right-8 z-50 flex-col items-end gap-3">
-        {/* Scroll to top */}
-        <AnimatePresence>
-          {showScroll && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              onClick={scrollToTop}
-              className="w-11 h-11 rounded-full bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center shadow-xl hover:bg-primary transition-colors"
-              aria-label="Scroll to top"
-            >
-              <ChevronUp size={20} />
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {/* WhatsApp & Call Actions */}
 
         {/* Expanded Action Panel */}
         <AnimatePresence>

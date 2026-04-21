@@ -172,7 +172,7 @@ const Login = () => {
                         <input 
                           type="email" required placeholder="name@company.com"
                           value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
-                          className="input-field pl-16 py-5 !rounded-2xl"
+                          className="form-input pl-16 py-5 !rounded-2xl w-full"
                         />
                       </div>
                     </div>
@@ -186,7 +186,7 @@ const Login = () => {
                         <input 
                           type="password" required placeholder="••••••••"
                           value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
-                          className="input-field pl-16 py-5 !rounded-2xl"
+                          className="form-input pl-16 py-5 !rounded-2xl w-full"
                         />
                       </div>
                     </div>
@@ -204,7 +204,7 @@ const Login = () => {
                           <input 
                             type="tel" required placeholder="+91 00000 00000"
                             value={formData.mobile} onChange={(e) => setFormData({...formData, mobile: e.target.value})}
-                            className="input-field pl-16 py-5 !rounded-2xl"
+                            className="form-input pl-16 py-5 !rounded-2xl"
                           />
                         </div>
                         {!status.otpSent && (
@@ -223,7 +223,7 @@ const Login = () => {
                         <input 
                           type="text" required maxLength="6" placeholder="000000"
                           value={formData.otp} onChange={(e) => setFormData({...formData, otp: e.target.value})}
-                          className="input-field py-5 !rounded-2xl text-center tracking-[1em] font-black"
+                          className="form-input py-5 !rounded-2xl text-center tracking-[1em] font-black"
                         />
                         <button type="button" onClick={handleSendOTP} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline ml-1">Resend Code?</button>
                       </motion.div>

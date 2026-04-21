@@ -11,13 +11,13 @@ import Contact from '../components/sections/Contact';
 import LocationMap from '../components/sections/LocationMap';
 import MetricsSection from '../components/sections/MetricsSection';
 import SEOMeta from '../components/ui/SEOMeta';
-
 import LogoMarquee from '../components/ui/LogoMarquee';
 import PipelineProcess from '../components/sections/PipelineProcess';
 import ServiceCoverage from '../components/sections/ServiceCoverage';
 import PlacedCandidates from '../components/sections/PlacedCandidates';
 import VisualFlow from '../components/sections/VisualFlow';
 import WelcomeModal from '../components/ui/WelcomeModal';
+import GSAPReveal from '../components/ui/GSAPReveal';
 
 const Home = () => {
   return (
@@ -31,25 +31,61 @@ const Home = () => {
       <div className="pt-16">
         <Hero />
         <WelcomeModal />
-        <MetricsSection />
-        <VisualFlow />
-        <About />
-        <PipelineProcess />
-        <Services />
+        
+        <GSAPReveal delay={0.2}>
+          <MetricsSection />
+        </GSAPReveal>
+
+        <GSAPReveal direction="left">
+          <VisualFlow />
+        </GSAPReveal>
+
+        <GSAPReveal direction="right">
+          <About />
+        </GSAPReveal>
+
+        <GSAPReveal>
+          <PipelineProcess />
+        </GSAPReveal>
+
+        <GSAPReveal direction="up">
+          <Services />
+        </GSAPReveal>
+
         <LogoMarquee />
-        <Features />
-        <Industries />
-        <Events />
+
+        <GSAPReveal direction="left">
+          <Features />
+        </GSAPReveal>
+
+        <GSAPReveal direction="right">
+          <Industries />
+        </GSAPReveal>
+
+        <GSAPReveal>
+          <Events />
+        </GSAPReveal>
+
         <div id="placed">
-          <PlacedCandidates />
+          <GSAPReveal direction="up">
+            <PlacedCandidates />
+          </GSAPReveal>
         </div>
+
         <div id="testimonials">
-          <Testimonials />
+          <GSAPReveal>
+            <Testimonials />
+          </GSAPReveal>
         </div>
-        <CTA />
+
+        <GSAPReveal>
+          <CTA />
+        </GSAPReveal>
+
         <div id="contact">
           <Contact />
         </div>
+        
         <ServiceCoverage />
         <LocationMap />
       </div>
