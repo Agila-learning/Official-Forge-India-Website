@@ -1,170 +1,126 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, MessageCircle, Search } from 'lucide-react';
-import api from '../services/api';
-import CTA from '../components/sections/CTA';
+import { ChevronDown } from 'lucide-react';
 
-const FAQItem = ({ faq, index, isOpen, toggleOpen }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className={`border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden bg-white dark:bg-dark-card transition-all ${isOpen ? 'shadow-lg shadow-primary/5 border-primary/20' : 'hover:border-primary/30'}`}
+const faqs = [
+  {
+    q: 'How does the job consulting process work at FIC?',
+    a: 'Our process has 5 steps: Registration → Document Verification → Profile Processing → Interview Support → Placement Confirmation. From the moment you register, our dedicated counsellors guide you through each stage. Standard processing takes 5–10 business days.',
+  },
+  {
+    q: 'What sectors do you place candidates in?',
+    a: 'We specialize in Banking & Finance (HDFC, ICICI, Axis, Kotak), Information Technology, BPO & Customer Service, Manufacturing, Automobile, and General Management roles. We have active hiring partnerships across Chennai, Krishnagiri, Bangalore, and beyond.',
+  },
+  {
+    q: 'What is the registration fee for job consulting?',
+    a: 'For our Premium Placement program, a one-time registration fee of ₹1,500 applies. This covers document verification, profile creation, resume building assistance, and guaranteed interview scheduling with our partner companies.',
+  },
+  {
+    q: 'How can employers post jobs and hire through FIC?',
+    a: 'Employers can contact us via the "Hire Through FIC" form or call directly. We offer end-to-end recruitment: job description crafting, candidate screening, background verification, and final shortlisting — typically delivering 3–5 interview-ready candidates within 48 hours.',
+  },
+  {
+    q: 'Do you offer college placement programs?',
+    a: 'Yes! FIC partners with degree colleges, polytechnics, and training institutes for bulk campus placement drives. We handle the entire process: pre-placement talks, aptitude sessions, mock interviews, and final placement coordination.',
+  },
+  {
+    q: 'What digital services do you offer for businesses?',
+    a: 'Our business services include Website & App Development, SEO & Digital Marketing, Social Media Management, Google Ads campaigns, Insurance Services, and Home Services booking platform. Contact us for a customized quote.',
+  },
+  {
+    q: 'Is there a refund policy for the registration fee?',
+    a: 'Yes. If we are unable to schedule a minimum of 3 interviews within 30 days of profile activation, you are eligible for a full refund. Our goal is your placement, and we stand behind that commitment.',
+  },
+  {
+    q: 'How do I track my application status?',
+    a: 'After registration, you will receive access to your Candidate Dashboard where you can track document verification status, interview schedules, and placement progress in real time.',
+  },
+];
+
+const FAQItem = ({ faq, isOpen, onToggle }) => (
+  <div className={`border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? 'shadow-lg shadow-primary/5' : ''}`}>
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors min-h-[44px]"
+      aria-expanded={isOpen}
     >
-      <button 
-        onClick={toggleOpen}
-        className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+      <span className={`font-bold text-sm sm:text-base leading-snug transition-colors ${isOpen ? 'text-primary' : 'text-slate-800 dark:text-slate-100'}`}>
+        {faq.q}
+      </span>
+      <motion.div
+        animate={{ rotate: isOpen ? 180 : 0 }}
+        transition={{ duration: 0.25 }}
+        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isOpen ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
       >
-        {/* Index chip */}
-        <span className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black mr-4 transition-colors ${isOpen ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>
-          {String(index + 1).padStart(2, '0')}
-        </span>
-        <h3 className={`text-lg font-bold flex-1 pr-6 transition-colors ${isOpen ? 'text-primary' : 'text-gray-900 dark:text-white'}`}>
-            {faq.question}
-        </h3>
-        <motion.div 
-            animate={{ rotate: isOpen ? 180 : 0 }} 
-            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isOpen ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}
-        >
-            <ChevronDown size={20} />
-        </motion.div>
-      </button>
+        <ChevronDown size={16} />
+      </motion.div>
+    </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-          >
-            <div className="px-6 pb-6 text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-              {faq.answer}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-};
+    <AnimatePresence initial={false}>
+      {isOpen && (
+        <motion.div
+          key="content"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
+          <div className="px-6 pb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-4">
+              {faq.a}
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
 const FAQ = () => {
-  const [faqs, setFaqs] = useState([]);
   const [openIndex, setOpenIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const fetchFaqs = async () => {
-      try {
-        const { data } = await api.get('/faqs');
-        setFaqs(data);
-      } catch (err) {
-        console.error('Failed to fetch FAQs', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFaqs();
-  }, []);
-
-  const filteredFaqs = faqs.filter(faq =>
-    faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
-    <div className="pt-32 pb-24 bg-white dark:bg-dark-bg min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-primary/10 text-primary mb-8"
-          >
-             <MessageCircle size={40} />
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-black mb-6 tracking-tighter text-gray-900 dark:text-white"
-          >
-            Frequently Asked <span className="animated-text-gradient">Questions</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-gray-500 dark:text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed"
-          >
-            Find comprehensive answers to the most common questions about Forge India Connect's placement services, technology solutions, and global partnerships.
-          </motion.p>
+    <section className="section-padding bg-white dark:bg-dark-bg" id="faq" aria-label="Frequently Asked Questions">
+      <div className="container-xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          {/* Left */}
+          <div className="lg:sticky lg:top-32">
+            <span className="section-eyebrow">FAQs</span>
+            <h2 className="section-title">Everything you need to know</h2>
+            <div className="section-divider !mx-0" />
+            <p className="section-subtitle mt-4 mb-8">
+              Can't find your answer? Contact our team directly — we typically respond within 2 business hours.
+            </p>
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-4">
+              <a
+                href="https://wa.me/919876543210"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary gap-3"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp Us
+              </a>
+              <a href="/contact" className="btn-outline">
+                Send a Message
+              </a>
+            </div>
+          </div>
+
+          {/* Right — FAQs */}
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <FAQItem
+                key={i}
+                faq={faq}
+                isOpen={openIndex === i}
+                onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+              />
+            ))}
+          </div>
         </div>
-
-        {/* Live Search Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="relative mb-10"
-        >
-          <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search questions..."
-            value={searchQuery}
-            onChange={e => { setSearchQuery(e.target.value); setOpenIndex(-1); }}
-            className="w-full pl-14 pr-6 py-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card text-gray-900 dark:text-white placeholder-gray-400 font-medium outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all shadow-sm"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors text-sm font-bold"
-            >
-              Clear
-            </button>
-          )}
-        </motion.div>
-
-        {loading ? (
-           <div className="flex justify-center items-center py-20">
-               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-           </div>
-        ) : (
-           <div className="space-y-4 mb-24">
-             {filteredFaqs.length > 0 ? (
-                 filteredFaqs.map((faq, index) => (
-                   <FAQItem 
-                     key={faq._id} 
-                     faq={faq}
-                     index={index}
-                     isOpen={openIndex === index} 
-                     toggleOpen={() => setOpenIndex(openIndex === index ? -1 : index)} 
-                   />
-                 ))
-             ) : (
-                 <motion.div
-                   initial={{ opacity: 0 }}
-                   animate={{ opacity: 1 }}
-                   className="text-center py-12 bg-gray-50 dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800"
-                 >
-                    <Search size={36} className="mx-auto text-gray-300 mb-4" />
-                    <p className="text-gray-500 font-bold text-lg">
-                      {faqs.length === 0 ? 'No FAQs available at the moment.' : `No results for "${searchQuery}"`}
-                    </p>
-                    {searchQuery && (
-                      <button onClick={() => setSearchQuery('')} className="mt-4 text-primary font-bold text-sm hover:underline">
-                        Clear search
-                      </button>
-                    )}
-                 </motion.div>
-             )}
-           </div>
-        )}
       </div>
-      <CTA />
-    </div>
+    </section>
   );
 };
 

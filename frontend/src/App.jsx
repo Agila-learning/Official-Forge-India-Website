@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -29,6 +30,8 @@ import JobPortal from './pages/JobPortal/JobPortal';
 import HomeServices from './pages/HomeServices/HomeServices';
 import EmployerDashboard from './pages/JobPortal/EmployerDashboard';
 import ServiceWizard from './components/ui/ServiceWizard';
+import ContactPage from './pages/ContactPage';
+import ServicesPage from './pages/ServicesPage';
 
 import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
@@ -42,6 +45,7 @@ import ServiceDetails from './pages/ServiceDetails';
 import LocationPermissionModal from './components/ui/LocationPermissionModal';
 import TrackMission from './pages/TrackMission';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import GlobalCTABar from './components/ui/GlobalCTABar';
 import { NotificationProvider } from './context/NotificationContext';
 
 import { AnimatePresence } from 'framer-motion';
@@ -71,10 +75,10 @@ const ContentWrapper = ({ loading }) => {
   }, []);
 
   return (
-    <div className={`min-h-screen font-sans bg-white dark:bg-dark-bg text-gray-900 dark:text-dark-text flex flex-col transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-screen font-sans bg-white dark:bg-dark-bg text-slate-800 dark:text-dark-text flex flex-col transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
       {!shouldHide && <Navbar />}
       <ScrollToTop />
-      {userInfo?.role !== 'Admin' && userInfo?.role !== 'Vendor' && <WhatsAppWidget />}
+      {!shouldHide && <GlobalCTABar />}
       {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}
       {!userInfo && <FICQuippy />}
       {(!userInfo && location.pathname === '/') && <CookieConsent />}
@@ -108,12 +112,12 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/services/:serviceId" element={<ServicePage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/:id" element={<ServiceDetails />} />
           <Route path="/clientele" element={<Clientele />} />
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/services" element={<ExploreShop />} />
-          <Route path="/services/:id" element={<ServiceDetails />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/vendor" element={<ProtectedRoute allowedRoles={['Vendor', 'Admin']}><VendorDashboard /></ProtectedRoute>} />
           <Route path="/hr" element={<ProtectedRoute allowedRoles={['HR', 'Admin']}><HRDashboard /></ProtectedRoute>} />
           <Route path="/delivery" element={<ProtectedRoute allowedRoles={['Delivery Partner', 'Admin']}><DeliveryDashboard /></ProtectedRoute>} />
@@ -158,25 +162,27 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   return (
-    <Router future={{ 
-      v7_startTransition: true, 
-      v7_relativeSplatPath: true,
-      v7_fetcherPersist: true,
-      v7_normalizeFormMethod: true,
-      v7_partialHydration: true,
-      v7_skipActionErrorRevalidation: true
-    }}>
-      <NotificationProvider>
-        <Toaster position="top-right" reverseOrder={false} />
-        <SmoothScroll>
-          <CustomCursor />
-          <AnimatePresence mode="wait">
+    <HelmetProvider>
+      <Router future={{ 
+        v7_startTransition: true, 
+        v7_relativeSplatPath: true,
+        v7_fetcherPersist: true,
+        v7_normalizeFormMethod: true,
+        v7_partialHydration: true,
+        v7_skipActionErrorRevalidation: true
+      }}>
+        <NotificationProvider>
+          <Toaster position="top-right" reverseOrder={false} />
+          <SmoothScroll>
+            <CustomCursor />
+            <AnimatePresence mode="wait">
               {loading && <LoadingScreen key="loader" onComplete={() => setLoading(false)} />}
-          </AnimatePresence>
-          <ContentWrapper loading={loading} />
-        </SmoothScroll>
-      </NotificationProvider>
-    </Router>
+            </AnimatePresence>
+            <ContentWrapper loading={loading} />
+          </SmoothScroll>
+        </NotificationProvider>
+      </Router>
+    </HelmetProvider>
   );
 }
 

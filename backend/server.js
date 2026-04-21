@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+dotenv.config();
+
 const http = require('http');
 const { Server } = require('socket.io');
 const helmet = require('helmet');
@@ -37,8 +39,6 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const jobConsultingRoutes = require('./routes/jobConsultingRoutes');
 const Message = require('./models/Message');
 const path = require('path');
-
-dotenv.config();
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india_connect');
 

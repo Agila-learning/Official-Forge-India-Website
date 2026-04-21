@@ -1,164 +1,128 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
-  Briefcase, 
-  ShieldCheck, 
-  BarChart3, 
-  Gamepad2, 
-  Globe, 
-  ArrowRight,
-  Sparkles
+  Briefcase, ShieldCheck, BarChart3, 
+  Gamepad2, Globe, ArrowRight, Sparkles, Wrench
 } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const services = [
-  { title: 'Job Consulting', desc: 'Expert guidance for your career paths and opportunities.', icon: Briefcase, color: 'text-blue-500', slug: 'job-consulting' },
-  { title: 'Insurance Services', desc: 'Secure your future and business with premium plans.', icon: ShieldCheck, color: 'text-green-500', slug: 'insurance-services' },
-  { title: 'Digital Marketing', desc: 'Data-driven marketing to scale your brand presence.', icon: BarChart3, color: 'text-purple-500', slug: 'digital-marketing' },
-  { title: 'App Development', desc: 'High-performance mobile applications for iOS & Android.', icon: Gamepad2, color: 'text-red-500', slug: 'app-development' },
-  { title: 'Website Development', desc: 'Modern, scalable web platforms built for speed.', icon: Globe, color: 'text-primary', slug: 'website-development' },
+  { 
+    title: 'Job Consulting', 
+    desc: 'Expert placement services for IT, Banking, and Core Engineering sectors across South India.', 
+    icon: Briefcase, 
+    slug: 'job-consulting',
+    color: 'from-blue-500/20 to-indigo-500/20'
+  },
+  { 
+    title: 'Digital Marketing', 
+    desc: 'Full-funnel strategies, SEO, and social commerce solutions to scale your business footprint.', 
+    icon: BarChart3, 
+    slug: 'digital-marketing',
+    color: 'from-purple-500/20 to-pink-500/20'
+  },
+  { 
+    title: 'Web & App Dev', 
+    desc: 'Modern, scalable digital platforms built with cutting-edge tech stacks by Antigraviity.', 
+    icon: Gamepad2, 
+    slug: 'website-development',
+    color: 'from-emerald-500/20 to-teal-500/20'
+  },
+  { 
+    title: 'Insurance', 
+    desc: 'Comprehensive life and business insurance plans through our verified partner networks.', 
+    icon: ShieldCheck, 
+    slug: 'insurance-services',
+    color: 'from-amber-500/20 to-orange-500/20'
+  },
+  { 
+    title: 'Home Services', 
+    desc: 'Book verified experts for maintenance, cleaning, and professional domestic assistance.', 
+    icon: Wrench, 
+    slug: 'home-services',
+    color: 'from-sky-500/20 to-blue-500/20'
+  }
 ];
 
 const Services = () => {
-  const sectionRef = useRef(null);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    let ctx = gsap.context(() => {
-      // Background Parallax
-      gsap.to(".bg-circle", {
-        y: 100,
-        opacity: 0.5,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 2
-        }
-      });
-
-      // Entrance Animation for Header
-      gsap.from(".services-header > *", {
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".services-header",
-          start: "top 90%",
-        }
-      });
-
-      // Cinematic Card Entrance - Refined for robustness
-      const cards = gsap.utils.toArray(".service-card");
-      if (cards.length > 0) {
-        gsap.fromTo(cards, 
-          { 
-            y: 40, 
-            opacity: 0, 
-            filter: "blur(15px)"
-          },
-          {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.2,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: ".services-grid",
-              start: "top 95%",
-              toggleActions: "play none none none",
-              once: true
-            }
-          }
-        );
-      }
-      
-      // Delayed refresh to handle Lenis initialization
-      setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 500);
-
-      // Safety Fallback: Ensure visibility even if ScrollTrigger fails
-      setTimeout(() => {
-        gsap.to(".service-card", {
-          opacity: 1,
-          filter: "blur(0px)",
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-      }, 3000);
-
-      // Continuous Floating
-      gsap.to(".service-icon", {
-        y: -15,
-        rotation: 5,
-        duration: 2.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: {
-          each: 0.5,
-          from: "random"
-        }
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section id="services" ref={sectionRef} className="relative py-24 bg-[#020617] overflow-hidden flex flex-col justify-center border-t border-white/5">
-      {/* Background Cinematic Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="bg-circle absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full"></div>
-        <div className="bg-circle absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-primary/10 blur-[150px] rounded-full"></div>
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10 mb-20 services-header">
-        <div className="text-center">
-          <h2 className="text-sm font-black text-secondary uppercase tracking-[0.3em] mb-4">Industrial Solutions</h2>
-          <h3 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-6">Expert Services <span className="animated-text-gradient">Engineered</span> for Scale</h3>
-          <p className="text-zinc-400 font-medium max-w-2xl mx-auto text-lg leading-relaxed">Access verified industry expertise through our specialized service hubs.</p>
+    <section id="services" className="py-24 bg-white dark:bg-dark-bg overflow-hidden border-t border-slate-100 dark:border-slate-800">
+      <div className="container-xl">
+        <div className="section-header !items-start !text-left lg:!items-center lg:!text-center">
+          <span className="section-eyebrow">Enterprise Solutions</span>
+          <h2 className="section-title">Verified Services for <span className="text-primary">Growth.</span></h2>
+          <p className="section-subtitle lg:mx-auto">Access a curated ecosystem of professional services designed to solve industrial and domestic challenges.</p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10 services-grid">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, idx) => (
-            <Link 
-              key={idx} 
-              to={`/services/${service.slug}`}
-              style={{ opacity: 1, visibility: 'visible' }}
-              className={`service-card group relative bg-white/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-white/10 hover:border-primary/50 transition-all duration-700 overflow-hidden flex flex-col justify-between shadow-2xl shadow-black/50`}
-            >
-               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-               
-               <div className="relative z-10">
-                  <div className="service-icon w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-8 border border-primary/20 group-hover:bg-primary transition-colors duration-500">
-                    <service.icon size={36} className={`${service.color} group-hover:text-white transition-colors`} />
+        {/* Desktop Grid / Mobile Scrollable */}
+        <div className="relative group">
+          {/* Scroll indicators for mobile */}
+          <div className="flex lg:hidden justify-end mb-4 gap-2">
+            <div className="w-8 h-1 bg-primary/20 rounded-full overflow-hidden">
+               <motion.div 
+                animate={{ x: [-32, 32] }} 
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="w-1/2 h-full bg-primary"
+               />
+            </div>
+            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Swipe to explore</span>
+          </div>
+
+          <div className="flex lg:grid lg:grid-cols-3 gap-6 overflow-x-auto lg:overflow-visible pb-12 lg:pb-0 hide-scrollbar snap-x snap-mandatory px-4 lg:px-0 -mx-4 lg:mx-0">
+            {services.map((service, idx) => (
+              <motion.div
+                key={service.slug}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="min-w-[280px] sm:min-w-[340px] lg:min-w-0 snap-center group"
+              >
+                <Link 
+                  to={`/services/${service.slug}`}
+                  className="block h-full bg-slate-50 dark:bg-dark-card border border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-10 hover:border-primary/30 hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
+                >
+                  {/* Decorative background */}
+                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${service.color} rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700`} />
+                  
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 bg-white dark:bg-dark-bg rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-primary group-hover:text-white transition-colors duration-500">
+                      <service.icon size={28} />
+                    </div>
+                    
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-4 group-hover:text-primary transition-colors">
+                      {service.title}
+                    </h3>
+                    
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-10">
+                      {service.desc}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">Learn More</span>
+                      <div className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:translate-x-1">
+                        <ArrowRight size={16} />
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-black text-white mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
-                  <p className="text-zinc-400 font-medium leading-relaxed mb-10 group-hover:text-zinc-300 transition-colors">{service.desc}</p>
-               </div>
-               
-               <div className="relative z-10 flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-widest text-zinc-500 group-hover:text-primary transition-colors">View Details</span>
-                  <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all transform group-hover:translate-x-2">
-                    <ArrowRight size={20} />
-                  </div>
-               </div>
-            </Link>
-          ))}
+                </Link>
+              </motion.div>
+            ))}
+            
+            {/* View All Card (Mobile only) */}
+            <div className="lg:hidden min-w-[280px] snap-center">
+              <Link 
+                to="/services"
+                className="h-full flex flex-col items-center justify-center gap-4 bg-primary rounded-[2.5rem] p-10 text-white text-center shadow-xl shadow-primary/20"
+              >
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                  <Sparkles size={32} />
+                </div>
+                <p className="font-black uppercase tracking-widest text-xs">Explore All Services</p>
+                <ArrowRight size={24} />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

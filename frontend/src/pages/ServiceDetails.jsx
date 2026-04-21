@@ -19,6 +19,7 @@ import {
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import SEOMeta from '../components/ui/SEOMeta';
 
 const ServiceDetails = () => {
     const { id } = useParams();
@@ -73,7 +74,13 @@ const ServiceDetails = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
+        <>
+            <SEOMeta 
+                title={`${service.name} | Professional Services | Forge India Connect`}
+                description={service.description || `Professional ${service.name} services by Forge India Connect. Verified partners, secure booking, and guaranteed quality.`}
+                canonical={`/services/${id}`}
+            />
+            <div className="min-h-screen bg-slate-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                     {/* Visual Section */}
@@ -270,7 +277,7 @@ const ServiceDetails = () => {
                     </div>
                 </section>
             </div>
-        </div>
+        </>
     );
 };
 

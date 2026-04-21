@@ -79,7 +79,7 @@ const OrderInvoice = ({ order }) => {
             </div>
 
             {/* Line Items */}
-            <div className="mb-12">
+            <div className="mb-12 mobile-table-scroll">
                 <table className="w-full text-left">
                     <thead>
                         <tr className="border-b border-gray-100 dark:border-gray-800">

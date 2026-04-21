@@ -1121,7 +1121,7 @@ const AdminDashboard = () => {
                         </form>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    <div className="mobile-table-scroll">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -1551,7 +1551,7 @@ const AdminDashboard = () => {
                 <h3 className="text-3xl font-black mb-1">All Customer Orders</h3>
                 <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.length} total orders</p>
               </div>
-              <div className="overflow-x-auto">
+              <div className="mobile-table-scroll">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -1631,7 +1631,7 @@ const AdminDashboard = () => {
                 <h3 className="text-3xl font-black mb-1">Global Job Applications</h3>
                 <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{data.applications?.length || 0} total applications</p>
               </div>
-              <div className="overflow-x-auto">
+              <div className="mobile-table-scroll">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
@@ -1776,7 +1776,7 @@ const AdminDashboard = () => {
                   </div>
                </div>
 
-               <div className="overflow-x-auto">
+               <div className="mobile-table-scroll">
                  <table className="w-full text-left">
                     <thead>
                        <tr className="border-b border-gray-100 dark:border-gray-800">

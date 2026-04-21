@@ -86,7 +86,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
                             </div>
 
                             {/* Table */}
-                            <div className="mb-16">
+                            <div className="mb-16 mobile-table-scroll">
                                 <table className="w-full text-left">
                                     <thead className="border-b-2 border-primary/20">
                                         <tr>

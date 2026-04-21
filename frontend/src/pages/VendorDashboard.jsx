@@ -441,7 +441,7 @@ const VendorDashboard = () => {
                     {view === 'orders' && (
                         <motion.div key="orders" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                             <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Product Order Logistics</h3>
-                            <div className="overflow-x-auto">
+                            <div className="mobile-table-scroll">
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-800">
