@@ -206,7 +206,7 @@ const INTENTS = {
   contact: {
     patterns: ['contact', 'phone', 'email', 'reach', 'call', 'whatsapp', 'talk to human', 'real person', 'speak to someone'],
     response: () => ({
-      text: `📞 **Contact Forge India Connect:**\n\n📱 **WhatsApp:** +91 6369406416\n📧 **Email:** info@forgeindia.com\n🌐 **Website:** forgeindia.com\n\nOur team is available Monday–Saturday, 9 AM to 7 PM IST.\n\nYou can also visit our **About Us** page for more details.`,
+      text: `📞 **Contact Forge India Connect:**\n\n📱 **WhatsApp:** +91 6369406416\n📧 **Email:** info@forgeindiaconnect.com\n🌐 **Website:** forgeindia.com\n\nOur team is available Monday–Saturday, 9 AM to 7 PM IST.\n\nYou can also visit our **About Us** page for more details.`,
       quickReplies: ['About Us', 'FAQ'],
       actions: [
         { label: 'About Us', route: '/about', icon: 'info' },
@@ -339,9 +339,9 @@ function buildResponse(intent, userInfo) {
     // Check if it's a specific service issue
     if (/\b(clean|paint|plumb|electric|repair|maintenance|it|consult|bank|insurance)\b/i.test(lowerMsg)) {
       return {
-        text: `I understand this is frustrating. 🕊️ For issues related to **FIC Home Services** or **Consulting**, our Mission Support Team is handling this with priority.\n\n📞 **FIC Hub Support:** +91 6369406416\n📧 **Official Email:** info@forgeindia.com\n\nPlease reach out directly, and we will dispatch a resolution team immediately.`,
+        text: `I understand this is frustrating. 🕊️ For issues related to **FIC Home Services** or **Consulting**, our Mission Support Team is handling this with priority.\n\n📞 **FIC Hub Support:** +91 6369406416\n📧 **Official Email:** info@forgeindiaconnect.com\n\nPlease reach out directly, and we will dispatch a resolution team immediately.`,
         quickReplies: ['Call Now', 'Send Email', 'All Services'],
-        actions: [{ label: 'Email Support', route: 'mailto:info@forgeindia.com', icon: 'info' }]
+        actions: [{ label: 'Email Support', route: 'mailto:info@forgeindiaconnect.com', icon: 'info' }]
       };
     }
 

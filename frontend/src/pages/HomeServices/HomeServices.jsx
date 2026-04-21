@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Wrench, ShieldCheck, Clock, ArrowRight, Zap, Droplets, Paintbrush, 
     LayoutDashboard, Sparkles, Search, MapPin, ChevronRight, XCircle, 
-    Shield, Target, Star, Filter, ArrowUpRight, Play, CheckCircle2, Users 
+    Shield, Target, Star, Filter, ArrowUpRight, Play, CheckCircle2, Users,
+    Home, Info, Briefcase, Camera, Microscope, Settings
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -12,6 +13,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BeforeAfterSlider from '../../components/ui/BeforeAfterSlider';
 import LiveActivityToast from '../../components/ui/LiveActivityToast';
 import ReviewCard from '../../components/ui/ReviewCard';
+import LottieAnimation from '../../components/ui/LottieAnimation';
+import toast from 'react-hot-toast';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +31,68 @@ const HomeServices = () => {
     const [trustCards, setTrustCards] = useState([]);
     const [categories, setCategories] = useState([]);
     const [testimonials, setTestimonials] = useState([]);
+
+    // Detailed Category Data
+    const detailedCategories = [
+        {
+            id: 'cleaning',
+            title: 'Sanitization & Deep Cleaning',
+            desc: 'Industrial-grade sterilization protocols for residential and commercial environments.',
+            image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop',
+            icon: Sparkles,
+            color: 'from-cyan-500 to-blue-600',
+            features: ['Bio-Hazard Control', 'Structural Sanitization', 'Air Quality Audit']
+        },
+        {
+            id: 'maintenance',
+            title: 'Strategic Maintenance',
+            desc: 'Preventative and reactive engineering for critical home systems (Electrical/Plumbing).',
+            image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop',
+            icon: Wrench,
+            color: 'from-orange-500 to-red-600',
+            features: ['Fault Diagnostics', 'System Optimization', '24/7 Rapid Response']
+        },
+        {
+            id: 'painting',
+            title: 'Surface Engineering',
+            desc: 'Precision aesthetic restoration and high-durability coating applications.',
+            image: 'https://images.unsplash.com/photo-1562033247-3c4c4ca25f05?q=80&w=2070&auto=format&fit=crop',
+            icon: Paintbrush,
+            color: 'from-purple-500 to-indigo-600',
+            features: ['Color Synthesis', 'Structural Finishing', 'Moisture Proofing']
+        }
+    ];
+
+    const executionProcess = [
+        {
+            step: '01',
+            title: 'Strategic Audit',
+            desc: 'Initial multi-point inspection and mission parameter mapping.',
+            icon: Search,
+            lottie: 'https://lottie.host/808605c4-0690-482a-a924-4e410b0e5138/9WzK6fV4pX.json'
+        },
+        {
+            step: '02',
+            title: 'Resource Deployment',
+            desc: 'Dispatching certified pros and industrial-grade equipment.',
+            icon: Briefcase,
+            lottie: 'https://lottie.host/f8b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
+        },
+        {
+            step: '03',
+            title: 'Precision Execution',
+            desc: 'Standardized delivery following FIC operational protocols.',
+            icon: Settings,
+            lottie: 'https://lottie.host/d6b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
+        },
+        {
+            step: '04',
+            title: 'Quality Verification',
+            desc: 'Final multi-stage audit and client strategic sign-off.',
+            icon: ShieldCheck,
+            lottie: 'https://lottie.host/e6b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
+        }
+    ];
 
     useEffect(() => {
         const fetchCMSData = async () => {
@@ -46,7 +111,7 @@ const HomeServices = () => {
                 setFilteredServices(list);
                 setUiConfig(configRes.data);
                 setCategories([{ name: 'All', id: 'all' }, ...catRes.data]);
-                setWorkflowSteps(workflowRes.data);
+                setWorkflowSteps(workflowRes.data.length > 0 ? workflowRes.data : executionProcess);
                 setTrustCards(trustRes.data);
                 setTestimonials(testRes.data.filter(t => t.isApproved));
                 setLoading(false);
@@ -75,6 +140,19 @@ const HomeServices = () => {
             gsap.from(".hero-title", { opacity: 0, y: 50, duration: 1, ease: "power4.out" });
             gsap.from(".hero-sub", { opacity: 0, y: 30, duration: 1, delay: 0.3, ease: "power4.out" });
             
+            // Category Cards Animation
+            gsap.from(".category-card", {
+                opacity: 0,
+                y: 100,
+                stagger: 0.2,
+                duration: 1,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: ".category-section",
+                    start: "top 80%",
+                }
+            });
+
             // Stats Counter Animation
             const stats = document.querySelectorAll(".stat-val");
             stats.forEach(stat => {
@@ -88,18 +166,6 @@ const HomeServices = () => {
                         start: "top 80%",
                     }
                 });
-            });
-
-            // Workflow Step Lines
-            gsap.from(".workflow-line", {
-                scaleX: 0,
-                duration: 1.5,
-                stagger: 0.5,
-                ease: "power2.inOut",
-                scrollTrigger: {
-                    trigger: ".workflow-section",
-                    start: "top 70%",
-                }
             });
         }
     }, [loading]);
@@ -115,103 +181,112 @@ const HomeServices = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-dark-bg font-inter pb-20 pt-20 overflow-x-hidden antialiased selection:bg-primary/30">
+        <div className="min-h-screen bg-white dark:bg-dark-bg font-outfit pb-20 pt-20 overflow-x-hidden antialiased selection:bg-primary/30">
             <LiveActivityToast />
 
             {/* Hero Section */}
-            <header className="relative py-32 px-6 overflow-hidden bg-[#0a0a0a]">
-                {/* Dynamic Media Background */}
-                <div className="absolute inset-0 z-0">
-                    {uiConfig?.hero?.backgroundMedia ? (
-                        uiConfig.hero.backgroundMedia.includes('youtube.com') || uiConfig.hero.backgroundMedia.includes('youtu.be') ? (
-                            <iframe 
-                                className="absolute inset-0 w-full h-full object-cover scale-150 pointer-events-none opacity-40"
-                                src={`https://www.youtube.com/embed/${uiConfig.hero.backgroundMedia.split('v=')[1]?.split('&')[0] || uiConfig.hero.backgroundMedia.split('/').pop()}?autoplay=1&mute=1&loop=1&playlist=${uiConfig.hero.backgroundMedia.split('v=')[1]?.split('&')[0] || uiConfig.hero.backgroundMedia.split('/').pop()}&controls=0&showinfo=0&rel=0&iv_load_policy=3`}
-                                frameBorder="0"
-                                allow="autoplay; encrypted-media"
-                            ></iframe>
-                        ) : (
-                            <video 
-                                autoPlay muted loop playsInline 
-                                className="absolute inset-0 w-full h-full object-cover opacity-40"
-                                src={uiConfig.hero.backgroundMedia}
-                            ></video>
-                        )
-                    ) : (
-                        <motion.div 
-                            animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                            transition={{ duration: 10, repeat: Infinity }}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/20 rounded-full blur-[150px]"
-                        ></motion.div>
-                    )}
+            <header className="relative py-48 px-6 overflow-hidden bg-[#050505]">
+                {/* Mesh Gradient Background */}
+                <div className="absolute inset-0 opacity-40">
+                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
                 </div>
 
-                <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center justify-between gap-20">
+                <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-24">
                     <div className="max-w-3xl text-left">
-                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                            <span className="px-6 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-primary/20 font-inter">Authorized Service Hub</span>
-                            <h1 className="hero-title text-7xl md:text-9xl font-black mt-8 mb-10 uppercase tracking-tighter italic leading-[0.9] text-white font-poppins">
-                                {uiConfig?.hero?.title || 'Precision'} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary italic">{uiConfig?.hero?.highlightedText || 'Home'}</span> Execution.
+                        <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
+                            <span className="px-6 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-primary/20">Authorized Operational Hub</span>
+                            <h1 className="hero-title text-7xl md:text-[10rem] font-black mt-12 mb-12 uppercase tracking-tighter italic leading-[0.8] text-white">
+                                {uiConfig?.hero?.title || 'Advanced'} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 italic">{uiConfig?.hero?.highlightedText || 'Service'}</span> Engine.
                             </h1>
-                            <p className="hero-sub text-xl text-gray-400 font-medium leading-relaxed max-w-xl mb-12">
-                                {uiConfig?.hero?.subtitle}
+                            <p className="hero-sub text-2xl text-gray-400 font-medium leading-relaxed max-w-xl mb-16 italic">
+                                {uiConfig?.hero?.subtitle || 'Deploying industrial-grade domestic operational standards across elite residential sectors.'}
                             </p>
                             
                             <div className="flex flex-wrap gap-8 items-center">
                                 <button 
                                     onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
-                                    className="px-12 py-7 bg-primary text-white rounded-[3rem] font-black uppercase tracking-widest text-xs shadow-3xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group"
+                                    className="px-12 py-8 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-[0_20px_50px_rgba(49,46,129,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-6 group"
                                 >
-                                    {uiConfig?.hero?.ctaText || 'Book Service in 30 Seconds'} <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                                    {uiConfig?.hero?.ctaText || 'Initialize Service Booking'} <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                                 </button>
                                 
-                                <div className="flex items-center gap-6">
+                                <div className="flex items-center gap-6 bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-md">
                                     <div className="flex -space-x-4">
-                                        {testimonials.slice(0, 3).map((t, idx) => (
-                                            <img key={idx} src={t.avatar || `https://i.pravatar.cc/150?u=${t.name}`} className="w-14 h-14 rounded-full border-4 border-[#0a0a0a] shadow-xl" alt="User" />
+                                        {[1, 2, 3].map((idx) => (
+                                            <img key={idx} src={`https://i.pravatar.cc/150?u=${idx}`} className="w-12 h-12 rounded-full border-2 border-[#050505] shadow-xl" alt="User" />
                                         ))}
                                     </div>
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2">
-                                            <Star size={16} className="fill-secondary text-secondary" />
-                                            <span className="text-white font-black text-lg">{uiConfig?.hero?.rating || '4.8'}/5</span>
+                                            <Star size={14} className="fill-secondary text-secondary" />
+                                            <span className="text-white font-black text-lg">4.9/5.0</span>
                                         </div>
-                                        <span className="text-gray-500 text-[10px] font-black uppercase tracking-widest leading-none mt-1">Authorized Reviews</span>
+                                        <span className="text-gray-500 text-[8px] font-black uppercase tracking-[0.2em]">Certified Reviews</span>
                                     </div>
                                 </div>
                             </div>
                         </motion.div>
                     </div>
 
-                    <div className="flex-1 w-full max-w-lg hidden lg:block">
-                        <div className="relative p-2 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-[5rem] shadow-4xl">
-                            <div className="p-12 bg-dark-card rounded-[4.5rem] border border-white/10 relative overflow-hidden group font-inter">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-[5rem]"></div>
-                                <h3 className="text-2xl font-bold text-white uppercase tracking-tighter mb-10 italic font-poppins">Standard <span className="text-primary italic">Status</span></h3>
-                                <div className="space-y-10">
-                                    {[
-                                        { label: 'Active Missions', val: '120+', color: 'text-green-500' },
-                                        { label: 'Certified Pros', val: '1,200', dataTarget: 1200 },
-                                        { label: 'Uptime Protocol', val: '99.9%', color: 'text-blue-500' }
-                                    ].map((s, i) => (
-                                        <div key={i} className="flex justify-between items-end border-b border-white/5 pb-4">
-                                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{s.label}</span>
-                                            <span className={`text-3xl font-black ${s.color || 'text-white'} italic tracking-tighter`}>
-                                                {s.dataTarget ? <span className="stat-val" data-target={s.dataTarget}>0</span> : s.val}
-                                                {s.dataTarget && '+'}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                    <div className="flex-1 w-full max-w-lg hidden lg:block relative">
+                         <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full"></div>
+                         <LottieAnimation 
+                            animationData="https://lottie.host/677f523c-7c05-4e78-9e63-718602522c71/fM1Jq6sYp2.json" 
+                            className="relative z-10 w-full h-full"
+                         />
                     </div>
                 </div>
             </header>
 
+            {/* Detailed Categories Section */}
+            <section className="category-section py-48 bg-white dark:bg-dark-bg overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-32">
+                        <span className="text-primary font-black uppercase tracking-[0.5em] text-[10px]">Strategic Portfolio</span>
+                        <h2 className="text-6xl md:text-8xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic leading-none mt-6">
+                            Authorized <span className="text-primary italic">Sectors</span>.
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                        {detailedCategories.map((cat, idx) => (
+                            <motion.div 
+                                key={cat.id}
+                                className="category-card group relative h-[50rem] rounded-[4rem] overflow-hidden shadow-4xl cursor-pointer"
+                                whileHover={{ y: -20 }}
+                            >
+                                <img src={cat.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt="" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent group-hover:via-black/60 transition-all"></div>
+                                
+                                <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                                    <div className={`w-20 h-20 bg-gradient-to-br ${cat.color} rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl`}>
+                                        <cat.icon size={40} />
+                                    </div>
+                                    <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-6">{cat.title}</h3>
+                                    <p className="text-gray-300 font-medium mb-10 leading-relaxed">{cat.desc}</p>
+                                    
+                                    <div className="space-y-4 mb-12">
+                                        {cat.features.map((f, i) => (
+                                            <div key={i} className="flex items-center gap-4 text-[10px] font-black text-white uppercase tracking-widest bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10">
+                                                <CheckCircle2 size={14} className="text-primary" /> {f}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button className="w-full py-6 bg-white text-dark-bg rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-4 hover:bg-primary hover:text-white transition-all">
+                                        Explore Scope <ArrowRight size={16} />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Smart Filter Bar */}
             <div className="sticky top-20 z-[100] px-6 mt-[-40px]">
-                <div className="max-w-7xl mx-auto bg-white/80 dark:bg-dark-card/90 backdrop-blur-3xl p-6 rounded-[3rem] border border-white/20 shadow-4xl flex flex-wrap items-center justify-between gap-6">
+                <div className="max-w-7xl mx-auto bg-white/80 dark:bg-dark-card/90 backdrop-blur-3xl p-6 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-5xl flex flex-wrap items-center justify-between gap-6">
                     <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2 md:pb-0">
                         {categories.map(cat => (
                             <button 
@@ -234,23 +309,11 @@ const HomeServices = () => {
                             className="w-full bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary/30 rounded-full pl-16 pr-8 py-5 outline-none font-bold text-sm transition-all"
                         />
                     </div>
-
-                    <button className="p-5 bg-gray-50 dark:bg-dark-bg rounded-full text-gray-400 hover:text-primary transition-colors flex items-center gap-3">
-                        <Filter size={20} />
-                        <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Advanced Config</span>
-                    </button>
                 </div>
             </div>
 
             {/* Service Grid Section */}
             <main id="services-grid" className="max-w-7xl mx-auto py-32 px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end gap-10 mb-24">
-                    <div className="max-w-2xl">
-                        <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic text-gray-900 dark:text-white font-poppins leading-[0.9]">Authorized <span className="text-primary italic">Capabilities</span></h2>
-                        <p className="text-[10px] md:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.5em] mt-6 leading-relaxed font-inter">Scientific Domestic Operation Infrastructure</p>
-                    </div>
-                </div>
-
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 animate-pulse">
                         {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-[34rem] bg-gray-100 dark:bg-dark-card rounded-[5rem]"></div>)}
@@ -264,97 +327,35 @@ const HomeServices = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: i * 0.1 }}
                                 viewport={{ once: true }}
-                                className="group relative h-[36rem] rounded-[5rem] overflow-hidden cursor-pointer shadow-3xl hover:shadow-4xl transition-all"
+                                className="group relative h-[38rem] rounded-[4.5rem] overflow-hidden cursor-pointer shadow-3xl hover:shadow-5xl hover:-translate-y-4 transition-all duration-500"
                             >
-                                {/* Service Image with Scale Effect */}
                                 <div className="absolute inset-0">
-                                    {s.hoverVideo ? (
-                                        <div className="w-full h-full relative">
-                                            <img 
-                                                src={s.image} 
-                                                className="w-full h-full object-cover group-hover:opacity-0 transition-opacity duration-700" 
-                                                alt={s.name} 
-                                            />
-                                            {s.hoverVideo.includes('youtube.com') || s.hoverVideo.includes('youtu.be') ? (
-                                                <iframe 
-                                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                                                    src={`https://www.youtube.com/embed/${s.hoverVideo.split('v=')[1]?.split('&')[0] || s.hoverVideo.split('/').pop()}?autoplay=1&mute=1&loop=1&playlist=${s.hoverVideo.split('v=')[1]?.split('&')[0] || s.hoverVideo.split('/').pop()}&controls=0&showinfo=0&rel=0`}
-                                                ></iframe>
-                                            ) : (
-                                                <video 
-                                                    muted loop playsInline
-                                                    onMouseOver={e => e.target.play()}
-                                                    onMouseOut={e => e.target.pause()}
-                                                    className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    src={s.hoverVideo}
-                                                ></video>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <img 
-                                            src={s.image} 
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3s] ease-out" 
-                                            alt={s.name} 
-                                        />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent group-hover:opacity-90 transition-opacity"></div>
+                                    <img src={s.image} className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110" alt="" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
                                 </div>
                                 
-                                {/* Overlay Details on Hover */}
-                                <div className="absolute top-10 right-10 flex flex-col gap-3 opacity-0 group-hover:opacity-100 translate-x-10 group-hover:translate-x-0 transition-all duration-500">
-                                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-3xl text-white">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Star size={12} className="fill-secondary text-secondary" />
-                                            <span className="text-xs font-black">{s.rating || '4.8'}</span>
-                                        </div>
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 leading-none">Rating</span>
-                                    </div>
-                                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-3xl text-white">
-                                        <div className="flex items-center gap-2 mb-1 text-xs font-black">
-                                            <Users size={12} className="text-primary" />
-                                            <span>{s.proCount || '45'}+</span>
-                                        </div>
-                                        <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 leading-none">Pros</span>
-                                    </div>
-                                </div>
-
                                 <div className="absolute inset-0 p-12 flex flex-col justify-end">
                                     <div className="flex justify-between items-start mb-8">
-                                        <div className={`w-20 h-20 ${getColor(s.serviceType)} rounded-[2.5rem] flex items-center justify-center text-white shadow-3xl shadow-black/50 group-hover:scale-110 transition-transform`}>
-                                            <Sparkles size={40} />
+                                        <div className={`w-16 h-16 ${getColor(s.serviceType)} rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:rotate-12 transition-transform`}>
+                                            <Sparkles size={32} />
                                         </div>
-                                        {s.badgeLabel && (
-                                            <div className="px-6 py-2 bg-secondary/20 text-secondary border border-secondary/30 rounded-full text-[9px] font-black uppercase tracking-widest italic">{s.badgeLabel}</div>
-                                        )}
+                                        <div className="px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[8px] font-black text-white uppercase tracking-[0.3em] italic">FIC Optimized</div>
                                     </div>
                                     
-                                    <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic mb-6 leading-none">
-                                        {s.name}
-                                    </h3>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic mb-4 leading-tight">{s.name}</h3>
+                                    <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-10 group-hover:line-clamp-none group-hover:mb-12 transition-all">{s.description}</p>
                                     
-                                    <p className="text-gray-400 font-medium text-sm leading-relaxed mb-10 line-clamp-2 group-hover:line-clamp-none group-hover:mb-12 transition-all">
-                                        {s.description}
-                                    </p>
-                                    
-                                    <div className="flex justify-between items-center pt-10 border-t border-white/10">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Budget Initial</span>
+                                    <div className="flex justify-between items-center pt-8 border-t border-white/10">
+                                        <div>
+                                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Project Initiation</span>
                                             <span className="text-2xl font-black text-white italic">₹{s.price}</span>
                                         </div>
-                                        <div className="flex gap-4">
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); setSelectedService(s); }}
-                                                className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-xl"
-                                            >
-                                                <ChevronRight size={28} />
-                                            </button>
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); navigate(`/home-services/booking/${s._id}`); }}
-                                                className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                                            >
-                                                Book Now
-                                            </button>
-                                        </div>
+                                        <button 
+                                            onClick={() => navigate(`/home-services/booking/${s._id}`)}
+                                            className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-2xl shadow-primary/20 flex items-center gap-3 hover:bg-blue-600 transition-all"
+                                        >
+                                            Book Now <ChevronRight size={14} />
+                                        </button>
                                     </div>
                                 </div>
                             </motion.div>
@@ -363,126 +364,36 @@ const HomeServices = () => {
                 )}
             </main>
 
-            {/* Before / After Showcase Section */}
-            <section className="py-48 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col lg:flex-row items-center gap-24">
-                        <div className="lg:w-1/2">
-                            <span className="px-6 py-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-secondary/20">{uiConfig?.standards?.subtitle || 'Operational Efficacy'}</span>
-                            <h2 className="text-6xl md:text-8xl font-black mt-10 mb-10 text-gray-900 dark:text-white uppercase tracking-tighter italic leading-[0.9]">
-                                {uiConfig?.standards?.sectionTitle?.split(' ')[0]} <br/><span className="text-secondary italic">{uiConfig?.standards?.sectionTitle?.split(' ').slice(1).join(' ')}</span>
-                            </h2>
-                            <p className="text-xl text-gray-500 font-medium leading-relaxed mb-12">
-                                {uiConfig?.standards?.description}
-                            </p>
-                            <div className="space-y-6">
-                                {uiConfig?.standards?.bulletPoints?.map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-6 group">
-                                        <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                                            <CheckCircle2 size={24} />
-                                        </div>
-                                        <span className="text-lg font-black italic uppercase tracking-tighter text-gray-900 dark:text-white">{item}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="lg:w-1/2 w-full">
-                            <BeforeAfterSlider 
-                                before={uiConfig?.standards?.comparisonBefore || "https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop"} 
-                                after={uiConfig?.standards?.comparisonAfter || "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=2070&auto=format&fit=crop"} 
-                                labelBefore={uiConfig?.standards?.labelBefore || "Initial State"}
-                                labelAfter={uiConfig?.standards?.labelAfter || "FIC Sanitized Profile"}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Precision Workflow Section */}
-            <section className="workflow-section py-48 bg-[#0a0a0a]">
-                <div className="max-w-7xl mx-auto px-6 text-center">
+            {/* Execution Process (GSAP & Lottie) */}
+            <section className="py-48 bg-[#0a0a0a] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/5 -skew-x-12 translate-x-20"></div>
+                
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="mb-32">
-                        <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter italic leading-none mb-10">
-                            The <span className="text-primary italic">Precision</span> Workflow.
+                        <span className="text-primary font-black uppercase tracking-[0.8em] text-[10px]">Operational Protocol</span>
+                        <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter italic leading-none mt-8">
+                            Execution <span className="text-primary italic">Process</span>.
                         </h2>
-                        <p className="text-[12px] font-black text-gray-500 uppercase tracking-[0.8em]">End-to-End Operational Traceability</p>
                     </div>
 
-                    <div className="relative">
-                        {/* Connecting Line (GSAP Animated) */}
-                        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2 hidden lg:block z-0"></div>
-                        <div className="workflow-line absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-primary to-secondary -translate-y-1/2 hidden lg:block z-10 origin-left"></div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 relative z-20">
-                            {workflowSteps.map((w, i) => (
-                                <motion.div 
-                                    key={i}
-                                    whileHover={{ scale: 1.05, y: -5 }}
-                                    className="p-8 lg:p-10 bg-white/5 backdrop-blur-3xl rounded-[3rem] lg:rounded-[3.5rem] border border-white/10 group hover:border-primary/50 transition-all text-center md:text-left"
-                                >
-                                    <div className="w-16 h-16 lg:w-20 lg:h-20 bg-primary/20 rounded-2xl lg:rounded-[2rem] flex items-center justify-center text-primary mb-6 lg:mb-8 mx-auto md:mx-0 shadow-2xl shadow-primary/20 group-hover:scale-110 transition-transform">
-                                        <span className="text-2xl lg:text-3xl font-black italic">{w.stepNumber}</span>
-                                    </div>
-                                    <h4 className="text-lg lg:text-xl font-black text-white uppercase tracking-tighter italic mb-4 font-poppins">{w.title}</h4>
-                                    <p className="text-[10px] lg:text-xs text-gray-500 font-bold leading-relaxed font-inter">{w.description}</p>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Transformation Showcase Gallery (Added for Success Stories) */}
-            <section className="py-48 bg-gray-50 dark:bg-dark-bg/40 font-inter">
-                <div className="max-w-7xl mx-auto px-6 text-center lg:text-left">
-                    <div className="flex flex-col lg:flex-row justify-between items-end gap-10 mb-32">
-                        <div className="max-w-3xl">
-                            <h2 className="text-5xl md:text-8xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic leading-none font-poppins">
-                                Transformation <span className="text-secondary italic">Gallery</span>.
-                            </h2>
-                            <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.5em] mt-8">Exceptional Mission Result Proofing</p>
-                        </div>
-                        <p className="lg:w-1/3 text-lg text-gray-500 font-medium leading-relaxed italic">
-                            Observe the absolute differential in domestic operational standards. We don't just maintain; we restore to original protocol.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
-                        {[
-                            {
-                                before: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2070&auto=format&fit=crop",
-                                after: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=2070&auto=format&fit=crop",
-                                title: "Sanitization Protocol",
-                                desc: "Deep structural sterilization of high-traffic commercial zones.",
-                                labelB: "Initial Bio-State",
-                                labelA: "FIC Certified Sterile"
-                            },
-                            {
-                                before: "https://images.unsplash.com/photo-1562033247-3c4c4ca25f05?q=80&w=2070&auto=format&fit=crop",
-                                after: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=2070&auto=format&fit=crop",
-                                title: "Structural Restoration",
-                                desc: "Full-spectrum surface engineering and aesthetic recovery.",
-                                labelB: "Worn Configuration",
-                                labelA: "Peak Operational Aesthetic"
-                            }
-                        ].map((item, idx) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                        {executionProcess.map((step, idx) => (
                             <motion.div 
                                 key={idx}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 1, delay: idx * 0.2 }}
-                                viewport={{ once: true }}
-                                className="space-y-10"
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.2 }}
+                                className="p-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3.5rem] group hover:border-primary transition-all relative overflow-hidden"
                             >
-                                <BeforeAfterSlider 
-                                    before={item.before} 
-                                    after={item.after} 
-                                    labelBefore={item.labelB}
-                                    labelAfter={item.labelA}
-                                />
-                                <div className="px-10">
-                                    <h4 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic mb-4 font-poppins">{item.title}</h4>
-                                    <p className="text-gray-500 font-medium leading-relaxed font-inter">{item.desc}</p>
+                                <div className="absolute -top-10 -right-10 text-[10rem] font-black text-white/5 italic">{step.step}</div>
+                                <div className="w-20 h-20 bg-primary/20 rounded-3xl flex items-center justify-center text-primary mb-10 shadow-2xl shadow-primary/10">
+                                    <step.icon size={36} />
+                                </div>
+                                <h4 className="text-2xl font-black text-white uppercase tracking-tighter italic mb-4">{step.title}</h4>
+                                <p className="text-sm text-gray-500 font-medium leading-relaxed mb-12">{step.desc}</p>
+                                
+                                <div className="h-32 w-32 mx-auto">
+                                     <LottieAnimation animationData={step.lottie} />
                                 </div>
                             </motion.div>
                         ))}
@@ -490,14 +401,50 @@ const HomeServices = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            <section className="py-48 bg-gray-50 dark:bg-dark-bg overflow-hidden">
+            {/* Before / After Showcase Section */}
+            <section className="py-48 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col lg:flex-row items-center gap-32">
+                        <div className="lg:w-1/2">
+                            <span className="px-6 py-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-secondary/20">Industrial Standards</span>
+                            <h2 className="text-6xl md:text-9xl font-black mt-12 mb-12 text-gray-900 dark:text-white uppercase tracking-tighter italic leading-[0.8]">
+                                Impact <br/><span className="text-secondary italic">Differential</span>.
+                            </h2>
+                            <p className="text-2xl text-gray-500 font-medium leading-relaxed mb-16 italic">
+                                Observe the absolute variance in operational output. We don\'t just maintain; we restore assets to their peak strategic configuration.
+                            </p>
+                            <div className="space-y-8">
+                                {['100% Sanitization Protocol', 'Industrial-Grade Reagents', 'Certified Mission Specialists'].map((item, idx) => (
+                                    <div key={idx} className="flex items-center gap-8 group">
+                                        <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
+                                            <CheckCircle2 size={24} />
+                                        </div>
+                                        <span className="text-xl font-black italic uppercase tracking-tighter text-gray-900 dark:text-white">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="lg:w-1/2 w-full">
+                            <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-[4rem] border border-gray-100 dark:border-gray-800 shadow-4xl">
+                                <BeforeAfterSlider 
+                                    before="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" 
+                                    after="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=2070&auto=format&fit=crop" 
+                                    labelBefore="Initial State"
+                                    labelAfter="FIC Optimized"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Testimonials */}
+            <section className="py-48 bg-gray-50 dark:bg-dark-bg">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-32">
-                        <h2 className="text-6xl font-black uppercase tracking-tighter italic leading-none mb-10 text-gray-900 dark:text-white">
-                            Mission <span className="text-secondary italic">Success</span> Stories.
+                        <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic leading-none mb-10 text-gray-900 dark:text-white">
+                            Client <span className="text-secondary italic">Briefings</span>.
                         </h2>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em]">Transparent Feedback Ecosystem</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -508,53 +455,7 @@ const HomeServices = () => {
                 </div>
             </section>
 
-            {/* Trust / FAQ Context */}
-            <section className="py-48 bg-white dark:bg-dark-card border-t border-gray-100 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-                        <div className="grid grid-cols-2 gap-8">
-                            {trustCards.map((item, idx) => (
-                                <motion.div 
-                                    key={idx}
-                                    whileHover={{ y: -10 }}
-                                    className="p-10 bg-gray-50 dark:bg-dark-bg rounded-[4rem] border border-gray-100 dark:border-gray-800 text-center shadow-xl"
-                                >
-                                    <ShieldCheck size={48} className="text-primary mx-auto mb-6" />
-                                    <h4 className="text-lg font-black uppercase tracking-tighter italic text-gray-900 dark:text-white mb-2">{item.title}</h4>
-                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.val}</span>
-                                </motion.div>
-                            ))}
-                            {trustCards.length === 0 && (
-                                <>
-                                    <div className="p-10 bg-gray-50 dark:bg-dark-bg rounded-[4rem] border border-gray-100 dark:border-gray-800 text-center shadow-xl opacity-50">
-                                        <ShieldCheck size={48} className="text-primary mx-auto mb-6" />
-                                        <h4 className="text-lg font-black uppercase tracking-tighter italic mb-2">Verified Pros</h4>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">100% Checked</span>
-                                    </div>
-                                    <div className="p-10 bg-gray-50 dark:bg-dark-bg rounded-[4rem] border border-gray-100 dark:border-gray-800 text-center shadow-xl opacity-50">
-                                        <Zap size={48} className="text-primary mx-auto mb-6" />
-                                        <h4 className="text-lg font-black uppercase tracking-tighter italic mb-2">Speed Ops</h4>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">60 Min Response</span>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                        <div className="lg:pr-20">
-                            <h2 className="text-6xl font-black uppercase tracking-tighter italic text-gray-900 dark:text-white mb-10 leading-none">
-                                Why Trust the <span className="text-primary italic">Connect</span> Network?
-                            </h2>
-                            <p className="text-xl text-gray-500 font-medium leading-relaxed mb-12 italic">
-                                We operate on a standardized framework of "Industrial Verification". Only the top 5% of service providers pass our multi-stage background and quality audit.
-                            </p>
-                            <button className="flex items-center gap-4 text-primary font-black uppercase tracking-[0.3em] text-xs hover:gap-8 transition-all group">
-                                Read our Safety Protocol <ChevronRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Service Detail Modal (Updated) */}
+            {/* Service Detail Modal */}
             <AnimatePresence>
                 {selectedService && (
                     <div className="fixed inset-0 z-[1000] flex items-center justify-center px-6">
@@ -563,93 +464,67 @@ const HomeServices = () => {
                             animate={{ opacity: 1 }} 
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedService(null)}
-                            className="absolute inset-0 bg-dark-bg/85 backdrop-blur-2xl"
+                            className="absolute inset-0 bg-dark-bg/90 backdrop-blur-3xl"
                         />
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            className="w-full max-w-5xl bg-white dark:bg-dark-card rounded-[5rem] border border-white/10 shadow-5xl relative overflow-hidden flex flex-col md:flex-row h-[85vh] md:h-auto"
+                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                            className="w-full max-w-6xl bg-white dark:bg-dark-card rounded-[5rem] border border-white/10 shadow-6xl relative overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
                         >
-                            <div className="md:w-2/5 relative">
+                            <div className="md:w-1/2 relative h-[40vh] md:h-auto">
                                 <img src={selectedService.image} className="w-full h-full object-cover" alt="" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-                                <div className="absolute inset-0 p-16 flex flex-col justify-between text-white">
-                                    <div className="w-24 h-24 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2.5rem] flex items-center justify-center">
-                                        <Sparkles size={48} />
-                                    </div>
-                                    <div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-4 block">Fulfillment Protocol</span>
-                                        <h2 className="text-5xl font-black uppercase tracking-tighter italic leading-none">{selectedService.name} <br/><span className="text-primary italic">Deep Dive.</span></h2>
-                                    </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                <div className="absolute bottom-12 left-12">
+                                    <h2 className="text-5xl font-black text-white uppercase tracking-tighter italic">{selectedService.name}</h2>
                                 </div>
                             </div>
                             
                             <div className="flex-1 p-16 overflow-y-auto custom-scrollbar">
-                                <div className="flex justify-between items-center mb-12">
-                                    <div className="flex gap-10">
+                                <div className="flex justify-between items-center mb-16">
+                                    <div className="flex gap-12">
                                         <div>
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Service ID</span>
-                                            <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">FIC-{selectedService?._id?.toString().slice(-6).toUpperCase() || 'N/A'}</span>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Protocol ID</span>
+                                            <span className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">FIC-{selectedService?._id?.toString().slice(-6).toUpperCase()}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Base Price</span>
-                                            <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">₹{selectedService.price}</span>
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Initiation Price</span>
+                                            <span className="text-lg font-black text-primary uppercase tracking-tighter italic">₹{selectedService.price}</span>
                                         </div>
                                     </div>
-                                    <button onClick={() => setSelectedService(null)} className="w-12 h-12 bg-gray-50 dark:bg-dark-bg rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all">
-                                        <XCircle size={28} />
+                                    <button onClick={() => setSelectedService(null)} className="w-16 h-16 bg-gray-100 dark:bg-dark-bg rounded-2xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all">
+                                        <XCircle size={32} />
                                     </button>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-12 mb-16 border-b border-gray-100 dark:border-gray-800 pb-16">
+                                <div className="space-y-12 mb-20">
                                     <div>
-                                        <h4 className="flex items-center gap-4 text-xs font-black text-green-500 uppercase tracking-[0.3em] mb-10 italic">
-                                            <CheckCircle2 size={18} /> In Scope
-                                        </h4>
-                                        <ul className="space-y-6">
-                                            {(selectedService.whatsIncluded || ['Deep Cleaning', 'Sanitization', 'Inspection']).map((incl, idx) => (
-                                                <li key={idx} className="flex items-center gap-4 text-sm font-bold text-gray-600 dark:text-gray-300 italic">
-                                                    <div className="w-2 h-2 rounded-full bg-green-500"></div> {incl}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <h4 className="text-xs font-black text-primary uppercase tracking-[0.5em] mb-8 italic">Mission Description</h4>
+                                        <p className="text-xl text-gray-500 font-medium leading-relaxed italic">{selectedService.description}</p>
                                     </div>
-                                    <div>
-                                        <h4 className="flex items-center gap-4 text-xs font-black text-red-500 uppercase tracking-[0.3em] mb-10 italic">
-                                            <XCircle size={18} /> Out of Scope
-                                        </h4>
-                                        <ul className="space-y-6">
-                                            {(selectedService.whatsExcluded || ['Spares', 'Painting', 'Electrical']).map((excl, idx) => (
-                                                <li key={idx} className="flex items-center gap-4 text-sm font-bold text-gray-400 italic opacity-50">
-                                                    <div className="w-2 h-2 rounded-full bg-red-400"></div> {excl}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-8">
-                                    <button 
-                                        onClick={() => {
-                                            if (selectedService?._id) {
-                                                navigate(`/home-services/booking/${selectedService._id}`);
-                                            } else {
-                                                console.error('Service ID missing for selection:', selectedService);
-                                                toast.error('Mission ID mismatch. Re-scanning target...');
-                                            }
-                                        }}
-                                        className="flex-grow py-7 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-3xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-center"
-                                    >
-                                        Initiate Configuration Protocol
-                                    </button>
-                                    <div className="p-7 bg-gray-50 dark:bg-dark-bg rounded-3xl flex items-center justify-center text-primary group cursor-help relative">
-                                        <ShieldCheck size={28} />
-                                        <div className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-48 p-4 bg-dark-card text-[8px] font-black text-white uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                            100% Safe Execution Protocol Verified
+                                    
+                                    <div className="grid grid-cols-2 gap-12">
+                                        <div>
+                                            <h4 className="flex items-center gap-4 text-xs font-black text-green-500 uppercase tracking-[0.3em] mb-8 italic">
+                                                <CheckCircle2 size={18} /> Optimized Scope
+                                            </h4>
+                                            <ul className="space-y-4">
+                                                {(selectedService.whatsIncluded || ['Deep Sanitization', 'Industrial Grade Reagents', 'Certified Pros']).map((incl, idx) => (
+                                                    <li key={idx} className="text-sm font-bold text-gray-600 dark:text-gray-300 italic flex items-center gap-3">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div> {incl}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
+
+                                <button 
+                                    onClick={() => navigate(`/home-services/booking/${selectedService._id}`)}
+                                    className="w-full py-8 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-3xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                >
+                                    Initialize Configuration Protocol
+                                </button>
                             </div>
                         </motion.div>
                     </div>

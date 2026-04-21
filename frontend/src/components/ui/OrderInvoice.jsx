@@ -53,7 +53,7 @@ const OrderInvoice = ({ order }) => {
                     <p className="text-sm text-gray-500 font-bold leading-relaxed">
                         Corporate Headquarters, Tirupur<br/>
                         GSTIN: 33AAAAA0000A1Z5<BR/>
-                        support@forgeindiaconnect.com
+                        info@forgeindiaconnect.com
                     </p>
                 </div>
             </div>

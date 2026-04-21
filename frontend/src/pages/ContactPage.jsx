@@ -24,8 +24,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: 'Email Us',
-    value: 'connect@forgeindiaconnect.com',
-    href: 'mailto:connect@forgeindiaconnect.com',
+    value: 'info@forgeindiaconnect.com',
+    href: 'mailto:info@forgeindiaconnect.com',
   },
   {
     icon: Clock,
