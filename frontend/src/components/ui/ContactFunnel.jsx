@@ -59,7 +59,7 @@ const ContactFunnel = () => {
         Our team will contact you within 2 business hours. For urgent queries, WhatsApp us directly.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="https://wa.me/919080005550" target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
+        <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
           WhatsApp Now
         </a>
         <button onClick={() => { setDone(false); setForm(INITIAL); setStep(1); }} className="btn-ghost btn-lg">

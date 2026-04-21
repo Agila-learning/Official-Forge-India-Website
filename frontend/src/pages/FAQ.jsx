@@ -93,7 +93,7 @@ const FAQ = () => {
             </p>
             <div className="flex flex-col sm:flex-row lg:flex-col gap-4">
               <a
-                href="https://wa.me/919876543210"
+                href="https://wa.me/916369406416"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary gap-3"

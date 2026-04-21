@@ -178,8 +178,8 @@ const JobConsultingPage = () => (
           <Link to="/register" className="btn-primary btn-lg !bg-white !text-primary hover:!bg-slate-100">
             Register Free <ArrowRight size={18} />
           </Link>
-          <a href="https://wa.me/919080005550" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white/40 text-white font-bold rounded-xl hover:bg-white/10 transition-all min-h-[44px]">
+          <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white font-black rounded-full shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all">
             WhatsApp for Quick Query
           </a>
         </div>

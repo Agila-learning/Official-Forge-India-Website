@@ -261,9 +261,9 @@ const ServicesPage = () => (
           <Link to="/contact" className="btn-primary btn-lg !bg-white !text-primary hover:!bg-slate-100 shadow-2xl">
             Book Free Consultation <ArrowRight size={18} />
           </Link>
-          <a href="https://wa.me/919080005550" target="_blank" rel="noopener noreferrer"
-            className="btn-ghost btn-lg !text-white !border-white/30 border-2 hover:!bg-white/10">
-            WhatsApp Us
+          <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white font-black rounded-full shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all"
+          >  WhatsApp Us
           </a>
         </div>
       </div>
