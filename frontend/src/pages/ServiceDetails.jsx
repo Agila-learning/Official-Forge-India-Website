@@ -30,17 +30,23 @@ const ServiceDetails = () => {
 
     useEffect(() => {
         const fetchService = async () => {
+            setLoading(true);
             try {
                 const { data } = await api.get(`/products/${id}`);
                 setService(data);
                 setLoading(false);
             } catch (err) {
-                toast.error('Failed to load service details');
+                console.error('Service load error:', err);
+                toast.error('Service details not available');
                 setLoading(false);
+                // Optionally redirect to services if not found after 2 seconds
+                setTimeout(() => {
+                    if (!service) navigate('/services');
+                }, 2000);
             }
         };
-        fetchService();
-    }, [id]);
+        if (id) fetchService();
+    }, [id, navigate]);
 
     const handleBookNow = () => {
         // Services are always quantity 1 and lead to specialized checkout

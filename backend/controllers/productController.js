@@ -15,7 +15,16 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id).populate('vendorId', 'businessName deliveryAvailable');
+    const { id } = req.params;
+    let product;
+    
+    // Check if it's a valid ObjectId first, else treat as slug
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        product = await Product.findById(id).populate('vendorId', 'businessName deliveryAvailable');
+    } else {
+        product = await Product.findOne({ slug: id }).populate('vendorId', 'businessName deliveryAvailable');
+    }
+
     if (product) {
         res.json(product);
     } else {
