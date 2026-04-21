@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -143,6 +143,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
+          <Route path="/products/:id" element={<Navigate to="/services/:id" replace />} />
         </Routes>
       </main>
       
