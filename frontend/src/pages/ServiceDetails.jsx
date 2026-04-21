@@ -21,6 +21,33 @@ import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
 import SEOMeta from '../components/ui/SEOMeta';
 
+const staticServices = {
+  'it-solutions': {
+    name: 'IT Solutions',
+    description: 'Scalable cloud infrastructure and managed IT services designed for maximum uptime and security.',
+    price: 15000,
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
+    included: ['24/7 Managed Network Support', 'Advanced Cybersecurity Shielding', 'Cloud Migration & Optimization', 'Custom ERP & CRM Implementations'],
+    excluded: ['Hardware Costs', 'Third-party Licenses']
+  },
+  'job-consulting': {
+    name: 'Job Consulting',
+    description: 'Elite career consulting and placement support for Banking, IT, and Corporate sectors.',
+    price: 1500,
+    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80',
+    included: ['Resume Engineering', 'Mock Interviews', 'Direct Access to HR Networks'],
+    excluded: ['Guaranteed Job Offer', 'Application Fees']
+  },
+  'digital-marketing': {
+    name: 'Digital Marketing',
+    description: 'Data-driven growth hacking and SEO strategies to dominate search results.',
+    price: 25000,
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+    included: ['SEO & SEM Optimization', 'Social Media Management', 'Analytics Reporting'],
+    excluded: ['Ad Spend', 'Content Production Fees']
+  }
+};
+
 const ServiceDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -31,6 +58,14 @@ const ServiceDetails = () => {
     useEffect(() => {
         const fetchService = async () => {
             setLoading(true);
+            
+            // Check static services first
+            if (staticServices[id]) {
+                setService(staticServices[id]);
+                setLoading(false);
+                return;
+            }
+
             try {
                 const { data } = await api.get(`/products/${id}`);
                 setService(data);
