@@ -32,6 +32,7 @@ import EmployerDashboard from './pages/JobPortal/EmployerDashboard';
 import ServiceWizard from './components/ui/ServiceWizard';
 import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
+import JobConsultingPage from './pages/JobConsultingPage';
 
 import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
@@ -141,6 +142,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/track-mission" element={<TrackMission />} />
+          <Route path="/job-consulting" element={<JobConsultingPage />} />
         </Routes>
       </main>
       
