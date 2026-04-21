@@ -310,11 +310,16 @@ const Register = () => {
                   <motion.div key="cust" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-2 overflow-hidden">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Primary Interest</label>
                     <div className="relative">
-                      <select required value={formData.serviceInterest} onChange={e => setFormData({...formData, serviceInterest: e.target.value})} className="input-field !rounded-2xl py-4 appearance-none cursor-pointer pr-12">
-                        <option value="General Shopping">Product Shopping</option>
-                        <option value="Job Consulting">Job Consulting (Membership)</option>
-                        <option value="Home Services">Verified Home Services</option>
-                        <option value="Business Inquiries">Corporate Inquiries</option>
+                      <select 
+                        required 
+                        value={formData.serviceInterest} 
+                        onChange={e => setFormData({...formData, serviceInterest: e.target.value})} 
+                        className="form-input !rounded-2xl py-4 appearance-none cursor-pointer pr-12 dark:bg-dark-bg dark:text-white"
+                      >
+                        <option value="General Shopping" className="text-slate-900 bg-white">Product Shopping</option>
+                        <option value="Job Consulting" className="text-slate-900 bg-white">Job Consulting (Membership)</option>
+                        <option value="Home Services" className="text-slate-900 bg-white">Verified Home Services</option>
+                        <option value="Business Inquiries" className="text-slate-900 bg-white">Corporate Inquiries</option>
                       </select>
                       <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                     </div>
@@ -336,11 +341,16 @@ const Register = () => {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Domain</label>
-                        <select required value={formData.domainInterest} onChange={e => setFormData({...formData, domainInterest: e.target.value})} className="form-input !rounded-2xl py-4">
-                          <option value="IT">IT / Software</option>
-                          <option value="Banking">Banking & Finance</option>
-                          <option value="Manufacturing">Manufacturing</option>
-                          <option value="Other">Other Verticals</option>
+                        <select 
+                          required 
+                          value={formData.domainInterest} 
+                          onChange={e => setFormData({...formData, domainInterest: e.target.value})} 
+                          className="form-input !rounded-2xl py-4 appearance-none cursor-pointer dark:bg-dark-bg dark:text-white"
+                        >
+                          <option value="IT" className="text-slate-900 bg-white">IT / Software</option>
+                          <option value="Banking" className="text-slate-900 bg-white">Banking & Finance</option>
+                          <option value="Manufacturing" className="text-slate-900 bg-white">Manufacturing</option>
+                          <option value="Other" className="text-slate-900 bg-white">Other Verticals</option>
                         </select>
                       </div>
                     </div>
