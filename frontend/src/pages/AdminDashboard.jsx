@@ -374,7 +374,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'events' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.events ? 'Edit Networking Event' : 'Create New Networking Event'}</h3>
                         {editingItem.events && (
@@ -439,7 +439,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'jobs' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.jobs ? 'Edit Job Opening' : 'Post New Job Opening'}</h3>
                         {editingItem.jobs && (
@@ -513,7 +513,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'atomy' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.products ? 'Edit Product Listing' : 'Manage Product Catalog'}</h3>
                         {editingItem.products && (
@@ -677,7 +677,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'services' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent uppercase tracking-tighter">{editingItem.products ? 'Edit Service Specification' : 'Onboard New Service Offering'}</h3>
                         {editingItem.products && (
@@ -941,7 +941,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'faqs' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black">{editingItem.faqs ? 'Edit FAQ Entry' : 'Create New FAQ'}</h3>
                         {editingItem.faqs && (
@@ -994,7 +994,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'candidates' && (
             <div className="space-y-12">
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-2xl font-black">{editingItem.candidates ? 'Edit Success Story' : 'Add Success Story'}</h3>
                         {editingItem.candidates && (
@@ -1237,7 +1237,7 @@ const AdminDashboard = () => {
         {/* MEDIA MANAGER TAB */}
         {activeTab === 'media' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
               <h3 className="text-2xl font-black mb-3 flex items-center gap-3"><Upload className="text-primary" /> Central Asset Library</h3>
               <p className="text-gray-500 font-bold text-sm mb-10 leading-relaxed">Upload marketing assets, product images, or banners to FIC's secure asset server.</p>
               
@@ -1260,7 +1260,7 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
               <h3 className="text-2xl font-black mb-8 flex items-center gap-3"><LinkIcon className="text-secondary" /> Asset MetaData</h3>
               {uploadStatus.url ? (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -1477,7 +1477,7 @@ const AdminDashboard = () => {
         {/* CUSTOMER REVIEWS TAB */}
         {activeTab === 'reviews' && (
           <div className="space-y-8">
-            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h3 className="text-3xl font-black mb-1">Customer Reviews</h3>
@@ -1852,7 +1852,7 @@ const AdminDashboard = () => {
 
         {activeTab === 'locations' && (
           <div className="space-y-12">
-            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.locations ? 'Edit Service Area' : 'Register New Service Area'}</h3>
                 {editingItem.locations && (
@@ -2014,7 +2014,7 @@ const AdminDashboard = () => {
         {/* TESTIMONIALS MANAGEMENT TAB */}
         {activeTab === 'testimonials' && (
           <div className="space-y-12">
-            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
               <h3 className="text-3xl font-black mb-8 italic uppercase tracking-tighter bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Initialize Testimonial</h3>
               <form onSubmit={(e) => handleSubmit(e, 'testimonials')} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>

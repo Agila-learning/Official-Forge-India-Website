@@ -289,7 +289,7 @@ const VendorDashboard = () => {
                             </div>
                             <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                                     <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Recent Orders</h3>
                                     <div className="space-y-4">
                                         {orders.slice(0, 5).map(order => (
@@ -304,7 +304,7 @@ const VendorDashboard = () => {
                                         {orders.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active orders</p>}
                                     </div>
                                 </div>
-                                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                                     <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Inventory Status</h3>
                                     <div className="space-y-4">
                                         {products.slice(0, 5).map(prod => (
@@ -439,7 +439,7 @@ const VendorDashboard = () => {
                     )}
 
                     {view === 'orders' && (
-                        <motion.div key="orders" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                        <motion.div key="orders" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                             <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Product Order Logistics</h3>
                             <div className="mobile-table-scroll">
                                 <table className="w-full text-left">
@@ -538,7 +538,7 @@ const VendorDashboard = () => {
                                 </div>
                             </div>
 
-                            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                                 <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Stock Health Check</h3>
                                 <div className="space-y-4">
                                     {stockReport.map(prod => (

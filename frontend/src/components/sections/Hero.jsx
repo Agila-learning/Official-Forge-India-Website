@@ -32,7 +32,7 @@ const segments = [
     cta: { label: 'Hire Through FIC', to: '/contact' },
     cta2: { label: 'View Plans', to: '/services' },
     accent: 'from-teal-600 to-teal-900',
-    bg: 'https://images.unsplash.com/photo-1600880210837-0f88b0d1ad3b?q=80&w=1920&auto=format&fit=crop',
+    bg: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1920&auto=format&fit=crop',
     stats: [
       { v: '180+', l: 'Hiring Partners' },
       { v: '48 hrs', l: 'Avg. Turnaround' },

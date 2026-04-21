@@ -121,7 +121,7 @@ const EmployerDashboard = () => {
                                     { label: 'Total Dossiers', val: applications.length, icon: FileText, col: 'bg-purple-600', trend: '+24%' },
                                     { label: 'Onboarded', val: applications.filter(a => a.status === 'Hired').length, icon: CheckCircle2, col: 'bg-green-500', trend: '+8%' }
                                 ].map((s, i) => (
-                                    <div key={i} className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
+                                    <div key={i} className="p-4 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
                                         <div className={`absolute top-0 right-0 w-32 h-32 ${s.col} opacity-5 blur-3xl -mr-16 -mt-16 group-hover:opacity-20 transition-opacity`}></div>
                                         <div className={`w-14 h-14 ${s.col} rounded-2xl flex items-center justify-center text-white mb-8 shadow-2xl shadow-gray-500/20`}>
                                             <s.icon size={28} />
@@ -138,7 +138,7 @@ const EmployerDashboard = () => {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                <div className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                                <div className="p-4 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                                     <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 italic">Recent <span className="text-purple-600 font-poppins">Requisitions</span></h3>
                                     <div className="space-y-4">
                                         {jobs.slice(0, 4).map(job => (
@@ -154,7 +154,7 @@ const EmployerDashboard = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                                <div className="p-4 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
                                     <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 italic">Top <span className="text-purple-600 font-poppins">Applicants</span></h3>
                                     <div className="space-y-4">
                                         {applications.slice(0, 4).map(app => (
@@ -232,7 +232,7 @@ const EmployerDashboard = () => {
                             </div>
                             <div className="grid grid-cols-1 gap-6">
                                 {jobs.map(job => (
-                                    <div key={job._id} className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl hover:border-purple-600/30 transition-all group flex flex-col md:flex-row justify-between items-center gap-8">
+                                    <div key={job._id} className="p-4 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl hover:border-purple-600/30 transition-all group flex flex-col md:flex-row justify-between items-center gap-8">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-4 mb-2">
                                                 <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none italic">{job.title}</h4>
@@ -267,7 +267,7 @@ const EmployerDashboard = () => {
                              <h3 className="text-3xl font-black uppercase tracking-tighter italic mb-8">Talent <span className="text-purple-600 font-poppins">Dossiers</span></h3>
                              <div className="grid grid-cols-1 gap-6">
                                 {applications.map(app => (
-                                    <div key={app._id} className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
+                                    <div key={app._id} className="p-4 md:p-10 rounded-[2rem] md:rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 w-1/3 h-full bg-purple-600/5 -skew-x-12 translate-x-20"></div>
                                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                                             <div className="flex items-center gap-8">

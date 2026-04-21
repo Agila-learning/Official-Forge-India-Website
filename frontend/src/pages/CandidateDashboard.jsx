@@ -406,7 +406,7 @@ const CandidateDashboard = () => {
                             <motion.div 
                                 whileHover={{ y: -8 }}
                                 key={job._id} 
-                                className="bg-white dark:bg-[#111827] rounded-[3rem] border border-slate-100 dark:border-white/5 p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden h-full flex flex-col shadow-sm"
+                                className="bg-white dark:bg-[#111827] rounded-[2rem] md:rounded-[3rem] border border-slate-100 dark:border-white/5 p-6 md:p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden h-full flex flex-col shadow-sm"
                             >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
                             

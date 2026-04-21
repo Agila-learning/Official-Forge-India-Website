@@ -188,7 +188,7 @@ const HRDashboard = () => {
                             </div>
                             <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-dark-card">
+                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-dark-card">
                                         <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Pipeline Overview</h3>
                                         <div className="space-y-4">
                                             {applications.slice(0, 5).map(app => (
@@ -205,7 +205,7 @@ const HRDashboard = () => {
                                             {applications.length === 0 && <p className="text-center text-gray-400 font-bold italic py-10">No applications tracked yet</p>}
                                         </div>
                                     </div>
-                                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-dark-card">
+                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-white dark:bg-dark-card">
                                         <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Active Requisitions</h3>
                                         <div className="space-y-4">
                                             {jobs.slice(0, 5).map(job => (

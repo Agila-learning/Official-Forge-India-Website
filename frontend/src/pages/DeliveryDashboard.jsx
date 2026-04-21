@@ -115,7 +115,7 @@ const DeliveryDashboard = () => {
                         >
                             <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                                         <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Live Shipments</h3>
                                         <div className="space-y-4">
                                             {tasks.slice(0, 5).map(task => (
@@ -132,7 +132,7 @@ const DeliveryDashboard = () => {
                                             {tasks.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active deployments</p>}
                                         </div>
                                     </div>
-                                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center flex flex-col justify-center items-center">
+                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center flex flex-col justify-center items-center">
                                         <div className="w-24 h-24 bg-orange-100 dark:bg-orange-900/10 rounded-full flex items-center justify-center text-orange-500 mb-6">
                                             <Package size={48} />
                                         </div>
