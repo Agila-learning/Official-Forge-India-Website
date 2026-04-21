@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import api from '../services/api';
+import api from '../../services/api';
 import {
   User, Mail, Phone, Briefcase, Building2, MessageSquare,
   ArrowRight, CheckCircle2, ChevronLeft, Loader2
