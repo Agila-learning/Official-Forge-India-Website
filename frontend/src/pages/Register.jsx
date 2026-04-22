@@ -38,6 +38,7 @@ const Register = () => {
 
   const [error, setError] = useState('');
   const [showPayment, setShowPayment] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -60,46 +61,17 @@ const Register = () => {
     }
   };
 
-  const loadRazorpay = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
+  const handlePayment = async () => {
+    // TEST MODE: Display QR code instead of Razorpay
+    setShowQRModal(true);
   };
 
-  const handlePayment = async () => {
-    const res = await loadRazorpay();
-    if (!res) {
-      setError('Razorpay SDK failed to load. Are you online?');
-      return;
-    }
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_mock_key',
-      amount: 150000, // 1500.00
-      currency: 'INR',
-      name: 'Forge India Connect',
-      description: 'Job Consulting - Assured Placement Fee',
-      image: '/logo.jpg',
-      handler: function (response) {
-        handleRegistrationSubmit({ 
-            paymentId: response.razorpay_payment_id,
-            paymentStatus: 'Paid'
-        });
-      },
-      prefill: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        contact: formData.mobile
-      },
-      theme: { color: '#2563eb' }
-    };
-
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+  const handleQRConfirm = () => {
+    setShowQRModal(false);
+    handleRegistrationSubmit({ 
+        paymentId: 'TEST_QR_PAYMENT_' + Math.floor(Math.random() * 1000000),
+        paymentStatus: 'Pending Verification'
+    });
   };
 
   const handleSubmit = (e) => {
@@ -189,6 +161,53 @@ const Register = () => {
         description="Create your FIC account today. Join as a Customer, Job Seeker, Vendor, or Partner and access South India's premier business network."
         canonical="/register"
       />
+
+      {/* TEST MODE QR MODAL */}
+      <AnimatePresence>
+        {showQRModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
+            >
+              <button 
+                onClick={() => setShowQRModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              >
+                ✕
+              </button>
+              
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Globe className="text-primary" size={32} />
+              </div>
+              
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+                Test Mode Payment
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                Please scan the QR code using any UPI App to proceed with the mock payment.
+              </p>
+              
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
+                <img 
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=mockupi@upi" 
+                  alt="UPI QR Code" 
+                  className="w-48 h-48 mx-auto rounded-xl"
+                />
+              </div>
+
+              <button 
+                onClick={handleQRConfirm}
+                className="w-full btn-primary btn-lg flex items-center justify-center gap-2"
+              >
+                I have Scanned & Paid <CheckCircle2 size={18} />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="min-h-screen bg-slate-50 dark:bg-dark-bg flex items-start justify-center px-4 pt-24 pb-24 relative overflow-hidden">
         {/* Background Decor */}

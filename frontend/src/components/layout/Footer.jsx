@@ -5,6 +5,7 @@ import {
   Phone, Mail, CheckCircle2, ShieldCheck, Globe, Users, Briefcase
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const footerLinks = [
   {
@@ -47,6 +48,24 @@ const branches = [
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = React.useState('');
+  const [isSubscribing, setIsSubscribing] = React.useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setIsSubscribing(true);
+    try {
+      // MOCK API CALL
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Successfully subscribed to weekly insights!');
+      setEmail('');
+    } catch (err) {
+      toast.error('Failed to subscribe. Please try again.');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer className="bg-slate-950 text-white pt-24 pb-12 overflow-hidden relative border-t border-white/5">
@@ -70,14 +89,17 @@ const Footer = () => {
           </div>
 
           <div className="w-full lg:w-auto relative z-10">
-            <form className="flex flex-col sm:flex-row gap-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex flex-col sm:flex-row gap-4" onSubmit={handleSubscribe}>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your work email"
+                required
                 className="px-8 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-primary transition-all text-white font-bold w-full sm:w-80"
               />
-              <button className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:bg-indigo-600 transition-all uppercase tracking-widest text-[10px]">
-                Subscribe Now
+              <button type="submit" disabled={isSubscribing} className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:bg-indigo-600 transition-all uppercase tracking-widest text-[10px] disabled:opacity-70 flex items-center justify-center min-w-[160px]">
+                {isSubscribing ? 'Subscribing...' : 'Subscribe Now'}
               </button>
             </form>
             <p className="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center lg:text-left">

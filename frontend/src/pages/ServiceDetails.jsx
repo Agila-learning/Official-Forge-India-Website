@@ -14,8 +14,10 @@ import {
     ChevronRight,
     Users,
     Wrench,
-    BookOpen
+    BookOpen,
+    PhoneCall
 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
@@ -78,6 +80,16 @@ const ServiceDetails = () => {
     const { addToCart } = useCart();
     const [service, setService] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showIdlePopup, setShowIdlePopup] = useState(false);
+
+    // Idle timer logic
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowIdlePopup(true);
+        }, 60000); // 60 seconds
+
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const fetchService = async () => {
@@ -145,6 +157,47 @@ const ServiceDetails = () => {
                 description={service.description || `Professional ${service.name} services by Forge India Connect. Verified partners, secure booking, and guaranteed quality.`}
                 canonical={`/services/${id}`}
             />
+
+            {/* Idle Popup */}
+            <AnimatePresence>
+                {showIdlePopup && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
+                        >
+                            <button 
+                                onClick={() => setShowIdlePopup(false)}
+                                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                            >
+                                ✕
+                            </button>
+                            
+                            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                                <PhoneCall className="text-primary" size={32} />
+                            </div>
+                            
+                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tighter">
+                                Why still waiting for?
+                            </h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                                Just jump into it! Call us directly and let's get started.
+                            </p>
+                            
+                            <a 
+                                href="tel:+916369406416"
+                                onClick={() => setShowIdlePopup(false)}
+                                className="w-full btn-primary btn-lg flex items-center justify-center gap-2"
+                            >
+                                Call 63694 06416 <PhoneCall size={18} />
+                            </a>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <div className="min-h-screen bg-slate-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
             <div className="max-w-6xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">

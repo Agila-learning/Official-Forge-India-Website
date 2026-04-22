@@ -30,11 +30,36 @@ const ContactFunnel = () => {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = async () => {
+    // Basic presence check
     if (!form.name || !form.email || !form.phone) { setErr('Please fill all required fields.'); return; }
+    
+    // Name validation
+    if (!/^[a-zA-Z\s]+$/.test(form.name)) {
+      setErr('Name must contain only letters and spaces.');
+      return;
+    }
+    
+    // Phone validation (exactly 10 digits)
+    if (!/^\d{10}$/.test(form.phone)) {
+      setErr('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    // Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setErr('Please enter a valid email address.');
+      return;
+    }
+
+    // Split name into firstName and lastName for backend
+    const nameParts = form.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'Doe'; // Backend requires lastName, provide default if omitted
+
     setErr(''); setLoading(true);
     try {
       await api.post('/contacts', {
-        name: form.name, email: form.email, phone: form.phone,
+        firstName, lastName, email: form.email, phone: form.phone,
         category: form.category, service: form.service, message: form.message,
       });
       setDone(true);
@@ -189,6 +214,9 @@ const ContactFunnel = () => {
             <button
               onClick={() => {
                 if (!form.name || !form.phone || !form.email) { setErr('Please fill all required fields.'); return; }
+                if (!/^[a-zA-Z\s]+$/.test(form.name)) { setErr('Name must contain only letters and spaces.'); return; }
+                if (!/^\d{10}$/.test(form.phone)) { setErr('Phone number must be exactly 10 digits.'); return; }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setErr('Please enter a valid email address.'); return; }
                 setErr(''); setStep(3);
               }}
               className="btn-primary w-full btn-lg"

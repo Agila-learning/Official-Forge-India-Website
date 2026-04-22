@@ -185,7 +185,7 @@ const HomeServices = () => {
             <LiveActivityToast />
 
             {/* Hero Section */}
-            <header className="relative py-48 px-6 overflow-hidden bg-[#050505]">
+            <header className="relative py-32 px-6 overflow-hidden bg-[#050505]">
                 {/* Mesh Gradient Background */}
                 <div className="absolute inset-0 opacity-40">
                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
@@ -240,7 +240,7 @@ const HomeServices = () => {
             </header>
 
             {/* Detailed Categories Section */}
-            <section className="category-section py-48 bg-white dark:bg-dark-bg overflow-hidden">
+            <section className="category-section py-24 bg-white dark:bg-dark-bg overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-32">
                         <span className="text-primary font-black uppercase tracking-[0.5em] text-[10px]">Strategic Portfolio</span>
@@ -313,7 +313,7 @@ const HomeServices = () => {
             </div>
 
             {/* Service Grid Section */}
-            <main id="services-grid" className="max-w-7xl mx-auto py-32 px-6">
+            <main id="services-grid" className="max-w-7xl mx-auto py-24 px-6">
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 animate-pulse">
                         {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-[34rem] bg-gray-100 dark:bg-dark-card rounded-[5rem]"></div>)}
@@ -331,10 +331,10 @@ const HomeServices = () => {
                             >
                                 <div className="absolute inset-0">
                                     <img src={s.image} className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110" alt="" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
                                 </div>
                                 
-                                <div className="absolute inset-0 p-12 flex flex-col justify-end">
+                                <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end border border-white/10 rounded-[4.5rem] group-hover:border-primary/50 transition-colors">
                                     <div className="flex justify-between items-start mb-8">
                                         <div className={`w-16 h-16 ${getColor(s.serviceType)} rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:rotate-12 transition-transform`}>
                                             <Sparkles size={32} />
@@ -365,7 +365,7 @@ const HomeServices = () => {
             </main>
 
             {/* Execution Process (GSAP & Lottie) */}
-            <section className="py-48 bg-[#0a0a0a] relative overflow-hidden">
+            <section className="py-24 bg-[#0a0a0a] relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/5 -skew-x-12 translate-x-20"></div>
                 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -402,7 +402,7 @@ const HomeServices = () => {
             </section>
 
             {/* Before / After Showcase Section */}
-            <section className="py-48 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
+            <section className="py-24 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex flex-col lg:flex-row items-center gap-32">
                         <div className="lg:w-1/2">
@@ -439,7 +439,7 @@ const HomeServices = () => {
             </section>
 
             {/* Testimonials */}
-            <section className="py-48 bg-gray-50 dark:bg-dark-bg">
+            <section className="py-24 bg-gray-50 dark:bg-dark-bg">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-32">
                         <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-10 text-gray-900 dark:text-white">
