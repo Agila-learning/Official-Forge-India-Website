@@ -20,9 +20,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('userInfo');
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const isAuthRoute = error.config && error.config.url && (error.config.url.includes('/auth/login') || error.config.url.includes('/auth/verify-otp'));
+      if (!isAuthRoute) {
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

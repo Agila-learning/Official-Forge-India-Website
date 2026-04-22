@@ -41,7 +41,8 @@ const Contact = () => {
 
     const formData = new FormData(e.target);
     const data = {
-      name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
       email: formData.get('email'),
       message: formData.get('message'),
       attachmentUrl: ''

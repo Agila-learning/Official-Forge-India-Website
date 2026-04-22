@@ -432,6 +432,14 @@ const HomeServices = () => {
                                     labelBefore="Initial State"
                                     labelAfter="FIC Optimized"
                                 />
+                                <div className="mt-8 text-center">
+                                    <button 
+                                        onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
+                                        className="w-full md:w-auto px-10 py-5 bg-secondary text-dark-bg rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                                    >
+                                        Initialize Optimized Protocol
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -448,9 +456,15 @@ const HomeServices = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        {testimonials.map((t, idx) => (
-                            <ReviewCard key={idx} {...t} delay={idx * 0.2} />
-                        ))}
+                        {testimonials && testimonials.length > 0 ? (
+                            testimonials.map((t, idx) => (
+                                <ReviewCard key={idx} {...t} delay={idx * 0.2} />
+                            ))
+                        ) : (
+                            <div className="col-span-full text-center py-10">
+                                <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">No recent briefings available for public access.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

@@ -349,14 +349,14 @@ const Navbar = () => {
                               key={item.name} 
                               to={item.path} 
                               onClick={() => setIsOpen(false)}
-                              className="flex items-center gap-5 p-5 bg-gray-50 dark:bg-dark-card/50 rounded-3xl border border-gray-100 dark:border-gray-800 active:scale-95 transition-all"
+                              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-dark-card/50 rounded-2xl border border-gray-100 dark:border-gray-800 active:scale-95 transition-all"
                             >
-                              <div className="w-12 h-12 bg-white dark:bg-dark-bg text-primary rounded-2xl flex items-center justify-center shadow-sm">
-                                 {React.cloneElement(item.icon, { size: 24 })}
+                              <div className="w-10 h-10 bg-white dark:bg-dark-bg text-primary rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                                 {React.cloneElement(item.icon, { size: 20 })}
                               </div>
-                              <div>
-                                 <p className="font-black text-gray-900 dark:text-white text-sm uppercase">{item.name}</p>
-                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{item.desc || 'Explore details'}</p>
+                              <div className="min-w-0 flex-1">
+                                 <p className="font-black text-gray-900 dark:text-white text-[11px] md:text-sm uppercase truncate">{item.name}</p>
+                                 <p className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{item.desc || 'Explore details'}</p>
                               </div>
                             </Link>
                           ))}

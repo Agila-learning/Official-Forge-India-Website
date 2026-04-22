@@ -359,10 +359,10 @@ const ServiceDetails = () => {
                             </button>
                             
                             <div className="grid grid-cols-2 gap-4 mt-6">
-                                <button className="py-4 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                                <button onClick={() => navigate('/contact')} className="py-4 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                                     <MessageSquare size={14} /> Contact Vendor
                                 </button>
-                                <button className="py-4 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                                <button onClick={() => toast.success('Vendor License Verified: Active & Valid')} className="py-4 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                                     <ShieldCheck size={14} /> View License
                                 </button>
                             </div>

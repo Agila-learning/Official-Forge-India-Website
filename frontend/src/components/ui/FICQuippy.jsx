@@ -714,7 +714,7 @@ const FICQuippy = () => {
 
             {/* ─── MESSAGES ────────────────────────────────── */}
             <div 
-              className="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar quippy-scroll-container" 
+              className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-4 custom-scrollbar quippy-scroll-container" 
               id="quippy-messages"
               style={{ flex: '1 1 0%', minHeight: 0 }} 
             >

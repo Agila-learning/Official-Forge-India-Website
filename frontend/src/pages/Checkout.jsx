@@ -16,6 +16,8 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [createdOrder, setCreatedOrder] = useState(null);
     const [instructions, setInstructions] = useState('');
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [pendingOrderDetails, setPendingOrderDetails] = useState(null);
     
     // Logic: If only services, default to Home Service
     const hasPhysicalProducts = cartItems.some(item => !item.isService);
@@ -79,15 +81,7 @@ const Checkout = () => {
         }
     }, [userLocation]);
 
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        document.body.appendChild(script);
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
+    // Removed Razorpay script injection for test mode
 
     const handlePlaceOrder = async () => {
         if (!cartItems || cartItems.length === 0) {
@@ -122,61 +116,13 @@ const Checkout = () => {
                 fulfillmentType
             };
 
-            // 1. Create Order in Backend
+            // 1. Create Order in Backend (Pending status)
             const { data: order } = await api.post('/orders', orderData);
             
-            // 2. Create Razorpay Order
-            const { data: rzpOrder } = await api.post('/payments/create-order', {
-                amount: cartTotal,
-                orderId: order._id
-            });
-
-            // 3. Open Razorpay Checkout
-            const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder', // Should be in .env
-                amount: rzpOrder.amount,
-                currency: "INR",
-                name: "Forge India Connect",
-                description: "Transaction for Order #" + order._id,
-                order_id: rzpOrder.id,
-                handler: async (response) => {
-                    try {
-                        const verifyRes = await api.post('/payments/verify', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            orderId: order._id
-                        });
-                        
-                        if (verifyRes.data.message === "Payment verified successfully") {
-                            setCreatedOrder(verifyRes.data.order);
-                            setStep(4);
-                            clearCart();
-                            toast.success('Payment Successful!');
-                        }
-                    } catch (err) {
-                        toast.error('Payment Verification Failed');
-                    } finally {
-                        setLoading(false);
-                    }
-                },
-                prefill: {
-                    name: `${userInfo.firstName} ${userInfo.lastName}`,
-                    email: userInfo.email,
-                    contact: userInfo.mobile
-                },
-                theme: {
-                    color: "#7c3aed"
-                },
-                modal: {
-                    ondismiss: () => {
-                        setLoading(false);
-                    }
-                }
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
+            // 2. Mock: Show QR Modal instead of Razorpay
+            setPendingOrderDetails(order);
+            setShowQRModal(true);
+            setLoading(false);
 
         } catch (err) {
             toast.error(err.response?.data?.message || 'Order creation failed');
@@ -184,8 +130,74 @@ const Checkout = () => {
         }
     };
 
+    const handleQRConfirm = async () => {
+        setShowQRModal(false);
+        setLoading(true);
+        try {
+            // Mock payment verification / update order to Paid
+            // For now, we simulate success
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            setCreatedOrder(pendingOrderDetails);
+            setStep(4);
+            clearCart();
+            toast.success('Test Payment Successful! Email receipt simulated.');
+        } catch (err) {
+            toast.error('Payment Verification Failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
+            
+            {/* TEST MODE QR MODAL */}
+            <AnimatePresence>
+                {showQRModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
+                    >
+                    <button 
+                        onClick={() => setShowQRModal(false)}
+                        className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                    >
+                        ✕
+                    </button>
+                    
+                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <CreditCard className="text-primary" size={32} />
+                    </div>
+                    
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+                        Test Mode Payment
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                        Please scan the QR code using any UPI App to proceed with the mock payment. An email receipt will be sent.
+                    </p>
+                    
+                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
+                        <img 
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=mockupi@upi" 
+                        alt="UPI QR Code" 
+                        className="w-48 h-48 mx-auto rounded-xl"
+                        />
+                    </div>
+
+                    <button 
+                        onClick={handleQRConfirm}
+                        className="w-full btn-primary btn-lg flex items-center justify-center gap-2 py-4 rounded-xl font-black"
+                    >
+                        I have Scanned & Paid <CheckCircle size={18} />
+                    </button>
+                    </motion.div>
+                </div>
+                )}
+            </AnimatePresence>
+
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-16 relative">
                     <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-800 -translate-y-1/2 -z-10"></div>

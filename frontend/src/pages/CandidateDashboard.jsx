@@ -57,10 +57,12 @@ const CandidateDashboard = () => {
     specificRequirement: '',
     message:             '',
     contactNumber:       userInfo?.mobile || '',
+    contactNumber:       userInfo?.mobile || '',
   });
   const [isSubmittingConsulting, setIsSubmittingConsulting] = useState(false);
   const [consultingPaymentSuccess, setConsultingPaymentSuccess] = useState(false);
-  const razorpayScriptLoaded = useRef(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [pendingInquiryId, setPendingInquiryId] = useState(null);
 
   useEffect(() => {
     if (!userInfo || userInfo.role !== 'Candidate') {
@@ -91,18 +93,9 @@ const CandidateDashboard = () => {
     }
   };
 
-  // ── Load Razorpay Checkout.js SDK ────────────────────────────────
-  const loadRazorpayScript = () =>
-    new Promise((resolve) => {
-      if (razorpayScriptLoaded.current) { resolve(true); return; }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => { razorpayScriptLoaded.current = true; resolve(true); };
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
+  // Removed Razorpay load script
 
-  // ── Handle Consulting Form Submit + Open Razorpay Modal ──────────
+  // ── Handle Consulting Form Submit + Open QR Modal ──────────
   const handleConsultingPayment = async () => {
     if (!consultingForm.consultingType || !consultingForm.specificRequirement || !consultingForm.contactNumber) {
       toast.error('Please fill all required fields.');
@@ -110,73 +103,37 @@ const CandidateDashboard = () => {
     }
     setIsSubmittingConsulting(true);
     try {
-      // Step 1: Create inquiry + Razorpay order on backend
+      // Step 1: Create inquiry on backend
       const { data } = await api.post('/job-consulting/submit', consultingForm);
-      const { inquiryId, razorpayOrderId, keyId, amount, candidateName, email } = data;
+      setPendingInquiryId(data.inquiryId);
 
-      // Step 2: Load Razorpay SDK
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error('Payment gateway failed to load. Please check your connection.');
-        setIsSubmittingConsulting(false);
-        return;
-      }
-
-      // Step 3: Open Razorpay Checkout modal (URL never exposed in DOM)
-      const options = {
-        key:          keyId,
-        amount:       amount * 100,
-        currency:     'INR',
-        name:         'FIC — Job Consulting',
-        description:  consultingForm.consultingType,
-        order_id:     razorpayOrderId,
-        prefill: {
-          name:    candidateName,
-          email:   email,
-          contact: consultingForm.contactNumber,
-        },
-        theme: { color: '#1a56db' },
-        modal: { backdropclose: false },
-        handler: async (paymentResponse) => {
-          // Step 4: Verify payment on backend → marks Paid → sends email
-          try {
-            await api.post('/job-consulting/verify-payment', {
-              razorpay_order_id:   paymentResponse.razorpay_order_id,
-              razorpay_payment_id: paymentResponse.razorpay_payment_id,
-              razorpay_signature:  paymentResponse.razorpay_signature,
-              inquiryId,
-            });
-            setConsultingPaymentSuccess(true);
-            toast.success('🎉 Payment successful! Confirmation email sent.');
-            setConsultingForm({
-              consultingType: 'Career Guidance',
-              experience: 'Fresher (0-1 yr)',
-              currentRole: '', specificRequirement: '', message: '',
-              contactNumber: userInfo?.mobile || '',
-            });
-            fetchData();
-          } catch (verifyErr) {
-            toast.error(verifyErr.response?.data?.message || 'Payment verification failed. Contact support.');
-          }
-        },
-        // eslint-disable-next-line no-unused-vars
-        'modal.ondismiss': () => {
-          toast('Payment cancelled. Your inquiry is saved — you can retry from My Consultings.', { icon: 'ℹ️' });
-          setIsSubmittingConsulting(false);
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (resp) => {
-        toast.error(`Payment failed: ${resp.error.description}`);
-        setIsSubmittingConsulting(false);
-      });
-      rzp.open();
+      // Step 2: Show QR Modal
+      setShowQRModal(true);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setIsSubmittingConsulting(false);
     }
+  };
+
+  const handleQRConfirm = async () => {
+      setShowQRModal(false);
+      try {
+          // Mock verification API call
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          setConsultingPaymentSuccess(true);
+          toast.success('🎉 Test Payment successful! Confirmation email sent.');
+          setConsultingForm({
+            consultingType: 'Career Guidance',
+            experience: 'Fresher (0-1 yr)',
+            currentRole: '', specificRequirement: '', message: '',
+            contactNumber: userInfo?.mobile || '',
+          });
+          fetchData();
+      } catch (err) {
+          toast.error('Verification failed');
+      }
   };
 
   const handleResumeUpload = async (e) => {
@@ -289,6 +246,52 @@ const CandidateDashboard = () => {
 
   return (
     <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} stats={dashboardStats}>
+      {/* TEST MODE QR MODAL */}
+      <AnimatePresence>
+        {showQRModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
+            >
+              <button 
+                onClick={() => setShowQRModal(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              >
+                ✕
+              </button>
+              
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="text-primary" size={32} />
+              </div>
+              
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+                Test Mode Payment
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                Please scan the QR code using any UPI App to proceed with the mock payment.
+              </p>
+              
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
+                <img 
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=mockupi@upi" 
+                  alt="UPI QR Code" 
+                  className="w-48 h-48 mx-auto rounded-xl"
+                />
+              </div>
+
+              <button 
+                onClick={handleQRConfirm}
+                className="w-full bg-primary text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+              >
+                I have Scanned & Paid <CheckCircle size={18} />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
         <div className="space-y-12">
             <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
