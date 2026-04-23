@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, Building2, GraduationCap, ShoppingBag,
-  ArrowRight, ChevronRight, Star, Users, Award, TrendingUp, CheckCircle2
+  ArrowRight, ChevronRight, Star, Users, Award, TrendingUp, CheckCircle2, Code2
 } from 'lucide-react';
 
 const segments = [
