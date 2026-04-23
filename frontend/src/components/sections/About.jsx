@@ -64,13 +64,18 @@ const About = () => {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-8 leading-tight">
-            Leading with <span className="animated-text-gradient">Impact</span>, Scaling with <span className="animated-text-gradient">Growth</span>
+            Why Choose <span className="animated-text-gradient">FIC?</span> End-to-End <span className="animated-text-gradient">IT Solutions</span>
           </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
-              At Forge India Connect, we believe in the power of networking. We are dedicated to providing a premium platform where businesses, startups, and professionals can connect, collaborate, and grow globally.
+              Forge India Connect is a technology-first IT solutions company dedicated to transforming businesses through smart digital engineering and a robust skill development ecosystem.
             </p>
             <ul className="space-y-4">
-              {['Empowering Startups', 'Fostering B2B Connections', 'Accelerating Industry Growth'].map((item, index) => (
+              {[
+                'End-to-end IT solutions',
+                'Industry-ready training',
+                'Placement support ecosystem',
+                '360° business support'
+              ].map((item, index) => (
                 <li key={index} className="flex items-center text-gray-700 dark:text-gray-200 font-medium">
                   <CheckCircle className="text-secondary mr-3" size={20} />
                   {item}

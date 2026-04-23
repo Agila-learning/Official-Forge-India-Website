@@ -3,44 +3,51 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Briefcase, ShieldCheck, BarChart3, 
-  Gamepad2, Globe, ArrowRight, Sparkles, Wrench
+  Smartphone, Globe, ArrowRight, Sparkles, Code2, Palette
 } from 'lucide-react';
 
 const services = [
   { 
-    title: 'Job Consulting', 
-    desc: 'Expert placement services for IT, Banking, and Core Engineering sectors across South India.', 
-    icon: Briefcase, 
-    slug: 'job-consulting',
+    title: 'Software Development', 
+    desc: 'Scalable. Secure. Future-ready. Custom enterprise solutions tailored for business efficiency.', 
+    icon: Code2, 
+    slug: 'software-development',
     color: 'from-blue-500/20 to-indigo-500/20'
   },
   { 
-    title: 'Digital Marketing', 
-    desc: 'Full-funnel strategies, SEO, and social commerce solutions to scale your business footprint.', 
-    icon: BarChart3, 
-    slug: 'digital-marketing',
-    color: 'from-purple-500/20 to-pink-500/20'
-  },
-  { 
-    title: 'Web & App Dev', 
-    desc: 'Modern, scalable digital platforms built with cutting-edge tech stacks by Antigraviity.', 
-    icon: Gamepad2, 
-    slug: 'website-development',
+    title: 'Web Development', 
+    desc: 'Modern, high-performance business websites and SaaS platforms built with modern tech stacks.', 
+    icon: Globe, 
+    slug: 'web-development',
     color: 'from-emerald-500/20 to-teal-500/20'
   },
   { 
-    title: 'Insurance', 
-    desc: 'Comprehensive life and business insurance plans through our verified partner networks.', 
-    icon: ShieldCheck, 
-    slug: 'insurance-services',
-    color: 'from-amber-500/20 to-orange-500/20'
+    title: 'Mobile App Development', 
+    desc: 'Native and hybrid mobile applications designed for seamless user experiences on all devices.', 
+    icon: Smartphone, 
+    slug: 'mobile-app-dev',
+    color: 'from-indigo-500/20 to-blue-500/20'
   },
   { 
-    title: 'Home Services', 
-    desc: 'Book verified experts for maintenance, cleaning, and professional domestic assistance.', 
-    icon: Wrench, 
-    slug: 'home-services',
-    color: 'from-sky-500/20 to-blue-500/20'
+    title: 'AI / ML Solutions', 
+    desc: 'Intelligent chatbots, automation tools, and data analytics to future-proof your brand.', 
+    icon: Sparkles, 
+    slug: 'ai-ml-solutions',
+    color: 'from-violet-500/20 to-purple-500/20'
+  },
+  { 
+    title: 'UI/UX Design Services', 
+    desc: 'User-centric design thinking to create intuitive, engaging, and beautiful digital products.', 
+    icon: Palette, 
+    slug: 'ui-ux-design',
+    color: 'from-pink-500/20 to-rose-500/20'
+  },
+  { 
+    title: 'Digital Marketing', 
+    desc: 'Performance marketing and SEO strategies to scale your business footprint rapidly.', 
+    icon: BarChart3, 
+    slug: 'digital-marketing',
+    color: 'from-purple-500/20 to-pink-500/20'
   }
 ];
 
@@ -49,9 +56,9 @@ const Services = () => {
     <section id="services" className="py-24 bg-white dark:bg-dark-bg overflow-hidden border-t border-slate-100 dark:border-slate-800">
       <div className="container-xl">
         <div className="section-header !items-start !text-left lg:!items-center lg:!text-center">
-          <span className="section-eyebrow">Enterprise Solutions</span>
-          <h2 className="section-title">Verified Services for <span className="text-primary">Growth.</span></h2>
-          <p className="section-subtitle lg:mx-auto">Access a curated ecosystem of professional services designed to solve industrial and domestic challenges.</p>
+          <span className="section-eyebrow">Your Technology Partner for Growth</span>
+          <h2 className="section-title">Transforming Businesses with <span className="text-primary">Smart IT.</span></h2>
+          <p className="section-subtitle lg:mx-auto">Scalable. Secure. Future-ready. Access a premium ecosystem of IT solutions, professional training, and business consulting.</p>
         </div>
 
         {/* Desktop Grid / Mobile Scrollable */}

@@ -23,9 +23,9 @@ const Home = () => {
   return (
     <>
       <SEOMeta
-        title="Forge India Connect | Job Consultancy, Business Services & Placement in Chennai"
-        description="FIC is South India's leading job consultancy and business services platform. Expert job placement in Banking, IT & BPO, digital marketing, web development, insurance, and home services across Chennai, Krishnagiri & Bangalore."
-        keywords="job consultancy chennai, banking job placement, IT placement south india, HR consultancy freshers, digital marketing services chennai, web development company, forge india connect, job consulting krishnagiri"
+        title="Forge India Connect | IT Company in Chennai | Software & Web Development"
+        description="FIC is a Technology-First IT Solutions Company. Software Development, Web & App Development, AI/ML, and Digital Marketing Services. Your Technology Partner for Growth."
+        keywords="IT Company in Chennai, Software Development Company, Web Development Services India, Mobile App Development Company, AI & ML Solutions Company, Digital Marketing Agency Chennai, forge india connect"
         canonical="/"
       />
       <div className="pt-16">

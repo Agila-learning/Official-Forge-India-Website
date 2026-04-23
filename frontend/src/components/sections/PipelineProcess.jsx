@@ -5,22 +5,22 @@ import { FileEdit, CalendarCheck, Briefcase, Zap, Star, ShieldCheck } from 'luci
 const steps = [
   {
     icon: FileEdit,
-    title: 'Register',
-    desc: 'Create your professional profile and join our premium business network.',
+    title: 'Consult',
+    desc: 'Deep dive into your business challenges to architect the perfect technology strategy.',
     color: 'from-blue-600 to-blue-400',
     number: '01'
   },
   {
-    icon: CalendarCheck,
-    title: 'Consult',
-    desc: 'Match with industry experts for personalized guidance and strategic networking.',
+    icon: Zap,
+    title: 'Architect',
+    desc: 'Engineering scalable, secure, and future-ready solutions using cutting-edge tech stacks.',
     color: 'from-primary to-yellow-400',
     number: '02'
   },
   {
-    icon: Briefcase,
-    title: 'Placed',
-    desc: 'Celebrate your success as we bridge the gap between talent and opportunity.',
+    icon: ShieldCheck,
+    title: 'Deliver',
+    desc: 'Seamless deployment and continuous support to ensure your business thrives in the digital era.',
     color: 'from-green-600 to-emerald-400',
     number: '03'
   }

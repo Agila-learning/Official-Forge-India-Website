@@ -28,7 +28,7 @@ const CTA = () => {
                     viewport={{ once: true }}
                     className="text-4xl md:text-5xl font-extrabold text-white mb-6"
                 >
-                    Join India's Growing Business Network Today
+                    Empower Your Business with Smart IT Solutions Today
                 </motion.h2>
                 <motion.p 
                     initial={{ opacity: 0, y: 20 }}
@@ -37,7 +37,7 @@ const CTA = () => {
                     transition={{ delay: 0.1 }}
                     className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto"
                 >
-                    Take your business to the next level. Connect, collaborate, and succeed with industry leaders across the nation.
+                    Join India's leading technology ecosystem. Connect with experts, build scalable solutions, and grow your brand in the digital-first economy.
                 </motion.p>
                 
                 <motion.div 
