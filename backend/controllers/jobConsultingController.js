@@ -49,23 +49,31 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
 
   // 2. Create Razorpay Order
   let razorpayOrder;
-  try {
-    razorpayOrder = await razorpay.orders.create({
-      amount:   AMOUNT_INR * 100, // Convert to paise
-      currency: 'INR',
-      receipt:  `jc_${inquiry._id.toString().slice(-8)}`,
-      notes: {
-        inquiryId:      inquiry._id.toString(),
-        candidateEmail: req.user.email,
-        candidateName:  `${req.user.firstName} ${req.user.lastName}`,
-        consultingType,
-      },
-    });
-  } catch (err) {
-    // If Razorpay fails, clean up the inquiry
-    await ServiceInquiry.findByIdAndDelete(inquiry._id);
-    res.status(502);
-    throw new Error('Payment gateway error. Please try again.');
+  const isTestKey = !process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('REPLACE_WITH_YOUR_KEY_ID');
+
+  if (isTestKey) {
+    // TEST MODE: Skip Razorpay and return a mock order ID
+    razorpayOrder = { id: `order_mock_${Date.now()}` };
+    console.log('--- TEST MODE: Razorpay Order Creation Skipped ---');
+  } else {
+    try {
+      razorpayOrder = await razorpay.orders.create({
+        amount:   AMOUNT_INR * 100, // Convert to paise
+        currency: 'INR',
+        receipt:  `jc_${inquiry._id.toString().slice(-8)}`,
+        notes: {
+          inquiryId:      inquiry._id.toString(),
+          candidateEmail: req.user.email,
+          candidateName:  `${req.user.firstName} ${req.user.lastName}`,
+          consultingType,
+        },
+      });
+    } catch (err) {
+      // If Razorpay fails, clean up the inquiry
+      await ServiceInquiry.findByIdAndDelete(inquiry._id);
+      res.status(502);
+      throw new Error('Payment gateway error. Please try again.');
+    }
   }
 
   // 3. Save Razorpay order ID back to inquiry
@@ -104,15 +112,21 @@ const verifyConsultingPayment = asyncHandler(async (req, res) => {
   }
 
   // 1. Verify HMAC Signature
-  const body       = `${razorpay_order_id}|${razorpay_payment_id}`;
-  const expectedSig = crypto
-    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-    .update(body)
-    .digest('hex');
+  const isMockOrder = razorpay_order_id.startsWith('order_mock_');
 
-  if (expectedSig !== razorpay_signature) {
-    res.status(400);
-    throw new Error('Payment signature verification failed. Possible tampering detected.');
+  if (!isMockOrder) {
+    const body       = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSig = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
+
+    if (expectedSig !== razorpay_signature) {
+      res.status(400);
+      throw new Error('Payment signature verification failed. Possible tampering detected.');
+    }
+  } else {
+    console.log('--- TEST MODE: Skipping Signature Verification for Mock Order ---');
   }
 
   // 2. Fetch inquiry

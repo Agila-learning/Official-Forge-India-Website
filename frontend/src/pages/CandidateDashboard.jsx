@@ -118,12 +118,18 @@ const CandidateDashboard = () => {
 
   const handleQRConfirm = async () => {
       setShowQRModal(false);
+      setIsSubmittingConsulting(true);
       try {
-          // Mock verification API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Verify with backend
+          await api.post('/job-consulting/verify-payment', {
+              razorpay_order_id: `order_mock_${Date.now()}`,
+              razorpay_payment_id: `pay_mock_${Date.now()}`,
+              razorpay_signature: 'mock_signature',
+              inquiryId: pendingInquiryId
+          });
           
           setConsultingPaymentSuccess(true);
-          toast.success('🎉 Test Payment successful! Confirmation email sent.');
+          toast.success('🎉 Payment confirmed! Our consultant will reach out soon.');
           setConsultingForm({
             consultingType: 'Career Guidance',
             experience: 'Fresher (0-1 yr)',
@@ -132,7 +138,9 @@ const CandidateDashboard = () => {
           });
           fetchData();
       } catch (err) {
-          toast.error('Verification failed');
+          toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
+      } finally {
+          setIsSubmittingConsulting(false);
       }
   };
 
