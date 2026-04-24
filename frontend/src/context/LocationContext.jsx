@@ -61,8 +61,12 @@ export const LocationProvider = ({ children }) => {
     };
 
     const updateManualLocation = (manualLoc) => {
-        setLocation(manualLoc);
-        localStorage.setItem('fic_user_location', JSON.stringify(manualLoc));
+        // Ensure city is set for the Navbar display
+        const city = manualLoc.city || manualLoc.formatted.split(',')[0].trim();
+        const updatedLoc = { ...manualLoc, city };
+        
+        setLocation(updatedLoc);
+        localStorage.setItem('fic_user_location', JSON.stringify(updatedLoc));
         localStorage.setItem('fic_location_asked', 'true');
         setShowModal(false);
     };

@@ -51,7 +51,7 @@ const staticServices = {
   'app-development': {
     name: 'App Development',
     description: 'High-performance mobile applications engineered for seamless user experiences on iOS and Android.',
-    price: 45000,
+    price: null, // Get a Quote
     image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80',
     included: ['Native Swift & Kotlin Development', 'React Native & Flutter Hybrid Apps', 'Ultra-Low Latency Backend API', 'Biometric & Secure Payment Integration'],
     excluded: ['App Store Fees', 'Third-party API Costs']
@@ -59,7 +59,7 @@ const staticServices = {
   'website-development': {
     name: 'Website Development',
     description: 'Modern, scalable web platforms built with cutting-edge tech stacks like React, Next.js, and Node.js.',
-    price: 35000,
+    price: null, // Get a Quote
     image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
     included: ['Dynamic & Responsive PWAs', 'E-commerce & Custom Marketplace', 'Headless CMS Integrations', 'SEO-First Architecture'],
     excluded: ['Domain & Hosting', 'Premium Plugin Licenses']
@@ -67,7 +67,7 @@ const staticServices = {
   'insurance-services': {
     name: 'Insurance Services',
     description: 'Comprehensive risk management and insurance solutions for corporate and individual safety.',
-    price: 5000,
+    price: null, // Get a Quote
     image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
     included: ['Bespoke Health & Life Plans', 'Commercial Property & Asset Guard', 'Liability & Indemnity Coverage', 'Fast-track Claims Assistance'],
     excluded: ['Premium Installments', 'Deductibles']
@@ -120,6 +120,10 @@ const ServiceDetails = () => {
     }, [id, navigate]);
 
     const handleBookNow = () => {
+        if (!service.price) {
+            navigate('/contact', { state: { service: service.name } });
+            return;
+        }
         // Services are always quantity 1 and lead to specialized checkout
         addToCart({ ...service, qty: 1, isService: true });
         navigate('/checkout');
@@ -271,8 +275,8 @@ const ServiceDetails = () => {
                             </h1>
                             <div className="flex items-center gap-6 mb-8">
                                 <div className="text-3xl font-black text-primary tracking-tighter">
-                                    ₹{service.price?.toLocaleString()} 
-                                    <span className="text-xs text-gray-400 font-bold ml-2 uppercase tracking-widest">/ Service</span>
+                                    {service.price ? `₹${service.price?.toLocaleString()}` : "GET A QUOTE"} 
+                                    <span className="text-xs text-gray-400 font-bold ml-2 uppercase tracking-widest">{service.price ? "/ Service" : "Custom Pricing"}</span>
                                 </div>
                                 <div className="h-8 w-px bg-gray-200 dark:bg-gray-800" />
                                 <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/10 text-yellow-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-yellow-500/20">
@@ -355,7 +359,7 @@ const ServiceDetails = () => {
                                 onClick={handleBookNow}
                                 className="w-full py-7 bg-primary text-white font-black rounded-3xl text-sm uppercase tracking-[0.4em] shadow-[0_20px_50px_rgba(10,102,194,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 group"
                             >
-                                Secure My Service Slot <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                                {service.price ? "Secure My Service Slot" : "Request a Custom Quote"} <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                             </button>
                             
                             <div className="grid grid-cols-2 gap-4 mt-6">

@@ -252,14 +252,26 @@ const Register = () => {
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-1">Create Account</h2>
                 <div className="h-1.5 w-16 bg-primary rounded-full"></div>
               </div>
-              <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800 pr-5">
-                <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center">
-                  <RoleIcon size={20} />
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800 pr-5">
+                  <div className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center">
+                    <RoleIcon size={20} />
+                  </div>
+                  <div className="text-left">
+                     <p className="text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-1">Joining as</p>
+                     <p className="text-xs font-black text-primary leading-none uppercase">{formData.role}</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                   <p className="text-[10px] font-black text-slate-500 dark:text-gray-400 uppercase tracking-widest leading-none mb-1">Joining as</p>
-                   <p className="text-xs font-black text-primary leading-none uppercase">{formData.role}</p>
-                </div>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    // Trigger the global role modal or just let them use the select below
+                    document.getElementById('role-select-input')?.focus();
+                  }}
+                  className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+                >
+                  Change Role?
+                </button>
               </div>
             </div>
 
@@ -301,6 +313,7 @@ const Register = () => {
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Account Role</label>
                   <div className="relative">
                     <select 
+                      id="role-select-input"
                       required 
                       value={formData.role} 
                       onChange={e => setFormData({...formData, role: e.target.value})} 

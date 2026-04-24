@@ -109,12 +109,12 @@ const Navbar = () => {
   }, []);
 
   const services = [
-    { name: 'Job Consulting', path: '/services/job-consulting', icon: <Briefcase size={20} /> },
     { name: 'IT Solutions', path: '/services/it-solutions', icon: <Cpu size={20} /> },
-    { name: 'Digital Marketing', path: '/services/digital-marketing', icon: <Globe size={20} /> },
-    { name: 'Insurance Services', path: '/services/insurance-services', icon: <Shield size={20} /> },
-    { name: 'App Development', path: '/services/app-development', icon: <Smartphone size={20} /> },
     { name: 'Web Development', path: '/services/website-development', icon: <Zap size={20} /> },
+    { name: 'App Development', path: '/services/app-development', icon: <Smartphone size={20} /> },
+    { name: 'Digital Marketing', path: '/services/digital-marketing', icon: <Globe size={20} /> },
+    { name: 'Job Consulting', path: '/services/job-consulting', icon: <Briefcase size={20} /> },
+    { name: 'Insurance Services', path: '/services/insurance-services', icon: <Shield size={20} /> },
   ];
 
   const exploreOptions = [
@@ -314,8 +314,8 @@ const Navbar = () => {
             >
               <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center p-1.5 shadow-lg shadow-primary/20">
-                    <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain invert grayscale brightness-200" />
+                  <div className="w-10 h-10 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1.5 shadow-lg">
+                    <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
                   </div>
                   <div className="flex flex-col leading-none">
                     <span className="font-black text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase">FORGE INDIA</span>
@@ -363,14 +363,14 @@ const Navbar = () => {
                         </div>
                       </div>
                     ) : (
-                      <Link 
-                        to={link.path || '#'} 
-                        state={link.state}
-                        onClick={() => { if(link.onClick) link.onClick(); setIsOpen(false); }}
-                        className="text-4xl font-black text-gray-900 dark:text-white block hover:text-primary transition-all tracking-tighter uppercase italic leading-none"
-                      >
-                        {link.name}
-                      </Link>
+                        <Link 
+                          to={link.path || '#'} 
+                          state={link.state}
+                          onClick={() => { if(link.onClick) link.onClick(); setIsOpen(false); }}
+                          className="text-4xl font-black text-gray-900 dark:text-white block hover:text-primary transition-all tracking-tighter uppercase leading-none"
+                        >
+                          {link.name}
+                        </Link>
                     )}
                   </motion.div>
                 ))}

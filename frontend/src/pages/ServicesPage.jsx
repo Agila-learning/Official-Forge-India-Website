@@ -8,6 +8,11 @@ import {
   BarChart2, Megaphone, Code2, FileText, Palette, Shield, Zap,
   Umbrella, Network, MapPin, Wrench, ShoppingBag, Sparkles
 } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const services = [
   // --- PRIMARY IT SERVICES ---
@@ -33,13 +38,13 @@ const services = [
     process: ['Requirement Analysis', 'Architecture Design', 'Agile Development', 'Testing', 'Deployment'],
   },
   {
-    id: 'web-development',
+    id: 'website-development',
     icon: Globe,
     color: 'bg-teal-500',
     lightColor: 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
     eyebrow: 'Web Engineering',
     title: 'Web Development',
-    description: 'High-performance business websites, portals, and SaaS platforms built with modern tech stacks.',
+    description: 'High-performance business websites, portals, and SaaS platforms built with modern tech stacks. Optimized for speed and security.',
     features: [
       'Corporate Business Websites',
       'Progressive Web Apps (PWA)',
@@ -48,19 +53,19 @@ const services = [
       'Performance Optimization',
       'Secure Admin Dashboards',
     ],
-    cta: 'Build My Website',
-    href: '/contact',
+    cta: 'Get a Quote',
+    href: '/services/website-development',
     badge: 'Most Popular',
     process: ['UI/UX Blueprint', 'Frontend Engineering', 'Backend Integration', 'QA', 'Live Launch'],
   },
   {
-    id: 'mobile-app-dev',
+    id: 'app-development',
     icon: Smartphone,
     color: 'bg-indigo-500',
     lightColor: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
     eyebrow: 'Mobile First',
     title: 'Mobile App Development',
-    description: 'Native and Hybrid mobile applications (Android & iOS) designed for seamless user experiences.',
+    description: 'Native and Hybrid mobile applications (Android & iOS) designed for seamless user experiences and high performance.',
     features: [
       'Native Android & iOS Apps',
       'Cross-Platform (React Native)',
@@ -69,8 +74,8 @@ const services = [
       'Mobile App Maintenance',
       'User-Centric UI/UX Design',
     ],
-    cta: 'Launch Your App',
-    href: '/contact',
+    cta: 'Get a Quote',
+    href: '/services/app-development',
     badge: null,
     process: ['User Flow Design', 'Native Development', 'API Sync', 'Beta Testing', 'Store Release'],
   },
@@ -232,7 +237,7 @@ const services = [
     lightColor: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
     eyebrow: 'Protection',
     title: 'Insurance Services',
-    description: 'Comprehensive insurance solutions for individuals and businesses to mitigate risks and ensure security.',
+    description: 'Comprehensive insurance solutions for individuals and businesses to mitigate risks and ensure long-term security.',
     features: [
       'Life & Health Insurance',
       'Business Liability Coverage',
@@ -241,8 +246,8 @@ const services = [
       'Risk Assessment Consulting',
       'Policy Portfolio Management',
     ],
-    cta: 'Secure Your Future',
-    href: '/contact',
+    cta: 'Get a Quote',
+    href: '/services/insurance-services',
     badge: 'Reliable',
     process: ['Needs Analysis', 'Plan Comparison', 'Policy Issuance', 'Ongoing Support', 'Claim Help'],
   },
@@ -339,13 +344,10 @@ const services = [
 const ServiceCard = ({ service, index }) => {
   const Icon = service.icon;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-      className="feature-card flex flex-col"
+    <div
+      className="feature-card flex flex-col opacity-0 translate-y-10"
       id={service.id}
+      data-service-card
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
@@ -388,86 +390,107 @@ const ServiceCard = ({ service, index }) => {
 
       <Link
         to={service.href}
-        className="btn-primary w-full justify-center group"
+        className="btn-primary w-full justify-center group mt-auto"
       >
         {service.cta}
         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
       </Link>
-    </motion.div>
+    </div>
   );
 };
 
-const ServicesPage = () => (
-  <>
-    <SEOMeta
-      title="IT Company Services | Web, App, AI & Digital Marketing | Forge India Connect"
-      description="Forge India Connect: A Technology-First IT Solutions Company in Chennai. Software Development, Web & App Development, AI/ML, and Digital Marketing Services."
-      keywords="IT Company in Chennai, Software Development Company, Web Development Services India, Mobile App Development Company, AI & ML Solutions Company, Digital Marketing Agency Chennai"
-      canonical="/services"
-    />
+const ServicesPage = () => {
+  useGSAP(() => {
+    gsap.from('.services-hero-content > *', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: 'power3.out'
+    });
 
-    {/* Hero */}
-    <section className="relative bg-gradient-to-br from-slate-900 to-primary pt-32 pb-24 px-4 overflow-hidden">
-      <div className="absolute inset-0 mesh-gradient-bg opacity-30" />
-      <div className="container-xl relative text-center">
-        <motion.span initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="section-eyebrow !bg-white/20 !text-white">
-          Our Technology Ecosystem
-        </motion.span>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="text-white mt-2 mb-5">
-          Transforming Businesses with<br />
-          <span className="animated-text-gradient">Smart IT Solutions</span>
-        </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-          className="text-white/75 text-lg max-w-2xl mx-auto mb-10">
-          Software Development | Web & App Development | AI/ML | Digital Growth Solutions. Scalable. Secure. Future-ready.
-        </motion.p>
-        {/* Quick Navigation */}
-        <div className="flex flex-wrap justify-center gap-2">
-          {services.map(s => (
-            <a key={s.id} href={`#${s.id}`}
-              className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-xs font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
-              {s.title}
+    gsap.to('[data-service-card]', {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.services-grid',
+        start: 'top 80%',
+      }
+    });
+  });
+
+  return (
+    <>
+      <SEOMeta
+        title="IT Company Services | Web, App, AI & Digital Marketing | Forge India Connect"
+        description="Forge India Connect: A Technology-First IT Solutions Company in Chennai. Software Development, Web & App Development, AI/ML, and Digital Marketing Services."
+        keywords="IT Company in Chennai, Software Development Company, Web Development Services India, Mobile App Development Company, AI & ML Solutions Company, Digital Marketing Agency Chennai"
+        canonical="/services"
+      />
+
+      {/* Hero */}
+      <section className="relative bg-gradient-to-br from-slate-900 to-primary pt-32 pb-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 mesh-gradient-bg opacity-30" />
+        <div className="container-xl relative text-center services-hero-content">
+          <span className="section-eyebrow !bg-white/20 !text-white inline-block">
+            Our Technology Ecosystem
+          </span>
+          <h1 className="text-white mt-2 mb-5">
+            Transforming Businesses with<br />
+            <span className="animated-text-gradient">Smart IT Solutions</span>
+          </h1>
+          <p className="text-white/75 text-lg max-w-2xl mx-auto mb-10">
+            Software Development | Web & App Development | AI/ML | Digital Growth Solutions. Scalable. Secure. Future-ready.
+          </p>
+          {/* Quick Navigation */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {services.map(s => (
+              <a key={s.id} href={`#${s.id}`}
+                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-xs font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
+                {s.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services Grid */}
+      <section className="section-padding bg-slate-50 dark:bg-dark-bg services-grid">
+        <div className="container-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {services.map((service, i) => (
+              <ServiceCard key={service.id} service={service} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Banner */}
+      <section className="section-padding bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="container-xl text-center relative">
+          <span className="section-eyebrow !bg-white/20 !text-white">Ready to Begin?</span>
+          <h2 className="text-white mt-2 mb-5">Not sure which service is right for you?</h2>
+          <p className="text-white/75 text-lg max-w-xl mx-auto mb-8">
+            Our team will understand your needs and guide you to the best solution — completely free of charge.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/contact" className="btn-primary btn-lg !bg-white !text-primary hover:!bg-slate-100 shadow-2xl">
+              Get a Quote Now <ArrowRight size={18} />
+            </Link>
+            <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white font-black rounded-full shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all"
+            >  WhatsApp Us
             </a>
-          ))}
+          </div>
         </div>
-      </div>
-    </section>
-
-    {/* Services Grid */}
-    <section className="section-padding bg-slate-50 dark:bg-dark-bg">
-      <div className="container-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {services.map((service, i) => (
-            <ServiceCard key={service.id} service={service} index={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* CTA Banner */}
-    <section className="section-padding bg-primary relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      <div className="container-xl text-center relative">
-        <span className="section-eyebrow !bg-white/20 !text-white">Ready to Begin?</span>
-        <h2 className="text-white mt-2 mb-5">Not sure which service is right for you?</h2>
-        <p className="text-white/75 text-lg max-w-xl mx-auto mb-8">
-          Our team will understand your needs and guide you to the best solution — completely free of charge.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link to="/contact" className="btn-primary btn-lg !bg-white !text-primary hover:!bg-slate-100 shadow-2xl">
-            Book Free Consultation <ArrowRight size={18} />
-          </Link>
-          <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white font-black rounded-full shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all"
-          >  WhatsApp Us
-          </a>
-        </div>
-      </div>
-    </section>
-  </>
-);
+      </section>
+    </>
+  );
+};
 
 export default ServicesPage;

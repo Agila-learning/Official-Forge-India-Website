@@ -14,30 +14,30 @@ import {
 
 // ─── SERVICE KNOWLEDGE BASE ───────────────────────────────────────
 const SERVICES = {
+  it_solutions: {
+    title: 'IT Solutions',
+    icon: Globe,
+    color: 'from-indigo-500 to-blue-400',
+    desc: 'FIC delivers end-to-end IT solutions — website development, mobile app development, CRM/ERP solutions, and custom software. We turn your business ideas into powerful digital products.',
+    keywords: ['it solution', 'website', 'web development', 'mobile app', 'app development', 'crm', 'ecommerce', 'api', 'custom software'],
+    route: '/services/website-development',
+    category: 'solutions'
+  },
+  digital_marketing: {
+    title: 'Digital Marketing',
+    icon: Megaphone,
+    color: 'from-yellow-500 to-orange-400',
+    desc: 'Our digital marketing services include SEO, social media marketing, PPC advertising, and brand strategy. We help businesses grow their online presence and acquire customers.',
+    keywords: ['digital marketing', 'seo', 'social media', 'ppc', 'advertising', 'branding', 'lead generation'],
+    route: '/services/digital-marketing',
+    category: 'solutions'
+  },
   it_consulting: {
     title: 'IT Consulting',
     icon: Monitor,
     color: 'from-blue-500 to-cyan-400',
-    desc: 'We provide expert IT consulting services including software development, system integration, cloud migration, ERP implementation, and technology strategy. Our IT consultants help businesses modernize their tech stack and improve operational efficiency.',
-    keywords: ['it', 'software', 'technology', 'tech', 'cloud', 'erp', 'system', 'it consulting', 'it services', 'developer', 'programming', 'coding'],
-    route: '/jobs',
-    category: 'consulting'
-  },
-  banking: {
-    title: 'Banking & Finance',
-    icon: Landmark,
-    color: 'from-emerald-500 to-green-400',
-    desc: 'FIC connects professionals with top banks and financial institutions. We offer consulting in retail banking, corporate banking, investment banking, loan processing, credit analysis, and financial compliance roles.',
-    keywords: ['bank', 'banking', 'finance', 'loan', 'credit', 'investment', 'financial', 'sbi', 'credit card', 'neft', 'rtgs', 'mutual fund'],
-    route: '/jobs',
-    category: 'consulting'
-  },
-  non_it: {
-    title: 'Non-IT Consulting',
-    icon: Building2,
-    color: 'from-orange-500 to-amber-400',
-    desc: 'Our Non-IT consulting covers manufacturing, logistics, supply chain, operations, HR, administration, sales, and marketing roles. We help businesses find the right talent for every operational role.',
-    keywords: ['non it', 'non-it', 'manufacturing', 'logistics', 'supply chain', 'operations', 'hr', 'human resource', 'admin', 'sales', 'marketing role'],
+    desc: 'Expert IT consulting for software development, system integration, and technology strategy. We help businesses modernize their tech stack.',
+    keywords: ['it', 'software', 'technology', 'tech', 'it consulting', 'developer'],
     route: '/jobs',
     category: 'consulting'
   },
@@ -45,46 +45,19 @@ const SERVICES = {
     title: 'Insurance Consulting',
     icon: ShieldCheck,
     color: 'from-violet-500 to-purple-400',
-    desc: 'We specialize in insurance consulting — life insurance, health insurance, motor insurance, and general insurance. Our team helps agents, advisors, and companies build strong insurance portfolios and distribution networks.',
-    keywords: ['insurance', 'life insurance', 'health insurance', 'motor insurance', 'policy', 'premium', 'claim', 'lic', 'agent'],
-    route: '/jobs',
+    desc: 'Specialized insurance consulting for life, health, and general insurance. Get a custom quote for your protection needs.',
+    keywords: ['insurance', 'life insurance', 'health insurance', 'policy', 'premium', 'lic'],
+    route: '/services/insurance-services',
     category: 'consulting'
   },
-  atomy: {
-    title: 'Atomy Product Marketing',
-    icon: ShoppingBag,
-    color: 'from-pink-500 to-rose-400',
-    desc: 'FIC is an authorized Atomy product marketing partner. We help individuals build their Atomy business with premium Korean wellness, skincare, and health products. Join our network for training, strategy, and product distribution support.',
-    keywords: ['atomy', 'atomy products', 'atomy marketing', 'wellness', 'skincare', 'health product', 'korean', 'network marketing', 'mlm', 'direct selling'],
-    route: '/explore-shop',
-    category: 'products'
-  },
-  bpo: {
-    title: 'BPO Services',
-    icon: Headphones,
-    color: 'from-teal-500 to-cyan-400',
-    desc: 'Our BPO services include voice and non-voice processes, customer support, data entry, back-office operations, telecalling, and technical support. We help companies outsource their business processes efficiently.',
-    keywords: ['bpo', 'call center', 'customer support', 'telecalling', 'voice process', 'non voice', 'data entry', 'back office', 'outsourc'],
+  banking: {
+    title: 'Banking & Finance',
+    icon: Landmark,
+    color: 'from-emerald-500 to-green-400',
+    desc: 'Connecting professionals with top financial institutions. Consulting in retail banking, corporate banking, and financial compliance.',
+    keywords: ['bank', 'banking', 'finance', 'loan', 'credit', 'investment'],
     route: '/jobs',
     category: 'consulting'
-  },
-  it_solutions: {
-    title: 'IT Solutions',
-    icon: Globe,
-    color: 'from-indigo-500 to-blue-400',
-    desc: 'FIC delivers end-to-end IT solutions — website development, mobile app development, CRM/ERP solutions, e-commerce platforms, API integrations, and custom software. We turn your business ideas into powerful digital products.',
-    keywords: ['it solution', 'website', 'web development', 'mobile app', 'app development', 'crm', 'ecommerce', 'e-commerce', 'api', 'custom software'],
-    route: '/services',
-    category: 'solutions'
-  },
-  digital_marketing: {
-    title: 'Digital Marketing',
-    icon: Megaphone,
-    color: 'from-yellow-500 to-orange-400',
-    desc: 'Our digital marketing services include SEO, social media marketing, PPC advertising, content marketing, email campaigns, brand strategy, and lead generation. We help businesses grow their online presence and acquire customers.',
-    keywords: ['digital marketing', 'seo', 'social media', 'ppc', 'advertising', 'content', 'email marketing', 'branding', 'lead generation', 'google ads', 'facebook ads', 'instagram'],
-    route: '/services',
-    category: 'solutions'
   }
 };
 
@@ -178,8 +151,8 @@ const INTENTS = {
   about_fic: {
     patterns: ['what is fic', 'about fic', 'forge india', 'what do you do', 'what services', 'tell me about', 'what is forge india connect', 'what you offer', 'your company', 'company info', 'all services', 'what do you provide', 'provide services', 'fic provide', 'services provided'],
     response: () => ({
-      text: `**Forge India Connect (FIC)** is India's fastest-growing business networking and consulting platform! 🇮🇳\n\nHere's everything we offer:\n\n**📋 Job Consulting:**\n• IT Consulting (Tech roles)\n• Banking & Finance (BFSI)\n• Non-IT (Ops, HR, Admin)\n• Insurance Consulting\n• BPO Services\n\n**💻 Business Solutions:**\n• IT Solutions (Web, Mobile, App Dev)\n• Digital Marketing (SEO, Social Media, Content)\n\n**🛍️ Marketplace:**\n• Atomy Product Marketing\n• Vendor Marketplace\n\n**🏠 Home Services:**\n• Cleaning, Painting, Plumbing & more\n\n**🎯 Platform Features:**\n• Post Jobs (Employers)\n• Apply for Jobs (Candidates)\n• Vendor Dashboard\n• Service Booking\n\nWhat interests you most? 👇`,
-      quickReplies: ['IT Consulting', 'Banking Jobs', 'BPO Services', 'Digital Marketing', 'Home Services', 'Post a Job', 'Apply for Jobs', 'Vendor Access']
+      text: `**Forge India Connect (FIC)** is a Technology-First IT Solutions company! 🇮🇳\n\nHere's what we specialize in:\n\n**💻 IT & Digital Solutions:**\n• Web & Mobile App Development\n• Enterprise Software (ERP/CRM)\n• AI & Machine Learning Solutions\n• UI/UX Design & Branding\n• Digital Marketing & SEO\n\n**📋 Consulting Services:**\n• IT Consulting\n• Banking & Finance\n• Insurance Consulting\n• BPO Services\n\n**🏠 Home Services:**\n• Cleaning, Painting, & Maintenance\n\nWhat can I help you build or find today? 👇`,
+      quickReplies: ['Web Development', 'App Development', 'IT Consulting', 'Digital Marketing', 'Insurance', 'Apply for Jobs']
     })
   },
   thanks: {
@@ -543,10 +516,16 @@ const FICQuippy = () => {
     };
   }, [isOpen]);
 
-  // Auto-show pulse after 4s
+  // Auto-show pulse after 4s, and auto-hide tooltip after 9s (5s duration)
   useEffect(() => {
-    const t = setTimeout(() => setShowPulse(true), 4000);
-    return () => clearTimeout(t);
+    const showTimer = setTimeout(() => setShowPulse(true), 4000);
+    const hideTimer = setTimeout(() => {
+      setHasGreeted(true); // This hides the tooltip
+    }, 9000);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+    };
   }, []);
 
   const addBotMessage = useCallback((response) => {
