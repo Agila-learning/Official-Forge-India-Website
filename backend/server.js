@@ -198,6 +198,35 @@ io.on('connection', (socket) => {
   });
 });
 
+// ─── Self-Initialization (Admin Bootstrap) ────────────────────────────────────
+const User = require('./models/User');
+const initializeAdmin = async () => {
+    try {
+        const adminEmail = 'admin@forgeindiaconnect.com';
+        const adminExists = await User.findOne({ email: adminEmail });
+        
+        if (!adminExists) {
+            await User.create({
+                firstName: 'Super',
+                lastName: 'Admin',
+                email: adminEmail,
+                password: 'admin123',
+                role: 'Admin',
+                approvalStatus: 'Approved'
+            });
+            console.log(`✅ Bootstrap: Admin account created (${adminEmail})`);
+        } else {
+            // Optional: Ensure password is 'admin123' if it exists but login is failing
+            // adminExists.password = 'admin123';
+            // await adminExists.save();
+            console.log(`ℹ️ Bootstrap: Admin account verified (${adminEmail})`);
+        }
+    } catch (err) {
+        console.error('❌ Bootstrap Error:', err.message);
+    }
+};
+initializeAdmin();
+
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} with Socket.IO`);
