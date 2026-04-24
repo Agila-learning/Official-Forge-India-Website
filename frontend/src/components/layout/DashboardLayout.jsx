@@ -169,6 +169,8 @@ const DashboardLayout = ({
                     { id: 'browse',       icon: Briefcase,        label: 'Job Marketplace' },
                     { id: 'applications', icon: ClipboardList,    label: 'My Applications' },
                     { id: 'notifications',icon: Bell,             label: 'Alerts' },
+                    { id: 'messages',     icon: Send,             label: 'Support Chat' },
+                    { id: 'quippy',       icon: MessageSquare,    label: 'Chat with Quippy' },
                     { id: 'profile',      icon: User,             label: 'Strategy Profile' },
                 ];
 

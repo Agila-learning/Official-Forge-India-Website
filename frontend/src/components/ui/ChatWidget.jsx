@@ -158,7 +158,13 @@ const ChatWidget = () => {
         ]);
         setThreads(threadsRes.data);
         setContacts(contactsRes.data);
-      } catch (_) {}
+        // If no threads, show contacts by default to avoid "empty" look
+        if (threadsRes.data.length === 0 && contactsRes.data.length > 0) {
+            setTab('contacts');
+        }
+      } catch (err) {
+          console.error('Chat load error:', err);
+      }
     };
     fetchData();
   }, [isOpen, token]);
@@ -345,10 +351,18 @@ const ChatWidget = () => {
                 {/* List */}
                 <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 custom-scrollbar">
                   {tab === 'threads' ? (
-                    threads.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full text-zinc-600 text-sm font-bold">
-                        <MessageCircle size={32} className="mb-3 opacity-30" />
-                        No conversations yet
+                      <div className="flex flex-col items-center justify-center h-full text-zinc-600 text-center px-6">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                            <MessageCircle size={32} className="opacity-30" />
+                        </div>
+                        <p className="text-sm font-black text-white uppercase tracking-tighter mb-2">No active threads</p>
+                        <p className="text-[10px] font-medium text-zinc-500 mb-6">Start a new conversation with our experts or partners.</p>
+                        <button 
+                            onClick={() => setTab('contacts')}
+                            className="px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                        >
+                            Start New Chat
+                        </button>
                       </div>
                     ) : (
                       threads.map((thread, i) => (

@@ -31,7 +31,7 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     throw new Error('Consulting type, requirements, and contact number are required.');
   }
 
-  const AMOUNT_INR = 499; // Consulting fee in INR
+  const AMOUNT_INR = 1500; // Consulting fee in INR
 
   // 1. Save inquiry to DB with paymentStatus: Pending
   const inquiry = await ServiceInquiry.create({

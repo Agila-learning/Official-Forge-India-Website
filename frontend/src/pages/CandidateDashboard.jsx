@@ -606,6 +606,84 @@ const CandidateDashboard = () => {
                 </motion.div>
                 )}
 
+                {/* CHAT WITH QUIPPY */}
+                {activeTab === 'quippy' && (
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
+                    <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-[3rem] p-12 text-center border border-white/5 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
+                        <div className="relative z-10">
+                            <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 rotate-12">
+                                <Sparkles size={48} className="text-primary" />
+                            </div>
+                            <h2 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Meet <span className="text-primary italic">Quippy</span></h2>
+                            <p className="text-gray-400 text-lg font-medium mb-12 max-w-xl mx-auto">
+                                Your dedicated AI Career Strategist. Get instant help with your resume, interview prep, or navigating the Forge India ecosystem.
+                            </p>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Resume Optimization</h4>
+                                    <p className="text-[10px] text-gray-500 font-bold">"How can I improve my software engineer resume?"</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Interview Prep</h4>
+                                    <p className="text-[10px] text-gray-500 font-bold">"Give me mock interview questions for Java."</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Platform Guide</h4>
+                                    <p className="text-[10px] text-gray-500 font-bold">"How do I apply for the career guidance session?"</p>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={() => {
+                                    // Triggering the global Quippy widget
+                                    const quippyBtn = document.querySelector('button[aria-label="Toggle Quippy AI"]');
+                                    if (quippyBtn) quippyBtn.click();
+                                    else toast.error("Quippy is currently initializing...");
+                                }}
+                                className="px-10 py-5 bg-primary text-white font-black rounded-full text-lg shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
+                            >
+                                Launch AI Strategist
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
+                )}
+
+                {/* SUPPORT MESSAGES (MESSAGES) */}
+                {activeTab === 'messages' && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[75vh] flex flex-col">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Support <span className="text-primary italic">Chat</span></h1>
+                            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">Connect with Admin & HR Experts</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden flex flex-col items-center justify-center p-12 text-center">
+                        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
+                            <Send size={32} />
+                        </div>
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Direct Support Channel</h3>
+                        <p className="text-gray-500 font-medium max-w-md mb-8">
+                            Our support interface is integrated directly into your dashboard. Click the floating chat button in the bottom right to start a conversation with our team.
+                        </p>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => {
+                                    const chatBtn = document.querySelector('button[aria-label="Open Chat"]');
+                                    if (chatBtn) chatBtn.click();
+                                }}
+                                className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:-translate-y-1 transition-all"
+                            >
+                                Open Chat Console
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
+                )}
+
                 {/* ALERTS */}
                 {activeTab === 'notifications' && (
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl">
@@ -730,7 +808,7 @@ const CandidateDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20 px-6 py-3 rounded-2xl">
                             <Sparkles size={16} className="text-primary" />
-                            <span className="text-sm font-black text-primary">₹499 / Session</span>
+                            <span className="text-sm font-black text-primary">₹1500 / Session</span>
                         </div>
                     </div>
 
@@ -862,7 +940,7 @@ const CandidateDashboard = () => {
                             {isSubmittingConsulting ? (
                                 <><Loader2 className="animate-spin" size={18} /> Processing...</>
                             ) : (
-                                <><CreditCard size={18} /> Pay ₹499 &amp; Book Session</>
+                                <><CreditCard size={18} /> Pay ₹1500 &amp; Book Session</>
                             )}
                         </button>
                     </div>

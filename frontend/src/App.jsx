@@ -82,7 +82,7 @@ const ContentWrapper = ({ loading }) => {
       <ScrollToTop />
       {!shouldHide && <GlobalCTABar />}
       {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}
-      {!userInfo && <FICQuippy />}
+      {(!userInfo || userInfo?.role === 'Candidate') && <FICQuippy />}
       {(!userInfo && location.pathname === '/') && <CookieConsent />}
       <LocationPermissionModal />
       

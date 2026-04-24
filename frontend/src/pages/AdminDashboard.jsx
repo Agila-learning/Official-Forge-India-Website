@@ -2326,9 +2326,18 @@ const AdminDashboard = () => {
                 {/* Contact list */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                   {filteredContacts.length === 0 ? (
-                    <div className="py-16 text-center">
-                      <Users size={36} className="mx-auto text-gray-300 dark:text-gray-700 mb-3" />
-                      <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No contacts found</p>
+                    <div className="py-20 text-center px-6">
+                      <div className="w-20 h-20 bg-gray-50 dark:bg-dark-bg rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Users size={40} className="text-gray-300 dark:text-gray-700" />
+                      </div>
+                      <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-2">No Active Contacts</p>
+                      <p className="text-[10px] font-medium text-gray-500 mb-8 uppercase tracking-widest leading-relaxed">We couldn't find any approved users matching your criteria.</p>
+                      <button 
+                        onClick={loadContacts}
+                        className="px-8 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+                      >
+                        Sync Global Registry
+                      </button>
                     </div>
                   ) : (
                     filteredContacts.map(contact => {
