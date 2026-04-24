@@ -38,7 +38,7 @@ const getProductById = async (req, res) => {
 const createProduct = async (req, res) => {
   try {
     const productData = { ...req.body };
-    if (productData.slots === "") productData.slots = [];
+    if (productData.slots === "" || !Array.isArray(productData.slots)) productData.slots = [];
     
     // Ensure vendorId is a valid ObjectId string, not an empty string
     const targetVendorId = (req.body.vendorId && req.body.vendorId !== "") ? req.body.vendorId : req.user._id;
@@ -47,11 +47,29 @@ const createProduct = async (req, res) => {
     // Sanitize category references
     if (productData.categoryRef === "") productData.categoryRef = null;
     if (productData.subCategoryRef === "") productData.subCategoryRef = null;
+
+    // Default image fallback
+    if (!productData.image || productData.image.trim() === '') {
+        productData.image = 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1200&q=80';
+    }
+
+    // Default description fallback
+    if (!productData.description || productData.description.trim() === '') {
+        productData.description = productData.name || 'Service provided by Forge India Connect';
+    }
+
+    // Default price
+    if (!productData.price && productData.price !== 0) productData.price = 0;
     
     const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (error) {
-    console.error('Create Product Error:', error);
+    console.error('Create Product Error:', error.message);
+    // Return field-level validation errors
+    if (error.name === 'ValidationError') {
+        const fields = Object.keys(error.errors).map(f => `${f}: ${error.errors[f].message}`);
+        return res.status(400).json({ message: `Validation failed: ${fields.join(', ')}` });
+    }
     res.status(400).json({ message: error.message });
   }
 };

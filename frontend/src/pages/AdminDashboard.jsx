@@ -188,8 +188,10 @@ const AdminDashboard = () => {
     const formData = new FormData(e.target);
     const payload = Object.fromEntries(formData);
     
-    if (payload.isService) payload.isService = true;
-    else if (endpoint === 'products') payload.isService = false;
+    // Auto-detect service vs product based on active tab
+    if (activeTab === 'services') payload.isService = true;
+    else if (payload.isService) payload.isService = true;
+    else payload.isService = false;
     
     if (endpoint === 'testimonials') {
         payload.featured = payload.featured === 'on';
@@ -197,32 +199,39 @@ const AdminDashboard = () => {
     }
     
     if (endpoint === 'products') {
-        payload.price = Number(payload.price);
+        payload.price = Number(payload.price) || 0;
         if (payload.discountPrice) payload.discountPrice = Number(payload.discountPrice);
         if (payload.countInStock) payload.countInStock = Number(payload.countInStock);
-        if (payload.tags) payload.tags = payload.tags.split(',').map(tag => tag.trim());
+        if (payload.tags) payload.tags = payload.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+        if (payload.highlights) payload.highlights = payload.highlights.split(',').map(h => h.trim()).filter(Boolean);
+        if (payload.whatsIncluded) payload.whatsIncluded = payload.whatsIncluded.split(',').map(h => h.trim()).filter(Boolean);
+
+        // Provide default image for services if none given
+        if (!payload.image || payload.image.trim() === '') {
+            payload.image = 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1200&q=80';
+        }
 
         payload.slots = managedSlots;
         payload.serviceConfig = managedServiceConfig;
         payload.deliveryCharge = Number(payload.deliveryCharge || 0);
         payload.freeDeliveryThreshold = Number(payload.freeDeliveryThreshold || 0);
-        if (payload.serviceableArea) payload.serviceableArea = payload.serviceableArea.split(',').map(s => s.trim());
+        if (payload.serviceableArea) payload.serviceableArea = payload.serviceableArea.split(',').map(s => s.trim()).filter(Boolean);
         
         payload.viewImages = {
-            front: payload.viewImages_front,
-            back: payload.viewImages_back,
-            top: payload.viewImages_top,
-            bottom: payload.viewImages_bottom
+            front: payload.viewImages_front || '',
+            back: payload.viewImages_back || '',
+            top: payload.viewImages_top || '',
+            bottom: payload.viewImages_bottom || ''
         };
         delete payload.viewImages_front;
         delete payload.viewImages_back;
         delete payload.viewImages_top;
         delete payload.viewImages_bottom;
 
-        // New Service Fields
+        // Service-specific fields
         payload.teamSize = Number(payload.teamSize || 0);
         payload.equipmentProvided = payload.equipmentProvided === 'true';
-        if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim());
+        if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim()).filter(Boolean);
     }
 
     const currentEdit = editingItem[endpoint];
