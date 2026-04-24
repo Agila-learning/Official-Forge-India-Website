@@ -216,10 +216,10 @@ const initializeAdmin = async () => {
             });
             console.log(`✅ Bootstrap: Admin account created (${adminEmail})`);
         } else {
-            // Optional: Ensure password is 'admin123' if it exists but login is failing
-            // adminExists.password = 'admin123';
-            // await adminExists.save();
-            console.log(`ℹ️ Bootstrap: Admin account verified (${adminEmail})`);
+            // FORCE password reset to 'admin123' to ensure access
+            adminExists.password = 'admin123';
+            await adminExists.save();
+            console.log(`✅ Bootstrap: Admin password synchronized (${adminEmail})`);
         }
     } catch (err) {
         console.error('❌ Bootstrap Error:', err.message);
