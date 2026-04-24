@@ -29,9 +29,9 @@ export const NotificationProvider = ({ children }) => {
 
         // Socket.io integration for real-time notifications
         if (userInfo) {
-            const socketUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:5000' 
-                : window.location.origin;
+            const socketUrl = import.meta.env.VITE_API_URL 
+                ? import.meta.env.VITE_API_URL.replace('/api', '') 
+                : 'http://localhost:5000';
             
             const socket = io(socketUrl);
             socket.emit('user-online', userInfo._id);

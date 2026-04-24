@@ -11,7 +11,9 @@ import api from '../../services/api';
 
 let socket = null;
 
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL.replace('/api', '') 
+  : 'http://localhost:5000';
 
 const getInitials = (user) => {
   if (!user) return '?';
@@ -89,8 +91,7 @@ const ChatWidget = () => {
 
     if (!socket) {
       socket = io(SOCKET_URL, { 
-        auth: { token },
-        transports: ['websocket']
+        auth: { token }
       });
 
       socket.on('connect', () => {
@@ -351,6 +352,7 @@ const ChatWidget = () => {
                 {/* List */}
                 <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2 custom-scrollbar">
                   {tab === 'threads' ? (
+                    threads.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full text-zinc-600 text-center px-6">
                         <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
                             <MessageCircle size={32} className="opacity-30" />
