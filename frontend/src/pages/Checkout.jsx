@@ -173,17 +173,17 @@ const Checkout = () => {
                     </div>
                     
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
-                        Test Mode Payment
+                        Secure UPI Payment
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                        Please scan the QR code using any UPI App to proceed with the mock payment. An email receipt will be sent.
+                        Scan this QR to pay <span className="text-primary font-black">₹{cartTotal.toLocaleString()}</span> and complete your order.
                     </p>
                     
                     <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
                         <img 
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=mockupi@upi" 
+                        src="/registration_qr.png" 
                         alt="UPI QR Code" 
-                        className="w-48 h-48 mx-auto rounded-xl"
+                        className="w-48 h-48 mx-auto rounded-xl shadow-inner"
                         />
                     </div>
 

@@ -1137,7 +1137,7 @@ const AdminDashboard = () => {
                                         <td className="py-6 px-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-yellow-600 font-black uppercase">
-                                                    {user.firstName[0]}
+                                                    {user.firstName?.[0]}
                                                 </div>
                                                 <div>
                                                     <p className="font-black text-gray-900 dark:text-white">{user.firstName} {user.lastName}</p>
@@ -1191,7 +1191,7 @@ const AdminDashboard = () => {
                                         <td className="py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center text-primary font-black uppercase text-xs">
-                                                    {user.firstName[0]}{user.lastName[0]}
+                                                    {user.firstName?.[0]}{user.lastName?.[0]}
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-900 dark:text-white leading-none mb-1">{user.firstName} {user.lastName}</p>
