@@ -243,7 +243,7 @@ const Navbar = () => {
                 <div className="relative group/profile">
                   <button className="flex items-center gap-3 p-2 pr-5 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm">
                     <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm uppercase shadow-lg shadow-primary/20">
-                      {userInfo.firstName[0]}
+                      {userInfo.firstName?.[0] ?? '?'}
                     </div>
                     <div className="text-left">
                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Welcome</p>
