@@ -208,6 +208,7 @@ const User = require('./models/User');
 const initializeAdmin = async () => {
     try {
         const adminEmails = ['admin@forgeindiaconnect.com', 'admin@forgeindia.com'];
+        const hashedAdminPassword = '$2a$10$Fd5d55YjMBTKkLZH7Uf0yufnTQlIUTB.BzSlKciWHEAmT2.jPSuWi'; // Hash for 'admin123'
         
         for (const adminEmail of adminEmails) {
             const adminExists = await User.findOne({ email: adminEmail });
@@ -217,17 +218,19 @@ const initializeAdmin = async () => {
                     firstName: 'Super',
                     lastName: 'Admin',
                     email: adminEmail,
-                    password: 'admin123',
+                    password: hashedAdminPassword, // Using pre-hashed password
                     role: 'Admin',
                     approvalStatus: 'Approved'
                 });
                 console.log(`✅ Bootstrap: Admin account created (${adminEmail})`);
             } else {
-                // FORCE password reset to 'admin123' to ensure access
-                adminExists.password = 'admin123';
-                adminExists.approvalStatus = 'Approved';
-                await adminExists.save();
-                console.log(`✅ Bootstrap: Admin password synchronized (${adminEmail})`);
+                // Force sync password and approval status
+                await User.updateOne({ email: adminEmail }, { 
+                    password: hashedAdminPassword,
+                    approvalStatus: 'Approved',
+                    role: 'Admin'
+                });
+                console.log(`✅ Bootstrap: Admin synchronized (${adminEmail})`);
             }
         }
     } catch (err) {

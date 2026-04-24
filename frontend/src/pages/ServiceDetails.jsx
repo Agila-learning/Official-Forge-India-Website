@@ -71,6 +71,30 @@ const staticServices = {
     image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
     included: ['Bespoke Health & Life Plans', 'Commercial Property & Asset Guard', 'Liability & Indemnity Coverage', 'Fast-track Claims Assistance'],
     excluded: ['Premium Installments', 'Deductibles']
+  },
+  'software-development': {
+    name: 'Software Development',
+    description: 'Custom enterprise solutions designed for scalability, security, and future-ready business operations.',
+    price: null,
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
+    included: ['Custom ERP & CRM Solutions', 'Enterprise Software Architecture', 'API Integration & Development'],
+    excluded: ['Server Infrastructure Costs']
+  },
+  'ai-ml-solutions': {
+    name: 'AI & ML Solutions',
+    description: 'Leverage the power of Artificial Intelligence and Machine Learning to automate and optimize your business.',
+    price: null,
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+    included: ['Intelligent AI Chatbots', 'Predictive Analytics Tools', 'Process Automation (RPA)'],
+    excluded: ['GPU Computing Costs']
+  },
+  'ui-ux-design': {
+    name: 'UI/UX Design Services',
+    description: 'User-centric design thinking to create intuitive, engaging, and beautiful digital products.',
+    price: null,
+    image: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?auto=format&fit=crop&w=1200&q=80',
+    included: ['User Interface (UI) Design', 'User Experience (UX) Research', 'Interactive Prototyping'],
+    excluded: ['Stock Asset Fees']
   }
 };
 
