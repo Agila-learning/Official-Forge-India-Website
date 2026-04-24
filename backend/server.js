@@ -202,24 +202,28 @@ io.on('connection', (socket) => {
 const User = require('./models/User');
 const initializeAdmin = async () => {
     try {
-        const adminEmail = 'admin@forgeindiaconnect.com';
-        const adminExists = await User.findOne({ email: adminEmail });
+        const adminEmails = ['admin@forgeindiaconnect.com', 'admin@forgeindia.com'];
         
-        if (!adminExists) {
-            await User.create({
-                firstName: 'Super',
-                lastName: 'Admin',
-                email: adminEmail,
-                password: 'admin123',
-                role: 'Admin',
-                approvalStatus: 'Approved'
-            });
-            console.log(`✅ Bootstrap: Admin account created (${adminEmail})`);
-        } else {
-            // FORCE password reset to 'admin123' to ensure access
-            adminExists.password = 'admin123';
-            await adminExists.save();
-            console.log(`✅ Bootstrap: Admin password synchronized (${adminEmail})`);
+        for (const adminEmail of adminEmails) {
+            const adminExists = await User.findOne({ email: adminEmail });
+            
+            if (!adminExists) {
+                await User.create({
+                    firstName: 'Super',
+                    lastName: 'Admin',
+                    email: adminEmail,
+                    password: 'admin123',
+                    role: 'Admin',
+                    approvalStatus: 'Approved'
+                });
+                console.log(`✅ Bootstrap: Admin account created (${adminEmail})`);
+            } else {
+                // FORCE password reset to 'admin123' to ensure access
+                adminExists.password = 'admin123';
+                adminExists.approvalStatus = 'Approved';
+                await adminExists.save();
+                console.log(`✅ Bootstrap: Admin password synchronized (${adminEmail})`);
+            }
         }
     } catch (err) {
         console.error('❌ Bootstrap Error:', err.message);
