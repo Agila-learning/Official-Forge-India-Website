@@ -40,7 +40,12 @@ const jobConsultingRoutes = require('./routes/jobConsultingRoutes');
 const Message = require('./models/Message');
 const path = require('path');
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india_connect');
+mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india_connect')
+    .then(() => {
+        console.log('✅ Connected to MongoDB');
+        initializeAdmin();
+    })
+    .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -229,7 +234,6 @@ const initializeAdmin = async () => {
         console.error('❌ Bootstrap Error:', err.message);
     }
 };
-initializeAdmin();
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
