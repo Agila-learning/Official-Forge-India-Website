@@ -320,13 +320,13 @@ const Register = () => {
                       className="form-input !rounded-2xl py-4 appearance-none cursor-pointer pr-12 dark:bg-dark-bg dark:text-white"
                     >
                       <option value="Customer" className="text-slate-900 bg-white">Customer / Individual</option>
+                      <option value="Trainer" className="text-slate-900 bg-white">Academic Trainer</option>
                       <option value="Candidate" className="text-slate-900 bg-white">Job Seeker / Candidate</option>
                       <option value="Vendor" className="text-slate-900 bg-white">Vendor (Bulk/B2B)</option>
                       <option value="Seller" className="text-slate-900 bg-white">Direct Product Seller</option>
                       <option value="Service Provider" className="text-slate-900 bg-white">Local Service Provider</option>
                       <option value="HR" className="text-slate-900 bg-white">HR / Recruiter</option>
                       <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
-                      <option value="Trainer" className="text-slate-900 bg-white">Academic Trainer</option>
                     </select>
                     <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
