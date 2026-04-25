@@ -47,7 +47,8 @@ const Login = () => {
         'Service Provider': '/vendor',
         'HR': '/hr',
         'Delivery Partner': '/delivery',
-        'Candidate': '/candidate/dashboard'
+        'Candidate': '/candidate/dashboard',
+        'Trainer': '/trainer-dashboard'
       };
       
       navigate(roleMap[data.role] || '/');

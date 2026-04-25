@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
   // Auto-set approvalStatus: Customers and Candidates are instantly Approved. Others are Pending.
   const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider'];
   const assignedRole = role && validRoles.includes(role) ? role : 'Customer';
-  const approvalStatus = (assignedRole === 'Customer' || assignedRole === 'Candidate') ? 'Approved' : 'Pending';
+  const approvalStatus = (assignedRole === 'Customer' || assignedRole === 'Candidate' || assignedRole === 'Trainer') ? 'Approved' : 'Pending';
 
   let membershipId = null;
   let isMember = false;

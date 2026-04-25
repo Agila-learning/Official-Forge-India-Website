@@ -326,6 +326,7 @@ const Register = () => {
                       <option value="Service Provider" className="text-slate-900 bg-white">Local Service Provider</option>
                       <option value="HR" className="text-slate-900 bg-white">HR / Recruiter</option>
                       <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
+                      <option value="Trainer" className="text-slate-900 bg-white">Academic Trainer</option>
                     </select>
                     <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
