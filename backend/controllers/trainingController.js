@@ -4,26 +4,21 @@ const Batch = require('../models/Batch');
 const TrainingRegistration = require('../models/TrainingRegistration');
 const Material = require('../models/Material');
 const Message = require('../models/Message');
+const Lecture = require('../models/Lecture');
 
 // @desc    Get all courses
-// @route   GET /api/training/courses
-// @access  Public
 const getCourses = asyncHandler(async (req, res) => {
   const courses = await Course.find({ isActive: true });
   res.json(courses);
 });
 
 // @desc    Create course
-// @route   POST /api/training/courses
-// @access  Private (Admin)
 const createCourse = asyncHandler(async (req, res) => {
   const course = await Course.create(req.body);
   res.status(201).json(course);
 });
 
 // @desc    Get course by ID
-// @route   GET /api/training/courses/:id
-// @access  Public
 const getCourseById = asyncHandler(async (req, res) => {
   const course = await Course.findById(req.params.id);
   if (course) {
@@ -35,8 +30,6 @@ const getCourseById = asyncHandler(async (req, res) => {
 });
 
 // @desc    Register for training
-// @route   POST /api/training/register
-// @access  Public
 const registerForTraining = asyncHandler(async (req, res) => {
   const registration = await TrainingRegistration.create({
     ...req.body,
@@ -46,8 +39,6 @@ const registerForTraining = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get candidate's training enrollments
-// @route   GET /api/training/my-training
-// @access  Private (Candidate)
 const getMyTraining = asyncHandler(async (req, res) => {
   const enrollments = await TrainingRegistration.find({ candidate: req.user._id })
     .populate('course')
@@ -56,16 +47,12 @@ const getMyTraining = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get trainer's batches
-// @route   GET /api/training/trainer/batches
-// @access  Private (Trainer)
 const getTrainerBatches = asyncHandler(async (req, res) => {
   const batches = await Batch.find({ trainer: req.user._id }).populate('course');
   res.json(batches);
 });
 
 // @desc    Get trainer's candidates
-// @route   GET /api/training/trainer/candidates
-// @access  Private (Trainer)
 const getTrainerCandidates = asyncHandler(async (req, res) => {
   const batches = await Batch.find({ trainer: req.user._id });
   const batchIds = batches.map(b => b._id);
@@ -74,16 +61,12 @@ const getTrainerCandidates = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get all batches
-// @route   GET /api/training/batches
-// @access  Private (Admin)
 const getBatches = asyncHandler(async (req, res) => {
   const batches = await Batch.find({}).populate('course').populate('trainer', 'firstName lastName');
   res.json(batches);
 });
 
 // @desc    Create batch
-// @route   POST /api/training/batches
-// @access  Private (Admin)
 const createBatch = asyncHandler(async (req, res) => {
   const batch = await Batch.create(req.body);
   res.status(201).json(batch);
@@ -96,7 +79,10 @@ const getMaterialsByBatch = asyncHandler(async (req, res) => {
 });
 
 const createMaterial = asyncHandler(async (req, res) => {
-  const material = await Material.create(req.body);
+  const material = await Material.create({
+    ...req.body,
+    trainer: req.user._id
+  });
   res.status(201).json(material);
 });
 
@@ -125,6 +111,40 @@ const sendMessage = asyncHandler(async (req, res) => {
   res.status(201).json(fullMessage);
 });
 
+// Lecture Controllers
+const getLecturesByBatch = asyncHandler(async (req, res) => {
+  const lectures = await Lecture.find({ batch: req.params.batchId }).sort({ order: 1 });
+  res.json(lectures);
+});
+
+const createLecture = asyncHandler(async (req, res) => {
+  const { title, description, type, url, batchId } = req.body;
+  const lecture = await Lecture.create({
+    title,
+    description,
+    type,
+    url,
+    batch: batchId,
+    trainer: req.user._id
+  });
+  res.status(201).json(lecture);
+});
+
+const deleteLecture = asyncHandler(async (req, res) => {
+  const lecture = await Lecture.findById(req.params.id);
+  if (lecture) {
+    if (lecture.trainer.toString() !== req.user._id.toString()) {
+      res.status(401);
+      throw new Error('Not authorized');
+    }
+    await lecture.deleteOne();
+    res.json({ message: 'Lecture removed' });
+  } else {
+    res.status(404);
+    throw new Error('Lecture not found');
+  }
+});
+
 module.exports = {
   getCourses,
   createCourse,
@@ -139,5 +159,8 @@ module.exports = {
   createMaterial,
   deleteMaterial,
   getBatchMessages,
-  sendMessage
+  sendMessage,
+  getLecturesByBatch,
+  createLecture,
+  deleteLecture
 };

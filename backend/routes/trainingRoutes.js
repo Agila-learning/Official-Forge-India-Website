@@ -32,4 +32,9 @@ router.delete('/materials/:id', protect, require('../controllers/trainingControl
 router.get('/messages/batch/:batchId', protect, require('../controllers/trainingController').getBatchMessages);
 router.post('/messages', protect, require('../controllers/trainingController').sendMessage);
 
+// Lecture Routes
+router.get('/lectures/batch/:batchId', protect, require('../controllers/trainingController').getLecturesByBatch);
+router.post('/lectures', protect, require('../controllers/trainingController').createLecture);
+router.delete('/lectures/:id', protect, require('../controllers/trainingController').deleteLecture);
+
 module.exports = router;

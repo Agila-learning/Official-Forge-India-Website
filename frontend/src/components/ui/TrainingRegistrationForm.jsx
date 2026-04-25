@@ -90,7 +90,7 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar min-h-0">
               {submitted ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-12">
                   <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center animate-bounce">
@@ -102,7 +102,7 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6 pb-12">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Name */}
                     <div className="space-y-2">

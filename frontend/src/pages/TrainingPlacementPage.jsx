@@ -89,7 +89,10 @@ const TrainingPlacementPage = () => {
                 Register for Training
                 <ChevronRight size={18} />
               </button>
-              <button className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-dark-card text-gray-900 dark:text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3">
+              <button 
+                onClick={() => document.getElementById('courses-section').scrollIntoView({ behavior: 'smooth' })}
+                className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-dark-card text-gray-900 dark:text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3"
+              >
                 View All Courses
               </button>
             </div>
@@ -98,7 +101,7 @@ const TrainingPlacementPage = () => {
       </section>
 
       {/* Course Categories */}
-      <section className="px-6 py-20">
+      <section id="courses-section" className="px-6 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
             <div className="max-w-2xl">
