@@ -15,7 +15,7 @@ import { useNotifications } from '../../context/NotificationContext';
 import RoleSelectionModal from '../ui/RoleSelectionModal';
 
 const AnimatedConnectText = () => (
-    <div className="relative flex items-center h-4 w-[65px] justify-center mt-1 ml-0.5">
+    <div className="relative flex items-center h-4 w-[80px] justify-center mt-1 ml-0.5">
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
@@ -110,8 +110,11 @@ const Navbar = () => {
 
   const services = [
     { name: 'IT Solutions', path: '/services/it-solutions', icon: <Cpu size={20} /> },
+    { name: 'Software Development', path: '/services/software-development', icon: <Code size={20} /> },
     { name: 'Web Development', path: '/services/website-development', icon: <Zap size={20} /> },
     { name: 'App Development', path: '/services/app-development', icon: <Smartphone size={20} /> },
+    { name: 'AI & ML Solutions', path: '/services/ai-ml-solutions', icon: <Rocket size={20} /> },
+    { name: 'UI/UX Design', path: '/services/ui-ux-design', icon: <Layout size={20} /> },
     { name: 'Digital Marketing', path: '/services/digital-marketing', icon: <Globe size={20} /> },
     { name: 'Job Consulting', path: '/services/job-consulting', icon: <Briefcase size={20} /> },
     { name: 'Insurance Services', path: '/services/insurance-services', icon: <Shield size={20} /> },
@@ -130,6 +133,7 @@ const Navbar = () => {
         { name: 'About Us', path: '/about' },
         { name: 'Explore', isDropdown: true, items: exploreOptions },
         { name: 'Services', isDropdown: true, items: services },
+        { name: 'Training & Placement', path: '/training-placement' },
         { name: 'FAQs', path: '/faq' },
       ];
     }
@@ -140,6 +144,7 @@ const Navbar = () => {
         return [
           { name: 'Explore', isDropdown: true, items: exploreOptions },
           { name: 'Services', isDropdown: true, items: services },
+          { name: 'Training', path: '/training-placement' },
           { name: 'My Activity', onClick: handleDashboardClick },
           { name: 'Wishlist', path: '/wishlist' },
         ];
@@ -165,7 +170,7 @@ const Navbar = () => {
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase">
+                <span className="text-lg md:text-2xl font-black tracking-tight block leading-none uppercase">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
                 <div className="mt-1">

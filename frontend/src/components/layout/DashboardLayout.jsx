@@ -119,6 +119,7 @@ const DashboardLayout = ({
                     { id: 'services', icon: Wrench, label: 'Services' },
                     { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
                     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
+                    { id: 'training', icon: GraduationCap, label: 'Training & Courses' },
                     { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
                     { id: 'testimonials', icon: Star, label: 'Testimonials' },
                     { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
@@ -213,6 +214,12 @@ const DashboardLayout = ({
             {/* Desktop Sidebar */}
             <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-80'} fixed md:sticky top-0 left-0 bg-white dark:bg-dark-card border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
                 <div className="p-8 mb-4 relative">
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="md:hidden absolute top-8 right-6 w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800"
+                    >
+                        <X size={20} />
+                    </button>
                     <Link to="/" className="flex items-center gap-4 group">
                         <div className="p-1 bg-white dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl shadow-lg shrink-0 w-12 h-12 overflow-hidden group-hover:scale-105 transition-transform">
                             <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />

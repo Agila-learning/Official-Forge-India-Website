@@ -9,12 +9,12 @@
    ============================================================ */
 @layer base {
   html {
-    @apply antialiased scroll-smooth;
+    @apply antialiased scroll-smooth overflow-x-hidden;
     font-size: 93%;
   }
 
   body {
-    @apply bg-white dark:bg-dark-bg text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300;
+    @apply bg-white dark:bg-dark-bg text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 overflow-x-hidden;
     -webkit-font-smoothing: antialiased;
     font-family: 'Inter', sans-serif;
   }

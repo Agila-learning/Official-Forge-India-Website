@@ -15,6 +15,7 @@ import gsap from 'gsap';
 import RoleDashboardProfile from '../components/ui/RoleDashboardProfile';
 import SubServiceManager from '../components/ui/SubServiceManager';
 import HomeServiceCMS from '../components/admin/HomeServiceCMS';
+import TrainingManager from '../components/admin/TrainingManager';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 
@@ -443,6 +444,12 @@ const AdminDashboard = () => {
                         ))}
                     </div>
                 </div>
+            </div>
+        )}
+
+        {activeTab === 'training' && (
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+                <TrainingManager />
             </div>
         )}
 

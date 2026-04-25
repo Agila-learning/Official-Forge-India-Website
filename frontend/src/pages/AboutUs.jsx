@@ -187,7 +187,7 @@ const AboutUs = () => {
                 {/* Subsidiary Showcase */}
                 <section className="py-24 px-6">
                     <div className="max-w-7xl mx-auto">
-                        <div className="relative p-10 md:p-20 bg-slate-900 rounded-[4rem] overflow-hidden group shadow-2xl">
+                        <div className="relative p-8 md:p-20 bg-slate-900 rounded-[2rem] md:rounded-[4rem] overflow-hidden group shadow-2xl">
                             <div className="absolute top-0 right-0 w-full h-full">
                                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -mr-64 -mt-64" />
                             </div>

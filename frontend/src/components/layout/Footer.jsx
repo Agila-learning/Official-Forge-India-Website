@@ -75,7 +75,7 @@ const Footer = () => {
 
       <div className="container-xl relative z-10">
         {/* Newsletter / CTA Section */}
-        <div className="mb-24 p-10 md:p-16 rounded-[4rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-3xl flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
+        <div className="mb-24 p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-3xl flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2 group-hover:bg-primary/30 transition-colors duration-700" />
           
           <div className="max-w-2xl relative z-10">

@@ -13,6 +13,7 @@ import VendorDashboard from './pages/VendorDashboard';
 import HRDashboard from './pages/HRDashboard';
 import DeliveryDashboard from './pages/DeliveryDashboard';
 import CandidateDashboard from './pages/CandidateDashboard';
+import TrainerDashboard from './pages/TrainerDashboard';
 // import ServicePage from './pages/ServicePage'; // Redundant - using ServicesPage instead
 import Clientele from './pages/Clientele';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -49,6 +50,8 @@ import TrackMission from './pages/TrackMission';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import GlobalCTABar from './components/ui/GlobalCTABar';
 import { NotificationProvider } from './context/NotificationContext';
+import NotFound from './pages/NotFound';
+import TrainingPlacementPage from './pages/TrainingPlacementPage';
 
 import { AnimatePresence } from 'framer-motion';
 
@@ -125,6 +128,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/hr" element={<ProtectedRoute allowedRoles={['HR', 'Admin']}><HRDashboard /></ProtectedRoute>} />
           <Route path="/delivery" element={<ProtectedRoute allowedRoles={['Delivery Partner', 'Admin']}><DeliveryDashboard /></ProtectedRoute>} />
           <Route path="/candidate/dashboard" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin']}><CandidateDashboard /></ProtectedRoute>} />
+          <Route path="/trainer-dashboard" element={<ProtectedRoute allowedRoles={['Trainer', 'Admin']}><TrainerDashboard /></ProtectedRoute>} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/explore-jobs" element={<ExploreJobs />} />
@@ -145,7 +149,9 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
+          <Route path="/training-placement" element={<TrainingPlacementPage />} />
           <Route path="/products/:id" element={<ProductRedirect />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       
