@@ -66,8 +66,7 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
