@@ -1,3 +1,8 @@
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import TrainingRegistrationForm from '../components/ui/TrainingRegistrationForm';
 import CourseDetailsModal from '../components/ui/CourseDetailsModal';
 import api from '../services/api';
 
@@ -8,7 +13,7 @@ const TrainingPlacementPage = () => {
   const [selectedCourseData, setSelectedCourseData] = useState(null);
   const [dbCourses, setDbCourses] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchCourses();
     window.onOpenRegistration = (courseTitle) => {
       setSelectedCourse(courseTitle);
