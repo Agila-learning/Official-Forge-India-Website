@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, User, Users, Paperclip, MoreVertical, Search, CheckCheck } from 'lucide-react';
-import api from '../services/api';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const ChatComponent = ({ initialBatchId = null }) => {
