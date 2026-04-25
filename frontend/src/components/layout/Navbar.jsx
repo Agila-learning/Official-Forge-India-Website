@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, ChevronDown, Briefcase, Globe, Cpu, Smartphone, 
   Zap, ShoppingBag, User, LogOut, LayoutDashboard, ShoppingCart, 
-  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield
+  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
