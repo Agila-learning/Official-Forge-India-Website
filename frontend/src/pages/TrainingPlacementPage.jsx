@@ -44,19 +44,17 @@ const TrainingPlacementPage = () => {
   const displayCourses = dbCourses.length > 0 ? dbCourses : mockCourses;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-bg font-sans pt-12 pb-24 relative">
-      <div className="fixed inset-0 pointer-events-none z-[1000]">
-        <TrainingRegistrationForm 
-          isOpen={isFormOpen} 
-          onClose={() => setIsFormOpen(false)} 
-          selectedCourse={selectedCourse} 
-        />
-        <CourseDetailsModal 
-          isOpen={isDetailsOpen} 
-          onClose={() => setIsDetailsOpen(false)} 
-          course={selectedCourseData} 
-        />
-      </div>
+    <div className="min-h-screen bg-white dark:bg-dark-bg font-sans pt-12 pb-24 relative overflow-x-hidden">
+      <TrainingRegistrationForm 
+        isOpen={isFormOpen} 
+        onClose={() => setIsFormOpen(false)} 
+        selectedCourse={selectedCourse} 
+      />
+      <CourseDetailsModal 
+        isOpen={isDetailsOpen} 
+        onClose={() => setIsDetailsOpen(false)} 
+        course={selectedCourseData} 
+      />
 
       {/* Hero Section */}
       <section className="relative px-6 py-12 md:py-32 overflow-hidden">
