@@ -9,7 +9,7 @@ import {
     Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, 
     Upload, UserPlus, ClipboardList, XCircle, CheckCircle2, Menu, X,
     Bell, Settings, User, ChevronRight, PanelLeftClose, PanelLeftOpen,
-    Shield, Target, Zap, LifeBuoy, Send, CreditCard
+    Shield, Target, Zap, LifeBuoy, Send, CreditCard, MessageCircle
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import LiveActivityToast from '../ui/LiveActivityToast';
@@ -173,6 +173,17 @@ const DashboardLayout = ({
                     { id: 'messages',     icon: Send,             label: 'Support Chat' },
                     { id: 'quippy',       icon: MessageSquare,    label: 'Chat with Quippy' },
                     { id: 'profile',      icon: User,             label: 'Strategy Profile' },
+                ];
+
+            case 'Trainer':
+                return [
+                    { id: 'overview', icon: LayoutDashboard, label: 'Control Center' },
+                    { id: 'batches', icon: BookOpen, label: 'My Batches' },
+                    { id: 'students', icon: Users, label: 'Candidates' },
+                    { id: 'chat', icon: MessageCircle, label: 'Communication' },
+                    { id: 'materials', icon: Share2, label: 'Course Content' },
+                    { id: 'assignments', icon: ClipboardList, label: 'Assessments' },
+                    { id: 'profile', icon: User, label: 'My Profile' },
                 ];
 
             case 'Employer':

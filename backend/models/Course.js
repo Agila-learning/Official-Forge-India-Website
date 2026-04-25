@@ -20,6 +20,10 @@ const courseSchema = mongoose.Schema(
     eligibility: { type: String },
     trainerInfo: { type: String },
     image: { type: String },
+    roadmap: [{
+      step: { type: String, required: true },
+      description: { type: String }
+    }],
     isActive: { type: Boolean, default: true }
   },
   { timestamps: true }

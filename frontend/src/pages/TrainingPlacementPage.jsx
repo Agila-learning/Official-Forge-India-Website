@@ -1,34 +1,62 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import TrainingRegistrationForm from '../components/ui/TrainingRegistrationForm';
+import CourseDetailsModal from '../components/ui/CourseDetailsModal';
+import api from '../services/api';
 
 const TrainingPlacementPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedCourseData, setSelectedCourseData] = useState(null);
+  const [dbCourses, setDbCourses] = useState([]);
 
-  const openForm = (course = '') => {
-    setSelectedCourse(course);
+  React.useEffect(() => {
+    fetchCourses();
+    window.onOpenRegistration = (courseTitle) => {
+      setSelectedCourse(courseTitle);
+      setIsFormOpen(true);
+    };
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const { data } = await api.get('/training/courses');
+      setDbCourses(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const openForm = (courseTitle = '') => {
+    setSelectedCourse(courseTitle);
     setIsFormOpen(true);
   };
 
-  const courses = [
-    { title: 'Web Development', icon: <Globe className="text-blue-500" />, category: 'IT', duration: '6 Months', mode: 'Online/Offline' },
-    { title: 'App Development', icon: <Smartphone className="text-purple-500" />, category: 'IT', duration: '6 Months', mode: 'Online/Offline' },
-    { title: 'Cloud Engineering', icon: <Database className="text-cyan-500" />, category: 'Cloud', duration: '4 Months', mode: 'Online' },
-    { title: 'Full Stack Development', icon: <Code className="text-orange-500" />, category: 'IT', duration: '8 Months', mode: 'Online/Offline' },
-    { title: 'UI/UX Design', icon: <Layout className="text-pink-500" />, category: 'Design', duration: '3 Months', mode: 'Online/Offline' },
-    { title: 'Digital Marketing', icon: <Target className="text-green-500" />, category: 'Marketing', duration: '3 Months', mode: 'Online' },
+  const openDetails = (course) => {
+    setSelectedCourseData(course);
+    setIsDetailsOpen(true);
+  };
+
+  const mockCourses = [
+    { title: 'Web Development', icon: <Globe className="text-blue-500" />, category: 'IT', duration: '6 Months', mode: 'Online/Offline', description: 'Master modern web technologies from HTML/CSS to advanced React and Node.js.' },
+    { title: 'App Development', icon: <Smartphone className="text-purple-500" />, category: 'IT', duration: '6 Months', mode: 'Online/Offline', description: 'Build native and cross-platform mobile applications for iOS and Android.' },
+    { title: 'Cloud Engineering', icon: <Database className="text-cyan-500" />, category: 'Cloud', duration: '4 Months', mode: 'Online', description: 'Learn to design, deploy and manage scalable cloud infrastructures on AWS/Azure.' },
   ];
 
+  const displayCourses = dbCourses.length > 0 ? dbCourses : mockCourses;
+
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-bg font-sans pt-12 pb-24 overflow-hidden">
-      <TrainingRegistrationForm 
-        isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
-        selectedCourse={selectedCourse} 
-      />
+    <div className="min-h-screen bg-white dark:bg-dark-bg font-sans pt-12 pb-24 relative">
+      <div className="fixed inset-0 pointer-events-none z-[1000]">
+        <TrainingRegistrationForm 
+          isOpen={isFormOpen} 
+          onClose={() => setIsFormOpen(false)} 
+          selectedCourse={selectedCourse} 
+        />
+        <CourseDetailsModal 
+          isOpen={isDetailsOpen} 
+          onClose={() => setIsDetailsOpen(false)} 
+          course={selectedCourseData} 
+        />
+      </div>
 
       {/* Hero Section */}
       <section className="relative px-6 py-12 md:py-32 overflow-hidden">
@@ -89,7 +117,7 @@ const TrainingPlacementPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course, idx) => (
+            {displayCourses.map((course, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
@@ -98,7 +126,7 @@ const TrainingPlacementPage = () => {
                 className="group p-8 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-[2.5rem] hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500"
               >
                 <div className="w-16 h-16 bg-gray-50 dark:bg-dark-bg rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
-                  {React.cloneElement(course.icon, { size: 32 })}
+                  {course.icon ? (typeof course.icon === 'string' ? <BookOpen size={32} /> : React.cloneElement(course.icon, { size: 32 })) : <GraduationCap size={32} />}
                 </div>
                 <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4 tracking-tight uppercase group-hover:text-primary transition-colors">
                   {course.title}
@@ -108,15 +136,23 @@ const TrainingPlacementPage = () => {
                     {course.duration}
                   </span>
                   <span className="px-4 py-1.5 bg-gray-50 dark:bg-dark-bg rounded-full text-[10px] font-black uppercase tracking-widest text-gray-400">
-                    {course.mode}
+                    {course.mode || 'Online/Offline'}
                   </span>
                 </div>
-                <button 
-                  onClick={() => openForm(course.title)}
-                  className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300"
-                >
-                  Enroll Now
-                </button>
+                <div className="flex flex-col gap-3">
+                  <button 
+                    onClick={() => openForm(course.title)}
+                    className="w-full py-4 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:-translate-y-1 transition-all"
+                  >
+                    Enroll Now
+                  </button>
+                  <button 
+                    onClick={() => openDetails(course)}
+                    className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                  >
+                    View Details
+                  </button>
+                </div>
               </motion.div>
             ))}
           </div>

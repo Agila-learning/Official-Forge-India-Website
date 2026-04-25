@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const messageSchema = mongoose.Schema(
   {
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    batch: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch' },
     content: { type: String, default: '' },
     messageType: {
       type: String,
