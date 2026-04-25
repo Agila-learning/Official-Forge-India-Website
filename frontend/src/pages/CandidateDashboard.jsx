@@ -57,7 +57,6 @@ const CandidateDashboard = () => {
     specificRequirement: '',
     message:             '',
     contactNumber:       userInfo?.mobile || '',
-    contactNumber:       userInfo?.mobile || '',
   });
   const [isSubmittingConsulting, setIsSubmittingConsulting] = useState(false);
   const [consultingPaymentSuccess, setConsultingPaymentSuccess] = useState(false);

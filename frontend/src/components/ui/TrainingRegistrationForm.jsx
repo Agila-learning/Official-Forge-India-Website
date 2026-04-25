@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, CheckCircle, Upload, MapPin, User, Mail, Phone, GraduationCap, Clock, Monitor } from 'lucide-react';
-import api from '../services/api';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
