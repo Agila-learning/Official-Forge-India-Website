@@ -165,27 +165,27 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-4 group relative shrink-0">
+          <Link to="/" className="flex items-center gap-6 group relative shrink-0 min-w-max">
             <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl group-hover:scale-110 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-800">
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
-            <div className="flex flex-col">
-                <span className="text-lg md:text-2xl font-black tracking-tight block leading-none uppercase">
+            <div className="flex flex-col -mt-1">
+                <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
-                <div className="mt-1">
+                <div className="mt-2 -ml-0.5">
                    <AnimatedConnectText key={location.pathname} />
                 </div>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden xl:flex items-center space-x-8 2xl:space-x-12">
+          <div className="hidden xl:flex flex-1 justify-center items-center space-x-6 2xl:space-x-10 mx-16">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
                   <div className="relative group py-4">
-                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] uppercase tracking-[0.25em] transition-all">
+                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all">
                       {link.name} <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
                     </button>
                     <div className="absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 w-72 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left">
@@ -213,7 +213,7 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="nav-link-underline text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] uppercase tracking-[0.25em] transition-all"
+                    className="nav-link-underline text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all"
                   >
                     {link.name}
                   </Link>
@@ -223,18 +223,18 @@ const Navbar = () => {
           </div>
 
           {/* Right Section CTAs */}
-          <div className="hidden xl:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-4 2xl:gap-6 shrink-0">
             {/* Location Button */}
             <button 
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2.5 px-5 py-2.5 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm group/loc"
+              className="flex items-center gap-2.5 px-4 py-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm group/loc"
             >
               <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover/loc:scale-110 transition-transform">
                 <MapPin size={16} />
               </div>
-              <div className="text-left leading-none">
-                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Service Area</p>
-                 <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[100px] uppercase">
+              <div className="text-left leading-none min-w-[70px]">
+                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Service Area</p>
+                 <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[80px] uppercase">
                     {appLocation?.city || 'Select Area'}
                  </p>
               </div>
@@ -273,11 +273,11 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-6">
-                <Link to="/login" className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-primary transition-colors">Login</Link>
+              <div className="flex items-center gap-5">
+                <Link to="/login" className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-colors">Login</Link>
                 <Link 
                   to="/contact" 
-                  className="px-10 py-4 bg-primary text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all"
+                  className="px-8 py-3.5 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.15em] shadow-2xl shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap"
                 >
                   Hire Through FIC
                 </Link>
