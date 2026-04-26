@@ -185,23 +185,25 @@ const Navbar = () => {
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
                   <div className="relative group py-4">
-                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all">
-                      {link.name} <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
+                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95">
+                      {link.name} 
+                      <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
+                      <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                     </button>
-                    <div className="absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 w-72 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left">
-                      <div className="grid grid-cols-1 gap-2">
+                    <div className={`absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 ${link.items.length > 6 ? 'w-[600px]' : 'w-72'} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left`}>
+                      <div className={`grid ${link.items.length > 6 ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
                         {link.items.map((item) => (
                           <Link 
                             key={item.name} 
                             to={item.path} 
-                            className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all group/item"
+                            className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all group/item border border-transparent hover:border-gray-100 dark:hover:border-gray-800 shadow-sm hover:shadow-md"
                           >
-                            <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover/item:scale-110 transition-transform">
+                            <div className="w-10 h-10 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
                               {item.icon}
                             </div>
                             <div>
-                                <p className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-tight">{item.name}</p>
-                                {item.desc && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{item.desc}</p>}
+                                <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight">{item.name}</p>
+                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 group-hover/item:text-primary/70 transition-colors">{item.desc || 'Explore Service'}</p>
                             </div>
                           </Link>
                         ))}
@@ -213,9 +215,10 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="nav-link-underline text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all"
+                    className="group relative text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95"
                   >
                     {link.name}
+                    <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                   </Link>
                 )}
               </React.Fragment>
