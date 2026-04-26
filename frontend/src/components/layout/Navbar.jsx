@@ -166,7 +166,7 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-4 group relative shrink-0">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl group-hover:rotate-6 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-800">
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl group-hover:scale-110 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-800">
                 <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div className="flex flex-col">
@@ -335,33 +335,33 @@ const Navbar = () => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar bg-gradient-to-b from-white to-gray-50/50 dark:from-dark-bg dark:to-dark-bg/80">
                 {navLinks.map((link, idx) => (
                   <motion.div 
                     key={link.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + (idx * 0.05) }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + (idx * 0.05), type: 'spring', damping: 25 }}
                   >
                     {link.isDropdown ? (
                       <div className="space-y-6">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mb-4 flex items-center gap-3">
-                           <span className="w-8 h-[1px] bg-gray-100 dark:bg-gray-800"></span> {link.name}
+                        <p className="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
+                           <span className="w-6 h-[2px] bg-primary rounded-full"></span> {link.name}
                         </p>
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 gap-3">
                           {link.items.map(item => (
                             <Link 
                               key={item.name} 
                               to={item.path} 
                               onClick={() => setIsOpen(false)}
-                              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-dark-card/50 rounded-2xl border border-gray-100 dark:border-gray-800 active:scale-95 transition-all"
+                              className="flex items-center gap-4 p-4 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 active:scale-[0.98] transition-all shadow-sm"
                             >
-                              <div className="w-10 h-10 bg-white dark:bg-dark-bg text-primary rounded-xl flex items-center justify-center shadow-sm shrink-0">
-                                 {React.cloneElement(item.icon, { size: 20 })}
+                              <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-inner shrink-0">
+                                 {React.cloneElement(item.icon, { size: 18 })}
                               </div>
                               <div className="min-w-0 flex-1">
-                                 <p className="font-black text-gray-900 dark:text-white text-[11px] md:text-sm uppercase truncate">{item.name}</p>
-                                 <p className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{item.desc || 'Explore details'}</p>
+                                 <p className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-tight">{item.name}</p>
+                                 <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{item.desc || 'Explore'}</p>
                               </div>
                             </Link>
                           ))}
@@ -372,7 +372,7 @@ const Navbar = () => {
                           to={link.path || '#'} 
                           state={link.state}
                           onClick={() => { if(link.onClick) link.onClick(); setIsOpen(false); }}
-                          className="text-4xl font-black text-gray-900 dark:text-white block hover:text-primary transition-all tracking-tighter uppercase leading-none"
+                          className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white block hover:text-primary transition-all tracking-tighter uppercase leading-tight"
                         >
                           {link.name}
                         </Link>
