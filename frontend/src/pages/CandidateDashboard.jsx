@@ -275,10 +275,10 @@ const CandidateDashboard = () => {
               </div>
               
               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
-                Membership Payment
+                Secure Scanner Pay
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Scan this QR to pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> and unlock premium job consulting.
+                Scan this QR to pay the <span className="text-primary font-black">₹1,500 Registration Fee</span>. Your session will be booked after verification.
               </p>
               
               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
@@ -934,7 +934,7 @@ const CandidateDashboard = () => {
                         <div className="mt-6 flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
                             <ShieldCheck size={18} className="text-green-500 shrink-0" />
                             <p className="text-xs text-gray-500 font-medium">
-                                Your payment is processed securely via <strong>Razorpay</strong>. We never store your card details. 256-bit SSL encrypted.
+                                Your payment is processed via our secure manual verification channel. No sensitive details are stored on our servers.
                             </p>
                         </div>
 

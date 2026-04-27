@@ -18,6 +18,7 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const courses = [
     'Web Development', 'App Development', 'Cloud Engineer', 'Full Stack Development', 
@@ -32,9 +33,15 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
     setResume(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
+  const handleInitialSubmit = (e) => {
     e.preventDefault();
+    // Show QR modal instead of directly submitting
+    setShowQRModal(true);
+  };
+
+  const handleFinalSubmit = async () => {
     setLoading(true);
+    setShowQRModal(false);
 
     try {
       let resumeUrl = '';
@@ -47,7 +54,8 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
 
       await api.post('/training/register', {
         ...formData,
-        resumeUrl
+        resumeUrl,
+        paymentStatus: 'Paid'
       });
 
       setSubmitted(true);
@@ -65,7 +73,53 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {/* TEST MODE QR MODAL */}
+      {showQRModal && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
+          >
+            <button 
+              onClick={() => setShowQRModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+            >
+              <X size={20} />
+            </button>
+            
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <GraduationCap className="text-primary" size={32} />
+            </div>
+            
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
+              Secure Scanner Pay
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+              Scan this QR to pay the Training Registration Fee. Your enrollment will be confirmed after verification.
+            </p>
+            
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
+              <img 
+                src="/registration_qr.png" 
+                alt="UPI QR Code" 
+                className="w-48 h-48 mx-auto rounded-xl shadow-inner"
+              />
+            </div>
+
+            <button 
+              onClick={handleFinalSubmit}
+              disabled={loading}
+              className="w-full bg-primary text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="animate-spin" size={18} /> : 'I have Scanned & Paid'}
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {isOpen && !showQRModal && (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -102,7 +156,7 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6 pb-12">
+                <form onSubmit={handleInitialSubmit} className="space-y-6 pb-12">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Name */}
                     <div className="space-y-2">

@@ -4,7 +4,7 @@ import {
     Upload, ClipboardList, Settings, Bell, 
     LogOut, Search, Plus, Filter, ChevronRight,
     TrendingUp, Clock, CheckCircle2, AlertCircle,
-    MoreVertical, User
+    MoreVertical, User, Rocket
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';

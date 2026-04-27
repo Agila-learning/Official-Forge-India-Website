@@ -73,7 +73,7 @@ const Navbar = () => {
   const userInfoStr = localStorage.getItem('userInfo');
   const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
   const isLoggedIn = !!userInfo;
-  const isPartner = isLoggedIn && ['Vendor', 'HR', 'Delivery Partner', 'Admin', 'Candidate'].includes(userInfo.role);
+  const isPartner = isLoggedIn && ['Vendor', 'HR', 'Delivery Partner', 'Admin', 'Candidate', 'Trainer'].includes(userInfo.role);
 
   const handleDashboardClick = (e) => {
     if (e) e.preventDefault();
@@ -86,6 +86,7 @@ const Navbar = () => {
         case 'HR': navigate('/hr'); break;
         case 'Delivery Partner': navigate('/delivery'); break;
         case 'Candidate': navigate('/candidate/dashboard'); break;
+        case 'Trainer': navigate('/trainer-dashboard'); break;
         default: navigate('/profile'); break;
       }
     }
@@ -166,8 +167,14 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-6 group relative shrink-0 min-w-max">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl group-hover:scale-110 transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-800">
-                <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-xl" />
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+                <motion.img 
+                  src="/logo.jpg" 
+                  alt="FIC Logo" 
+                  className="w-full h-full object-contain rounded-xl"
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                />
             </div>
             <div className="flex flex-col -mt-1">
                 <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase">
@@ -375,9 +382,10 @@ const Navbar = () => {
                           to={link.path || '#'} 
                           state={link.state}
                           onClick={() => { if(link.onClick) link.onClick(); setIsOpen(false); }}
-                          className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white block hover:text-primary transition-all tracking-tighter uppercase leading-tight"
+                          className="flex items-center justify-between p-5 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 active:scale-[0.98] transition-all shadow-sm font-black text-gray-900 dark:text-white text-lg uppercase tracking-tight hover:text-primary group/moblink"
                         >
                           {link.name}
+                          <ChevronRight size={20} className="text-gray-300 group-hover/moblink:text-primary transition-colors" />
                         </Link>
                     )}
                   </motion.div>

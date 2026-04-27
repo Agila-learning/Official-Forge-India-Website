@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award } from 'lucide-react';
+import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TrainingRegistrationForm from '../components/ui/TrainingRegistrationForm';
 import CourseDetailsModal from '../components/ui/CourseDetailsModal';
@@ -91,7 +91,13 @@ const TrainingPlacementPage = () => {
                 <ChevronRight size={18} />
               </button>
               <button 
-                onClick={() => coursesRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => {
+                  const el = document.getElementById('courses-section');
+                  if (el) {
+                    const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  }
+                }}
                 className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-dark-card text-gray-900 dark:text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3"
               >
                 View All Courses

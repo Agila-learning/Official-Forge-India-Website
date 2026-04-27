@@ -173,10 +173,10 @@ const Checkout = () => {
                     </div>
                     
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
-                        Secure UPI Payment
+                        Secure Scanner Pay
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                        Scan this QR to pay <span className="text-primary font-black">₹{cartTotal.toLocaleString()}</span> and complete your order.
+                        Scan this QR to pay <span className="text-primary font-black">₹{cartTotal.toLocaleString()}</span>. Your order will be processed after verification.
                     </p>
                     
                     <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
