@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Menu, X, ChevronDown, Briefcase, Globe, Cpu, Smartphone, 
+  Menu, X, ChevronDown, ChevronRight, Briefcase, Globe, Cpu, Smartphone, 
   Zap, ShoppingBag, User, LogOut, LayoutDashboard, ShoppingCart, 
   Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout
 } from 'lucide-react';
