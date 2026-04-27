@@ -40,7 +40,6 @@ import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
 import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollToTop from './components/ui/ScrollToTop';
-import WhatsAppWidget from './components/ui/WhatsAppWidget';
 import CookieConsent from './components/ui/CookieConsent';
 import ChatWidget from './components/ui/ChatWidget';
 import FICQuippy from './components/ui/FICQuippy';
@@ -88,7 +87,6 @@ const ContentWrapper = ({ loading }) => {
       {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}
       {(!userInfo || userInfo?.role === 'Candidate') && <FICQuippy />}
       {(!userInfo && location.pathname === '/') && <CookieConsent />}
-      {!shouldHide && <WhatsAppWidget />}
       <LocationPermissionModal />
       
       {/* 2-Minute Activity Popup */}
