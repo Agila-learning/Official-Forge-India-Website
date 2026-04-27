@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-const rawUrl = import.meta.env.VITE_API_URL || 'https://fic-backend.onrender.com/api';
+const rawUrl = import.meta.env.VITE_API_URL || '';
+if (!rawUrl) {
+  console.warn('VITE_API_URL is not defined! API calls will fail or use current domain.');
+}
 const cleanUrl = rawUrl.replace(/\/$/, '');
-const API_URL = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+const API_URL = cleanUrl ? (cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`) : '/api';
 
 const api = axios.create({
   baseURL: API_URL,
