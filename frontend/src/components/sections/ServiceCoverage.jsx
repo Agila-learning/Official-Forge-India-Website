@@ -13,7 +13,7 @@ const ServiceCoverage = () => {
       try {
         const { data } = await api.get('/locations');
         // Filter only serviceable ones if needed
-        setLocations(data.filter(loc => loc.isServiceable) || []);
+        setLocations(Array.isArray(data) ? data.filter(loc => loc.isServiceable) : []);
       } catch (err) {
         console.error('Failed to fetch service areas');
       }

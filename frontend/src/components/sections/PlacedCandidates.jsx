@@ -11,7 +11,7 @@ const PlacedCandidates = () => {
         const fetchHired = async () => {
             try {
                 const { data } = await api.get('/applications/public-hired');
-                setCandidates(data);
+                setCandidates(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error('Failed to load success stories');
             } finally {

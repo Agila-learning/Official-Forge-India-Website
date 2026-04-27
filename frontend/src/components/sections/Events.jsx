@@ -19,7 +19,7 @@ const Events = () => {
       try {
         const { data } = await api.get('/events');
         // Add default 'Upcoming' type if not provided by backend
-        const formatted = data.map(e => ({ ...e, id: e._id, type: e.type || 'Upcoming' }));
+        const formatted = Array.isArray(data) ? data.map(e => ({ ...e, id: e._id, type: e.type || 'Upcoming' })) : [];
         setEventsList(formatted);
       } catch (err) {
         console.error('Failed to fetch events', err);
