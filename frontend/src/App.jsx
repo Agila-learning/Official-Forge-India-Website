@@ -114,7 +114,7 @@ const ContentWrapper = ({ loading }) => {
         </div>
       )}
 
-      <main className={`flex-grow ${!shouldHide ? 'pt-20' : ''}`}>
+      <main className={`flex-grow ${!shouldHide ? (location.pathname === '/' ? 'pt-0' : 'pt-16') : ''}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

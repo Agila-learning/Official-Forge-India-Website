@@ -174,11 +174,11 @@ const Navbar = () => {
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 />
             </div>
-            <div className="flex flex-col -mt-1 overflow-hidden">
-                <span className="text-lg md:text-2xl font-black tracking-tighter block leading-none uppercase truncate">
+            <div className="flex flex-col -mt-0.5 overflow-hidden">
+                <span className="text-base md:text-2xl font-black tracking-tighter block leading-none uppercase truncate">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
-                <div className="mt-2 -ml-0.5">
+                <div className="mt-1 md:mt-2 -ml-0.5 scale-75 md:scale-100 origin-left">
                    <AnimatedConnectText key={location.pathname} />
                 </div>
             </div>
@@ -289,16 +289,16 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="xl:hidden flex items-center gap-3 relative z-[9999]">
+          <div className="xl:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
              <ThemeToggle />
              <button 
               onClick={(e) => {
                 e.stopPropagation();
                 setIsOpen(true);
               }}
-              className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
+              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
              >
-               <Menu size={24} />
+               <Menu size={20} />
              </button>
           </div>
 
