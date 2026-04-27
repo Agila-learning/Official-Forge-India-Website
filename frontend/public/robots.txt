@@ -1,20 +1,4 @@
 User-agent: *
 Allow: /
 
-# Disallow private/dashboard routes
-Disallow: /admin
-Disallow: /vendor
-Disallow: /hr
-Disallow: /delivery
-Disallow: /candidate/dashboard
-Disallow: /employer
-Disallow: /checkout
-Disallow: /cart
-Disallow: /profile
-Disallow: /track-mission
-
-# Sitemap
-Sitemap: https://forgeindiaconnect.com/sitemap.xml
-
-# Crawl delay
-Crawl-delay: 5
+Sitemap: https://www.forgeindiaconnect.com/sitemap.xml
