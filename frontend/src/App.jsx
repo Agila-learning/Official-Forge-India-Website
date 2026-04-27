@@ -40,6 +40,7 @@ import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
 import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollToTop from './components/ui/ScrollToTop';
+import ScrollToTopOnRoute from './components/ui/ScrollToTopOnRoute';
 import CookieConsent from './components/ui/CookieConsent';
 import ChatWidget from './components/ui/ChatWidget';
 import FICQuippy from './components/ui/FICQuippy';
@@ -82,6 +83,7 @@ const ContentWrapper = ({ loading }) => {
   return (
     <div className={`min-h-screen font-sans bg-white dark:bg-dark-bg text-slate-800 dark:text-dark-text flex flex-col transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
       {!shouldHide && <Navbar />}
+      <ScrollToTopOnRoute />
       <ScrollToTop />
       {!shouldHide && <GlobalCTABar />}
       {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}

@@ -94,16 +94,6 @@ const ExploreJobs = () => {
                 jobTitle={selectedJob ? selectedJob.title : "Career at FIC"} 
             />
 
-            {/* Floating Return Button */}
-            <motion.button
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                onClick={() => navigate('/jobs')}
-                className="fixed top-8 left-8 z-[100] flex lg:hidden items-center gap-2 px-6 py-3 bg-white/80 dark:bg-dark-card/80 backdrop-blur-xl border border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl hover:bg-primary hover:text-white transition-all group font-black uppercase text-[10px] tracking-widest"
-            >
-                <ChevronRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={16} />
-                Return to Career Hub
-            </motion.button>
 
             {/* Premium Header & Path Selection */}
             <div className="max-w-7xl mx-auto mb-20">

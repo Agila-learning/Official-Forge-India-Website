@@ -161,11 +161,11 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed w-full z-[9999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
-      <div className="max-w-full mx-auto px-6 lg:px-12 xl:px-20">
+      <div className="max-w-full mx-auto px-4 md:px-12 xl:px-20">
         <div className="flex justify-between items-center">
           
-          <Link to="/" className="flex items-center gap-6 group relative shrink-0 min-w-max">
-            <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+          <Link to="/" className="flex items-center gap-3 md:gap-6 group relative shrink-0">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-1.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
                 <motion.img 
                   src="/logo.jpg" 
                   alt="FIC Logo" 
@@ -174,8 +174,8 @@ const Navbar = () => {
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 />
             </div>
-            <div className="flex flex-col -mt-1">
-                <span className="text-xl md:text-2xl font-black tracking-tighter block leading-none uppercase">
+            <div className="flex flex-col -mt-1 overflow-hidden">
+                <span className="text-lg md:text-2xl font-black tracking-tighter block leading-none uppercase truncate">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
                 <div className="mt-2 -ml-0.5">
@@ -289,16 +289,16 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="xl:hidden flex items-center gap-4 relative z-[9999]">
+          <div className="xl:hidden flex items-center gap-3 relative z-[9999]">
              <ThemeToggle />
              <button 
               onClick={(e) => {
                 e.stopPropagation();
                 setIsOpen(true);
               }}
-              className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm relative z-[1002]"
+              className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
              >
-               <Menu size={28} />
+               <Menu size={24} />
              </button>
           </div>
 
