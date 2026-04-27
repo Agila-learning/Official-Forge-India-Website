@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award, Sparkles } from 'lucide-react';
+import { Rocket, GraduationCap, Briefcase, ChevronRight, Globe, Code, Database, Layout, Smartphone, Search, Target, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TrainingRegistrationForm from '../components/ui/TrainingRegistrationForm';
 import CourseDetailsModal from '../components/ui/CourseDetailsModal';
