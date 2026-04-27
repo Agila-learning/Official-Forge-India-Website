@@ -80,7 +80,7 @@ function ExploreShop() {
         }
     };
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
         const matchesViewType = viewType === 'Services' ? product.isService : !product.isService;
         const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
         const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());

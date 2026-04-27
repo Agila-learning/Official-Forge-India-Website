@@ -67,7 +67,7 @@ const ExploreJobs = () => {
         setIsFormOpen(true);
     };
 
-    const filteredJobs = jobs.filter(job => {
+    const filteredJobs = (Array.isArray(jobs) ? jobs : []).filter(job => {
         const matchesSearch = job.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                              job.companyName?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesLocation = !filters.location || job.location?.toLowerCase().includes(filters.location.toLowerCase());
