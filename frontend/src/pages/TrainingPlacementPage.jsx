@@ -92,7 +92,7 @@ const TrainingPlacementPage = () => {
       <CourseDetailsModal isOpen={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} course={selectedCourseData} />
 
       {/* ─── HERO SECTION ────────────────────────────────────────────── */}
-      <section className="relative pt-24 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-32 md:pt-40 pb-20 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-12 xl:gap-20">
             {/* Left Column */}

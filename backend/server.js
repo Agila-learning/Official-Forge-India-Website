@@ -144,7 +144,7 @@ app.use('/uploads', express.static(path.join(__dirnameBase, 'uploads')));
 
 // Health check
 app.get('/api', (req, res) => {
-  res.json({ message: 'Forge India Connect API is running...', version: '2.0' });
+  res.json({ message: 'Forge India Connect API is running...', version: '2.0.2 (Stable)', timestamp: new Date() });
 });
 
 // ─── Socket.IO Real-Time Chat ─────────────────────────────────────────────────

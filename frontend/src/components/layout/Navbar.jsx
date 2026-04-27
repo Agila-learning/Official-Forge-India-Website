@@ -138,7 +138,6 @@ const Navbar = () => {
         { name: 'FAQs', path: '/faq' },
       ];
     }
-    // ... rest of the logic remains similar but with Explore added if needed
     switch (userInfo.role) {
       case 'Customer':
       case 'Candidate':
@@ -161,11 +160,10 @@ const Navbar = () => {
   const navLinks = getNavLinks();
 
   return (
-    <nav className={`fixed w-full z-[1000] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
+    <nav className={`fixed w-full z-[9999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
       <div className="max-w-full mx-auto px-6 lg:px-12 xl:px-20">
         <div className="flex justify-between items-center">
           
-          {/* Logo Section */}
           <Link to="/" className="flex items-center gap-6 group relative shrink-0 min-w-max">
             <div className="w-12 h-12 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center p-1.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
                 <motion.img 
@@ -186,7 +184,6 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden xl:flex flex-1 justify-center items-center space-x-6 2xl:space-x-10 mx-16">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
@@ -232,9 +229,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Section CTAs */}
           <div className="hidden xl:flex items-center gap-4 2xl:gap-6 shrink-0">
-            {/* Location Button */}
             <button 
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2.5 px-4 py-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm group/loc"
@@ -254,7 +249,6 @@ const Navbar = () => {
             
             {isLoggedIn ? (
               <div className="flex items-center gap-5">
-                {/* Notifications & Profile (Rest stays similar but polished) */}
                 <div className="relative group/profile">
                   <button className="flex items-center gap-3 p-2 pr-5 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm">
                     <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm uppercase shadow-lg shadow-primary/20">
@@ -295,12 +289,14 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Trigger */}
-          <div className="xl:hidden flex items-center gap-4">
+          <div className="xl:hidden flex items-center gap-4 relative z-[9999]">
              <ThemeToggle />
              <button 
-              onClick={() => setIsOpen(true)}
-              className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(true);
+              }}
+              className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm relative z-[1002]"
              >
                <Menu size={28} />
              </button>
