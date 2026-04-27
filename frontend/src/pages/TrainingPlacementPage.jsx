@@ -50,7 +50,7 @@ const TrainingPlacementPage = () => {
   const displayCourses = dbCourses.length > 0 ? dbCourses : mockCourses;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-bg font-sans pt-12 pb-24 relative overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-dark-bg pt-12 pb-24 relative overflow-x-hidden font-['Poppins',_sans-serif]">
       <TrainingRegistrationForm 
         isOpen={isFormOpen} 
         onClose={() => setIsFormOpen(false)} 
@@ -65,45 +65,81 @@ const TrainingPlacementPage = () => {
       {/* Hero Section */}
       <section className="relative px-6 py-12 md:py-32 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120vw] h-[120vw] bg-primary/5 rounded-full blur-[120px] -z-10 -mt-[60vw]" />
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="lg:w-1/2 text-center lg:text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <span className="inline-flex items-center gap-2 px-6 py-2 bg-primary/10 text-primary font-black uppercase text-[10px] tracking-[0.3em] rounded-full mb-8">
+                <Sparkles size={14} className="animate-pulse" />
+                Empower Your Future
+              </span>
+              <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-gray-900 dark:text-white tracking-tighter mb-8 leading-tight uppercase">
+                TRANSFORMING TALENT <br />
+                <span className="text-primary italic">INTO CAREERS.</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 font-medium max-w-2xl lg:mx-0 mx-auto mb-12 leading-relaxed">
+                Master the most in-demand IT skills with Forge India's expert-led training programs. From beginner to professional, we guide your path to placement.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
+                <button 
+                  onClick={() => openForm()}
+                  className="w-full sm:w-auto px-12 py-6 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3"
+                >
+                  Register for Training
+                  <ChevronRight size={18} />
+                </button>
+                <button 
+                  onClick={() => {
+                    const el = document.getElementById('courses-section');
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-dark-card text-gray-900 dark:text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3"
+                >
+                  View All Courses
+                </button>
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Hero Image - Right Corner (Desktop) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 100, rotate: 5 }}
+            animate={{ opacity: 1, x: 0, rotate: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="hidden lg:block absolute top-1/2 -translate-y-1/2 right-[-5%] w-[50%] max-w-[600px] aspect-square"
           >
-            <span className="inline-flex items-center gap-2 px-6 py-2 bg-primary/10 text-primary font-black uppercase text-[10px] tracking-[0.3em] rounded-full mb-8">
-              <Sparkles size={14} className="animate-pulse" />
-              Empower Your Future
-            </span>
-            <h1 className="text-4xl md:text-8xl font-black text-gray-900 dark:text-white tracking-tighter mb-8 leading-tight uppercase">
-              TRANSFORMING TALENT <br />
-              <span className="text-primary italic">INTO CAREERS.</span>
-            </h1>
-            <p className="text-lg md:text-2xl text-gray-500 dark:text-gray-400 font-medium max-w-3xl mx-auto mb-12">
-              Master the most in-demand IT skills with Forge India's expert-led training programs. From beginner to professional, we guide your path to placement.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <button 
-                onClick={() => openForm()}
-                className="w-full sm:w-auto px-12 py-6 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all flex items-center justify-center gap-3"
-              >
-                Register for Training
-                <ChevronRight size={18} />
-              </button>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('courses-section');
-                  if (el) {
-                    const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
-                  }
-                }}
-                className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-dark-card text-gray-900 dark:text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-3"
-              >
-                View All Courses
-              </button>
+            <div className="relative w-full h-full p-12">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl" />
+                <div className="relative z-10 w-full h-full rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border-[12px] border-white dark:border-gray-800 bg-white dark:bg-dark-card group">
+                    <img 
+                        src="/training_hero.png" 
+                        alt="Training Excellence" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
+                    />
+                </div>
+                {/* Floaties */}
+                <motion.div animate={{ y: [0, -15, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute top-[20%] -left-4 w-16 h-16 bg-yellow-400 rounded-2xl shadow-xl flex items-center justify-center text-white font-black z-20">95%</motion.div>
+                <motion.div animate={{ y: [0, 20, 0] }} transition={{ duration: 4, repeat: Infinity }} className="absolute bottom-[20%] -right-8 w-20 h-20 bg-primary rounded-full shadow-xl flex items-center justify-center text-white font-black z-20">FIC</motion.div>
             </div>
           </motion.div>
+          
+          {/* Hero Image (Mobile) */}
+          <div className="lg:hidden w-full mt-16 px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-gray-800"
+            >
+              <img src="/training_hero.png" alt="Training" className="w-full h-full object-cover" />
+            </motion.div>
+          </div>
         </div>
       </section>
 

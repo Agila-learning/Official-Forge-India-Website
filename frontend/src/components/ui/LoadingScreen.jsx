@@ -121,8 +121,8 @@ const LoadingScreen = ({ onComplete }) => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="text-4xl font-black tracking-tighter text-white mb-2">
-                FORGE <span className="text-primary">INDIA</span>
+            <h1 className="text-4xl font-black tracking-tighter mb-2">
+                <span className="text-[#0A66C2]">FORGE</span> <span className="text-[#FFC107]">INDIA</span>
             </h1>
             <p className="text-[10px] font-black uppercase tracking-[0.8em] text-gray-400 pl-3">
                 CONNECT
