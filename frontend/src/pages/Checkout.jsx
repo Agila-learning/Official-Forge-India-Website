@@ -25,6 +25,8 @@ const Checkout = () => {
     
     const [fulfillmentType, setFulfillmentType] = useState(initialFulfillment);
     const [selectedSlot, setSelectedSlot] = useState({ date: '', time: '' });
+    const [addMembership, setAddMembership] = useState(false);
+    const membershipPrice = 499;
     const [address, setAddress] = useState({ 
         address: '', 
         city: '', 
@@ -111,7 +113,7 @@ const Checkout = () => {
                 })),
                 shippingAddress: address,
                 paymentMethod: 'Razorpay', 
-                totalPrice: cartTotal,
+                totalPrice: addMembership ? cartTotal + membershipPrice : cartTotal,
                 instructions,
                 fulfillmentType
             };
@@ -176,7 +178,7 @@ const Checkout = () => {
                         Secure Scanner Pay
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                        Scan this QR to pay <span className="text-primary font-black">₹{cartTotal.toLocaleString()}</span>. Your order will be processed after verification.
+                        Scan this QR to pay <span className="text-primary font-black">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>. Your order will be processed after verification.
                     </p>
                     
                     <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
@@ -368,21 +370,60 @@ const Checkout = () => {
                                 </div>
                                 
                                 <div className="bg-gray-50 dark:bg-dark-bg p-10 rounded-[3rem] mb-10 border border-gray-100 dark:border-gray-800 shadow-xl shadow-primary/5">
+                                    {/* Membership Upsell */}
+                                    <div className="mb-10 p-6 rounded-[2rem] bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center text-primary shadow-xl">
+                                                <CreditCard size={28} />
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className="text-lg font-black uppercase tracking-tight">FIC Membership Card</h4>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Valid for 3 Months • Exclusive Discounts</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4 w-full md:w-auto">
+                                            <div className="text-right hidden md:block">
+                                                <p className="text-xl font-black text-primary">₹{membershipPrice}</p>
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest italic">One-time fee</p>
+                                            </div>
+                                            <button 
+                                                onClick={() => setAddMembership(!addMembership)}
+                                                className={`flex-1 md:flex-none px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${addMembership ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' : 'bg-white dark:bg-dark-card text-gray-600 border border-gray-200 dark:border-gray-800 hover:border-primary/50'}`}
+                                            >
+                                                {addMembership ? 'Added to Mission' : 'Add to Order'}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {addMembership && (
+                                        <div className="mb-10 p-6 rounded-2xl bg-primary/5 border border-primary/10">
+                                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                                                <CheckCircle size={14} /> Membership Benefits Activated
+                                            </p>
+                                            <p className="text-xs text-gray-500 font-medium mt-2 leading-relaxed">
+                                                You will receive specific discounts on every order for the next 3 months. This membership is tied to your account and valid across all FIC services.
+                                            </p>
+                                            <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mt-2 flex items-center gap-2">
+                                                <Info size={12} /> Note: Membership fee is non-refundable.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-between items-start mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Inventory Total</p>
                                             <h4 className="text-2xl font-black italic tracking-tighter">FORGE-INDIA-CONNECT</h4>
                                         </div>
-                                        <span className="text-4xl font-black text-primary tracking-tighter">₹{cartTotal.toLocaleString()}</span>
+                                        <span className="text-4xl font-black text-primary tracking-tighter">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
                                     </div>
                                     <div className="space-y-3 py-6 border-t border-gray-200 dark:border-gray-700">
                                         <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
                                             <span>Subtotal</span>
-                                            <span className="text-gray-900 dark:text-white">₹{(cartTotal * 0.82).toFixed(2)}</span>
+                                            <span className="text-gray-900 dark:text-white">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.82).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
                                             <span>GST (18%)</span>
-                                            <span className="text-gray-900 dark:text-white">₹{(cartTotal * 0.18).toFixed(2)}</span>
+                                            <span className="text-gray-900 dark:text-white">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.18).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
                                             <span>Fulfillment Fee</span>

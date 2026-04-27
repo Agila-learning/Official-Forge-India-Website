@@ -36,6 +36,7 @@ const footerLinks = [
       { name: 'Member Login', path: '/login' },
       { name: 'Terms of Service', path: '/terms' },
       { name: 'Privacy Policy', path: '/privacy' },
+      { name: 'Refund Policy', path: '/refund-policy' },
     ]
   }
 ];

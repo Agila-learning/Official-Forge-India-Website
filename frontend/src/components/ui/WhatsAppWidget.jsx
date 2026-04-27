@@ -19,18 +19,18 @@ const WhatsAppWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-10 left-10 md:bottom-12 md:left-12 z-[999] flex flex-col items-start gap-4 text-left">
+    <div className="fixed bottom-10 right-10 md:bottom-12 md:right-12 z-[999] flex flex-col items-end gap-4 text-right">
       <AnimatePresence>
         {showPopup && (
           <motion.div
-            initial={{ opacity: 0, x: 20, scale: 0.9 }}
+            initial={{ opacity: 0, x: -20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
+            exit={{ opacity: 0, x: -20, scale: 0.9 }}
             className="bg-white dark:bg-dark-card p-4 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 max-w-[250px] relative"
           >
             <button 
               onClick={() => setShowPopup(false)}
-              className="absolute -top-2 -left-2 w-6 h-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors shadow-sm"
+              className="absolute -top-2 -right-2 w-6 h-6 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors shadow-sm"
             >
               <X size={14} />
             </button>

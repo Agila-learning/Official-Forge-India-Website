@@ -44,6 +44,7 @@ import WhatsAppWidget from './components/ui/WhatsAppWidget';
 import CookieConsent from './components/ui/CookieConsent';
 import ChatWidget from './components/ui/ChatWidget';
 import FICQuippy from './components/ui/FICQuippy';
+import RefundPolicy from './pages/RefundPolicy';
 import ServiceDetails from './pages/ServiceDetails';
 import LocationPermissionModal from './components/ui/LocationPermissionModal';
 import TrackMission from './pages/TrackMission';
@@ -87,6 +88,7 @@ const ContentWrapper = ({ loading }) => {
       {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}
       {(!userInfo || userInfo?.role === 'Candidate') && <FICQuippy />}
       {(!userInfo && location.pathname === '/') && <CookieConsent />}
+      {!shouldHide && <WhatsAppWidget />}
       <LocationPermissionModal />
       
       {/* 2-Minute Activity Popup */}
@@ -151,6 +153,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/job-consulting" element={<JobConsultingPage />} />
           <Route path="/training-placement" element={<TrainingPlacementPage />} />
           <Route path="/products/:id" element={<ProductRedirect />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

@@ -586,7 +586,7 @@ const FICQuippy = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.92 }}
         onClick={() => setIsOpen(o => !o)}
-        className="fixed bottom-12 right-6 md:bottom-16 md:right-12 z-[998] w-[65px] h-[65px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
+        className="fixed bottom-12 left-6 md:bottom-16 md:left-12 z-[998] w-[65px] h-[65px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
         style={{
           background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
           boxShadow: '0 8px 32px rgba(99,102,241,0.4), 0 0 0 4px rgba(99,102,241,0.1)'
@@ -620,10 +620,10 @@ const FICQuippy = () => {
       <AnimatePresence>
         {showPulse && !isOpen && !hasGreeted && (
           <motion.div
-            initial={{ opacity: 0, x: -20, scale: 0.9 }}
+            initial={{ opacity: 0, x: 20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9 }}
-            className="fixed bottom-24 right-24 md:bottom-28 md:right-28 z-[997] max-w-[200px]"
+            exit={{ opacity: 0, x: -20, scale: 0.9 }}
+            className="fixed bottom-24 left-24 md:bottom-28 md:left-28 z-[997] max-w-[200px]"
           >
             <div className="bg-white dark:bg-gray-900 p-3 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800">
               <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
@@ -639,11 +639,11 @@ const FICQuippy = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 30, x: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 30, x: 20 }}
+            exit={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed bottom-32 right-4 md:bottom-36 md:right-12 z-[998] w-[420px] max-w-[95vw] h-[600px] max-h-[80vh] flex flex-col overflow-hidden"
+            className="fixed bottom-32 left-4 md:bottom-36 md:left-12 z-[998] w-[420px] max-w-[95vw] h-[600px] max-h-[80vh] flex flex-col overflow-hidden"
             style={{
               background: QUIPPY_BG,
               borderRadius: '1.8rem',
