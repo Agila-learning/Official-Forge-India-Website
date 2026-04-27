@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    { "source": "/app-development.html", "destination": "/app-development", "permanent": true },
+    { "source": "/digital-marketing.html", "destination": "/digital-marketing", "permanent": true },
+    { "source": "/insurance-services.html", "destination": "/insurance-services", "permanent": true },
+    { "source": "/job-consulting.html", "destination": "/job-consulting", "permanent": true },
+    { "source": "/refund-policy.html", "destination": "/refund-policy", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
