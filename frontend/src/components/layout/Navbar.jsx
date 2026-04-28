@@ -164,14 +164,14 @@ const Navbar = () => {
       <div className="max-w-full mx-auto px-4 md:px-12 xl:px-20">
         <div className="flex justify-between items-center">
           
-          <Link to="/" className="flex items-center gap-3 md:gap-6 group relative shrink-0">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-1.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+          <Link to="/" className="flex items-center gap-3 md:gap-4 group relative shrink-0">
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                 <motion.img 
                   src="/logo.jpg" 
                   alt="FIC Logo" 
-                  className="w-full h-full object-contain rounded-xl"
-                  animate={{ scale: [1, 1.15, 1] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-[90%] h-[90%] object-contain"
+                  animate={{ scale: [1, 1.08, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 />
             </div>
             <div className="flex flex-col -mt-0.5 overflow-hidden">
@@ -188,8 +188,8 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
-                  <div className="relative group py-4">
-                    <button className="flex items-center gap-2 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95">
+                  <div className="relative group py-4 flex items-center h-full">
+                    <button className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95">
                       {link.name} 
                       <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
@@ -219,7 +219,7 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="group relative text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                   >
                     {link.name}
                     <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>

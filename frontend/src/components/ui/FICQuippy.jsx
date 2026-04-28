@@ -467,6 +467,7 @@ const FICQuippy = () => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [hasGreeted, setHasGreeted] = useState(false);
+  const [tooltipHidden, setTooltipHidden] = useState(false);
   const [showPulse, setShowPulse] = useState(true);
   const endRef = useRef(null);
   const inputRef = useRef(null);
@@ -520,7 +521,7 @@ const FICQuippy = () => {
   useEffect(() => {
     const showTimer = setTimeout(() => setShowPulse(true), 4000);
     const hideTimer = setTimeout(() => {
-      setHasGreeted(true); // This hides the tooltip
+      setTooltipHidden(true); // This hides the tooltip
     }, 9000);
     return () => {
       clearTimeout(showTimer);
@@ -618,7 +619,7 @@ const FICQuippy = () => {
 
       {/* ─── TOOLTIP (when closed) ────────────────────────── */}
       <AnimatePresence>
-        {showPulse && !isOpen && !hasGreeted && (
+        {showPulse && !isOpen && !tooltipHidden && (
           <motion.div
             initial={{ opacity: 0, x: 20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -643,7 +644,7 @@ const FICQuippy = () => {
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed bottom-32 left-4 md:bottom-36 md:left-12 z-[998] w-[420px] max-w-[95vw] h-[600px] max-h-[80vh] flex flex-col overflow-hidden"
+            className="fixed bottom-32 left-4 md:bottom-36 md:left-12 z-[998] w-[420px] max-w-[95vw] h-[600px] max-h-[calc(100vh-160px)] flex flex-col overflow-hidden"
             style={{
               background: QUIPPY_BG,
               borderRadius: '1.8rem',
