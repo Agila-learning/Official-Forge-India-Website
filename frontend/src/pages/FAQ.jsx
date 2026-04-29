@@ -1,41 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-
-const faqs = [
-  {
-    q: 'How does the job consulting process work at FIC?',
-    a: 'Our process has 5 steps: Registration → Document Verification → Profile Processing → Interview Support → Placement Confirmation. From the moment you register, our dedicated counsellors guide you through each stage. Standard processing takes 5–10 business days.',
-  },
-  {
-    q: 'What sectors do you place candidates in?',
-    a: 'We specialize in Banking & Finance (HDFC, ICICI, Axis, Kotak), Information Technology, BPO & Customer Service, Manufacturing, Automobile, and General Management roles. We have active hiring partnerships across Chennai, Krishnagiri, Bangalore, and beyond.',
-  },
-  {
-    q: 'What is the registration fee for job consulting?',
-    a: 'For our Premium Placement program, a one-time registration fee of ₹1,500 applies. This covers document verification, profile creation, resume building assistance, and guaranteed interview scheduling with our partner companies.',
-  },
-  {
-    q: 'How can employers post jobs and hire through FIC?',
-    a: 'Employers can contact us via the "Hire Through FIC" form or call directly. We offer end-to-end recruitment: job description crafting, candidate screening, background verification, and final shortlisting — typically delivering 3–5 interview-ready candidates within 48 hours.',
-  },
-  {
-    q: 'Do you offer college placement programs?',
-    a: 'Yes! FIC partners with degree colleges, polytechnics, and training institutes for bulk campus placement drives. We handle the entire process: pre-placement talks, aptitude sessions, mock interviews, and final placement coordination.',
-  },
-  {
-    q: 'What digital services do you offer for businesses?',
-    a: 'Our business services include Website & App Development, SEO & Digital Marketing, Social Media Management, Google Ads campaigns, Insurance Services, and Home Services booking platform. Contact us for a customized quote.',
-  },
-  {
-    q: 'Is there a refund policy for the registration fee?',
-    a: 'Yes. If we are unable to schedule a minimum of 3 interviews within 30 days of profile activation, you are eligible for a full refund. Our goal is your placement, and we stand behind that commitment.',
-  },
-  {
-    q: 'How do I track my application status?',
-    a: 'After registration, you will receive access to your Candidate Dashboard where you can track document verification status, interview schedules, and placement progress in real time.',
-  },
-];
+import { ChevronDown, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const FAQItem = ({ faq, isOpen, onToggle }) => (
   <div className={`border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? 'shadow-lg shadow-primary/5' : ''}`}>
@@ -45,7 +11,7 @@ const FAQItem = ({ faq, isOpen, onToggle }) => (
       aria-expanded={isOpen}
     >
       <span className={`font-bold text-sm sm:text-base leading-snug transition-colors ${isOpen ? 'text-primary' : 'text-slate-800 dark:text-slate-100'}`}>
-        {faq.q}
+        {faq.question || faq.q}
       </span>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
@@ -67,7 +33,7 @@ const FAQItem = ({ faq, isOpen, onToggle }) => (
         >
           <div className="px-6 pb-6">
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-4">
-              {faq.a}
+              {faq.answer || faq.a}
             </p>
           </div>
         </motion.div>
@@ -77,7 +43,23 @@ const FAQItem = ({ faq, isOpen, onToggle }) => (
 );
 
 const FAQ = () => {
+  const [faqs, setFaqs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const { data } = await api.get('/faqs');
+        setFaqs(data || []);
+      } catch (err) {
+        console.error('Failed to fetch FAQs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFaqs();
+  }, []);
 
   return (
     <section className="section-padding bg-white dark:bg-dark-bg" id="faq" aria-label="Frequently Asked Questions">
@@ -108,15 +90,26 @@ const FAQ = () => {
           </div>
 
           {/* Right — FAQs */}
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <FAQItem
-                key={i}
-                faq={faq}
-                isOpen={openIndex === i}
-                onToggle={() => setOpenIndex(openIndex === i ? null : i)}
-              />
-            ))}
+          <div className="space-y-3 min-h-[400px]">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">
+                <Loader2 size={32} className="animate-spin text-primary mb-4" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Knowledge Base...</p>
+              </div>
+            ) : faqs.length === 0 ? (
+              <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem]">
+                <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">No FAQs available yet.</p>
+              </div>
+            ) : (
+              faqs.map((faq, i) => (
+                <FAQItem
+                  key={faq._id || i}
+                  faq={faq}
+                  isOpen={openIndex === i}
+                  onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

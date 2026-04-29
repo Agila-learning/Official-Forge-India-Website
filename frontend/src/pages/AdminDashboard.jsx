@@ -2125,6 +2125,51 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {activeTab === 'faqs' && (
+          <div className="space-y-12">
+            <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+              <h3 className="text-3xl font-black mb-8 italic uppercase tracking-tighter bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.faqs ? 'Edit FAQ' : 'Create New FAQ'}</h3>
+              <form onSubmit={(e) => handleSubmit(e, 'faqs')} className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest">Question</label>
+                  <input name="question" defaultValue={editingItem.faqs?.question || ''} required className="w-full px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg outline-none font-bold" placeholder="e.g. How to book a service?" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 mb-2 tracking-widest">Answer</label>
+                  <textarea name="answer" defaultValue={editingItem.faqs?.answer || ''} required rows="4" className="w-full px-8 py-6 rounded-3xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg outline-none font-bold resize-none" placeholder="Explain the process clearly..."></textarea>
+                </div>
+                <div className="flex gap-4">
+                  <button type="submit" className="flex-1 py-6 bg-primary text-white font-black rounded-3xl hover:bg-blue-600 shadow-xl shadow-primary/30 uppercase tracking-[0.3em] text-xs transition-all">
+                    {editingItem.faqs ? 'Update FAQ' : 'Publish FAQ'}
+                  </button>
+                  {editingItem.faqs && (
+                    <button type="button" onClick={() => cancelEdit('faqs')} className="px-8 py-6 bg-gray-100 dark:bg-gray-800 text-gray-500 font-black rounded-3xl uppercase tracking-widest text-xs">Cancel</button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {data.faqs?.map(f => (
+                    <div key={f._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 relative group transition-all hover:border-primary/30">
+                        <h4 className="font-black text-lg mb-3 pr-12">{f.question}</h4>
+                        <p className="text-sm text-gray-500 font-medium leading-relaxed mb-6 line-clamp-3">{f.answer}</p>
+                        <div className="flex justify-end gap-2 border-t border-gray-100 dark:border-gray-800 pt-6">
+                            <button onClick={() => { setEditingItem(prev => ({...prev, faqs: f})); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="p-3 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"><Edit size={18} /></button>
+                            <button onClick={() => handleDelete('faqs', f._id)} className="p-3 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                    </div>
+                ))}
+                {data.faqs?.length === 0 && (
+                  <div className="md:col-span-2 py-20 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+                    <MessageSquare size={48} className="mx-auto text-gray-300 mb-4 opacity-20" />
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No FAQs in Knowledge Base</p>
+                  </div>
+                )}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'config' && (
             <div className="max-w-4xl mx-auto space-y-12">
                 <div className="glass-card p-12 rounded-[4rem] border border-gray-100 dark:border-gray-800 shadow-3xl">

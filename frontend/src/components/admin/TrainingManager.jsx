@@ -210,10 +210,9 @@ const TrainingManager = () => {
 
             {/* Modals */}
             <AnimatePresence>
-                {showModal && (
-                    <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="fixed inset-0 bg-dark-bg/80 backdrop-blur-md z-[2000]" />
-                        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[800px] md:max-h-[90vh] bg-white dark:bg-dark-card z-[2001] rounded-[3rem] shadow-3xl overflow-hidden flex flex-col">
+                    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 md:p-10">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="absolute inset-0 bg-dark-bg/80 backdrop-blur-md" />
+                        <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-[850px] max-h-[90vh] bg-white dark:bg-dark-card z-[2001] rounded-[3rem] shadow-6xl overflow-hidden flex flex-col">
                             <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
                                 <h3 className="text-2xl font-black uppercase tracking-tighter">{modalType === 'course' ? 'Add New Course' : 'Create New Batch'}</h3>
                                 <button onClick={() => setShowModal(false)} className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-bg rounded-2xl text-gray-400 hover:text-red-500"><X size={24} /></button>
@@ -323,7 +322,7 @@ const TrainingManager = () => {
                                 )}
                             </div>
                         </motion.div>
-                    </>
+                    </div>
                 )}
             </AnimatePresence>
         </div>
