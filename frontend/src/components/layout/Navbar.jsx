@@ -391,6 +391,7 @@ const Navbar = () => {
                   </motion.div>
                 ))}
               </div>
+              </div>
 
               <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-bg/50">
                 {isLoggedIn ? (
