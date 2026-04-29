@@ -9,7 +9,8 @@ import {
     Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, 
     Upload, UserPlus, ClipboardList, XCircle, CheckCircle2, Menu, X,
     Bell, Settings, User, ChevronRight, PanelLeftClose, PanelLeftOpen,
-    Shield, Target, Zap, LifeBuoy, Send, CreditCard, MessageCircle
+    Shield, Target, Zap, LifeBuoy, Send, CreditCard, MessageCircle,
+    GraduationCap, BookOpen, Share2
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import LiveActivityToast from '../ui/LiveActivityToast';
