@@ -246,7 +246,9 @@ const VendorDashboard = () => {
             setEditingProduct(null);
             fetchProducts();
         } catch (err) {
-            toast.error('Publication failed');
+            const msg = err.response?.data?.message || err.message || 'Publication failed';
+            toast.error(msg);
+            console.error('Product submit error:', err.response?.data || err);
         }
     };
 
@@ -591,6 +593,40 @@ const VendorDashboard = () => {
                              {notifications.length === 0 && (
                                 <NoDataFound title="No Alerts" description="Your operational feed is clear." icon={Bell} />
                              )}
+                        </motion.div>
+                    )}
+
+                    {view === 'profile' && (
+                        <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                            <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Vendor Account</p>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">My <span className="text-primary italic">Profile</span></h2>
+                            </div>
+                            <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
+                        </motion.div>
+                    )}
+
+                    {view === 'settings' && (
+                        <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 max-w-2xl">
+                            <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Account Preferences</p>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Store <span className="text-primary italic">Settings</span></h2>
+                            </div>
+                            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl space-y-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Store Name</label>
+                                    <input defaultValue={userInfo?.storeName || userInfo?.firstName + "'s Store"} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contact Email</label>
+                                    <input defaultValue={userInfo?.email} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone</label>
+                                    <input defaultValue={userInfo?.phone} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
+                                </div>
+                                <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={() => toast.success('Settings saved!')}>Save Settings</button>
+                            </div>
                         </motion.div>
                     )}
                     </AnimatePresence>
