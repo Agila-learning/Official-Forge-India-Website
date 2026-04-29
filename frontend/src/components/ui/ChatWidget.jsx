@@ -13,7 +13,7 @@ let socket = null;
 
 const SOCKET_URL = import.meta.env.VITE_API_URL 
   ? import.meta.env.VITE_API_URL.replace('/api', '') 
-  : 'http://localhost:5000';
+  : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'http://3.221.160.61:5001');
 
 const getInitials = (user) => {
   if (!user) return '?';

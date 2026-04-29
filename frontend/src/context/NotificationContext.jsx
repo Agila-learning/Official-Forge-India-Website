@@ -31,7 +31,7 @@ export const NotificationProvider = ({ children }) => {
         if (userInfo) {
             const socketUrl = import.meta.env.VITE_API_URL 
                 ? import.meta.env.VITE_API_URL.replace('/api', '') 
-                : 'http://localhost:5000';
+                : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'http://3.221.160.61:5001');
             
             const socket = io(socketUrl);
             socket.emit('user-online', userInfo._id);
