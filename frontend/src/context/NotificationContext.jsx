@@ -29,11 +29,14 @@ export const NotificationProvider = ({ children }) => {
 
         // Socket.io integration for real-time notifications
         if (userInfo) {
-            const socketUrl = import.meta.env.VITE_API_URL 
-                ? import.meta.env.VITE_API_URL.replace('/api', '') 
-                : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'http://3.221.160.61:5001');
+            const socketUrl = window.location.hostname === 'localhost' 
+                ? 'http://localhost:5000' 
+                : window.location.origin; // Vercel proxy will handle /socket.io
             
-            const socket = io(socketUrl);
+            const socket = io(socketUrl, {
+                withCredentials: true,
+                transports: ['polling', 'websocket']
+            });
             socket.emit('user-online', userInfo._id);
 
             socket.on('new-notification', (notification) => {

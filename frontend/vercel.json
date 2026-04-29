@@ -9,10 +9,18 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://3.221.160.61:5001/api/:path*/"
+      "destination": "http://3.221.160.61:5001/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/socket.io/:path*",
+      "destination": "http://3.221.160.61:5001/socket.io/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "http://3.221.160.61:5001/uploads/:path*"
+    },
+    {
+      "source": "/((?!api/|socket.io/|uploads/).*)",
       "destination": "/index.html"
     }
   ]

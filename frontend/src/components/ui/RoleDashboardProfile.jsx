@@ -21,8 +21,8 @@ const RoleDashboardProfile = ({ user, stats = {} }) => {
 
   const renderAdminStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Users} label="Total Users" value={stats.totalUsers || '2,481'} color="blue" trend="+12%" />
-      <StatCard icon={TrendingUp} label="Platform Revenue" value={`₹${stats.revenue || '84.2k'}`} color="green" trend="+18%" />
+      <StatCard icon={Users} label="Total Users" value={stats.totalUsers || '0'} color="blue" trend="+0%" />
+      <StatCard icon={TrendingUp} label="Platform Revenue" value={`₹${stats.revenue || '0'}`} color="green" trend="+0%" />
       <StatCard icon={Calendar} label="Service Bookings" value={stats.serviceBookings || '0'} color="purple" trend="Live" />
       <StatCard icon={ShieldCheck} label="System Health" value="Stable" color="orange" trend="100%" />
     </div>
@@ -30,37 +30,37 @@ const RoleDashboardProfile = ({ user, stats = {} }) => {
 
   const renderVendorStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Package} label="Active Inventory" value={stats.inventoryCount || '42'} color="orange" trend="In Stock" />
-      <StatCard icon={TrendingUp} label="Today's Sales" value={`₹${stats.dailySales || '4,200'}`} color="green" trend="+24%" />
-      <StatCard icon={Star} label="Store Rating" value={stats.rating || '4.9'} color="yellow" trend="Excellent" />
-      <StatCard icon={Activity} label="Conversion" value={stats.conversion || '3.2%'} color="blue" trend="+1.2%" />
+      <StatCard icon={Package} label="Active Inventory" value={stats.inventoryCount || '0'} color="orange" trend="In Stock" />
+      <StatCard icon={TrendingUp} label="Today's Sales" value={`₹${stats.dailySales || '0'}`} color="green" trend="+0%" />
+      <StatCard icon={Star} label="Store Rating" value={stats.rating || '0.0'} color="yellow" trend="New" />
+      <StatCard icon={Activity} label="Conversion" value={stats.conversion || '0%'} color="blue" trend="+0%" />
     </div>
   );
 
   const renderHRStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Briefcase} label="Active Listings" value={stats.activeJobs || '15'} color="blue" trend="Live" />
-      <StatCard icon={UserCheck} label="Candidate Pipeline" value={stats.hiredCount || '128'} color="green" trend="Managed" />
-      <StatCard icon={Users} label="Total Applications" value={stats.totalApplied || '45'} color="purple" trend="Waitlist" />
-      <StatCard icon={Zap} label="Interview Rate" value={stats.interviewRate || '68%'} color="orange" trend="High" />
+      <StatCard icon={Briefcase} label="Active Listings" value={stats.activeJobs || '0'} color="blue" trend="Live" />
+      <StatCard icon={UserCheck} label="Candidate Pipeline" value={stats.hiredCount || '0'} color="green" trend="Managed" />
+      <StatCard icon={Users} label="Total Applications" value={stats.totalApplied || '0'} color="purple" trend="Waitlist" />
+      <StatCard icon={Zap} label="Interview Rate" value={stats.interviewRate || '0%'} color="orange" trend="Stable" />
     </div>
   );
 
   const renderDeliveryStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Truck} label="Routes Completed" value={stats.routes || '842'} color="blue" trend="98% Success" />
-      <StatCard icon={Clock} label="Avg. Time" value={stats.avgTime || '42 min'} color="orange" trend="-5 min" />
-      <StatCard icon={Activity} label="Fleet Status" value="Operational" color="green" trend="12 Active" />
-      <StatCard icon={ShieldCheck} label="Safe Rating" value="4.8/5" color="purple" trend="Gold Tier" />
+      <StatCard icon={Truck} label="Routes Completed" value={stats.routes || '0'} color="blue" trend="0% Success" />
+      <StatCard icon={Clock} label="Avg. Time" value={stats.avgTime || '0 min'} color="orange" trend="0 min" />
+      <StatCard icon={Activity} label="Fleet Status" value="Online" color="green" trend="Active" />
+      <StatCard icon={ShieldCheck} label="Safe Rating" value="0.0/5" color="purple" trend="Tier 1" />
     </div>
   );
 
   const renderCandidateStats = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Briefcase} label="Applications" value={stats.applied || '8'} color="blue" trend="Active" />
-      <StatCard icon={CheckCircle2} label="Matches" value={stats.matches || '14'} color="green" trend="New potential" />
-      <StatCard icon={Activity} label="Profile Strength" value={`${stats.strength || '85'}%`} color="purple" trend="Complete" />
-      <StatCard icon={Star} label="Skill Points" value={stats.points || '1,200'} color="yellow" trend="Rank #4" />
+      <StatCard icon={Briefcase} label="Applications" value={stats.applied || '0'} color="blue" trend="Active" />
+      <StatCard icon={CheckCircle2} label="Matches" value={stats.matches || '0'} color="green" trend="New potential" />
+      <StatCard icon={Activity} label="Profile Strength" value={`${stats.strength || '0'}%`} color="purple" trend="Incomplete" />
+      <StatCard icon={Star} label="Skill Points" value={stats.points || '0'} color="yellow" trend="Unranked" />
     </div>
   );
 

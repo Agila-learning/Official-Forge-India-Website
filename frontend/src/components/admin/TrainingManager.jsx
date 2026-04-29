@@ -61,11 +61,25 @@ const TrainingManager = () => {
     const handleAddCourse = async (e) => {
         e.preventDefault();
         try {
-            // Slug generation
-            const slug = courseForm.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+            // Slug generation - more robust
+            const slug = courseForm.title.toLowerCase()
+                .trim()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            
             await api.post('/training/courses', { ...courseForm, slug });
             toast.success('Course added successfully!');
             setShowModal(false);
+            setCourseForm({
+                title: '',
+                description: '',
+                category: 'Web Development',
+                duration: '',
+                fees: '',
+                roadmap: [{ step: '', description: '' }],
+                syllabus: [{ module: '', topics: [''] }]
+            });
             fetchData();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to add course');
@@ -250,6 +264,28 @@ const TrainingManager = () => {
                                                         newRoadmap[idx].description = e.target.value;
                                                         setCourseForm({...courseForm, roadmap: newRoadmap});
                                                     }} className="form-input !rounded-xl" />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Syllabus Section */}
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-center">
+                                                <h4 className="text-sm font-black uppercase tracking-widest">Course Syllabus</h4>
+                                                <button type="button" onClick={addSyllabusModule} className="text-secondary font-black text-[10px] uppercase tracking-widest flex items-center gap-1"><Plus size={14}/> Add Module</button>
+                                            </div>
+                                            {courseForm.syllabus.map((s, idx) => (
+                                                <div key={idx} className="space-y-3 p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                                    <input placeholder="Module Name (e.g. Introduction to React)" required value={s.module} onChange={e => {
+                                                        const newSyllabus = [...courseForm.syllabus];
+                                                        newSyllabus[idx].module = e.target.value;
+                                                        setCourseForm({...courseForm, syllabus: newSyllabus});
+                                                    }} className="form-input !rounded-xl" />
+                                                    <input placeholder="Topics (comma separated)" value={s.topics.join(', ')} onChange={e => {
+                                                        const newSyllabus = [...courseForm.syllabus];
+                                                        newSyllabus[idx].topics = e.target.value.split(',').map(t => t.trim());
+                                                        setCourseForm({...courseForm, syllabus: newSyllabus});
+                                                    }} className="form-input !rounded-xl text-xs" />
                                                 </div>
                                             ))}
                                         </div>

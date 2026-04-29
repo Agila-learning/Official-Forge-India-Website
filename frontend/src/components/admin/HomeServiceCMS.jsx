@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
-const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate }) => {
+const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMode = false }) => {
     const [activeSubTab, setActiveSubTab] = useState('hero');
     const [config, setConfig] = useState(null);
     const [categories, setCategories] = useState([]);
@@ -155,11 +155,11 @@ const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate }) => {
                 
                 {/* Other Tabs content will go here... */}
                 {activeSubTab === 'categories' && (
-                   <CategoryManager items={categories} onUpdate={fetchData} />
+                   <CategoryManager items={categories} onUpdate={fetchData} isVendorMode={isVendorMode} />
                 )}
                 
                 {activeSubTab === 'sub-categories' && (
-                    <SubCategoryManager categories={categories} onUpdate={fetchData} />
+                    <SubCategoryManager categories={categories} onUpdate={fetchData} isVendorMode={isVendorMode} />
                 )}
 
                 {activeSubTab === 'standards' && config && (
@@ -341,7 +341,7 @@ const TestimonialManager = ({ items, onUpdate }) => {
     );
 };
 
-const CategoryManager = ({ items, onUpdate }) => {
+const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
     const [newItem, setNewItem] = useState({ name: '', slug: '', order: 0, isActive: true });
 
     const handleCreate = async () => {
@@ -372,7 +372,13 @@ const CategoryManager = ({ items, onUpdate }) => {
                 <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
                 <input placeholder="Slug" value={newItem.slug} onChange={e => setNewItem({...newItem, slug: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
                 <input type="number" placeholder="Sort Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
-                <button onClick={handleCreate} className="bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px]">Add Vertical</button>
+                <button 
+                    onClick={handleCreate} 
+                    disabled={isVendorMode}
+                    className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    Add Vertical
+                </button>
             </div>
             
             <div className="space-y-4">
@@ -383,9 +389,11 @@ const CategoryManager = ({ items, onUpdate }) => {
                             <span className="font-black italic uppercase text-lg">{cat.name}</span>
                             <span className="text-xs text-gray-500 font-bold tracking-widest">{cat.slug}</span>
                         </div>
-                        <div className="flex gap-3">
-                            <button onClick={() => handleDelete(cat._id)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={20} /></button>
-                        </div>
+                        {!isVendorMode && (
+                            <div className="flex gap-3">
+                                <button onClick={() => handleDelete(cat._id)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={20} /></button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
@@ -393,7 +401,7 @@ const CategoryManager = ({ items, onUpdate }) => {
     );
 };
 
-const SubCategoryManager = ({ categories, onUpdate }) => {
+const SubCategoryManager = ({ categories, onUpdate, isVendorMode }) => {
     const [items, setItems] = useState([]);
     const [newItem, setNewItem] = useState({ name: '', slug: '', categoryId: '', flowType: 'Slot-Only', description: '', order: 0 });
     const [loading, setLoading] = useState(false);
@@ -444,7 +452,13 @@ const SubCategoryManager = ({ categories, onUpdate }) => {
                     <option value="Count-Based">Count Based</option>
                 </select>
                 <input type="number" placeholder="Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs" />
-                <button onClick={handleCreate} className="bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3">Deploy</button>
+                <button 
+                    onClick={handleCreate} 
+                    disabled={isVendorMode}
+                    className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3 ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    Deploy
+                </button>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
@@ -465,7 +479,9 @@ const SubCategoryManager = ({ categories, onUpdate }) => {
                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${sub.flowType === 'BHK-Based' ? 'bg-purple-100 text-purple-600' : 'bg-gray-100 text-gray-500'}`}>{sub.flowType}</span>
                             </div>
                         </div>
-                        <button onClick={() => handleDelete(sub._id)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={20} /></button>
+                        {!isVendorMode && (
+                            <button onClick={() => handleDelete(sub._id)} className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={20} /></button>
+                        )}
                     </div>
                 ))}
             </div>

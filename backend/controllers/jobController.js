@@ -16,6 +16,7 @@ const getJobs = async (req, res) => {
 
 const createJob = async (req, res) => {
   const { 
+    title, companyName, location, salary, description,
     requirements, responsibilities, education, experience, openings, expiryDate, companyWebsite 
   } = req.body;
   

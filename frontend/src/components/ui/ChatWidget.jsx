@@ -11,9 +11,9 @@ import api from '../../services/api';
 
 let socket = null;
 
-const SOCKET_URL = import.meta.env.VITE_API_URL 
-  ? import.meta.env.VITE_API_URL.replace('/api', '') 
-  : (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'http://3.221.160.61:5001');
+const SOCKET_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : window.location.origin;
 
 const getInitials = (user) => {
   if (!user) return '?';
