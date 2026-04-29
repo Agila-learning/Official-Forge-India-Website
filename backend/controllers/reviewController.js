@@ -67,6 +67,18 @@ const getPublicReviews = async (req, res) => {
     }
 };
 
+// @desc    Get all reviews for a product
+// @route   GET /api/reviews/product/:id
+// @access  Public
+const getProductReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({ product: req.params.id }).populate('user', 'firstName lastName');
+        res.json(reviews);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching product reviews' });
+    }
+};
+
 module.exports = {
     createReview,
     getProductReviews,
