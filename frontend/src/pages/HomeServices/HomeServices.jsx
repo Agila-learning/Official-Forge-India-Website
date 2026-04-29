@@ -351,7 +351,15 @@ const HomeServices = () => {
                                             <span className="text-2xl font-black text-white italic">₹{s.price}</span>
                                         </div>
                                         <button 
-                                            onClick={() => navigate(`/home-services/booking/${s._id}`)}
+                                            onClick={() => {
+                                                const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+                                                if (!userInfo) {
+                                                    toast.error('Authentication required to initialize booking.');
+                                                    navigate('/login');
+                                                    return;
+                                                }
+                                                navigate(`/home-services/booking/${s._id}`);
+                                            }}
                                             className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-2xl shadow-primary/20 flex items-center gap-3 hover:bg-blue-600 transition-all"
                                         >
                                             Book Now <ChevronRight size={14} />
@@ -534,7 +542,15 @@ const HomeServices = () => {
                                 </div>
 
                                 <button 
-                                    onClick={() => navigate(`/home-services/booking/${selectedService._id}`)}
+                                    onClick={() => {
+                                        const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+                                        if (!userInfo) {
+                                            toast.error('Authentication required to initialize booking.');
+                                            navigate('/login');
+                                            return;
+                                        }
+                                        navigate(`/home-services/booking/${selectedService._id}`);
+                                    }}
                                     className="w-full py-8 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-3xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                                 >
                                     Initialize Configuration Protocol

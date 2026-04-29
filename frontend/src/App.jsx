@@ -139,8 +139,8 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/employer" element={<EmployerDashboard />} />
           <Route path="/employer/post-job" element={<EmployerDashboard />} />
           <Route path="/home-services" element={<HomeServices />} />
-          <Route path="/home-services/booking/:serviceId" element={<ServiceWizard />} />
-          <Route path="/explore-shop" element={<ExploreShop />} />
+          <Route path="/home-services/booking/:serviceId" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ServiceWizard /></ProtectedRoute>} />
+          <Route path="/explore-shop" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ExploreShop /></ProtectedRoute>} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/about" element={<AboutUs />} />

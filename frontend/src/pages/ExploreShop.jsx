@@ -225,6 +225,12 @@ function ExploreShop() {
                                     key={product._id} 
                                     product={product} 
                                     onBook={() => {
+                                        const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+                                        if (!userInfo) {
+                                            toast.error('Authentication required to book services');
+                                            navigate('/login');
+                                            return;
+                                        }
                                         setSelectedProductForBooking(product);
                                         toast.dismiss(); // Clean previous toasts
                                     }}
@@ -236,6 +242,12 @@ function ExploreShop() {
                                     isFavorite={isFavorite(product._id)}
                                     onToggleFavorite={() => toggleWishlist(product._id)}
                                     onAddToCart={(p) => {
+                                        const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+                                        if (!userInfo) {
+                                            toast.error('Authentication required to add items to cart');
+                                            navigate('/login');
+                                            return;
+                                        }
                                         addToCart(p, 1);
                                         toast.success(`${p.name} added to cart!`, {
                                             icon: '🛒',

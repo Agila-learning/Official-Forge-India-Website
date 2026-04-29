@@ -144,6 +144,13 @@ const ServiceDetails = () => {
     }, [id, navigate]);
 
     const handleBookNow = () => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+        if (!userInfo) {
+            toast.error('Please login to book services');
+            navigate('/login');
+            return;
+        }
+        
         if (!service.price) {
             navigate('/contact', { state: { service: service.name } });
             return;

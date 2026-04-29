@@ -68,13 +68,12 @@ const AdminDashboard = () => {
   const [contactSearch, setContactSearch] = useState('');
   const [chatRoleFilter, setChatRoleFilter] = useState('All');
   const [isAdminEditing, setIsAdminEditing] = useState(false);
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const [adminEditData, setAdminEditData] = useState({
     firstName: userInfo?.firstName || '',
     lastName: userInfo?.lastName || '',
     mobile: userInfo?.mobile || ''
   });
-
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const isSubAdmin = userInfo.role === 'Sub-Admin';
 
   const handleLogout = () => {
