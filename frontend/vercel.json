@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "destination": "http://3.221.160.61/api/$1"
     },
     {
       "source": "/((?!api/).*)",

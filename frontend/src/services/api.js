@@ -1,11 +1,7 @@
 import axios from 'axios';
 
-const rawUrl = import.meta.env.VITE_API_URL || '';
-if (!rawUrl) {
-  console.warn('VITE_API_URL is not defined! API calls will fail or use current domain.');
-}
-const cleanUrl = rawUrl.replace(/\/$/, '');
-const API_URL = cleanUrl ? (cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`) : '/api';
+// Use relative path for API, which is proxied by Vite (dev) or Vercel (prod)
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_URL,
