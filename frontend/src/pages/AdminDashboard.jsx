@@ -308,6 +308,7 @@ const AdminDashboard = () => {
     { id: 'services', icon: Wrench, label: 'Services' },
     { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
+    { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
     { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
     { id: 'testimonials', icon: Star, label: 'Testimonials' },
     { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
@@ -330,7 +331,7 @@ const AdminDashboard = () => {
                 transition={{ duration: 0.4, ease: "easeOut" }}
             >
                 {activeTab === 'overview' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 mt-12">
                         <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl min-h-[400px]">
                             <h3 className="text-2xl font-black mb-8 italic">Recent <span className="text-primary italic">Activity</span></h3>
                             <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
@@ -366,6 +367,30 @@ const AdminDashboard = () => {
                       ))}
                       {data.users.filter(u => u.approvalStatus === 'Pending').length === 0 && (
                         <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold italic">No pending applications</div>
+                      )}
+                   </div>
+                </div>
+
+                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                   <h3 className="text-2xl font-black mb-6">Recent Job Applications</h3>
+                   <div className="space-y-4">
+                      {data.applications?.slice(0, 5).map(app => (
+                        <div key={app._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
+                           <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600"><ClipboardList size={20} /></div>
+                              <div>
+                                 <p className="font-bold text-sm">{app.fullName}</p>
+                                 <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">{app.jobRole}</p>
+                              </div>
+                           </div>
+                           <button onClick={() => setActiveTab('applications')} className="px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all">Track</button>
+                        </div>
+                      ))}
+                      {(data.applications?.length || 0) === 0 && (
+                        <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold italic">No recent applications</div>
+                      )}
+                      {data.applications?.length > 5 && (
+                        <button onClick={() => setActiveTab('applications')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">View All Applications ({data.applications.length})</button>
                       )}
                    </div>
                 </div>

@@ -120,6 +120,7 @@ const DashboardLayout = ({
                     { id: 'services', icon: Wrench, label: 'Services' },
                     { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
                     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
+                    { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
                     { id: 'training', icon: GraduationCap, label: 'Training & Courses' },
                     { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
                     { id: 'testimonials', icon: Star, label: 'Testimonials' },
