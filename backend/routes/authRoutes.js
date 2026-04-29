@@ -11,7 +11,6 @@ const authLimiter = rateLimit({
   message: { message: 'Too many login/register attempts. Please try again shortly.' },
 });
 
-router.post('/register', authLimiter, registerUser);
 router.post('/login', authLimiter, authUser);
 router.post('/send-otp', sendOTP);
 router.post('/verify-otp', verifyOTP);

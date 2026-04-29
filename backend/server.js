@@ -48,6 +48,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india
     })
     .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
+const { registerUser } = require('./controllers/authController');
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
@@ -105,7 +106,10 @@ app.use('/api', apiLimiter);
 app.use('/api/payments', paymentLimiter);
 app.use('/api/job-consulting', paymentLimiter);
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
+// ─── Direct Registration Handler (Fixes 405) ───
+app.post('/api/auth/register', registerUser);
+app.get('/api/auth/register', (req, res) => res.json({ message: 'Use POST to register' }));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
