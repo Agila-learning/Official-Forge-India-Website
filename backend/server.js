@@ -66,7 +66,11 @@ app.set('io', io);
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: [
+    process.env.CORS_ORIGIN || 'http://localhost:5173',
+    'https://www.forgeindiaconnect.com',
+    'https://forgeindiaconnect.com'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -105,6 +109,8 @@ const paymentLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.use('/api/payments', paymentLimiter);
 app.use('/api/job-consulting', paymentLimiter);
+
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
 // ─── Direct Registration Handler (Fixes 405) ───
 app.post('/api/auth/register', registerUser);
