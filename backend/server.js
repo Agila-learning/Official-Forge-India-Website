@@ -102,8 +102,6 @@ const paymentLimiter = rateLimit({
 });
 
 app.use('/api', apiLimiter);
-app.post('/api/auth/login', authLimiter);
-app.post('/api/auth/register', authLimiter);
 app.use('/api/payments', paymentLimiter);
 app.use('/api/job-consulting', paymentLimiter);
 

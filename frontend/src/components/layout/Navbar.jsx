@@ -15,7 +15,7 @@ import { useNotifications } from '../../context/NotificationContext';
 import RoleSelectionModal from '../ui/RoleSelectionModal';
 
 const AnimatedConnectText = () => (
-    <div className="relative flex items-center h-4 w-[80px] justify-center mt-1 ml-0.5">
+    <div className="relative flex items-center h-4 w-[80px] justify-start mt-1">
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.4 }}
@@ -51,7 +51,7 @@ const AnimatedConnectText = () => (
             initial={{ opacity: 0, letterSpacing: "-0.1em", filter: "blur(4px)", scale: 0.9 }}
             animate={{ opacity: 1, letterSpacing: "0.2em", filter: "blur(0px)", scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 1.1 }}
-            className="text-yellow-500 font-black uppercase tracking-[0.2em] text-[9px] absolute w-[80px] text-center"
+            className="text-amber-500 font-black uppercase tracking-[0.2em] text-[9px] absolute w-[80px] text-left"
         >
             CONNECT
         </motion.div>
@@ -160,7 +160,7 @@ const Navbar = () => {
   const navLinks = getNavLinks();
 
   return (
-    <nav className={`fixed w-full z-[9999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
+    <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
       <div className="max-w-full mx-auto px-4 md:px-12 xl:px-20">
         <div className="flex justify-between items-center">
           
@@ -178,7 +178,7 @@ const Navbar = () => {
                 <span className="text-base md:text-2xl font-black tracking-tighter block leading-none uppercase truncate">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
-                <div className="mt-1 md:mt-2 -ml-0.5 scale-75 md:scale-100 origin-left">
+                <div className="mt-1 md:mt-2 scale-75 md:scale-100 origin-left flex justify-start">
                    <AnimatedConnectText key={location.pathname} />
                 </div>
             </div>
@@ -314,14 +314,14 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[10000]"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100000]"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[10001] shadow-3xl flex flex-col overflow-hidden"
+              className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[100001] shadow-3xl flex flex-col overflow-y-auto"
             >
               <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
@@ -330,7 +330,7 @@ const Navbar = () => {
                   </div>
                   <div className="flex flex-col leading-none">
                     <span className="font-black text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase">FORGE INDIA</span>
-                    <span className="font-black text-xs tracking-[0.2em] text-yellow-500 uppercase mt-1">CONNECT</span>
+                    <span className="font-black text-[10px] tracking-[0.2em] text-amber-500 uppercase mt-1 text-left">CONNECT</span>
                   </div>
                 </div>
                 <button 
@@ -341,8 +341,9 @@ const Navbar = () => {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-8 space-y-12 custom-scrollbar bg-gradient-to-b from-white to-gray-50/50 dark:from-dark-bg dark:to-dark-bg/80">
-                {navLinks.map((link, idx) => (
+              <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar bg-white dark:bg-dark-bg">
+                <div className="space-y-10">
+                  {navLinks.map((link, idx) => (
                   <motion.div 
                     key={link.name}
                     initial={{ opacity: 0, x: 20 }}
