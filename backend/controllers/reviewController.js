@@ -51,15 +51,24 @@ const createReview = async (req, res) => {
     res.status(201).json({ message: 'Review added and ratings recalculated' });
 };
 
-// @desc    Get all reviews for a product
-// @route   GET /api/reviews/product/:id
+// @desc    Get top rated public reviews
+// @route   GET /api/reviews/public
 // @access  Public
-const getProductReviews = async (req, res) => {
-    const reviews = await Review.find({ product: req.params.id }).populate('user', 'firstName lastName');
-    res.json(reviews);
+const getPublicReviews = async (req, res) => {
+    try {
+        // Fetch top rated reviews (e.g., 4 and 5 stars)
+        const reviews = await Review.find({ rating: { $gte: 4 } })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .populate('user', 'firstName lastName');
+        res.json(reviews);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching reviews' });
+    }
 };
 
 module.exports = {
     createReview,
-    getProductReviews
+    getProductReviews,
+    getPublicReviews
 };

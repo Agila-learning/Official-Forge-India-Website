@@ -625,6 +625,35 @@ const VendorDashboard = () => {
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone</label>
                                     <input defaultValue={userInfo?.phone} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
                                 </div>
+                                <div className="p-6 bg-primary/5 rounded-[2rem] border border-primary/20 flex items-center justify-between">
+                                    <div>
+                                        <h4 className="font-black text-primary text-[11px] uppercase tracking-wider mb-1 flex items-center gap-2">
+                                            <Sparkles size={14} /> Premium Subscription
+                                        </h4>
+                                        <p className="text-[10px] text-gray-500 font-bold">Unlock priority asset listing and advanced analytics</p>
+                                    </div>
+                                    <button 
+                                        onClick={async () => {
+                                            const newStatus = !userInfo.isSubscribed;
+                                            try {
+                                                const { data } = await api.put('/users/profile', { isSubscribed: newStatus });
+                                                const updatedInfo = { ...userInfo, ...data };
+                                                localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
+                                                toast.success(newStatus ? 'Premium Activated!' : 'Subscription Paused');
+                                                window.location.reload();
+                                            } catch (err) {
+                                                toast.error('Sync failed');
+                                            }
+                                        }}
+                                        className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all ${
+                                            userInfo.isSubscribed 
+                                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' 
+                                                : 'bg-primary text-white shadow-xl shadow-primary/20'
+                                        }`}
+                                    >
+                                        {userInfo.isSubscribed ? 'Active' : 'Enable'}
+                                    </button>
+                                </div>
                                 <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={() => toast.success('Settings saved!')}>Save Settings</button>
                             </div>
                         </motion.div>

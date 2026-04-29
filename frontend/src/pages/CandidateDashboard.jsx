@@ -293,7 +293,7 @@ const CandidateDashboard = () => {
                 onClick={handleQRConfirm}
                 className="w-full bg-primary text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
               >
-                I have Scanned & Paid <CheckCircle size={18} />
+                I have Scanned & Paid <CheckCircle2 size={18} />
               </button>
             </motion.div>
           </div>
@@ -411,7 +411,7 @@ const CandidateDashboard = () => {
                     ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                         {jobs.map(job => {
-                        const alreadyApplied = myApplications.some(a => a.job?._id === job._id);
+                        const alreadyApplied = myApplications.some(a => (a.job?._id || a.job) === job._id);
                         return (
                             <motion.div 
                                 whileHover={{ y: -8 }}
@@ -450,15 +450,19 @@ const CandidateDashboard = () => {
                                             <span className="text-gray-900 dark:text-slate-200">₹{job.salary}</span>
                                         </div>
                                     )}
+                                    {job.requirements && (
+                                        <div className="flex flex-wrap gap-2 mb-10">
+                                        {Array.isArray(job.requirements) 
+                                            ? job.requirements.slice(0, 3).map((r, i) => (
+                                                <span key={i} className="text-[10px] bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-xl px-3 py-1.5 font-black uppercase tracking-wider border border-slate-100 dark:border-white/5">{r}</span>
+                                              ))
+                                            : job.requirements.split(',').slice(0, 3).map((r, i) => (
+                                                <span key={i} className="text-[10px] bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-xl px-3 py-1.5 font-black uppercase tracking-wider border border-slate-100 dark:border-white/5">{r.trim()}</span>
+                                              ))
+                                        }
+                                        </div>
+                                    )}
                                 </div>
-
-                                {Array.isArray(job.requirements) && job.requirements.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mb-10">
-                                    {job.requirements.slice(0, 3).map((r, i) => (
-                                        <span key={i} className="text-[10px] bg-slate-50 dark:bg-white/5 text-slate-600 dark:text-slate-400 rounded-xl px-3 py-1.5 font-black uppercase tracking-wider border border-slate-100 dark:border-white/5">{r}</span>
-                                    ))}
-                                    </div>
-                                )}
                             </div>
 
                             <button
@@ -645,7 +649,7 @@ const CandidateDashboard = () => {
                             <button 
                                 onClick={() => {
                                     // Triggering the global Quippy widget
-                                    const quippyBtn = document.querySelector('button[aria-label="Toggle Quippy AI"]');
+                                    const quippyBtn = document.querySelector('button[aria-label="Open FIC Quippy"]');
                                     if (quippyBtn) quippyBtn.click();
                                     else toast.error("Quippy is currently initializing...");
                                 }}
@@ -855,102 +859,124 @@ const CandidateDashboard = () => {
                         ))}
                     </div>
 
-                    {/* Consulting Form */}
-                    <div className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
-                        <h3 className="font-black text-xl text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Book Your Session</h3>
-                        <p className="text-sm text-gray-400 mb-8">Fill in your details and proceed to secure payment</p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Consulting Type */}
-                            <div className="md:col-span-2">
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Consulting Type *</label>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    {['Career Guidance', 'Resume Review', 'Interview Preparation', 'Salary Negotiation', 'Domain Switch Guidance'].map(type => (
-                                        <button key={type}
-                                            onClick={() => setConsultingForm(f => ({ ...f, consultingType: type }))}
-                                            className={`px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider border-2 transition-all ${
-                                                consultingForm.consultingType === type
-                                                    ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
-                                                    : 'bg-gray-50 dark:bg-dark-bg text-gray-500 border-gray-100 dark:border-gray-800 hover:border-primary/40'
-                                            }`}>
-                                            {type}
-                                        </button>
-                                    ))}
+                    {/* Consulting Form or Active Status */}
+                    {consultingInquiries.some(inq => inq.paymentStatus === 'Paid') ? (
+                        <div className="bg-gradient-to-br from-primary to-blue-600 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                                <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center shrink-0 border border-white/20">
+                                    <ShieldCheck size={48} />
+                                </div>
+                                <div className="flex-1 text-center md:text-left">
+                                    <h3 className="text-3xl font-black uppercase tracking-tighter italic mb-2">Consultation <span className="text-white/70 italic">Active</span></h3>
+                                    <p className="text-white/80 font-medium leading-relaxed mb-6">
+                                        Your payment has been verified. Our senior career strategist is currently reviewing your profile. You will receive a call/email for scheduling within 24 hours.
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                                        <div className="px-5 py-2 bg-white/10 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Status: Reviewing Assets
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    ) : (
+                        <div className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-10 shadow-sm">
+                            <h3 className="font-black text-xl text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Book Your Session</h3>
+                            <p className="text-sm text-gray-400 mb-8">Fill in your details and proceed to secure payment</p>
 
-                            {/* Experience */}
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Experience Level *</label>
-                                <select
-                                    value={consultingForm.experience}
-                                    onChange={e => setConsultingForm(f => ({ ...f, experience: e.target.value }))}
-                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all appearance-none">
-                                    {['Fresher (0-1 yr)', '1-3 Years', '3-6 Years', '6-10 Years', '10+ Years'].map(e => <option key={e} value={e}>{e}</option>)}
-                                </select>
-                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Consulting Type */}
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Consulting Type *</label>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        {['Career Guidance', 'Resume Review', 'Interview Preparation', 'Salary Negotiation', 'Domain Switch Guidance'].map(type => (
+                                            <button key={type}
+                                                onClick={() => setConsultingForm(f => ({ ...f, consultingType: type }))}
+                                                className={`px-4 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider border-2 transition-all ${
+                                                    consultingForm.consultingType === type
+                                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20'
+                                                        : 'bg-gray-50 dark:bg-dark-bg text-gray-500 border-gray-100 dark:border-gray-800 hover:border-primary/40'
+                                                }`}>
+                                                {type}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
 
-                            {/* Current Role */}
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Current Role / Title</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Software Engineer"
-                                    value={consultingForm.currentRole}
-                                    onChange={e => setConsultingForm(f => ({ ...f, currentRole: e.target.value }))}
-                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all"
-                                />
-                            </div>
+                                {/* Experience */}
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Experience Level *</label>
+                                    <select
+                                        value={consultingForm.experience}
+                                        onChange={e => setConsultingForm(f => ({ ...f, experience: e.target.value }))}
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all appearance-none">
+                                        {['Fresher (0-1 yr)', '1-3 Years', '3-6 Years', '6-10 Years', '10+ Years'].map(e => <option key={e} value={e}>{e}</option>)}
+                                    </select>
+                                </div>
 
-                            {/* Contact Number */}
-                            <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact Number *</label>
-                                <div className="relative">
-                                    <Phone size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
+                                {/* Current Role */}
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Current Role / Title</label>
                                     <input
-                                        type="tel"
-                                        placeholder="+91 XXXXX XXXXX"
-                                        value={consultingForm.contactNumber}
-                                        onChange={e => setConsultingForm(f => ({ ...f, contactNumber: e.target.value }))}
-                                        className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all"
+                                        type="text"
+                                        placeholder="e.g. Software Engineer"
+                                        value={consultingForm.currentRole}
+                                        onChange={e => setConsultingForm(f => ({ ...f, currentRole: e.target.value }))}
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all"
+                                    />
+                                </div>
+
+                                {/* Contact Number */}
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact Number *</label>
+                                    <div className="relative">
+                                        <Phone size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="tel"
+                                            placeholder="+91 XXXXX XXXXX"
+                                            value={consultingForm.contactNumber}
+                                            onChange={e => setConsultingForm(f => ({ ...f, contactNumber: e.target.value }))}
+                                            className="w-full pl-12 pr-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Specific Requirements */}
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Specific Requirements *</label>
+                                    <textarea
+                                        rows={4}
+                                        placeholder="Describe your goals, challenges, and what you hope to achieve from this session..."
+                                        value={consultingForm.specificRequirement}
+                                        onChange={e => setConsultingForm(f => ({ ...f, specificRequirement: e.target.value }))}
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all resize-none"
                                     />
                                 </div>
                             </div>
 
-                            {/* Specific Requirements */}
-                            <div className="md:col-span-2">
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Specific Requirements *</label>
-                                <textarea
-                                    rows={4}
-                                    placeholder="Describe your goals, challenges, and what you hope to achieve from this session..."
-                                    value={consultingForm.specificRequirement}
-                                    onChange={e => setConsultingForm(f => ({ ...f, specificRequirement: e.target.value }))}
-                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all resize-none"
-                                />
+                            {/* Security Note */}
+                            <div className="mt-6 flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                <ShieldCheck size={18} className="text-green-500 shrink-0" />
+                                <p className="text-xs text-gray-500 font-medium">
+                                    Your payment is processed via our secure manual verification channel. No sensitive details are stored on our servers.
+                                </p>
                             </div>
-                        </div>
 
-                        {/* Security Note */}
-                        <div className="mt-6 flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
-                            <ShieldCheck size={18} className="text-green-500 shrink-0" />
-                            <p className="text-xs text-gray-500 font-medium">
-                                Your payment is processed via our secure manual verification channel. No sensitive details are stored on our servers.
-                            </p>
+                            {/* Pay Button */}
+                            <button
+                                onClick={handleConsultingPayment}
+                                disabled={isSubmittingConsulting}
+                                className="mt-8 w-full py-5 bg-gradient-to-r from-primary to-blue-600 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {isSubmittingConsulting ? (
+                                    <><Loader2 className="animate-spin" size={18} /> Processing...</>
+                                ) : (
+                                    <><CreditCard size={18} /> Pay ₹1500 &amp; Book Session</>
+                                )}
+                            </button>
                         </div>
-
-                        {/* Pay Button */}
-                        <button
-                            onClick={handleConsultingPayment}
-                            disabled={isSubmittingConsulting}
-                            className="mt-8 w-full py-5 bg-gradient-to-r from-primary to-blue-600 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                            {isSubmittingConsulting ? (
-                                <><Loader2 className="animate-spin" size={18} /> Processing...</>
-                            ) : (
-                                <><CreditCard size={18} /> Pay ₹1500 &amp; Book Session</>
-                            )}
-                        </button>
-                    </div>
+                    )}
 
                     {/* Past Consulting Inquiries */}
                     {consultingInquiries.length > 0 && (

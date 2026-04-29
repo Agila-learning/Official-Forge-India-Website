@@ -4,7 +4,7 @@ const Notification = require('../models/Notification');
 // @desc    Create new ticket
 // @route   POST /api/tickets
 // @access  Private
-exports.createTicket = async (req, res) => {
+const createTicket = async (req, res) => {
     try {
         const { subject, description, priority, category, relatedOrder } = req.body;
         const ticket = await Ticket.create({
@@ -33,7 +33,7 @@ exports.createTicket = async (req, res) => {
 // @desc    Get all tickets (Admin) or user's tickets
 // @route   GET /api/tickets
 // @access  Private
-exports.getTickets = async (req, res) => {
+const getTickets = async (req, res) => {
     try {
         let query = {};
         if (req.user.role !== 'Admin') {
@@ -49,7 +49,7 @@ exports.getTickets = async (req, res) => {
 // @desc    Update ticket (Admin can update status/priority, User can edit within 5 mins)
 // @route   PUT /api/tickets/:id
 // @access  Private
-exports.updateTicket = async (req, res) => {
+const updateTicket = async (req, res) => {
     try {
         const ticket = await Ticket.findById(req.params.id);
         if (!ticket) {
@@ -114,7 +114,7 @@ exports.updateTicket = async (req, res) => {
 // @desc    Delete ticket
 // @route   DELETE /api/tickets/:id
 // @access  Private
-exports.deleteTicket = async (req, res) => {
+const deleteTicket = async (req, res) => {
     try {
         const ticket = await Ticket.findById(req.params.id);
         if (!ticket) {
@@ -136,4 +136,11 @@ exports.deleteTicket = async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
+};
+
+module.exports = {
+    createTicket,
+    getTickets,
+    updateTicket,
+    deleteTicket
 };

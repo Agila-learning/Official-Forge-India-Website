@@ -73,7 +73,8 @@ const userSchema = mongoose.Schema(
     isMember: { type: Boolean, default: false },
     membershipId: { type: String }, // FIC-CAND-YYYY-XXXX
     paymentStatus: { type: String, enum: ['Unpaid', 'Paid'], default: 'Unpaid' },
-    registrationFee: { type: Number, default: 0 }
+    registrationFee: { type: Number, default: 0 },
+    isSubscribed: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

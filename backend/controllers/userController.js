@@ -105,7 +105,7 @@ const updateUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const { firstName, lastName, mobile, vehicleDetails, licenseNumber, businessName, gstNumber } = req.body;
+    const { firstName, lastName, mobile, vehicleDetails, licenseNumber, businessName, gstNumber, isSubscribed } = req.body;
     
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
@@ -114,6 +114,7 @@ const updateUserProfile = async (req, res) => {
     if (licenseNumber) user.licenseNumber = licenseNumber;
     if (businessName) user.businessName = businessName;
     if (gstNumber) user.gstNumber = gstNumber;
+    if (typeof isSubscribed !== 'undefined') user.isSubscribed = isSubscribed;
 
     const updatedUser = await user.save();
     res.json(updatedUser);
