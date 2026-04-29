@@ -19,7 +19,8 @@ export default defineConfig({
         '/faq',
         '/privacy',
         '/terms'
-      ]
+      ],
+      generateRobotsFile: false
     })
   ],
   server: {
