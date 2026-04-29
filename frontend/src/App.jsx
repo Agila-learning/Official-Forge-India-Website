@@ -149,6 +149,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/track-mission/:id" element={<TrackMission />} />
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
           <Route path="/training-placement" element={<TrainingPlacementPage />} />

@@ -338,43 +338,73 @@ const ServiceConfigWizard = ({ product, onAddToCart }) => {
                     {step === 5 && (
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                             <h3 className="text-2xl font-black italic uppercase tracking-tighter">Deployment <span className="text-primary">Schedule</span></h3>
-                            <div className="space-y-8">
+                            <div className="space-y-10">
                                 <div className="space-y-4">
-                                    <label className="text-[9px] font-black uppercase text-gray-400 tracking-widest ml-4">Select Date</label>
-                                    <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar">
-                                        {(product.slots?.map(s => s.date) || [
-                                            new Date().toISOString().split('T')[0],
-                                            new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                                            new Date(Date.now() + 172800000).toISOString().split('T')[0]
-                                        ]).map(date => (
-                                            <button 
-                                                key={date}
-                                                onClick={() => setBookingDate(date)}
-                                                className={`px-6 py-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 min-w-[100px] ${bookingDate === date ? 'bg-primary/5 border-primary shadow-lg' : 'bg-gray-50 dark:bg-dark-bg border-transparent'}`}
-                                            >
-                                                <span className={`text-[8px] font-black uppercase ${bookingDate === date ? 'text-primary' : 'text-gray-400'}`}>
-                                                    {new Date(date).toLocaleDateString(undefined, { weekday: 'short' })}
-                                                </span>
-                                                <span className="text-xs font-black italic">{new Date(date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
-                                            </button>
-                                        ))}
+                                    <label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] ml-4 flex items-center gap-2 italic">
+                                        <Calendar size={14} /> 1. Select Execution Date
+                                    </label>
+                                    <div className="relative group">
+                                        <select 
+                                            value={bookingDate}
+                                            onChange={(e) => setBookingDate(e.target.value)}
+                                            className="w-full pl-14 pr-10 py-5 bg-gray-50 dark:bg-dark-bg border-2 border-transparent focus:border-primary rounded-[1.5rem] font-black text-xs uppercase tracking-widest appearance-none outline-none transition-all shadow-sm group-hover:shadow-md"
+                                        >
+                                            <option value="">-- Choose Authorized Date --</option>
+                                            {(product.slots?.map(s => s.date) || [
+                                                new Date().toISOString().split('T')[0],
+                                                new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                                                new Date(Date.now() + 172800000).toISOString().split('T')[0],
+                                                new Date(Date.now() + 259200000).toISOString().split('T')[0],
+                                                new Date(Date.now() + 345600000).toISOString().split('T')[0]
+                                            ]).map(date => (
+                                                <option key={date} value={date}>
+                                                    {new Date(date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-primary pointer-events-none">
+                                            <Calendar size={18} />
+                                        </div>
+                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <ChevronDown size={18} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="space-y-4">
-                                    <label className="text-[9px] font-black uppercase text-gray-400 tracking-widest ml-4">Select Slot</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {['09:00 AM - 12:00 PM', '12:00 PM - 03:00 PM', '03:00 PM - 06:00 PM', '06:00 PM - 09:00 PM'].map(time => (
-                                            <button 
-                                                key={time}
-                                                onClick={() => setBookingTime(time)}
-                                                className={`p-4 rounded-xl border-2 text-[8px] font-black uppercase tracking-widest flex items-center justify-between transition-all ${bookingTime === time ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-gray-50 dark:bg-dark-bg border-transparent text-gray-500'}`}
+
+                                {bookingDate && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="space-y-4"
+                                    >
+                                        <label className="text-[10px] font-black uppercase text-secondary tracking-[0.2em] ml-4 flex items-center gap-2 italic">
+                                            <Clock size={14} /> 2. Preferred Arrival Window
+                                        </label>
+                                        <div className="relative group">
+                                            <select 
+                                                value={bookingTime}
+                                                onChange={(e) => setBookingTime(e.target.value)}
+                                                className="w-full pl-14 pr-10 py-5 bg-gray-50 dark:bg-dark-bg border-2 border-transparent focus:border-secondary rounded-[1.5rem] font-black text-xs uppercase tracking-widest appearance-none outline-none transition-all shadow-sm group-hover:shadow-md"
                                             >
-                                                {time}
-                                                <Clock size={12} />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                                                <option value="">-- Choose Deployment Slot --</option>
+                                                {(product.slots?.find(s => s.date === bookingDate)?.times || [
+                                                    '09:00 AM - 12:00 PM', 
+                                                    '12:00 PM - 03:00 PM', 
+                                                    '03:00 PM - 06:00 PM', 
+                                                    '06:00 PM - 09:00 PM'
+                                                ]).map(time => (
+                                                    <option key={time} value={time}>{time}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">
+                                                <Clock size={18} />
+                                            </div>
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                                <ChevronDown size={18} />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
                         </motion.div>
                     )}

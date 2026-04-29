@@ -215,12 +215,28 @@ const DashboardLayout = ({
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{role} Hub</span>
-                        <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-white">FORGE INDIA <span className="text-yellow-500">CONNECT</span></span>
+                        <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-white">FIC <span className="text-yellow-500">CON</span></span>
                     </div>
                 </Link>
-                <button onClick={() => setIsSidebarOpen(true)} className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20">
-                    <Menu size={24} />
-                </button>
+                <div className="flex items-center gap-2">
+                    {role === 'Candidate' && (
+                        <Link to="/cart" className="w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center relative">
+                            <ShoppingBag size={20} />
+                        </Link>
+                    )}
+                    <button 
+                        onClick={() => { setIsNotificationOpen(!isNotificationOpen); setIsSidebarOpen(false); }}
+                        className="w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center relative"
+                    >
+                        <Bell size={20} />
+                        {notifications.filter(n => !n.isRead).length > 0 && (
+                            <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-dark-card"></span>
+                        )}
+                    </button>
+                    <button onClick={() => setIsSidebarOpen(true)} className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-xl shadow-primary/20 ml-1">
+                        <Menu size={20} />
+                    </button>
+                </div>
             </div>
 
             {/* Desktop Sidebar */}
@@ -297,6 +313,13 @@ const DashboardLayout = ({
                          <button onClick={() => setIsCollapsed(!isCollapsed)} className={`hidden md:flex p-3 bg-white dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-400 ${theme.hover} transition-all`}>
                              {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
                          </button>
+                        
+                        {role === 'Candidate' && (
+                            <Link to="/cart" className="w-12 h-12 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary rounded-2xl flex items-center justify-center transition-all relative">
+                                <ShoppingBag size={20} />
+                            </Link>
+                        )}
+
                         {/* Notification Toggle */}
                         <div className="relative">
                             <button 

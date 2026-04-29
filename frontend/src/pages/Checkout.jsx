@@ -27,11 +27,13 @@ const Checkout = () => {
     const [selectedSlot, setSelectedSlot] = useState({ date: '', time: '' });
     const [addMembership, setAddMembership] = useState(false);
     const membershipPrice = 499;
+    const [paymentMethod, setPaymentMethod] = useState('GPay');
     const [address, setAddress] = useState({ 
         address: '', 
         city: '', 
         postalCode: '', 
-        country: 'India' 
+        country: 'India',
+        manualEdit: false
     });
 
     // Auto-fetch pincode when city is entered
@@ -92,9 +94,7 @@ const Checkout = () => {
         }
         setLoading(true);
         try {
-            // Re-validate token exists just before mission deployment
             const token = localStorage.getItem('token');
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             if (!token) {
                 toast.error('Tactical Session Expired');
                 return navigate('/login');
@@ -112,20 +112,24 @@ const Checkout = () => {
                     selectedConfig: item.selectedConfig
                 })),
                 shippingAddress: address,
-                paymentMethod: 'Razorpay', 
+                paymentMethod: paymentMethod, 
                 totalPrice: addMembership ? cartTotal + membershipPrice : cartTotal,
                 instructions,
                 fulfillmentType
             };
 
-            // 1. Create Order in Backend (Pending status)
             const { data: order } = await api.post('/orders', orderData);
             
-            // 2. Mock: Show QR Modal instead of Razorpay
-            setPendingOrderDetails(order);
-            setShowQRModal(true);
+            if (paymentMethod === 'COD') {
+                setCreatedOrder(order);
+                setStep(4);
+                clearCart();
+                toast.success('Order Placed Successfully (COD)!');
+            } else {
+                setPendingOrderDetails(order);
+                setShowQRModal(true);
+            }
             setLoading(false);
-
         } catch (err) {
             toast.error(err.response?.data?.message || 'Order creation failed');
             setLoading(false);
@@ -261,18 +265,44 @@ const Checkout = () => {
                                 <div className="grid grid-cols-2 gap-6 mb-10">
                                     <div className="col-span-2 flex justify-between items-center mb-2 px-1">
                                         <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest">Destination Address</label>
-                                        <button onClick={getLiveLocation} className="text-[9px] font-black text-primary hover:underline uppercase flex items-center gap-1"><MapPin size={12}/> Sync Live Location</button>
+                                        <div className="flex gap-4">
+                                            <button 
+                                                onClick={() => setAddress(prev => ({...prev, manualEdit: !prev.manualEdit}))} 
+                                                className="text-[9px] font-black text-secondary hover:underline uppercase"
+                                            >
+                                                {address.manualEdit ? 'Lock Address' : 'Edit Manually'}
+                                            </button>
+                                            <button onClick={getLiveLocation} className="text-[9px] font-black text-primary hover:underline uppercase flex items-center gap-1"><MapPin size={12}/> Sync Live Location</button>
+                                        </div>
                                     </div>
                                     <div className="col-span-2">
-                                        <input value={address.address} onChange={(e) => setAddress({...address, address: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-none font-bold outline-none" placeholder="123, Forge Street..." />
+                                        <textarea 
+                                            readOnly={!address.manualEdit}
+                                            value={address.address} 
+                                            onChange={(e) => setAddress({...address, address: e.target.value})} 
+                                            className={`w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-2 transition-all font-bold outline-none resize-none ${address.manualEdit ? 'border-primary' : 'border-transparent'}`} 
+                                            placeholder="123, Forge Street..." 
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest pl-1">City Hub</label>
-                                        <input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-none font-bold outline-none" placeholder="Tirupur" />
+                                        <input 
+                                            readOnly={!address.manualEdit}
+                                            value={address.city} 
+                                            onChange={(e) => setAddress({...address, city: e.target.value})} 
+                                            className={`w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-2 transition-all font-bold outline-none ${address.manualEdit ? 'border-primary' : 'border-transparent'}`} 
+                                            placeholder="Tirupur" 
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest pl-1">Pincode Vector</label>
-                                        <input value={address.postalCode} onChange={(e) => setAddress({...address, postalCode: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-none font-bold outline-none" placeholder="641604" />
+                                        <input 
+                                            readOnly={!address.manualEdit}
+                                            value={address.postalCode} 
+                                            onChange={(e) => setAddress({...address, postalCode: e.target.value})} 
+                                            className={`w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border-2 transition-all font-bold outline-none ${address.manualEdit ? 'border-primary' : 'border-transparent'}`} 
+                                            placeholder="641604" 
+                                        />
                                     </div>
                                 </div>
 
@@ -369,7 +399,30 @@ const Checkout = () => {
                                     </div>
                                 </div>
                                 
-                                <div className="bg-gray-50 dark:bg-dark-bg p-10 rounded-[3rem] mb-10 border border-gray-100 dark:border-gray-800 shadow-xl shadow-primary/5">
+                                <div className="bg-gray-50 dark:bg-dark-bg p-8 md:p-12 rounded-[3rem] mb-10 border border-gray-100 dark:border-gray-800 shadow-xl shadow-primary/5">
+                                    <div className="mb-12">
+                                        <label className="block text-[10px] font-black uppercase text-gray-400 mb-6 tracking-widest pl-1 italic">Authorized Payment Gateway</label>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {[
+                                                { id: 'GPay', label: 'Google Pay', icon: <Smartphone className="text-blue-500" /> },
+                                                { id: 'Net Banking', label: 'Net Banking', icon: <Building2 className="text-purple-500" /> },
+                                                { id: 'UPI', label: 'Any UPI App', icon: <Zap className="text-amber-500" /> },
+                                                { id: 'COD', label: 'Pay on Execution', icon: <Truck className="text-gray-500" /> }
+                                            ].map((method) => (
+                                                <button 
+                                                    key={method.id}
+                                                    onClick={() => setPaymentMethod(method.id)}
+                                                    className={`p-6 rounded-3xl border-2 text-center transition-all flex flex-col items-center gap-3 ${paymentMethod === method.id ? 'bg-white dark:bg-dark-card border-primary shadow-xl scale-105' : 'bg-transparent border-transparent grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`}
+                                                >
+                                                    <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-dark-bg flex items-center justify-center">
+                                                        {method.icon}
+                                                    </div>
+                                                    <p className="font-black text-[9px] uppercase tracking-tight">{method.label}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     {/* Membership Upsell */}
                                     <div className="mb-10 p-6 rounded-[2rem] bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
                                         <div className="flex items-center gap-4">
@@ -395,24 +448,10 @@ const Checkout = () => {
                                         </div>
                                     </div>
 
-                                    {addMembership && (
-                                        <div className="mb-10 p-6 rounded-2xl bg-primary/5 border border-primary/10">
-                                            <p className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-2">
-                                                <CheckCircle size={14} /> Membership Benefits Activated
-                                            </p>
-                                            <p className="text-xs text-gray-500 font-medium mt-2 leading-relaxed">
-                                                You will receive specific discounts on every order for the next 3 months. This membership is tied to your account and valid across all FIC services.
-                                            </p>
-                                            <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mt-2 flex items-center gap-2">
-                                                <Info size={12} /> Note: Membership fee is non-refundable.
-                                            </p>
-                                        </div>
-                                    )}
-
                                     <div className="flex justify-between items-start mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Inventory Total</p>
-                                            <h4 className="text-2xl font-black italic tracking-tighter">FORGE-INDIA-CONNECT</h4>
+                                            <h4 className="text-2xl font-black italic tracking-tighter uppercase">Forge-India Order</h4>
                                         </div>
                                         <span className="text-4xl font-black text-primary tracking-tighter">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
                                     </div>
@@ -435,7 +474,7 @@ const Checkout = () => {
                                 <div className="bg-blue-500/10 p-6 rounded-2xl mb-10 flex items-center gap-4 border border-blue-500/20">
                                     <ShieldCheck className="text-blue-500" size={24} />
                                     <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-relaxed">
-                                        Secured by Forge India Payment Gateway. Your transaction is protected with military-grade encryption.
+                                        Secured by Forge India Payment Gateway. Selected Mode: <span className="text-primary font-black">{paymentMethod}</span>.
                                     </p>
                                 </div>
 
@@ -446,7 +485,7 @@ const Checkout = () => {
                                         onClick={handlePlaceOrder} 
                                         className="flex-[2] py-6 bg-primary text-white font-black rounded-2xl uppercase tracking-widest text-sm shadow-xl shadow-primary/20 transition-all hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
-                                        {loading ? 'Processing Transaction...' : 'Capitalize & Secure Order'}
+                                        {loading ? 'Processing Transaction...' : paymentMethod === 'COD' ? 'Confirm Order (COD)' : 'Authorize & Secure Payment'}
                                     </button>
                                 </div>
                             </motion.div>
@@ -470,12 +509,18 @@ const Checkout = () => {
 
                                 <OrderInvoice order={createdOrder} />
 
-                                <div className="mt-12 flex justify-center gap-6">
+                                <div className="mt-12 flex flex-col md:flex-row justify-center gap-6">
                                     <button 
                                         onClick={() => navigate('/explore-shop')}
-                                        className="px-10 py-5 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all shadow-lg"
+                                        className="px-10 py-5 bg-gray-50 dark:bg-dark-bg/50 text-gray-500 font-black rounded-2xl uppercase tracking-widest text-[10px] hover:text-primary transition-all border border-gray-100 dark:border-gray-800"
                                     >
                                         Continue Exploration
+                                    </button>
+                                    <button 
+                                        onClick={() => navigate(`/track-mission/${createdOrder?._id}`)}
+                                        className="px-10 py-5 bg-primary text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/30 hover:scale-105 transition-all flex items-center justify-center gap-3"
+                                    >
+                                        Live Mission Tracker <ArrowUpRight size={16} />
                                     </button>
                                     <button 
                                         onClick={() => {
@@ -484,9 +529,9 @@ const Checkout = () => {
                                             else if (role === 'Admin') navigate('/admin');
                                             else navigate('/candidate/dashboard');
                                         }}
-                                        className="px-10 py-5 bg-primary text-white font-black rounded-2xl uppercase tracking-widest text-xs shadow-xl shadow-primary/30 hover:scale-110 transition-all flex items-center gap-3"
+                                        className="px-10 py-5 bg-secondary text-dark-bg font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/30 hover:scale-105 transition-all flex items-center justify-center gap-3"
                                     >
-                                        Track in Hub <ChevronRight size={18} />
+                                        Command Hub <ChevronRight size={18} />
                                     </button>
                                 </div>
                             </motion.div>

@@ -247,7 +247,62 @@ const Navbar = () => {
 
             <ThemeToggle />
             
+            <div className="flex items-center gap-4">
+              <Link to="/cart" className="relative group/cart p-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl hover:border-primary transition-all shadow-sm">
+                <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                    {cartItems.length}
+                  </span>
+                )}
+              </Link>
+
+              <div className="relative group/notif">
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="p-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl hover:border-secondary transition-all shadow-sm"
+                >
+                  <Bell size={20} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute top-full right-0 mt-4 w-80 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-6 z-[100]"
+                    >
+                      <div className="flex justify-between items-center mb-6">
+                        <h4 className="text-sm font-black uppercase tracking-tighter italic">Intelligence <span className="text-secondary">Feed</span></h4>
+                        <button onClick={markAllAsRead} className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors">Wipe All</button>
+                      </div>
+                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {notifications.length === 0 ? (
+                          <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic tracking-widest">No signals detected</p>
+                        ) : (
+                          notifications.map((n) => (
+                            <div key={n._id} className={`p-4 rounded-2xl border ${n.read ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800' : 'bg-secondary/5 border-secondary/20 shadow-md'} transition-all`}>
+                               <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{n.message}</p>
+                               <p className="text-[8px] font-black text-gray-400 uppercase mt-2">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+            
             {isLoggedIn ? (
+
               <div className="flex items-center gap-5">
                 <div className="relative group/profile">
                   <button className="flex items-center gap-3 p-2 pr-5 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm">
@@ -290,6 +345,14 @@ const Navbar = () => {
           </div>
 
           <div className="xl:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
+             <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
+                <ShoppingCart size={18} />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                    {cartItems.length}
+                  </span>
+                )}
+             </Link>
              <ThemeToggle />
              <button 
               onClick={(e) => {

@@ -7,24 +7,19 @@ const reviewSchema = mongoose.Schema(
       required: true,
       ref: 'User',
     },
-    name: {
-      type: String,
+    order: {
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-    },
-    rating: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    comment: {
-      type: String,
-      required: true,
+      ref: 'Order',
     },
     product: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: 'Product',
     },
+    name: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true },
   },
   {
     timestamps: true,
