@@ -14,14 +14,33 @@ const mapContainerStyle = {
 };
 
 const ShopLocationPicker = ({ onLocationSelect }) => {
-  const { isLoaded } = useJsApiLoader({
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const isKeyMissing = !apiKey || apiKey.includes('REPLACE_WITH');
+
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+    googleMapsApiKey: isKeyMissing ? '' : apiKey
   });
 
   const [markerPosition, setMarkerPosition] = useState(center);
   const [address, setAddress] = useState('');
   const [map, setMap] = useState(null);
+
+  if (isKeyMissing || loadError) {
+    return (
+      <div className="h-[300px] w-full bg-slate-50 dark:bg-dark-bg/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mb-4 text-red-500">
+          <Globe size={32} />
+        </div>
+        <p className="font-black uppercase tracking-widest text-[10px] text-slate-900 dark:text-white mb-2">Maps Protocol Halted</p>
+        <p className="text-[10px] text-slate-500 font-bold max-w-[240px] leading-relaxed">
+          {isKeyMissing 
+            ? "Google Maps API Key is missing in .env configuration. Please provide a valid VITE_GOOGLE_MAPS_API_KEY."
+            : "Failed to initialize Google Maps. Please verify your API key and Billing status."}
+        </p>
+      </div>
+    );
+  }
 
   const onMapClick = useCallback((e) => {
     const lat = e.latLng.lat();
@@ -45,12 +64,9 @@ const ShopLocationPicker = ({ onLocationSelect }) => {
 
   if (!isLoaded) {
     return (
-      <div className="h-[300px] w-full bg-gray-100 dark:bg-dark-bg/40 animate-pulse rounded-[2rem] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-gray-200 dark:border-gray-800">
-        <Globe className="text-gray-300 mb-4 animate-spin" size={40} />
-        <p className="font-black uppercase tracking-widest text-[10px] text-gray-400 mb-2">Initialising Maps Protocol...</p>
-        <p className="text-[9px] text-gray-500 font-medium max-w-[200px]">
-          If this persists, please verify your Google Maps API Key and Billing status in the .env configuration.
-        </p>
+      <div className="h-[300px] w-full bg-slate-50 dark:bg-dark-bg/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+        <Globe className="text-primary/30 mb-4 animate-spin" size={40} />
+        <p className="font-black uppercase tracking-widest text-[10px] text-slate-400">Syncing Geodata...</p>
       </div>
     );
   }

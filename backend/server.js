@@ -101,11 +101,11 @@ const paymentLimiter = rateLimit({
   message: { message: 'Too many payment requests. Please try again shortly.' },
 });
 
-app.use('/api/', apiLimiter);
-app.use('/api/auth/login',    authLimiter);
-app.use('/api/auth/register', authLimiter);
-app.use('/api/payments/',     paymentLimiter);
-app.use('/api/job-consulting/', paymentLimiter);
+app.use('/api', apiLimiter);
+app.post('/api/auth/login', authLimiter);
+app.post('/api/auth/register', authLimiter);
+app.use('/api/payments', paymentLimiter);
+app.use('/api/job-consulting', paymentLimiter);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);

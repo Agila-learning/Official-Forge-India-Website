@@ -314,14 +314,14 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-dark-bg/80 backdrop-blur-md z-[2000]"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[10000]"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-[90vw] max-w-md bg-white dark:bg-dark-bg z-[2001] shadow-3xl flex flex-col overflow-hidden"
+              className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[10001] shadow-3xl flex flex-col overflow-hidden"
             >
               <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
@@ -378,10 +378,13 @@ const Navbar = () => {
                           to={link.path || '#'} 
                           state={link.state}
                           onClick={() => { if(link.onClick) link.onClick(); setIsOpen(false); }}
-                          className="flex items-center justify-between p-5 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 active:scale-[0.98] transition-all shadow-sm font-black text-gray-900 dark:text-white text-lg uppercase tracking-tight hover:text-primary group/moblink"
+                          className="flex items-center justify-between p-5 bg-slate-50 dark:bg-dark-card/40 rounded-[1.5rem] border border-slate-100 dark:border-slate-800/50 active:scale-[0.98] transition-all shadow-sm font-black text-slate-900 dark:text-white text-base uppercase tracking-tight hover:text-primary group/moblink"
                         >
-                          {link.name}
-                          <ChevronRight size={20} className="text-gray-300 group-hover/moblink:text-primary transition-colors" />
+                          <div className="flex items-center gap-4">
+                             <div className="w-2 h-2 rounded-full bg-primary/20 group-hover/moblink:bg-primary transition-colors"></div>
+                             {link.name}
+                          </div>
+                          <ChevronRight size={18} className="text-slate-300 group-hover/moblink:text-primary transition-colors" />
                         </Link>
                     )}
                   </motion.div>
