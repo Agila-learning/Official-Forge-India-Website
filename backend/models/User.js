@@ -74,6 +74,15 @@ const userSchema = mongoose.Schema(
     membershipId: { type: String }, // FIC-CAND-YYYY-XXXX
     paymentStatus: { type: String, enum: ['Unpaid', 'Paid'], default: 'Unpaid' },
     registrationFee: { type: Number, default: 0 },
+    subscriptionLevel: { 
+      type: String, 
+      enum: ['Basic', 'Premium', 'Elite'], 
+      default: 'Basic' 
+    },
+    referredByAgentName: { type: String }, // Mandatory for vendors during reg
+    agentMobile: { type: String },
+    agentReference: { type: String },
+    additionalComments: { type: String },
     isSubscribed: { type: Boolean, default: false }
   },
   { timestamps: true }

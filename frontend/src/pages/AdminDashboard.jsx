@@ -67,6 +67,12 @@ const AdminDashboard = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [contactSearch, setContactSearch] = useState('');
   const [chatRoleFilter, setChatRoleFilter] = useState('All');
+  const [isAdminEditing, setIsAdminEditing] = useState(false);
+  const [adminEditData, setAdminEditData] = useState({
+    firstName: userInfo?.firstName || '',
+    lastName: userInfo?.lastName || '',
+    mobile: userInfo?.mobile || ''
+  });
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const isSubAdmin = userInfo.role === 'Sub-Admin';
@@ -280,6 +286,19 @@ const AdminDashboard = () => {
 
   const cancelEdit = (endpoint) => {
     setEditingItem(prev => ({...prev, [endpoint]: null}));
+  };
+
+  const handleUpdateAdminProfile = async () => {
+    try {
+      const { data } = await api.put('/users/profile', adminEditData);
+      const updatedInfo = { ...userInfo, ...data };
+      localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
+      toast.success('Admin profile updated!');
+      setIsAdminEditing(false);
+      window.location.reload(); // Refresh to sync header/state
+    } catch (err) {
+      toast.error('Profile sync failed');
+    }
   };
 
   const handleAssignPartner = async (orderId, partnerId) => {
@@ -2564,18 +2583,60 @@ const AdminDashboard = () => {
                         <p className="text-lg text-gray-500 font-medium mb-12">Authorized Personnel Access Only</p>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto mb-12">
-                            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Full Name</p>
-                                <p className="font-bold text-gray-900 dark:text-white underline decoration-primary/30 decoration-4 underline-offset-4">{userInfo.firstName} {userInfo.lastName}</p>
-                            </div>
-                            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Assigned Role</p>
-                                <p className="font-bold text-primary italic uppercase tracking-tight">{userInfo.role}</p>
-                            </div>
-                            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 md:col-span-2">
-                                <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Official Email</p>
-                                <p className="font-bold text-gray-900 dark:text-white uppercase">{userInfo.email}</p>
-                            </div>
+                            {isAdminEditing ? (
+                                <>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">First Name</label>
+                                        <input 
+                                            value={adminEditData.firstName} 
+                                            onChange={e => setAdminEditData({...adminEditData, firstName: e.target.value})} 
+                                            className="w-full bg-transparent border-b border-primary outline-none font-bold text-gray-900 dark:text-white" 
+                                        />
+                                    </div>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Last Name</label>
+                                        <input 
+                                            value={adminEditData.lastName} 
+                                            onChange={e => setAdminEditData({...adminEditData, lastName: e.target.value})} 
+                                            className="w-full bg-transparent border-b border-primary outline-none font-bold text-gray-900 dark:text-white" 
+                                        />
+                                    </div>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 md:col-span-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Mobile Contact</label>
+                                        <input 
+                                            value={adminEditData.mobile} 
+                                            onChange={e => setAdminEditData({...adminEditData, mobile: e.target.value})} 
+                                            className="w-full bg-transparent border-b border-primary outline-none font-bold text-gray-900 dark:text-white" 
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Full Name</p>
+                                        <p className="font-bold text-gray-900 dark:text-white underline decoration-primary/30 decoration-4 underline-offset-4">{userInfo.firstName} {userInfo.lastName}</p>
+                                    </div>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Assigned Role</p>
+                                        <p className="font-bold text-primary italic uppercase tracking-tight">{userInfo.role}</p>
+                                    </div>
+                                    <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 md:col-span-2">
+                                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Official Email & Mobile</p>
+                                        <p className="font-bold text-gray-900 dark:text-white uppercase">{userInfo.email} {userInfo.mobile && ` | ${userInfo.mobile}`}</p>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="flex gap-4 justify-center mb-12">
+                            {isAdminEditing ? (
+                                <>
+                                    <button onClick={handleUpdateAdminProfile} className="px-10 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Save Profile</button>
+                                    <button onClick={() => setIsAdminEditing(false)} className="px-10 py-4 bg-gray-100 dark:bg-gray-800 text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:text-red-500 transition-all">Cancel</button>
+                                </>
+                            ) : (
+                                <button onClick={() => setIsAdminEditing(true)} className="px-10 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Edit Administrative Profile</button>
+                            )}
                         </div>
 
                         <div className="p-8 bg-blue-500/5 border border-blue-500/10 rounded-3xl">

@@ -10,7 +10,8 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
   const { 
     firstName, lastName, password, industry, mobile, role,
-    businessName, gstNumber, profileDocuments, vehicleDetails, licenseNumber, companyName, vendorType
+    businessName, gstNumber, profileDocuments, vehicleDetails, licenseNumber, companyName, vendorType,
+    referredByAgentName, agentMobile, agentReference, additionalComments, subscriptionLevel
   } = req.body;
   const email = req.body.email?.toLowerCase().trim();
   
@@ -49,6 +50,11 @@ const registerUser = async (req, res) => {
       // Candidate Specs
       resumeUrl: req.body.resumeUrl,
       domainInterest: req.body.domainInterest,
+      referredByAgentName,
+      agentMobile,
+      agentReference,
+      additionalComments,
+      subscriptionLevel,
       isMember,
       membershipId,
       paymentStatus,

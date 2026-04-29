@@ -151,12 +151,13 @@ const CandidateDashboard = () => {
     setUploading(true);
     try {
       const { data } = await api.post('/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      const url = typeof data === 'string' ? `http://localhost:5000${data}` : data;
+      const url = typeof data === 'string' ? data : data.url;
       await api.put('/users/profile', { resumeUrl: url });
-      setResumeUrl(url);
-      const updatedInfo = { ...userInfo, resumeUrl: url };
-      localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
-      toast.success('Resume updated successfully!');
+      
+      const updatedUser = { ...userInfo, resumeUrl: url };
+      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+      toast.success('Resume synchronized with FIC network!');
+      window.location.reload();
     } catch {
       toast.error('Upload failed');
     } finally {
@@ -799,6 +800,42 @@ const CandidateDashboard = () => {
                                 <input type="file" accept=".pdf" className="hidden" onChange={handleResumeUpload} disabled={uploading} />
                             </label>
                             </div>
+                        </div>
+                    </div>
+                </motion.div>
+                )}
+
+                {/* ── EXPLORE SHOP ────────────────────────────────────────── */}
+                {activeTab === 'shop' && (
+                <motion.div key="shop" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
+                    <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[3rem] p-12 text-center border border-white/5 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
+                        <div className="relative z-10">
+                            <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 -rotate-12">
+                                <ShoppingBag size={48} className="text-primary" />
+                            </div>
+                            <h2 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Connect <span className="text-primary italic">Marketplace</span></h2>
+                            <p className="text-gray-400 text-lg font-medium mb-12 max-w-xl mx-auto">
+                                Access our exclusive ecosystem of high-performance products, professional services, and essential kits curated for the FIC network.
+                            </p>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Products</h4>
+                                    <p className="text-[10px] text-gray-500 font-bold">Industrial assets, health, beauty, and electronics.</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Services</h4>
+                                    <p className="text-[10px] text-gray-500 font-bold">Professional consulting, home services, and more.</p>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={() => navigate('/explore-shop')}
+                                className="px-10 py-5 bg-primary text-white font-black rounded-full text-lg shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
+                            >
+                                Enter Marketplace
+                            </button>
                         </div>
                     </div>
                 </motion.div>

@@ -69,45 +69,13 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-slate-950 text-white pt-24 pb-12 overflow-hidden relative border-t border-white/5">
+    <footer className="bg-slate-950 text-white pt-24 pb-12 overflow-hidden relative border-t border-white/5 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] translate-y-1/2" />
 
       <div className="container-xl relative z-10">
-        {/* Newsletter / CTA Section */}
-        <div className="mb-24 p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 backdrop-blur-3xl flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] translate-x-1/2 -translate-y-1/2 group-hover:bg-primary/30 transition-colors duration-700" />
-          
-          <div className="max-w-2xl relative z-10">
-            <h3 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight text-left">
-              Ready to Accelerate Your <br/>
-              <span className="text-secondary italic">Business Growth?</span>
-            </h3>
-            <p className="text-slate-400 text-lg font-medium leading-relaxed text-left">
-              Join 5,000+ professionals and enterprises receiving our weekly insights on recruitment, digital transformation, and market trends.
-            </p>
-          </div>
-
-          <div className="w-full lg:w-auto relative z-10">
-            <form className="flex flex-col sm:flex-row gap-4" onSubmit={handleSubscribe}>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your work email"
-                required
-                className="px-8 py-5 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-primary transition-all text-white font-bold w-full sm:w-80"
-              />
-              <button type="submit" disabled={isSubscribing} className="px-10 py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/30 hover:bg-indigo-600 transition-all uppercase tracking-widest text-[10px] disabled:opacity-70 flex items-center justify-center min-w-[160px]">
-                {isSubscribing ? 'Subscribing...' : 'Subscribe Now'}
-              </button>
-            </form>
-            <p className="mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center lg:text-left">
-              No spam. Just value. Unsubscribe anytime.
-            </p>
-          </div>
-        </div>
+        {/* Newsletter removed for cleaner design and better contrast */}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           
@@ -126,7 +94,7 @@ const Footer = () => {
               </div>
             </Link>
             
-            <p className="text-slate-400 text-lg leading-relaxed max-w-sm text-left">
+            <p className="text-slate-200 text-lg leading-relaxed max-w-sm text-left">
               India's premier gateway for career placement, business excellence, and digital transformation. 
               Bridging talent with global opportunities through a verified partner network.
             </p>

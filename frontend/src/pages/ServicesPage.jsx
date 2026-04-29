@@ -493,6 +493,68 @@ const ServicesPage = () => {
         </div>
       </section>
 
+      {/* Regional Presence Section */}
+      <section className="section-padding bg-white dark:bg-dark-card overflow-hidden">
+        <div className="container-xl">
+          <div className="section-header">
+            <span className="section-eyebrow">Our Presence</span>
+            <h2 className="section-title">Regional Headquarters</h2>
+            <p className="section-subtitle">
+              Physically established in major business hubs across South India to better serve our talent and partners.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                city: 'Krishnagiri', 
+                type: 'Head Office', 
+                address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', 
+                map: 'https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed' 
+              },
+              { 
+                city: 'Chennai', 
+                type: 'Branch Office', 
+                address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', 
+                map: 'https://maps.google.com/maps?q=22,+VVM+Towers,+3rd+Floor,+Pattullos+Rd,+Anna+Salai,+Royapettah,+Chennai,+Tamil+Nadu+600002&output=embed' 
+              },
+              { 
+                city: 'Bangalore', 
+                type: 'Liaison Office', 
+                address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', 
+                map: 'https://maps.google.com/maps?q=Excel+coworks,+Marilingappa+layout,+Nagarbhavi,+Papareddypalya+,+Bangalore&output=embed' 
+              },
+            ].map((branch, i) => (
+              <motion.div
+                key={branch.city}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group p-8 rounded-[2.5rem] bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition-all"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                  <MapPin size={22} />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 block">{branch.type}</span>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">{branch.city}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed h-20 overflow-hidden">{branch.address}</p>
+                
+                <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-64 w-full grayscale contrast-125 brightness-90 hover:grayscale-0 transition-all duration-700">
+                  <iframe
+                    title={`${branch.city} Headquarters`}
+                    src={branch.map}
+                    className="w-full h-full"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Banner */}
       <section className="section-padding bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"

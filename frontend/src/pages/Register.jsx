@@ -33,6 +33,11 @@ const Register = () => {
     resumeUrl: '',
     domainInterest: 'IT',
     candidateType: 'Standard', // Standard (Free) or Premium (Paid 1500)
+    subscriptionLevel: 'Basic', // Basic, Premium, Elite
+    referredByAgentName: '',
+    agentMobile: '',
+    agentReference: '',
+    additionalComments: '',
     acceptedTerms: false
   });
 
@@ -104,8 +109,8 @@ const Register = () => {
 
     // 5. Business Logic Validation
     if (formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') {
-        if (!formData.businessName || !formData.gstNumber) {
-            setError('Operational Blocker: Business Name and GST/Tax ID are required for this role.');
+        if (!formData.businessName || !formData.gstNumber || !formData.referredByAgentName) {
+            setError('Operational Blocker: Business Name, GST/Tax ID, and Referral Agent Name are required for this role.');
             return;
         }
     }
@@ -423,6 +428,41 @@ const Register = () => {
                         <input type="text" required placeholder="29XXXXX..." value={formData.gstNumber} onChange={e => setFormData({...formData, gstNumber: e.target.value})} className="form-input !rounded-2xl py-4" />
                       </div>
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subscription Tier</label>
+                        <select 
+                          required 
+                          value={formData.subscriptionLevel} 
+                          onChange={e => setFormData({...formData, subscriptionLevel: e.target.value})} 
+                          className="form-input !rounded-2xl py-4 appearance-none cursor-pointer dark:bg-dark-bg dark:text-white"
+                        >
+                          <option value="Basic">Basic Node</option>
+                          <option value="Premium">Premium Node</option>
+                          <option value="Elite">Elite Enterprise</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Name *</label>
+                        <input type="text" required placeholder="Name of referring agent" value={formData.referredByAgentName} onChange={e => setFormData({...formData, referredByAgentName: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Mobile (Opt)</label>
+                        <input type="tel" placeholder="+91 ..." value={formData.agentMobile} onChange={e => setFormData({...formData, agentMobile: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Reference Code</label>
+                        <input type="text" placeholder="FIC-AGT-XXXX" value={formData.agentReference} onChange={e => setFormData({...formData, agentReference: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Additional Comments</label>
+                        <input type="text" placeholder="Special requirements..." value={formData.additionalComments} onChange={e => setFormData({...formData, additionalComments: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                    </div>
+
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={14}/> {formData.role === 'Service Provider' ? 'Service Area' : 'Shop Location'} on Map</label>
                       <ShopLocationPicker onLocationSelect={loc => setFormData({...formData, exactLocation: loc})} />

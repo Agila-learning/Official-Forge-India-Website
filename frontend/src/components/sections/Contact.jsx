@@ -44,6 +44,7 @@ const Contact = () => {
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
       email: formData.get('email'),
+      phone: formData.get('phone'),
       message: formData.get('message'),
       attachmentUrl: ''
     };
@@ -147,9 +148,15 @@ const Contact = () => {
                   </div>
                 </div>
                 
-                <div className="contact-input">
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 tracking-wide uppercase">Email Address</label>
-                  <input name="email" required type="email" className="w-full px-5 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm" placeholder="john@company.com" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="contact-input">
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 tracking-wide uppercase">Email Address</label>
+                    <input name="email" required type="email" className="w-full px-5 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm" placeholder="john@company.com" />
+                  </div>
+                  <div className="contact-input">
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 tracking-wide uppercase">Phone Number</label>
+                    <input name="phone" required type="tel" className="w-full px-5 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm" placeholder="+91 98765 43210" />
+                  </div>
                 </div>
 
                 <div className="contact-input">

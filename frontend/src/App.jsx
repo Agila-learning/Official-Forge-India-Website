@@ -35,6 +35,7 @@ import ServiceWizard from './components/ui/ServiceWizard';
 import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
 import JobConsultingPage from './pages/JobConsultingPage';
+import AgentDashboard from './pages/AgentDashboard';
 
 import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
@@ -153,6 +154,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
           <Route path="/training-placement" element={<TrainingPlacementPage />} />
+          <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProductRedirect />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="*" element={<NotFound />} />

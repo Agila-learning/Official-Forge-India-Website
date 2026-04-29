@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { CreditCard, Truck, MapPin, CheckCircle, ArrowRight, ShieldCheck, ChevronRight, Calendar, Clock } from 'lucide-react';
+import { CreditCard, Truck, MapPin, CheckCircle, ArrowRight, ShieldCheck, ChevronRight, Calendar, Clock, Smartphone, Building2, Zap, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation as useUserLocation } from '../context/LocationContext';
 import OrderInvoice from '../components/ui/OrderInvoice';

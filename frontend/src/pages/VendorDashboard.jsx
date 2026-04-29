@@ -41,6 +41,24 @@ const VendorDashboard = () => {
     const [salesReport, setSalesReport] = useState({ totalRevenue: 0, totalOrders: 0, successRate: 0 });
     const [stockReport, setStockReport] = useState([]);
     const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [settingsData, setSettingsData] = useState({
+      businessName: userInfo?.businessName || '',
+      firstName: userInfo?.firstName || '',
+      lastName: userInfo?.lastName || '',
+      mobile: userInfo?.mobile || ''
+    });
+
+    const handleSaveSettings = async () => {
+        try {
+            const { data } = await api.put('/users/profile', settingsData);
+            const updatedInfo = { ...userInfo, ...data };
+            localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
+            toast.success('Store settings synchronized!');
+            window.location.reload();
+        } catch (err) {
+            toast.error('Sync failed');
+        }
+    };
     const { fetchNotifications: fetchGlobalNotifications } = useNotifications();
     const navigate = useNavigate();
 
@@ -270,9 +288,15 @@ const VendorDashboard = () => {
                     {view === 'overview' && (
                         <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-4">
-                                <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Business Statistics</p>
-                                    <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Growth <span className="text-primary italic">Stats</span></h2>
+                                <div className="flex items-center gap-6">
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Business Statistics</p>
+                                        <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Growth <span className="text-primary italic">Stats</span></h2>
+                                    </div>
+                                    <div className="px-5 py-2 bg-gradient-to-r from-primary to-indigo-600 rounded-2xl shadow-xl shadow-primary/20 flex flex-col justify-center">
+                                        <p className="text-[8px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">Current Tier</p>
+                                        <p className="text-sm font-black text-white uppercase tracking-tighter italic">{userInfo?.subscriptionLevel || 'Basic Node'}</p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="flex bg-white dark:bg-dark-card rounded-2xl p-1 border border-gray-100 dark:border-gray-800 shadow-xl">
@@ -613,17 +637,41 @@ const VendorDashboard = () => {
                                 <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Store <span className="text-primary italic">Settings</span></h2>
                             </div>
                             <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Store Name</label>
-                                    <input defaultValue={userInfo?.storeName || userInfo?.firstName + "'s Store"} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Business/Store Name</label>
+                                        <input 
+                                            value={settingsData.businessName} 
+                                            onChange={e => setSettingsData({...settingsData, businessName: e.target.value})}
+                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Primary Contact Mobile</label>
+                                        <input 
+                                            value={settingsData.mobile} 
+                                            onChange={e => setSettingsData({...settingsData, mobile: e.target.value})}
+                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contact Email</label>
-                                    <input defaultValue={userInfo?.email} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Phone</label>
-                                    <input defaultValue={userInfo?.phone} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">First Name</label>
+                                        <input 
+                                            value={settingsData.firstName} 
+                                            onChange={e => setSettingsData({...settingsData, firstName: e.target.value})}
+                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Name</label>
+                                        <input 
+                                            value={settingsData.lastName} 
+                                            onChange={e => setSettingsData({...settingsData, lastName: e.target.value})}
+                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
+                                        />
+                                    </div>
                                 </div>
                                 <div className="p-6 bg-primary/5 rounded-[2rem] border border-primary/20 flex items-center justify-between">
                                     <div>
@@ -654,7 +702,7 @@ const VendorDashboard = () => {
                                         {userInfo.isSubscribed ? 'Active' : 'Enable'}
                                     </button>
                                 </div>
-                                <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={() => toast.success('Settings saved!')}>Save Settings</button>
+                                <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={handleSaveSettings}>Save Operational Settings</button>
                             </div>
                         </motion.div>
                     )}
