@@ -50,10 +50,9 @@ const Register = () => {
     formDataUpload.append('file', file);
     setUploading(true);
     try {
-      const { data } = await api.post('/upload', formDataUpload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setFormData({ ...formData, profileDocuments: [...formData.profileDocuments, data] });
+      const { data } = await api.post('/upload', formDataUpload);
+      const url = typeof data === 'string' ? (data.startsWith('/') ? `http://localhost:5000${data}` : data) : data.url || data;
+      setFormData({ ...formData, profileDocuments: [...formData.profileDocuments, url] });
     } catch (err) {
       setError('File upload failed. Please try again.');
     } finally {
@@ -187,7 +186,7 @@ const Register = () => {
                 Secure Scanner Pay
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Scan this QR to pay the <span className="text-primary font-black">₹1,500 Registration Fee</span>. Your account will be activated after verification.
+                Please consult with our sales team before making the payment. Scan and pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> below.
               </p>
               
               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
@@ -399,8 +398,12 @@ const Register = () => {
                           if(!f) return;
                           const d = new FormData(); d.append('file', f);
                           setUploading(true);
-                          try { const {data} = await api.post('/upload', d); setFormData({...formData, resumeUrl: data}); }
-                          catch { setError('Upload failed'); } finally { setUploading(false); }
+                          try { 
+                              const {data} = await api.post('/upload', d); 
+                              const url = typeof data === 'string' ? (data.startsWith('/') ? `http://localhost:5000${data}` : data) : data.url || data;
+                              setFormData({...formData, resumeUrl: url}); 
+                          }
+                          catch (err) { setError('Upload failed'); } finally { setUploading(false); }
                         }} />
                         {uploading && <Loader2 className="animate-spin text-primary" size={16} />}
                       </label>
@@ -448,8 +451,8 @@ const Register = () => {
                <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-8 text-secondary">
                   <CheckCircle2 size={40} />
                </div>
-               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Application Received</h3>
-               <p className="text-slate-500 font-medium mb-10 leading-relaxed">Our team will verify your documents and contact you within <strong className="text-slate-900 dark:text-white">24-48 hours</strong> to finalize your onboarding.</p>
+               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Payment Confirmed!</h3>
+               <p className="text-slate-500 font-medium mb-10 leading-relaxed">Our expert will reach out to you shortly to finalize your onboarding.</p>
                <Link to="/" className="btn-primary w-full !py-5 !rounded-2xl !bg-slate-900">Explore Platform</Link>
             </motion.div>
           </motion.div>

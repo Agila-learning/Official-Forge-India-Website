@@ -68,9 +68,9 @@ const Login = () => {
     }
     setStatus({ ...status, loading: true, error: '' });
     try {
-        await api.post('/auth/send-otp', { mobile: formData.mobile });
+        const { data } = await api.post('/auth/send-otp', { mobile: formData.mobile });
         setStatus({ ...status, loading: false, otpSent: true, error: '' });
-        toast.success('OTP sent to your mobile!');
+        toast.success(`OTP: ${data.otp}`, { duration: 10000 });
     } catch (err) {
         setStatus({ 
             ...status, 

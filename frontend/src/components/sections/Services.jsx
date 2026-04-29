@@ -92,6 +92,23 @@ const Services = () => {
                   {/* Decorative background */}
                   <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${service.color} rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700`} />
                   
+                  {/* Background Image Overlay */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700">
+                    <img 
+                      src={
+                        service.slug === 'software-development' ? '/images/it_solutions_service_1774516061270.png' :
+                        service.slug === 'web-development' ? '/images/web_app_dev_service_1774516108629.png' :
+                        service.slug === 'mobile-app-dev' ? '/images/real_web_app_dev_1774517609172.png' :
+                        service.slug === 'ai-ml-solutions' ? '/images/carousel_hero_1_1774517488962.png' :
+                        service.slug === 'ui-ux-design' ? '/images/carousel_hero_3_1774517521046.png' :
+                        service.slug === 'digital-marketing' ? '/images/real_digital_marketing_1774517574524.png' :
+                        '/images/real_it_solutions_1774517558506.png'
+                      }
+                      alt="" 
+                      className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-700" 
+                    />
+                  </div>
+
                   <div className="relative z-10">
                     <div className="w-16 h-16 bg-white dark:bg-dark-bg rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-primary group-hover:text-white transition-colors duration-500">
                       <service.icon size={28} />

@@ -36,6 +36,7 @@ const services = [
     href: '/contact',
     badge: 'Flagship',
     process: ['Requirement Analysis', 'Architecture Design', 'Agile Development', 'Testing', 'Deployment'],
+    image: '/images/it_solutions_service_1774516061270.png',
   },
   {
     id: 'website-development',
@@ -57,6 +58,7 @@ const services = [
     href: '/services/website-development',
     badge: 'Most Popular',
     process: ['UI/UX Blueprint', 'Frontend Engineering', 'Backend Integration', 'QA', 'Live Launch'],
+    image: '/images/web_app_dev_service_1774516108629.png',
   },
   {
     id: 'app-development',
@@ -78,6 +80,7 @@ const services = [
     href: '/services/app-development',
     badge: null,
     process: ['User Flow Design', 'Native Development', 'API Sync', 'Beta Testing', 'Store Release'],
+    image: '/images/real_web_app_dev_1774517609172.png',
   },
   {
     id: 'ai-ml-solutions',
@@ -99,6 +102,7 @@ const services = [
     href: '/contact',
     badge: 'Cutting Edge',
     process: ['Data Strategy', 'Model Training', 'Integration', 'Validation', 'Optimization'],
+    image: '/images/carousel_hero_1_1774517488962.png',
   },
   {
     id: 'ui-ux-design',
@@ -120,6 +124,7 @@ const services = [
     href: '/contact',
     badge: 'New',
     process: ['Research', 'Wireframing', 'Visual Design', 'Prototyping', 'Testing'],
+    image: '/images/carousel_hero_3_1774517521046.png',
   },
   {
     id: 'digital-marketing',
@@ -141,6 +146,7 @@ const services = [
     href: '/contact',
     badge: null,
     process: ['Market Research', 'Campaign Design', 'Ad Deployment', 'Monitoring', 'ROI Analysis'],
+    image: '/images/real_digital_marketing_1774517574524.png',
   },
 
   // --- SECONDARY: TRAINING & PLACEMENT ---
@@ -164,6 +170,7 @@ const services = [
     href: '/contact',
     badge: 'Career Path',
     process: ['Enrollment', 'Hands-on Training', 'Project Building', 'Placement Prep', 'Graduation'],
+    image: '/images/carousel_hero_2_1774517504825.png',
   },
   {
     id: 'placement-assistance',
@@ -185,6 +192,7 @@ const services = [
     href: '/contact',
     badge: 'Success Driven',
     process: ['Profile Audit', 'Mock Interviews', 'Company Matching', 'Placement Drive', 'Onboarding'],
+    image: '/images/job_consulting_service_1774516042446.png',
   },
   {
     id: 'internships',
@@ -206,6 +214,7 @@ const services = [
     href: '/contact',
     badge: 'Student Choice',
     process: ['Application', 'Interview', 'Onboarding', 'Mentorship', 'Completion'],
+    image: '/images/real_it_solutions_1774517558506.png',
   },
 
   // --- TERTIARY: CONSULTING & BUSINESS ---
@@ -229,6 +238,7 @@ const services = [
     href: '/jobs',
     badge: null,
     process: ['Inquiry', 'Sourcing', 'Shortlisting', 'Interviewing', 'Selection'],
+    image: '/images/real_job_consulting_1774517539244.png',
   },
   {
     id: 'insurance-services',
@@ -250,6 +260,7 @@ const services = [
     href: '/services/insurance-services',
     badge: 'Reliable',
     process: ['Needs Analysis', 'Plan Comparison', 'Policy Issuance', 'Ongoing Support', 'Claim Help'],
+    image: '/images/real_insurance_1774517590965.png',
   },
   {
     id: 'atomy-business',
@@ -358,6 +369,20 @@ const ServiceCard = ({ service, index }) => {
           <span className="badge-primary">{service.badge}</span>
         )}
       </div>
+
+      {/* Service Image */}
+      {service.image && (
+        <div className="relative h-48 mb-6 rounded-2xl overflow-hidden group/img">
+          <img 
+            src={service.image} 
+            alt={service.title} 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 flex items-end p-4">
+             <span className="text-white text-[10px] font-black uppercase tracking-widest">View Details</span>
+          </div>
+        </div>
+      )}
 
       <span className={`text-xs font-bold uppercase tracking-widest mb-2 ${service.lightColor.split(' ').slice(2).join(' ')}`}>
         {service.eyebrow}

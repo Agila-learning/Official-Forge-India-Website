@@ -2,8 +2,8 @@ const ContactQuery = require('../models/Contact');
 
 const createContact = async (req, res) => {
   try {
-    const { firstName, lastName, email, message } = req.body;
-    const contact = await ContactQuery.create({ firstName, lastName, email, message });
+    const { firstName, lastName, email, phone, category, service, message } = req.body;
+    const contact = await ContactQuery.create({ firstName, lastName, email, phone, category, service, message });
     res.status(201).json(contact);
   } catch (error) {
     res.status(500).json({ message: error.message });

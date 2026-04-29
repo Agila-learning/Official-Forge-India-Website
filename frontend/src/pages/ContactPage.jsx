@@ -123,17 +123,7 @@ const ContactPage = () => (
               </div>
             </div>
 
-            {/* Google Maps Embed */}
-            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-52">
-              <iframe
-                title="Forge India Connect Location"
-                src="https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed"
-                className="w-full h-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                aria-label="Google Maps showing FIC location"
-              />
-            </div>
+            {/* Google Maps Embed Moved to Branches Section */}
           </div>
 
           {/* Right — Contact Funnel */}
@@ -158,9 +148,9 @@ const ContactPage = () => (
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
-            { city: 'Krishnagiri', type: 'Head Office', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', phone: '+91 63694 06416' },
-            { city: 'Chennai',     type: 'Branch Office', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', phone: '+91 63694 06416' },
-            { city: 'Bangalore',   type: 'Liaison Office', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', phone: '+91 63694 06416' },
+            { city: 'Krishnagiri', type: 'Head Office', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed' },
+            { city: 'Chennai',     type: 'Branch Office', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=22,+VVM+Towers,+3rd+Floor,+Pattullos+Rd,+Anna+Salai,+Royapettah,+Chennai,+Tamil+Nadu+600002&output=embed' },
+            { city: 'Bangalore',   type: 'Liaison Office', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=Excel+coworks,+Marilingappa+layout,+Nagarbhavi,+Papareddypalya+,+Bangalore&output=embed' },
           ].map((branch, i) => (
             <motion.div
               key={branch.city}
@@ -176,7 +166,17 @@ const ContactPage = () => (
               <span className="badge-primary mb-3 inline-block">{branch.type}</span>
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">{branch.city}</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{branch.address}</p>
-              <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-primary font-bold text-sm hover:underline">{branch.phone}</a>
+              <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-primary font-bold text-sm hover:underline block mb-4">{branch.phone}</a>
+              <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-48 w-full">
+                <iframe
+                  title={`${branch.city} Location`}
+                  src={branch.map}
+                  className="w-full h-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  aria-label={`Google Maps showing ${branch.city} branch location`}
+                />
+              </div>
             </motion.div>
           ))}
         </div>

@@ -28,7 +28,7 @@ const staticServices = {
     name: 'IT Solutions',
     description: 'Scalable cloud infrastructure and managed IT services designed for maximum uptime and security.',
     price: 15000,
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/real_it_solutions_1774517558506.png',
     included: ['24/7 Managed Network Support', 'Advanced Cybersecurity Shielding', 'Cloud Migration & Optimization', 'Custom ERP & CRM Implementations'],
     excluded: ['Hardware Costs', 'Third-party Licenses']
   },
@@ -36,7 +36,7 @@ const staticServices = {
     name: 'Job Consulting',
     description: 'Elite career consulting and placement support for Banking, IT, and Corporate sectors.',
     price: 1500,
-    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/real_job_consulting_1774517539244.png',
     included: ['Resume Engineering', 'Mock Interviews', 'Direct Access to HR Networks'],
     excluded: ['Guaranteed Job Offer', 'Application Fees']
   },
@@ -44,7 +44,7 @@ const staticServices = {
     name: 'Digital Marketing',
     description: 'Data-driven growth hacking and SEO strategies to dominate search results.',
     price: 25000,
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/real_digital_marketing_1774517574524.png',
     included: ['SEO & SEM Optimization', 'Social Media Management', 'Analytics Reporting'],
     excluded: ['Ad Spend', 'Content Production Fees']
   },
@@ -52,7 +52,7 @@ const staticServices = {
     name: 'App Development',
     description: 'High-performance mobile applications engineered for seamless user experiences on iOS and Android.',
     price: null, // Get a Quote
-    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/real_web_app_dev_1774517609172.png',
     included: ['Native Swift & Kotlin Development', 'React Native & Flutter Hybrid Apps', 'Ultra-Low Latency Backend API', 'Biometric & Secure Payment Integration'],
     excluded: ['App Store Fees', 'Third-party API Costs']
   },
@@ -60,7 +60,7 @@ const staticServices = {
     name: 'Website Development',
     description: 'Modern, scalable web platforms built with cutting-edge tech stacks like React, Next.js, and Node.js.',
     price: null, // Get a Quote
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/web_app_dev_service_1774516108629.png',
     included: ['Dynamic & Responsive PWAs', 'E-commerce & Custom Marketplace', 'Headless CMS Integrations', 'SEO-First Architecture'],
     excluded: ['Domain & Hosting', 'Premium Plugin Licenses']
   },
@@ -68,7 +68,7 @@ const staticServices = {
     name: 'Insurance Services',
     description: 'Comprehensive risk management and insurance solutions for corporate and individual safety.',
     price: null, // Get a Quote
-    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/real_insurance_1774517590965.png',
     included: ['Bespoke Health & Life Plans', 'Commercial Property & Asset Guard', 'Liability & Indemnity Coverage', 'Fast-track Claims Assistance'],
     excluded: ['Premium Installments', 'Deductibles']
   },
@@ -76,7 +76,7 @@ const staticServices = {
     name: 'Software Development',
     description: 'Custom enterprise solutions designed for scalability, security, and future-ready business operations.',
     price: null,
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/it_solutions_service_1774516061270.png',
     included: ['Custom ERP & CRM Solutions', 'Enterprise Software Architecture', 'API Integration & Development'],
     excluded: ['Server Infrastructure Costs']
   },
@@ -84,7 +84,7 @@ const staticServices = {
     name: 'AI & ML Solutions',
     description: 'Leverage the power of Artificial Intelligence and Machine Learning to automate and optimize your business.',
     price: null,
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/carousel_hero_1_1774517488962.png',
     included: ['Intelligent AI Chatbots', 'Predictive Analytics Tools', 'Process Automation (RPA)'],
     excluded: ['GPU Computing Costs']
   },
@@ -92,7 +92,7 @@ const staticServices = {
     name: 'UI/UX Design Services',
     description: 'User-centric design thinking to create intuitive, engaging, and beautiful digital products.',
     price: null,
-    image: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?auto=format&fit=crop&w=1200&q=80',
+    image: '/images/carousel_hero_3_1774517521046.png',
     included: ['User Interface (UI) Design', 'User Experience (UX) Research', 'Interactive Prototyping'],
     excluded: ['Stock Asset Fees']
   }

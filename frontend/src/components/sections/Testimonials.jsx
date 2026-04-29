@@ -54,7 +54,9 @@ const Testimonials = () => {
                     api.get('/reviews/public').catch(() => ({ data: [] })),
                     api.get('/testimonials').catch(() => ({ data: [] }))
                 ]);
-                const combined = [...(testimonialsRes.data || []), ...(reviewsRes.data || [])];
+                const tData = Array.isArray(testimonialsRes.data) ? testimonialsRes.data : [];
+                const rData = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
+                const combined = [...tData, ...rData];
                 setReviews(combined);
             } catch (err) {
                 console.error('Failed to load testimonials');

@@ -170,7 +170,7 @@ const sendOTP = async (req, res) => {
 
     // MOCK: In production, send SMS here.
     console.log(`[OTP] Sent ${otp} to ${mobile}`);
-    res.json({ message: 'OTP sent successfully (MOCKED)' });
+    res.json({ message: 'OTP sent successfully (MOCKED)', otp: otp });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

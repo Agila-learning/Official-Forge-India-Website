@@ -128,7 +128,7 @@ const CandidateDashboard = () => {
           });
           
           setConsultingPaymentSuccess(true);
-          toast.success('🎉 Payment confirmed! Our consultant will reach out soon.');
+          toast.success('🎉 Payment Confirmed! Our expert will reach out to you shortly.');
           setConsultingForm({
             consultingType: 'Career Guidance',
             experience: 'Fresher (0-1 yr)',
@@ -278,7 +278,7 @@ const CandidateDashboard = () => {
                 Secure Scanner Pay
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Scan this QR to pay the <span className="text-primary font-black">₹1,500 Registration Fee</span>. Your session will be booked after verification.
+                Please consult with our sales team before making the payment. Scan and pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> below.
               </p>
               
               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">

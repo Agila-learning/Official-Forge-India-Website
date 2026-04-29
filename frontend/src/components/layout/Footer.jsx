@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 const footerLinks = [
   {
@@ -57,12 +58,11 @@ const Footer = () => {
     if (!email) return;
     setIsSubscribing(true);
     try {
-      // MOCK API CALL
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await api.post('/users/subscribe', { email });
       toast.success('Successfully subscribed to weekly insights!');
       setEmail('');
     } catch (err) {
-      toast.error('Failed to subscribe. Please try again.');
+      toast.error(err.response?.data?.message || 'Failed to subscribe. Please try again.');
     } finally {
       setIsSubscribing(false);
     }
