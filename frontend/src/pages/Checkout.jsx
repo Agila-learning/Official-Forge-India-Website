@@ -5,6 +5,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import { CreditCard, Truck, MapPin, CheckCircle, ArrowRight, ShieldCheck, ChevronRight, Calendar, Clock, Smartphone, Building2, Zap, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { useLocation as useUserLocation } from '../context/LocationContext';
 import OrderInvoice from '../components/ui/OrderInvoice';
 
@@ -14,6 +15,7 @@ const Checkout = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [loadingText, setLoadingText] = useState('Initiating Protocol...');
     const [createdOrder, setCreatedOrder] = useState(null);
     const [instructions, setInstructions] = useState('');
     const [showQRModal, setShowQRModal] = useState(false);
@@ -85,14 +87,15 @@ const Checkout = () => {
         }
     }, [userLocation]);
 
-    // Removed Razorpay script injection for test mode
-
     const handlePlaceOrder = async () => {
         if (!cartItems || cartItems.length === 0) {
             toast.error('Requisition/Cart is empty');
             return;
         }
+        
         setLoading(true);
+        setLoadingText('Securing Inventory...');
+        
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -118,13 +121,20 @@ const Checkout = () => {
                 fulfillmentType
             };
 
+            setLoadingText('Finalizing Requisition...');
             const { data: order } = await api.post('/orders', orderData);
             
             if (paymentMethod === 'COD') {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#2563eb', '#10b981', '#f59e0b']
+                });
                 setCreatedOrder(order);
                 setStep(4);
                 clearCart();
-                toast.success('Order Placed Successfully (COD)!');
+                toast.success('Order Placed! Deployment Initiated.');
             } else {
                 console.log(`[PAYMENT] Initiating ${paymentMethod} flow for order:`, order._id);
                 setPendingOrderDetails(order);
@@ -141,9 +151,8 @@ const Checkout = () => {
         setShowQRModal(false);
         setLoading(true);
         try {
-            // Mock payment verification / update order to Paid
-            // For now, we simulate success
             await new Promise(resolve => setTimeout(resolve, 1000));
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             setCreatedOrder(pendingOrderDetails);
             setStep(4);
             clearCart();
@@ -158,6 +167,13 @@ const Checkout = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
             
+            {loading && (
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 dark:bg-dark-bg/80 backdrop-blur-md">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6"></div>
+                    <p className="font-black text-lg text-primary animate-pulse uppercase tracking-widest">{loadingText}</p>
+                </div>
+            )}
+
             {/* TEST MODE QR MODAL */}
             <AnimatePresence>
                 {showQRModal && (
@@ -238,7 +254,14 @@ const Checkout = () => {
                     ))}
                 </div>
 
-                <div className="bg-white dark:bg-dark-card rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden">
+                <div className="bg-white dark:bg-dark-card rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden relative">
+                    {step !== 4 && (
+                        <div className="absolute bottom-6 right-6 z-20">
+                            <div className="bg-dark-bg dark:bg-white text-white dark:text-dark-bg px-6 py-4 rounded-2xl shadow-2xl font-black text-sm tracking-widest flex items-center gap-4">
+                                <span>TOTAL: ₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    )}
                     <AnimatePresence mode="wait">
                         {step === 1 && (
                             <motion.div 
@@ -448,7 +471,6 @@ const Checkout = () => {
                                         </div>
                                     </div>
 
-                                    {/* Membership Upsell */}
                                     <div className="mb-10 p-6 rounded-[2rem] bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-14 h-14 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center text-primary shadow-xl">
@@ -483,33 +505,7 @@ const Checkout = () => {
                                             <p className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-1">Authorized & Secure</p>
                                         </div>
                                     </div>
-                                    <div className="space-y-4 py-6">
-                                        <div className="flex justify-between text-[11px] font-bold uppercase text-gray-500 tracking-wider">
-                                            <span>Subtotal (Net)</span>
-                                            <span className="text-gray-900 dark:text-white font-black">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.82).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                                        </div>
-                                        <div className="flex justify-between text-[11px] font-bold uppercase text-gray-500 tracking-wider">
-                                            <span>GST (18% Statutory)</span>
-                                            <span className="text-gray-900 dark:text-white font-black">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.18).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
-                                        </div>
-                                        {addMembership && (
-                                            <div className="flex justify-between text-[11px] font-bold uppercase text-blue-500 tracking-wider">
-                                                <span>Membership Access</span>
-                                                <span className="font-black">₹{membershipPrice.toLocaleString()}</span>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between text-[11px] font-bold uppercase text-green-500 tracking-wider pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
-                                            <span>Fulfillment Protocol</span>
-                                            <span className="font-black">Complimentary</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-blue-500/10 p-6 rounded-2xl mb-10 flex items-center gap-4 border border-blue-500/20">
-                                    <ShieldCheck className="text-blue-500" size={24} />
-                                    <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-relaxed">
-                                        Secured by Forge India Payment Gateway. Selected Mode: <span className="text-primary font-black">{paymentMethod}</span>.
-                                    </p>
+                                    
                                 </div>
 
                                 <div className="flex gap-4">
@@ -519,63 +515,44 @@ const Checkout = () => {
                                         onClick={handlePlaceOrder} 
                                         className="flex-[2] py-6 bg-primary text-white font-black rounded-2xl uppercase tracking-widest text-sm shadow-xl shadow-primary/20 transition-all hover:scale-105 flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
-                                        {loading ? 'Processing Transaction...' : paymentMethod === 'COD' ? 'Confirm Order (COD)' : 'Authorize & Secure Payment'}
-                                    </button>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {step === 4 && (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="p-8"
-                            >
-                                <div className="text-center mb-12 py-10 bg-green-500/5 dark:bg-green-500/10 rounded-[4rem] border-2 border-dashed border-green-500/20 shadow-inner">
-                                    <motion.div 
-                                        initial={{ scale: 0, rotate: -180 }}
-                                        animate={{ scale: 1, rotate: 0 }}
-                                        className="w-24 h-24 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-[0_0_40px_rgba(34,197,94,0.4)]"
-                                    >
-                                        <CheckCircle size={48} />
-                                    </motion.div>
-                                    <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter">Mission <span className="text-green-500 italic">Accomplished</span></h2>
-                                    <p className="text-gray-500 font-bold uppercase text-[11px] tracking-[0.3em] leading-relaxed max-w-md mx-auto">
-                                        Your requisition has been cryptographically secured. Logistics deployment initialized.
-                                    </p>
-                                </div>
-
-                                <OrderInvoice order={createdOrder} />
-
-                                <div className="mt-12 flex flex-col md:flex-row justify-center gap-6">
-                                    <button 
-                                        onClick={() => navigate('/explore-shop')}
-                                        className="px-10 py-5 bg-gray-50 dark:bg-dark-bg/50 text-gray-500 font-black rounded-2xl uppercase tracking-widest text-[10px] hover:text-primary transition-all border border-gray-100 dark:border-gray-800"
-                                    >
-                                        Continue Exploration
-                                    </button>
-                                    <button 
-                                        onClick={() => navigate(`/track-mission/${createdOrder?._id}`)}
-                                        className="px-10 py-5 bg-primary text-white font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/30 hover:scale-105 transition-all flex items-center justify-center gap-3"
-                                    >
-                                        Live Mission Tracker <ArrowUpRight size={16} />
-                                    </button>
-                                    <button 
-                                        onClick={() => {
-                                            const role = JSON.parse(localStorage.getItem('userInfo') || '{}').role;
-                                            if (role === 'Vendor') navigate('/vendor');
-                                            else if (role === 'Admin') navigate('/admin');
-                                            else navigate('/candidate/dashboard');
-                                        }}
-                                        className="px-10 py-5 bg-secondary text-dark-bg font-black rounded-2xl uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/30 hover:scale-105 transition-all flex items-center justify-center gap-3"
-                                    >
-                                        Command Hub <ChevronRight size={18} />
+                                        {loading ? loadingText : paymentMethod === 'COD' ? 'Confirm Order (COD)' : 'Authorize & Secure Payment'}
                                     </button>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+
+                <AnimatePresence>
+                    {step === 4 && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            className="mt-12 max-w-4xl mx-auto"
+                        >
+                            <div className="bg-white dark:bg-dark-card rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden p-10 md:p-14">
+                                <div className="text-center mb-12 py-16 bg-gradient-to-b from-green-500/10 to-transparent rounded-[5rem] border border-green-500/20 shadow-2xl">
+                                    <motion.div 
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: 'spring', damping: 12 }}
+                                        className="w-32 h-32 bg-green-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 text-white shadow-[0_20px_50px_rgba(34,197,94,0.4)]"
+                                    >
+                                        <CheckCircle size={64} />
+                                    </motion.div>
+                                    <h2 className="text-6xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter italic">Mission <span className="text-green-500">Authorized</span></h2>
+                                    <p className="text-gray-500 font-bold uppercase text-xs tracking-[0.4em] mb-12">Deployment #ODR-{createdOrder?._id?.slice(-6).toUpperCase()}</p>
+                                    
+                                    <div className="flex flex-wrap justify-center gap-6">
+                                        <button onClick={() => navigate('/profile')} className="px-10 py-5 bg-dark-bg dark:bg-white text-white dark:text-dark-bg font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">Track Deployment</button>
+                                        <button onClick={() => navigate('/explore-shop')} className="px-10 py-5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Continue Mission</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
             </div>
         </div>
     );

@@ -53,10 +53,10 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-  },
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
 
 // Expose io to req.app
