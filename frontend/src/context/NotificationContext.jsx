@@ -35,7 +35,7 @@ export const NotificationProvider = ({ children }) => {
             
             const socket = io(socketUrl, {
                 withCredentials: true,
-                path: '/socket.io/',
+                path: '/socket.io',
                 transports: ['polling']
             });
             socket.emit('user-online', userInfo._id);

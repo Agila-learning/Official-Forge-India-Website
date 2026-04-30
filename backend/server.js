@@ -52,12 +52,15 @@ const { registerUser } = require('./controllers/authController');
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
+  path: '/socket.io',
   cors: {
     origin: ["https://www.forgeindiaconnect.com", "http://localhost:5173", "http://localhost:3000", "http://localhost:5001"],
     methods: ["GET", "POST"],
     credentials: true
   }
 });
+
+app.get('/socket-health', (req, res) => res.json({ status: 'up', port: PORT }));
 
 // Expose io to req.app
 app.set('io', io);
