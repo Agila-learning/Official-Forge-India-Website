@@ -30,8 +30,8 @@ export const NotificationProvider = ({ children }) => {
         // Socket.io integration for real-time notifications
         if (userInfo) {
             const socketUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:5000' 
-                : 'http://3.221.160.61:5001'; // Connect directly to backend to avoid proxy 404s
+                ? 'http://localhost:5001' 
+                : window.location.origin; // Vercel proxy will handle /socket.io correctly over HTTPS
             
             const socket = io(socketUrl, {
                 withCredentials: true,
