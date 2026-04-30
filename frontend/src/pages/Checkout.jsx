@@ -126,6 +126,7 @@ const Checkout = () => {
                 clearCart();
                 toast.success('Order Placed Successfully (COD)!');
             } else {
+                console.log(`[PAYMENT] Initiating ${paymentMethod} flow for order:`, order._id);
                 setPendingOrderDetails(order);
                 setShowQRModal(true);
             }

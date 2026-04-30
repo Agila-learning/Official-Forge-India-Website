@@ -1217,6 +1217,9 @@ const AdminDashboard = () => {
                                 <option value="Both">Omni-Channel (Both)</option>
                             </select>
                             <input name="mobile" placeholder="Mobile" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="address" placeholder="Address" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="city" placeholder="City" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="pincode" placeholder="Pincode" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
                             <button type="submit" className="sm:col-span-1 py-3.5 bg-primary text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Onboard Partner</button>
                         </form>
                     </div>

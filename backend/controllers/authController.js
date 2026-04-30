@@ -9,7 +9,7 @@ const generateToken = (id) => {
 
 const registerUser = async (req, res) => {
   const { 
-    firstName, lastName, password, industry, mobile, role,
+    firstName, lastName, password, industry, mobile, role, address, city, pincode,
     businessName, gstNumber, profileDocuments, vehicleDetails, licenseNumber, companyName, vendorType,
     referredByAgentName, agentMobile, agentReference, additionalComments, subscriptionLevel
   } = req.body;
@@ -66,7 +66,10 @@ const registerUser = async (req, res) => {
       membershipId,
       paymentStatus,
       registrationFee,
-      shopCode
+      shopCode,
+      address,
+      city,
+      pincode
     });
     if (user) {
       res.status(201).json({
@@ -126,6 +129,7 @@ const authUser = async (req, res) => {
 const onboardUser = async (req, res) => {
     const { 
         firstName, lastName, email, password, mobile, role, industry, 
+        address, city, pincode,
         businessName, gstNumber, vehicleDetails, licenseNumber, 
         companyName, vendorType, profileDocuments,
         distanceLimit, exactLocation, branches, strictPolicy, refundPolicy
@@ -166,6 +170,9 @@ const onboardUser = async (req, res) => {
             strictPolicy,
             refundPolicy,
             shopCode,
+            address,
+            city,
+            pincode,
             approvalStatus: 'Approved' // Onboarded users are usually pre-approved
         });
 

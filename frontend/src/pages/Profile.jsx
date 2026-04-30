@@ -6,6 +6,8 @@ import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import InvoiceModal from '../components/ui/InvoiceModal';
 import toast from 'react-hot-toast';
+import WebUsageGuide from '../components/ui/WebUsageGuide';
+import { BookOpen } from 'lucide-react';
 
 const Profile = () => {
   const [orders, setOrders] = useState([]);
@@ -158,6 +160,7 @@ const Profile = () => {
               { label: 'My Favorites', icon: Heart, count: favorites.length, show: profileData?.role === 'Customer' },
               { label: 'Review History', icon: History, count: reviews.length, show: profileData?.role === 'Customer' },
               { label: 'Security Vault', icon: Lock, count: null, show: profileData?.role === 'Customer' },
+              { label: 'Usage Guide', icon: BookOpen, count: null, show: true },
               { label: 'Account Settings', icon: User, count: null, show: true },
             ].filter(item => item.show).map((item) => (
               <button 
@@ -529,6 +532,17 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
+              </motion.section>
+            )}
+
+            {activeTab === 'Usage Guide' && (
+              <motion.section 
+                key="guide"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
+                <WebUsageGuide />
               </motion.section>
             )}
 

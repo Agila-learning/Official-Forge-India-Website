@@ -249,14 +249,16 @@ const Navbar = () => {
                <ThemeToggle />
             </div>
             
-            <Link to="/cart" className="relative flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart">
-              <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
-                  {cartItems.length}
-                </span>
-              )}
-            </Link>
+            {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
+              <Link to="/cart" className="relative flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart">
+                <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                    {cartItems.length}
+                  </span>
+                )}
+              </Link>
+            )}
 
             <div className="relative group/notif h-full">
               <button 

@@ -14,6 +14,9 @@ const userSchema = mongoose.Schema(
       enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Trainer'], 
       default: 'Customer' 
     },
+    address: { type: String },
+    city: { type: String },
+    pincode: { type: String },
     approvalStatus: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],
@@ -97,7 +100,8 @@ const userSchema = mongoose.Schema(
     subAdminConfig: {
       level: { type: String, enum: ['State', 'District', 'Division', 'Pincode', 'All'] },
       assignedRegion: { type: String },
-      taluk: { type: String }
+      taluk: { type: String },
+      pincode: { type: String }
     }
   },
   { timestamps: true }

@@ -163,6 +163,7 @@ io.on('connection', (socket) => {
     if (userId) {
       onlineUsers.set(userId, socket.id);
       socket.userId = userId;
+      socket.join(userId.toString()); // Join room for targeted notifications
       io.emit('online-users', Array.from(onlineUsers.keys()));
     }
   });

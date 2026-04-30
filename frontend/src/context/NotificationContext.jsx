@@ -31,7 +31,7 @@ export const NotificationProvider = ({ children }) => {
         if (userInfo) {
             const socketUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:5000' 
-                : window.location.origin; // Vercel proxy will handle /socket.io
+                : 'http://3.221.160.61:5001'; // Connect directly to backend to avoid proxy 404s
             
             const socket = io(socketUrl, {
                 withCredentials: true,
