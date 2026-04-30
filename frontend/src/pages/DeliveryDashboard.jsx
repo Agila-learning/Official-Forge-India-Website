@@ -6,9 +6,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import RoleDashboardProfile from '../components/ui/RoleDashboardProfile';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { io } from 'socket.io-client';
 
 const DeliveryDashboard = () => {
-    const [tasks, setTasks] = useState([]);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
@@ -18,23 +18,21 @@ const DeliveryDashboard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchTasks();
         fetchOrders();
-    }, []);
+        
+        // Real-time notifications connection
+        const socketUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+        const socket = io(socketUrl, { transports: ['polling', 'websocket'] });
+        
+        socket.on('notification', ({ userId, notification }) => {
+            if (userId === userInfo?._id) {
+                fetchOrders();
+                toast.success(`Update: ${notification.title}`);
+            }
+        });
 
-    const fetchTasks = async () => {
-        try {
-            const res = await api.get('/tasks');
-            const data = Array.isArray(res.data) ? res.data : [];
-            const myTasks = data.filter(t => (t.assignedTo?._id || t.assignedTo) === userInfo?._id);
-            setTasks(myTasks);
-        } catch (err) {
-            console.warn('Tasks fetch failed');
-            setTasks([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+        return () => socket.disconnect();
+    }, [userInfo?._id]);
 
     const fetchOrders = async () => {
         try {
@@ -49,9 +47,9 @@ const DeliveryDashboard = () => {
     };
 
     useEffect(() => {
-        if (tasks.length > 0) {
-            const completed = tasks.filter(t => t.status === 'Completed').length;
-            const efficiency = tasks.length > 0 ? ((completed / tasks.length) * 100).toFixed(1) : '0';
+        if (orders.length > 0) {
+            const completed = orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length;
+            const efficiency = orders.length > 0 ? ((completed / orders.length) * 100).toFixed(1) : '0';
             setDashboardStats({
                 routes: completed,
                 avgTime: '42 min',
@@ -59,22 +57,12 @@ const DeliveryDashboard = () => {
                 rating: '4.8/5'
             });
         }
-    }, [tasks]);
+    }, [orders]);
 
     const handleLogout = () => {
         localStorage.removeItem('userInfo');
         localStorage.removeItem('token');
         navigate('/login');
-    };
-
-    const updateStatus = async (taskId, newStatus) => {
-        try {
-            await api.put(`/tasks/${taskId}`, { status: newStatus });
-            toast.success(`Task marked as ${newStatus}`);
-            fetchTasks();
-        } catch (err) {
-            toast.error('Update failed');
-        }
     };
 
     const updateProfile = async (e) => {
@@ -93,12 +81,13 @@ const DeliveryDashboard = () => {
         }
     };
 
+    const activeOrders = orders.filter(o => o.status !== 'Completed' && o.status !== 'Delivered');
+
     const stats = {
-        total: tasks.length,
-        delivered: tasks.filter(t => t.status === 'Completed').length,
-        pending: tasks.filter(t => t.status === 'In Progress').length,
-        assigned: tasks.filter(t => !t.status || t.status === 'Assigned').length,
-        earnings: tasks.filter(t => t.status === 'Completed').length * 45 // Mock commission
+        total: orders.length,
+        delivered: orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length,
+        pending: activeOrders.length,
+        earnings: orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length * 45 // Mock commission
     };
 
     return (
@@ -118,18 +107,18 @@ const DeliveryDashboard = () => {
                                     <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                                         <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Live Shipments</h3>
                                         <div className="space-y-4">
-                                            {tasks.slice(0, 5).map(task => (
-                                                <div key={task._id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
+                                            {activeOrders.slice(0, 5).map(order => (
+                                                <div key={order._id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
                                                     <div>
-                                                        <p className="font-bold text-sm uppercase">{task.title}</p>
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Location: {task.location}</p>
+                                                        <p className="font-bold text-sm uppercase">Order #{order._id.slice(-6)}</p>
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Location: {order.shippingAddress?.city || 'N/A'}</p>
                                                     </div>
-                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${task.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-                                                        {task.status || 'Assigned'}
+                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-100 text-orange-600`}>
+                                                        {order.status || 'Assigned'}
                                                     </span>
                                                 </div>
                                             ))}
-                                            {tasks.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active deployments</p>}
+                                            {activeOrders.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active deployments</p>}
                                         </div>
                                     </div>
                                     <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center flex flex-col justify-center items-center">

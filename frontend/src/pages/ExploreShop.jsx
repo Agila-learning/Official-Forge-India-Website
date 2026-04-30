@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
+import { useLocation as useUserLocation } from '../context/LocationContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import api from '../services/api';
@@ -21,7 +22,8 @@ function ExploreShop() {
     const [viewType, setViewType] = useState('Products'); 
     
     // UI State
-    const location = useLocation();
+    const location = useRouterLocation();
+    const { location: appLocation } = useUserLocation();
     const [category, setCategory] = useState(location.state?.category || 'All');
     const [searchQuery, setSearchQuery] = useState('');
     const [pincode, setPincode] = useState('');
@@ -32,6 +34,12 @@ function ExploreShop() {
     const [priceRange, setPriceRange] = useState(200000);
     const [shopFilter, setShopFilter] = useState('');
     const [pincodeFilter, setPincodeFilter] = useState('');
+
+    useEffect(() => {
+        if (appLocation?.pincode && !pincodeFilter) {
+            setPincodeFilter(appLocation.pincode);
+        }
+    }, [appLocation, pincodeFilter]);
 
     // Modal State
     const [selectedProductForBooking, setSelectedProductForBooking] = useState(null);
@@ -85,7 +93,14 @@ function ExploreShop() {
         const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
         const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
-        const matchesPincode = !pincodeFilter || (product.pincode && product.pincode.includes(pincodeFilter));
+        
+        // Match pincode logic: If product has no pincodes defined (empty array or undefined), it's available everywhere.
+        // Otherwise, it must include the pincodeFilter.
+        const matchesPincode = !pincodeFilter || 
+                               !product.pincode || 
+                               product.pincode.length === 0 || 
+                               (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
+                               
         const matchesPrice = (product.price || 0) <= priceRange;
         
         return matchesViewType && matchesCategory && matchesSearch && matchesShop && matchesPincode && matchesPrice;
@@ -187,6 +202,29 @@ function ExploreShop() {
                         ))}
                     </div>
                 </div>
+                
+                {/* Active Pincode Filter Badge */}
+                <AnimatePresence>
+                    {pincodeFilter && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="flex items-center gap-2 mt-2 mb-4"
+                        >
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 bg-white dark:bg-dark-card px-3 py-1.5 rounded-full border border-gray-100 dark:border-gray-800 shadow-sm">
+                                <MapPin size={12} className="text-primary" />
+                                Showing availability for: {pincodeFilter}
+                                <button 
+                                    onClick={() => setPincodeFilter('')}
+                                    className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Serviceability Alert */}
