@@ -833,11 +833,11 @@ const AdminDashboard = () => {
                         </div>
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
                             <div>
-                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Fulfillment Strategy</label>
-                                <select name="fulfillmentType" defaultValue={editingItem.products?.fulfillmentType || 'Direct Shopping'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
-                                    <option value="Direct Shopping">Direct Shopping (Pickup)</option>
-                                    <option value="Delivery Partner">Delivery Partner (Home Delivery)</option>
+                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-gray-400">Fulfillment Strategy</label>
+                                <select disabled name="fulfillmentType" defaultValue="Home Service Execution" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-dark-bg/50 text-gray-400 outline-none font-bold text-sm cursor-not-allowed">
+                                    <option value="Home Service Execution">Home Service Execution</option>
                                 </select>
+                                <p className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-2">Not applicable for services</p>
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Base Warranty / Service Guarantee</label>

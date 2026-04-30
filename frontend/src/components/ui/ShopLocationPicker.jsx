@@ -28,16 +28,30 @@ const ShopLocationPicker = ({ onLocationSelect }) => {
 
   if (isKeyMissing || loadError) {
     return (
-      <div className="h-[300px] w-full bg-slate-50 dark:bg-dark-bg/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-2xl flex items-center justify-center mb-4 text-red-500">
-          <Globe size={32} />
+      <div className="space-y-4">
+        <div className="h-[300px] w-full bg-slate-50 dark:bg-dark-bg/40 rounded-[2.5rem] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-blue-500">
+            <Globe size={32} />
+          </div>
+          <p className="font-black uppercase tracking-widest text-[10px] text-slate-900 dark:text-white mb-2">Maps Preview Unavailable</p>
+          <p className="text-[10px] text-slate-500 font-bold max-w-[240px] leading-relaxed mb-4">
+            {isKeyMissing 
+              ? "Google Maps API Key is missing. You can still input the location manually."
+              : "Failed to initialize Google Maps. Please provide the location manually."}
+          </p>
+          <div className="w-full max-w-xs">
+            <input 
+              type="text" 
+              placeholder="Enter Full Address Manually..." 
+              value={address}
+              onChange={(e) => {
+                setAddress(e.target.value);
+                onLocationSelect({ lat: center.lat, lng: center.lng, address: e.target.value });
+              }}
+              className="w-full px-6 py-4 rounded-2xl bg-white dark:bg-dark-card border border-slate-200 dark:border-slate-700 outline-none font-bold text-sm text-center shadow-sm"
+            />
+          </div>
         </div>
-        <p className="font-black uppercase tracking-widest text-[10px] text-slate-900 dark:text-white mb-2">Maps Protocol Halted</p>
-        <p className="text-[10px] text-slate-500 font-bold max-w-[240px] leading-relaxed">
-          {isKeyMissing 
-            ? "Google Maps API Key is missing in .env configuration. Please provide a valid VITE_GOOGLE_MAPS_API_KEY."
-            : "Failed to initialize Google Maps. Please verify your API key and Billing status."}
-        </p>
       </div>
     );
   }
