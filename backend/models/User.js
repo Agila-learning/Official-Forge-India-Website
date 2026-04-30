@@ -83,7 +83,12 @@ const userSchema = mongoose.Schema(
     agentMobile: { type: String },
     agentReference: { type: String },
     additionalComments: { type: String },
-    isSubscribed: { type: Boolean, default: false }
+    isSubscribed: { type: Boolean, default: false },
+    isSubAdmin: { type: Boolean, default: false },
+    subAdminConfig: {
+      level: { type: String, enum: ['State', 'District', 'Division', 'Pincode', 'All'] },
+      assignedRegion: { type: String }
+    }
   },
   { timestamps: true }
 );

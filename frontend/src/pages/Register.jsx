@@ -109,8 +109,8 @@ const Register = () => {
 
     // 5. Business Logic Validation
     if (formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') {
-        if (!formData.businessName || !formData.gstNumber || !formData.referredByAgentName) {
-            setError('Operational Blocker: Business Name, GST/Tax ID, and Referral Agent Name are required for this role.');
+        if (!formData.businessName || !formData.gstNumber) {
+            setError('Operational Blocker: Business Name and GST/Tax ID are required for this role.');
             return;
         }
     }
@@ -443,21 +443,6 @@ const Register = () => {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Name *</label>
-                        <input type="text" required placeholder="Name of referring agent" value={formData.referredByAgentName} onChange={e => setFormData({...formData, referredByAgentName: e.target.value})} className="form-input !rounded-2xl py-4" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Mobile (Opt)</label>
-                        <input type="tel" placeholder="+91 ..." value={formData.agentMobile} onChange={e => setFormData({...formData, agentMobile: e.target.value})} className="form-input !rounded-2xl py-4" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Reference Code</label>
-                        <input type="text" placeholder="FIC-AGT-XXXX" value={formData.agentReference} onChange={e => setFormData({...formData, agentReference: e.target.value})} className="form-input !rounded-2xl py-4" />
-                      </div>
-                      <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Additional Comments</label>
                         <input type="text" placeholder="Special requirements..." value={formData.additionalComments} onChange={e => setFormData({...formData, additionalComments: e.target.value})} className="form-input !rounded-2xl py-4" />
                       </div>
@@ -470,6 +455,26 @@ const Register = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {['Vendor', 'Seller', 'Service Provider', 'HR'].includes(formData.role) && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Referral Details (Optional)</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Reference Code</label>
+                        <input type="text" placeholder="FIC-AGT-XXXX" value={formData.agentReference} onChange={e => setFormData({...formData, agentReference: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Name</label>
+                        <input type="text" placeholder="Name of referring agent" value={formData.referredByAgentName} onChange={e => setFormData({...formData, referredByAgentName: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Agent Mobile</label>
+                        <input type="tel" placeholder="+91 ..." value={formData.agentMobile} onChange={e => setFormData({...formData, agentMobile: e.target.value})} className="form-input !rounded-2xl py-4" />
+                      </div>
+                    </div>
+                  </motion.div>
+              )}
 
               <button type="submit" disabled={uploading || isProcessing} className="btn-primary w-full !py-6 !rounded-2xl !text-sm group mt-6">
                 {isProcessing ? <Loader2 className="animate-spin" /> : <>Finalize Registration <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>}

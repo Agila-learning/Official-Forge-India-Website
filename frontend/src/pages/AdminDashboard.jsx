@@ -30,14 +30,20 @@ const AdminDashboard = () => {
   const { fetchNotifications } = useNotifications();
   const [managedSlots, setManagedSlots] = useState([]);
   const [managedServiceConfig, setManagedServiceConfig] = useState([]);
+  const [managedPricingRules, setManagedPricingRules] = useState([]);
 
   useEffect(() => {
     if (editingItem.products) {
         setManagedSlots(editingItem.products.slots || []);
         setManagedServiceConfig(editingItem.products.serviceConfig || []);
+        
+        const pr = editingItem.products.pricingRules || {};
+        const prArray = Object.keys(pr).map(key => ({ key, value: pr[key] }));
+        setManagedPricingRules(prArray);
     } else {
         setManagedSlots([]);
         setManagedServiceConfig([]);
+        setManagedPricingRules([]);
     }
   }, [editingItem.products]);
 
@@ -219,6 +225,15 @@ const AdminDashboard = () => {
 
         payload.slots = managedSlots;
         payload.serviceConfig = managedServiceConfig;
+        
+        const prObj = {};
+        managedPricingRules.forEach(rule => {
+            if (rule.key && rule.key.trim()) {
+                prObj[rule.key.trim()] = isNaN(Number(rule.value)) ? rule.value : Number(rule.value);
+            }
+        });
+        payload.pricingRules = prObj;
+
         payload.deliveryCharge = Number(payload.deliveryCharge || 0);
         payload.freeDeliveryThreshold = Number(payload.freeDeliveryThreshold || 0);
         if (payload.serviceableArea) payload.serviceableArea = payload.serviceableArea.split(',').map(s => s.trim()).filter(Boolean);
@@ -882,9 +897,32 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="md:col-span-2 space-y-2">
-                             <label className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] ml-1">Pricing Rules (JSON)</label>
-                             <textarea name="pricingRules" defaultValue={editingItem.products?.pricingRules ? JSON.stringify(editingItem.products.pricingRules, null, 2) : '{}'} rows="4" className="w-full px-6 py-4 rounded-2xl border border-purple-100/50 bg-white dark:bg-dark-bg outline-none font-mono text-xs" placeholder="{}"></textarea>
+                        <div className="md:col-span-2 space-y-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
+                            <div className="flex justify-between items-center mb-4">
+                                <label className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] ml-1">Dynamic Pricing Rules</label>
+                                <button type="button" onClick={() => setManagedPricingRules([...managedPricingRules, { key: '', value: '' }])} className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 transition-colors flex items-center gap-2"><Plus size={14} /> Add Rule</button>
+                            </div>
+                            <div className="space-y-3">
+                                {managedPricingRules.map((rule, idx) => (
+                                    <div key={idx} className="flex gap-4 items-center">
+                                        <input type="text" placeholder="Rule Name (e.g. Base Price)" value={rule.key} onChange={(e) => {
+                                            const newRules = [...managedPricingRules];
+                                            newRules[idx].key = e.target.value;
+                                            setManagedPricingRules(newRules);
+                                        }} className="flex-1 px-4 py-3 rounded-xl border border-purple-100 dark:border-purple-800 bg-white dark:bg-dark-bg text-xs font-bold outline-none" />
+                                        <input type="text" placeholder="Value (e.g. 500)" value={rule.value} onChange={(e) => {
+                                            const newRules = [...managedPricingRules];
+                                            newRules[idx].value = e.target.value;
+                                            setManagedPricingRules(newRules);
+                                        }} className="w-32 px-4 py-3 rounded-xl border border-purple-100 dark:border-purple-800 bg-white dark:bg-dark-bg text-xs font-bold outline-none" />
+                                        <button type="button" onClick={() => {
+                                            const newRules = managedPricingRules.filter((_, i) => i !== idx);
+                                            setManagedPricingRules(newRules);
+                                        }} className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"><Trash2 size={16} /></button>
+                                    </div>
+                                ))}
+                                {managedPricingRules.length === 0 && <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest text-center py-4">No specific pricing rules added.</p>}
+                            </div>
                         </div>
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
                             <h4 className="md:col-span-4 text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-2 flex items-center gap-2">
@@ -1177,6 +1215,38 @@ const AdminDashboard = () => {
                             </select>
                             <input name="mobile" placeholder="Mobile" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
                             <button type="submit" className="sm:col-span-1 py-3.5 bg-primary text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Onboard Partner</button>
+                        </form>
+                    </div>
+
+                    {/* Sub-Admin Hierarchical Onboarding */}
+                    <div className="mb-8 md:mb-12 p-4 md:p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed border-purple-200 dark:border-purple-800/30">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-6 flex items-center gap-3">
+                            <ShieldCheck size={18} /> Sub-Admin Access Delegation
+                        </h4>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            const payload = Object.fromEntries(new FormData(e.target));
+                            try {
+                                await api.post('/users/subadmin', payload);
+                                toast.success('Sub-Admin Created Successfully!');
+                                const { data: usersRes } = await api.get('/users');
+                                setData(prev => ({ ...prev, users: Array.isArray(usersRes) ? usersRes : (usersRes.data || []) }));
+                                e.target.reset();
+                            } catch (err) { toast.error(err.response?.data?.message || 'Failed to create sub-admin'); }
+                        }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <input name="firstName" required placeholder="First Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="lastName" required placeholder="Last Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="email" required type="email" placeholder="Email Address" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="password" required type="password" placeholder="Temp Password" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <input name="mobile" required placeholder="Mobile Number" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <select name="level" required className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest text-purple-600">
+                                <option value="State">State Level</option>
+                                <option value="District">District Level</option>
+                                <option value="Division">Division Level</option>
+                                <option value="Pincode">Pincode Level</option>
+                            </select>
+                            <input name="assignedRegion" required placeholder="Region Name/Pincode" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                            <button type="submit" className="sm:col-span-1 py-3.5 bg-purple-600 text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg shadow-purple-600/20 hover:scale-[1.02] active:scale-95 transition-all">Delegate Access</button>
                         </form>
                     </div>
 

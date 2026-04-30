@@ -48,6 +48,37 @@ const updateUserApproval = async (req, res) => {
   }
 };
 
+const createSubAdmin = async (req, res) => {
+  const { firstName, lastName, email, password, mobile, level, assignedRegion } = req.body;
+
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const subAdmin = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      mobile,
+      role: 'Admin',
+      approvalStatus: 'Approved',
+      isSubAdmin: true,
+      subAdminConfig: { level, assignedRegion }
+    });
+
+    if (subAdmin) {
+      res.status(201).json({ message: 'Sub-Admin Created Successfully!', subAdmin });
+    } else {
+      res.status(400).json({ message: 'Invalid sub-admin data' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password').populate('favorites');
@@ -159,5 +190,5 @@ const subscribeNewsletter = async (req, res) => {
     }
 };
 
-module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter };
+module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin };
 

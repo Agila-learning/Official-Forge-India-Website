@@ -184,7 +184,7 @@ const Navbar = () => {
             </div>
           </Link>
 
-          <div className="hidden xl:flex flex-1 justify-center items-center space-x-6 2xl:space-x-10 mx-16">
+          <div className="hidden xl:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-4 lg:mx-8">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (

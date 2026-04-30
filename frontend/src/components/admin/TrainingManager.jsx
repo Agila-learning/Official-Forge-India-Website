@@ -210,6 +210,7 @@ const TrainingManager = () => {
 
             {/* Modals */}
             <AnimatePresence>
+                {showModal && (
                     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 md:p-10">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="absolute inset-0 bg-dark-bg/80 backdrop-blur-md" />
                         <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-[850px] max-h-[90vh] bg-white dark:bg-dark-card z-[2001] rounded-[3rem] shadow-6xl overflow-hidden flex flex-col">
