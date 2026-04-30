@@ -4,13 +4,14 @@ import {
   Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
   CheckCircle2, Clock, XCircle, Star, MapPin, DollarSign, Send,
   Menu, X, ArrowUpRight, Loader2, AlertCircle, ShoppingCart, LayoutDashboard,
-  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp
+  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import RoleDashboardProfile from '../components/ui/RoleDashboardProfile';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import MembershipPopup from '../components/ui/MembershipPopup';
 
 const statusConfig = {
   Pending:    { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
@@ -62,6 +63,8 @@ const CandidateDashboard = () => {
   const [consultingPaymentSuccess, setConsultingPaymentSuccess] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [pendingInquiryId, setPendingInquiryId] = useState(null);
+  const [showMembershipPopup, setShowMembershipPopup] = useState(false);
+  const vault = userInfo?.membershipVault;
 
   useEffect(() => {
     if (!userInfo || userInfo.role !== 'Candidate') {
@@ -69,6 +72,11 @@ const CandidateDashboard = () => {
       return;
     }
     fetchData();
+    // Auto-show membership popup for non-members after 5s
+    if (!userInfo?.isMember) {
+      const timer = setTimeout(() => setShowMembershipPopup(true), 5000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const fetchData = async () => {
@@ -254,6 +262,9 @@ const CandidateDashboard = () => {
 
   return (
     <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} stats={dashboardStats}>
+      {/* MEMBERSHIP VAULT POPUP */}
+      {showMembershipPopup && <MembershipPopup onClose={() => setShowMembershipPopup(false)} />}
+
       {/* TEST MODE QR MODAL */}
       <AnimatePresence>
         {showQRModal && (
@@ -318,7 +329,51 @@ const CandidateDashboard = () => {
                     </div>
 
                     <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
-                    
+
+                    {/* MEMBERSHIP VAULT BALANCE CARD */}
+                    {vault && vault.balance > 0 ? (
+                      <div className="p-6 md:p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden mb-4">
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Wallet size={18} className="text-white/80" />
+                              <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.3em]">Membership Vault</p>
+                            </div>
+                            <h3 className="text-3xl font-black mb-1">₹{vault.balance?.toLocaleString()}</h3>
+                            <p className="text-white/60 text-xs font-bold">Available Balance · {vault.planTier}</p>
+                          </div>
+                          <div className="flex flex-col items-start md:items-end gap-2">
+                            <div className="px-4 py-2 bg-white/20 rounded-2xl border border-white/20">
+                              <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">Saved This Month</p>
+                              <p className="text-xl font-black text-yellow-300">₹{vault.savingsThisMonth?.toLocaleString() || 0}</p>
+                            </div>
+                            {vault.cycleEndDate && (
+                              <p className="text-[9px] font-black text-white/50 uppercase tracking-widest">Cycle ends {new Date(vault.cycleEndDate).toLocaleDateString()}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => setShowMembershipPopup(true)}
+                        className="cursor-pointer p-5 md:p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-dashed border-indigo-200 dark:border-indigo-800/40 rounded-[2rem] flex items-center justify-between gap-4 hover:border-indigo-400 transition-all group mb-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center shrink-0">
+                            <Wallet size={22} className="text-indigo-600" />
+                          </div>
+                          <div>
+                            <p className="font-black text-indigo-700 dark:text-indigo-300 text-sm">Unlock Your Membership Vault</p>
+                            <p className="text-[10px] font-bold text-indigo-400">Users saved up to ₹1,00,000 on services this year</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/20 group-hover:bg-indigo-700 transition-all shrink-0">
+                          <Sparkles size={12} /> Get Vault
+                        </div>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div className="p-6 md:p-8 bg-gradient-to-br from-gray-900 to-slate-800 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
                             <div className="relative z-10">

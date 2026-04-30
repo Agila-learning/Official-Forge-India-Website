@@ -624,89 +624,176 @@ const VendorDashboard = () => {
                         <motion.div key="profile" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
                             <div>
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Vendor Account</p>
-                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">My <span className="text-primary italic">Profile</span></h2>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Profile & <span className="text-primary italic">Settings</span></h2>
                             </div>
                             <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
-                        </motion.div>
-                    )}
-
-                    {view === 'settings' && (
-                        <motion.div key="settings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 max-w-2xl">
-                            <div>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Account Preferences</p>
-                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Store <span className="text-primary italic">Settings</span></h2>
-                            </div>
                             <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl space-y-8">
+                                <h3 className="text-xl font-black uppercase tracking-wider">Business Settings</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Business/Store Name</label>
-                                        <input 
-                                            value={settingsData.businessName} 
-                                            onChange={e => setSettingsData({...settingsData, businessName: e.target.value})}
-                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
-                                        />
+                                        <input value={settingsData.businessName} onChange={e => setSettingsData({...settingsData, businessName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Primary Contact Mobile</label>
-                                        <input 
-                                            value={settingsData.mobile} 
-                                            onChange={e => setSettingsData({...settingsData, mobile: e.target.value})}
-                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
-                                        />
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mobile</label>
+                                        <input value={settingsData.mobile} onChange={e => setSettingsData({...settingsData, mobile: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">First Name</label>
-                                        <input 
-                                            value={settingsData.firstName} 
-                                            onChange={e => setSettingsData({...settingsData, firstName: e.target.value})}
-                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
-                                        />
+                                        <input value={settingsData.firstName} onChange={e => setSettingsData({...settingsData, firstName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Name</label>
-                                        <input 
-                                            value={settingsData.lastName} 
-                                            onChange={e => setSettingsData({...settingsData, lastName: e.target.value})}
-                                            className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" 
-                                        />
+                                        <input value={settingsData.lastName} onChange={e => setSettingsData({...settingsData, lastName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
                                     </div>
                                 </div>
-                                <div className="p-6 bg-primary/5 rounded-[2rem] border border-primary/20 flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-black text-primary text-[11px] uppercase tracking-wider mb-1 flex items-center gap-2">
-                                            <Sparkles size={14} /> Premium Subscription
-                                        </h4>
-                                        <p className="text-[10px] text-gray-500 font-bold">Unlock priority asset listing and advanced analytics</p>
-                                    </div>
-                                    <button 
-                                        onClick={async () => {
-                                            const newStatus = !userInfo.isSubscribed;
-                                            try {
-                                                const { data } = await api.put('/users/profile', { isSubscribed: newStatus });
-                                                const updatedInfo = { ...userInfo, ...data };
-                                                localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
-                                                toast.success(newStatus ? 'Premium Activated!' : 'Subscription Paused');
-                                                window.location.reload();
-                                            } catch (err) {
-                                                toast.error('Sync failed');
-                                            }
-                                        }}
-                                        className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all ${
-                                            userInfo.isSubscribed 
-                                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/20' 
-                                                : 'bg-primary text-white shadow-xl shadow-primary/20'
-                                        }`}
-                                    >
-                                        {userInfo.isSubscribed ? 'Active' : 'Enable'}
-                                    </button>
+                                <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={handleSaveSettings}>Save Settings</button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* SUBSCRIPTION & BILLING TAB */}
+                    {view === 'subscription' && (
+                        <motion.div key="subscription" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                            <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Account Upgrade</p>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Subscription <span className="text-primary italic">& Billing</span></h2>
+                            </div>
+
+                            {/* Current Plan Banner */}
+                            <div className="p-6 md:p-10 rounded-[2rem] bg-gradient-to-r from-primary to-indigo-600 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                <div>
+                                    <p className="text-white/70 text-[10px] font-black uppercase tracking-widest mb-1">Current Active Plan</p>
+                                    <h3 className="text-3xl font-black uppercase">{userInfo?.subscriptionLevel || 'Free'} Tier</h3>
+                                    <p className="text-white/70 text-xs font-bold mt-1">{userInfo?.subscriptionLevel === 'Free' ? 'Upgrade to unlock premium features' : 'All features active'}</p>
                                 </div>
-                                <button className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all" onClick={handleSaveSettings}>Save Operational Settings</button>
+                                <div className="px-6 py-3 bg-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/20">Active</div>
+                            </div>
+
+                            {/* Plan Comparison Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                                {[
+                                    {
+                                        name: 'Free', price: '₹0', period: '/month', color: 'gray',
+                                        features: ['3 Service Listings', 'Basic Analytics', 'Email Support', 'Standard Visibility'],
+                                        current: (userInfo?.subscriptionLevel || 'Free') === 'Free'
+                                    },
+                                    {
+                                        name: 'Basic', price: '₹999', period: '/month', color: 'blue',
+                                        features: ['10 Service Listings', 'Order Management', 'Priority Listing', 'Chat Support', 'Monthly Reports'],
+                                        current: userInfo?.subscriptionLevel === 'Basic'
+                                    },
+                                    {
+                                        name: 'Premium', price: '₹2,499', period: '/month', color: 'purple',
+                                        features: ['Unlimited Listings', 'Advanced Analytics', 'Dedicated Manager', 'Featured Badge', 'Customer Insights', 'API Access'],
+                                        current: userInfo?.subscriptionLevel === 'Premium', popular: true
+                                    },
+                                    {
+                                        name: 'Elite', price: '₹4,999', period: '/month', color: 'yellow',
+                                        features: ['All Premium features', 'White-label Portal', 'Custom Domain', 'SLA Guarantee', 'Bulk Imports', '24/7 Phone Support'],
+                                        current: userInfo?.subscriptionLevel === 'Elite'
+                                    }
+                                ].map(plan => (
+                                    <div key={plan.name} className={`relative glass-card rounded-[2.5rem] border ${plan.current ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02]' : 'border-gray-100 dark:border-gray-800'} overflow-hidden`}>
+                                        {plan.popular && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />}
+                                        {plan.popular && <div className="absolute top-4 right-4 px-3 py-1 bg-purple-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full">Popular</div>}
+                                        <div className="p-8">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{plan.name}</p>
+                                            <div className="flex items-end gap-1 mb-6">
+                                                <span className="text-4xl font-black text-gray-900 dark:text-white">{plan.price}</span>
+                                                <span className="text-sm font-bold text-gray-400 mb-1">{plan.period}</span>
+                                            </div>
+                                            <ul className="space-y-2 mb-8">
+                                                {plan.features.map(f => (
+                                                    <li key={f} className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
+                                                        <CheckCircle2 size={14} className="text-primary shrink-0" />{f}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <button
+                                                disabled={plan.current}
+                                                onClick={async () => {
+                                                    try {
+                                                        await api.put('/users/profile', { subscriptionLevel: plan.name });
+                                                        const updated = { ...userInfo, subscriptionLevel: plan.name };
+                                                        localStorage.setItem('userInfo', JSON.stringify(updated));
+                                                        toast.success(`Upgraded to ${plan.name} Plan!`);
+                                                        window.location.reload();
+                                                    } catch { toast.error('Upgrade failed'); }
+                                                }}
+                                                className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${plan.current ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20'}`}
+                                            >
+                                                {plan.current ? 'Current Plan' : `Upgrade to ${plan.name}`}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* ALERTS TAB */}
+                    {view === 'alerts' && (
+                        <motion.div key="alerts" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                            <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Notifications</p>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Activity <span className="text-primary italic">Alerts</span></h2>
+                            </div>
+                            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl space-y-4">
+                                {orders.slice(0, 10).map(order => (
+                                    <div key={order._id} className="flex items-start gap-4 p-5 bg-white dark:bg-dark-bg rounded-2xl border border-gray-50 dark:border-gray-800">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shrink-0">
+                                            <ShoppingBag size={16} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="font-black text-sm text-gray-900 dark:text-white">New Order — #{order._id?.slice(-6)?.toUpperCase()}</p>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()} · ₹{order.totalPrice?.toLocaleString()}</p>
+                                        </div>
+                                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : order.status === 'Cancelled' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-600'}`}>{order.status || 'Processing'}</span>
+                                    </div>
+                                ))}
+                                {orders.length === 0 && <div className="py-20 text-center text-gray-400 font-bold text-sm uppercase tracking-widest">No new alerts</div>}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* INSIGHTS & REPORTS TAB */}
+                    {view === 'insights' && (
+                        <motion.div key="insights" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                            <div>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Analytics</p>
+                                <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Reports & <span className="text-primary italic">Insights</span></h2>
+                            </div>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                                {[
+                                    { label: 'Total Revenue', value: `₹${salesReport.totalRevenue.toLocaleString()}`, sub: 'All time', icon: TrendingUp, color: 'primary' },
+                                    { label: 'Total Orders', value: salesReport.totalOrders, sub: 'All time', icon: ShoppingBag, color: 'indigo' },
+                                    { label: 'Delivery Rate', value: `${salesReport.successRate}%`, sub: 'Success', icon: CheckCircle2, color: 'green' },
+                                    { label: 'Active Listings', value: products.length, sub: 'Published', icon: Package, color: 'orange' },
+                                ].map(s => (
+                                    <div key={s.label} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                        <s.icon size={24} className={`text-${s.color}-500 mb-4`} />
+                                        <p className="text-3xl font-black text-gray-900 dark:text-white mb-1">{s.value}</p>
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{s.label}</p>
+                                        <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">{s.sub}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                <h3 className="text-xl font-black mb-8 uppercase tracking-wider">Low Stock Warnings</h3>
+                                <div className="space-y-3">
+                                    {stockReport.length > 0 ? stockReport.map(p => (
+                                        <div key={p._id} className="flex items-center justify-between p-5 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-800/30">
+                                            <span className="font-black text-sm text-gray-900 dark:text-white">{p.name}</span>
+                                            <span className="px-3 py-1 bg-red-500 text-white rounded-full text-[9px] font-black uppercase">{p.countInStock} left</span>
+                                        </div>
+                                    )) : <p className="text-center py-10 text-gray-400 font-bold text-sm uppercase">All stock levels are healthy</p>}
+                                </div>
                             </div>
                         </motion.div>
                     )}
                     </AnimatePresence>
+
             </div>
 
             {/* Category CMS Modal */}

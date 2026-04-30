@@ -72,12 +72,20 @@ const userSchema = mongoose.Schema(
     domainInterest: { type: String, enum: ['Banking', 'IT', 'Non-IT', 'Manufacturing', 'Automobile', 'Other'] },
     isMember: { type: Boolean, default: false },
     membershipId: { type: String }, // FIC-CAND-YYYY-XXXX
+    membershipVault: {
+      balance: { type: Number, default: 0 },
+      cycleStartDate: { type: Date },
+      cycleEndDate: { type: Date },
+      planTier: { type: String, enum: ['None', 'Basic', 'Premium', 'Elite'], default: 'None' },
+      planValue: { type: Number, default: 0 },
+      savingsThisMonth: { type: Number, default: 0 }
+    },
     paymentStatus: { type: String, enum: ['Unpaid', 'Paid'], default: 'Unpaid' },
     registrationFee: { type: Number, default: 0 },
     subscriptionLevel: { 
       type: String, 
-      enum: ['Basic', 'Premium', 'Elite'], 
-      default: 'Basic' 
+      enum: ['Free', 'Basic', 'Premium', 'Elite'], 
+      default: 'Free' 
     },
     referredByAgentName: { type: String }, // Mandatory for vendors during reg
     agentMobile: { type: String },
@@ -87,7 +95,8 @@ const userSchema = mongoose.Schema(
     isSubAdmin: { type: Boolean, default: false },
     subAdminConfig: {
       level: { type: String, enum: ['State', 'District', 'Division', 'Pincode', 'All'] },
-      assignedRegion: { type: String }
+      assignedRegion: { type: String },
+      taluk: { type: String }
     }
   },
   { timestamps: true }

@@ -49,7 +49,7 @@ const updateUserApproval = async (req, res) => {
 };
 
 const createSubAdmin = async (req, res) => {
-  const { firstName, lastName, email, password, mobile, level, assignedRegion } = req.body;
+  const { firstName, lastName, email, password, mobile, level, assignedRegion, pincode, taluk, adminRole } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -66,13 +66,13 @@ const createSubAdmin = async (req, res) => {
       role: 'Admin',
       approvalStatus: 'Approved',
       isSubAdmin: true,
-      subAdminConfig: { level, assignedRegion }
+      subAdminConfig: { level, assignedRegion, taluk, pincode }
     });
 
     if (subAdmin) {
-      res.status(201).json({ message: 'Sub-Admin Created Successfully!', subAdmin });
+      res.status(201).json({ message: `${adminRole || 'Sub-Admin'} Created Successfully!`, subAdmin });
     } else {
-      res.status(400).json({ message: 'Invalid sub-admin data' });
+      res.status(400).json({ message: 'Invalid admin data' });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -190,5 +190,38 @@ const subscribeNewsletter = async (req, res) => {
     }
 };
 
-module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin };
+const purchaseMembershipVault = async (req, res) => {
+  const { planValue, planTier } = req.body;
+  const VALID_PLANS = [5000, 10000, 25000];
+
+  if (!VALID_PLANS.includes(Number(planValue))) {
+    return res.status(400).json({ message: 'Invalid plan value. Choose ₹5,000, ₹10,000, or ₹25,000.' });
+  }
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const now = new Date();
+    const cycleEnd = new Date(now);
+    cycleEnd.setMonth(cycleEnd.getMonth() + 1);
+
+    user.membershipVault = {
+      balance: Number(planValue),
+      planValue: Number(planValue),
+      planTier,
+      cycleStartDate: now,
+      cycleEndDate: cycleEnd,
+      savingsThisMonth: 0,
+    };
+    user.isMember = true;
+
+    await user.save();
+    res.json({ message: `${planTier} activated successfully!`, vault: user.membershipVault });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault };
 

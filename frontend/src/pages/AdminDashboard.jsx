@@ -1202,10 +1202,12 @@ const AdminDashboard = () => {
                             <input name="email" required type="email" placeholder="Email" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
                             <input name="password" required type="password" placeholder="Temp Password" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
                             <select name="role" required className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest">
+                                <option value="Customer">User / Customer</option>
                                 <option value="Vendor">Vendor / Seller</option>
                                 <option value="HR">HR Partner</option>
                                 <option value="Delivery Partner">Logistics Support</option>
-                                <option value="Sub-Admin">Regional Admin</option>
+                                <option value="Sub-Admin">Sub Admin</option>
+                                <option value="Division Admin">Division Admin</option>
                                 <option value="Admin">Master Admin</option>
                             </select>
                             <select name="vendorType" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest">
@@ -1218,37 +1220,59 @@ const AdminDashboard = () => {
                         </form>
                     </div>
 
-                    {/* Sub-Admin Hierarchical Onboarding */}
-                    <div className="mb-8 md:mb-12 p-4 md:p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed border-purple-200 dark:border-purple-800/30">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-6 flex items-center gap-3">
-                            <ShieldCheck size={18} /> Sub-Admin Access Delegation
-                        </h4>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            const payload = Object.fromEntries(new FormData(e.target));
-                            try {
-                                await api.post('/users/subadmin', payload);
-                                toast.success('Sub-Admin Created Successfully!');
-                                const { data: usersRes } = await api.get('/users');
-                                setData(prev => ({ ...prev, users: Array.isArray(usersRes) ? usersRes : (usersRes.data || []) }));
-                                e.target.reset();
-                            } catch (err) { toast.error(err.response?.data?.message || 'Failed to create sub-admin'); }
-                        }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <input name="firstName" required placeholder="First Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <input name="lastName" required placeholder="Last Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <input name="email" required type="email" placeholder="Email Address" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <input name="password" required type="password" placeholder="Temp Password" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <input name="mobile" required placeholder="Mobile Number" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <select name="level" required className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest text-purple-600">
-                                <option value="State">State Level</option>
-                                <option value="District">District Level</option>
-                                <option value="Division">Division Level</option>
-                                <option value="Pincode">Pincode Level</option>
-                            </select>
-                            <input name="assignedRegion" required placeholder="Region Name/Pincode" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-                            <button type="submit" className="sm:col-span-1 py-3.5 bg-purple-600 text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg shadow-purple-600/20 hover:scale-[1.02] active:scale-95 transition-all">Delegate Access</button>
-                        </form>
-                    </div>
+                    {/* Sub-Admin / Division Admin Hierarchical Onboarding */}
+                    {(() => {
+                        const [subAdminRole, setSubAdminRole] = React.useState('Sub-Admin');
+                        const needsRegion = ['Sub-Admin', 'Division Admin'].includes(subAdminRole);
+                        return (
+                        <div className="mb-8 md:mb-12 p-4 md:p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed border-purple-200 dark:border-purple-800/30">
+                            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-6 flex items-center gap-3">
+                                <ShieldCheck size={18} /> Regional Access Delegation (Sub-Admin / Division Admin)
+                            </h4>
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const payload = Object.fromEntries(new FormData(e.target));
+                                try {
+                                    await api.post('/users/subadmin', payload);
+                                    toast.success(`${subAdminRole} Created Successfully!`);
+                                    const { data: usersRes } = await api.get('/users');
+                                    setData(prev => ({ ...prev, users: Array.isArray(usersRes) ? usersRes : (usersRes.data || []) }));
+                                    e.target.reset();
+                                    setSubAdminRole('Sub-Admin');
+                                } catch (err) { toast.error(err.response?.data?.message || 'Failed to create admin'); }
+                            }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <input name="firstName" required placeholder="First Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                <input name="lastName" required placeholder="Last Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                <input name="email" required type="email" placeholder="Email Address" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                <input name="password" required type="password" placeholder="Temp Password" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                <input name="mobile" required placeholder="Mobile Number" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                <select
+                                    name="adminRole"
+                                    value={subAdminRole}
+                                    onChange={e => setSubAdminRole(e.target.value)}
+                                    className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest text-purple-600"
+                                >
+                                    <option value="Sub-Admin">Sub Admin</option>
+                                    <option value="Division Admin">Division Admin</option>
+                                </select>
+                                <select name="level" required className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-black uppercase text-[10px] tracking-widest text-purple-600">
+                                    <option value="State">State Level</option>
+                                    <option value="District">District Level</option>
+                                    <option value="Division">Division Level</option>
+                                    <option value="Pincode">Pincode Level</option>
+                                </select>
+                                <input name="assignedRegion" required placeholder="Region / State Name" className="px-5 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                {needsRegion && (
+                                    <>
+                                        <input name="pincode" required placeholder="Pincode *" className="px-5 py-3.5 rounded-xl border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                        <input name="taluk" required placeholder="Taluk *" className="px-5 py-3.5 rounded-xl border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                                    </>
+                                )}
+                                <button type="submit" className="sm:col-span-1 py-3.5 bg-purple-600 text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg shadow-purple-600/20 hover:scale-[1.02] active:scale-95 transition-all">Delegate Access</button>
+                            </form>
+                        </div>
+                        );
+                    })()}
 
                     <div className="mobile-table-scroll">
                         <table className="w-full text-left">

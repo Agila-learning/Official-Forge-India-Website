@@ -134,14 +134,18 @@ const DashboardLayout = ({
                 ].filter(tab => !isSubAdmin || !subAdminRestricted.includes(tab.id));
 
             case 'Vendor':
+            case 'Seller':
+            case 'Service Provider':
                 return [
-                    { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
-                    { id: 'inventory', icon: Package, label: 'Inventory' },
-                    { id: 'orders', icon: ShoppingBag, label: 'Orders' },
-                    { id: 'customers', icon: Users, label: 'Customers' },
-                    { id: 'tickets', icon: LifeBuoy, label: 'Support' },
-                    { id: 'profile', icon: User, label: 'My Profile' },
-                    { id: 'settings', icon: Settings, label: 'Settings' },
+                    { id: 'overview',      icon: LayoutDashboard, label: 'Overview' },
+                    { id: 'orders',        icon: ShoppingBag, label: 'Orders & Bookings' },
+                    { id: 'inventory',     icon: Package, label: 'Service Listings' },
+                    { id: 'customers',     icon: Users, label: 'Customers' },
+                    { id: 'subscription',  icon: Shield, label: 'Subscription & Billing' },
+                    { id: 'alerts',        icon: Bell, label: 'Alerts' },
+                    { id: 'insights',      icon: Target, label: 'Reports & Insights' },
+                    { id: 'tickets',       icon: LifeBuoy, label: 'Support' },
+                    { id: 'profile',       icon: User, label: 'Profile & Settings' },
                 ];
 
             case 'HR':

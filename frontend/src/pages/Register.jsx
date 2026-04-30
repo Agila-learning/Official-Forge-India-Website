@@ -33,7 +33,7 @@ const Register = () => {
     resumeUrl: '',
     domainInterest: 'IT',
     candidateType: 'Standard', // Standard (Free) or Premium (Paid 1500)
-    subscriptionLevel: 'Basic', // Basic, Premium, Elite
+    subscriptionLevel: 'Free', // Free (Default), Basic, Premium, Elite
     referredByAgentName: '',
     agentMobile: '',
     agentReference: '',
@@ -429,19 +429,7 @@ const Register = () => {
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Subscription Tier</label>
-                        <select 
-                          required 
-                          value={formData.subscriptionLevel} 
-                          onChange={e => setFormData({...formData, subscriptionLevel: e.target.value})} 
-                          className="form-input !rounded-2xl py-4 appearance-none cursor-pointer dark:bg-dark-bg dark:text-white"
-                        >
-                          <option value="Basic">Basic Node</option>
-                          <option value="Premium">Premium Node</option>
-                          <option value="Elite">Elite Enterprise</option>
-                        </select>
-                      </div>
+
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Additional Comments</label>
                         <input type="text" placeholder="Special requirements..." value={formData.additionalComments} onChange={e => setFormData({...formData, additionalComments: e.target.value})} className="form-input !rounded-2xl py-4" />
