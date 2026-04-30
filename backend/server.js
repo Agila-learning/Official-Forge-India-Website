@@ -53,7 +53,7 @@ const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: ["https://www.forgeindiaconnect.com", "http://localhost:5173", "http://localhost:3000", "http://localhost:5001"],
     methods: ["GET", "POST"],
     credentials: true
   }
