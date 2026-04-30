@@ -61,6 +61,7 @@ const io = new Server(httpServer, {
 
 // Expose io to req.app
 app.set('io', io);
+app.set('trust proxy', 1); // Trust Vercel proxy for socket.io and rate limiting
 
 // ─── Security Middleware ──────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: false }));

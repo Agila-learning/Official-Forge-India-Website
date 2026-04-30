@@ -178,6 +178,10 @@ const ContentWrapper = ({ loading }) => {
 function App() {
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    console.log("%c FIC DEPLOYMENT VERSION: 1.0.8 - ZEPRO UPGRADE ", "color: white; background: #2563eb; font-weight: bold; padding: 4px; border-radius: 4px;");
+  }, []);
+
   return (
     <HelmetProvider>
       <Router future={{ 

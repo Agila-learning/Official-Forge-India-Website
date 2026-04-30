@@ -553,7 +553,6 @@ const Checkout = () => {
                     )}
                 </AnimatePresence>
             </div>
-            </div>
         </div>
     );
 };
