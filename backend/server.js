@@ -249,7 +249,7 @@ const initializeAdmin = async () => {
     }
 };
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} with Socket.IO`);
   console.log(`🔒 Auth rate limiter: 10 req/15min on login & register`);

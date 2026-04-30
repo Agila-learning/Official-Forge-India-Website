@@ -206,11 +206,34 @@ const Checkout = () => {
             </AnimatePresence>
 
             <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-16 relative">
-                    <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-800 -translate-y-1/2 -z-10"></div>
-                    {[1, 2, 3, 4].map((s) => (
-                        <div key={s} className={`w-12 h-12 rounded-full flex items-center justify-center font-black transition-all ${step >= s ? 'bg-primary text-white shadow-xl shadow-primary/30 border-4 border-white dark:border-dark-bg' : 'bg-white dark:bg-dark-card text-gray-400 border-4 border-gray-100 dark:border-gray-800'}`}>
-                            {step > s ? <CheckCircle size={20} /> : s}
+                <div className="flex justify-between items-center mb-16 relative px-4">
+                    <div className="absolute top-6 left-10 right-10 h-0.5 bg-gray-200 dark:bg-gray-800 -z-10">
+                        <motion.div 
+                            className="h-full bg-primary shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+                            initial={{ width: '0%' }}
+                            animate={{ width: `${((step - 1) / 3) * 100}%` }}
+                            transition={{ duration: 0.5 }}
+                        />
+                    </div>
+                    {[
+                        { id: 1, label: 'Logistics', icon: <Truck size={18} /> },
+                        { id: 2, label: 'Schedule', icon: <Calendar size={18} /> },
+                        { id: 3, label: 'Authorize', icon: <ShieldCheck size={18} /> },
+                        { id: 4, label: 'Finalize', icon: <CheckCircle size={18} /> }
+                    ].map((s) => (
+                        <div key={s.id} className="flex flex-col items-center gap-3 relative z-10">
+                            <motion.div 
+                                animate={{ 
+                                    scale: step === s.id ? 1.2 : 1,
+                                    backgroundColor: step >= s.id ? 'var(--primary)' : 'var(--card-bg)'
+                                }}
+                                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all ${step >= s.id ? 'bg-primary text-white shadow-2xl shadow-primary/30 border-2 border-white dark:border-dark-bg' : 'bg-white dark:bg-dark-card text-gray-400 border-2 border-gray-100 dark:border-gray-800'}`}
+                            >
+                                {step > s.id ? <CheckCircle size={22} /> : s.icon}
+                            </motion.div>
+                            <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-colors ${step >= s.id ? 'text-primary' : 'text-gray-400'}`}>
+                                {s.label}
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -390,36 +413,37 @@ const Checkout = () => {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="p-10 md:p-14"
                             >
-                                <div className="flex items-center justify-between mb-10">
-                                    <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                                        <CreditCard className="text-secondary" /> Final Appraisal
-                                    </h2>
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected Mode</p>
-                                        <p className="font-bold text-primary uppercase text-sm italic">{fulfillmentType}</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-gray-50 dark:bg-dark-bg p-8 md:p-12 rounded-[3rem] mb-10 border border-gray-100 dark:border-gray-800 shadow-xl shadow-primary/5">
+                                 <div className="bg-white/50 dark:bg-dark-card/50 backdrop-blur-xl p-8 md:p-12 rounded-[3.5rem] mb-10 border border-white dark:border-gray-800 shadow-2xl shadow-primary/5">
                                     <div className="mb-12">
-                                        <label className="block text-[10px] font-black uppercase text-gray-400 mb-6 tracking-widest pl-1 italic">Authorized Payment Gateway</label>
+                                        <div className="flex items-center justify-between mb-8">
+                                            <div>
+                                                <label className="block text-[10px] font-black uppercase text-primary mb-1 tracking-widest pl-1 italic">Authorized Payment Gateway</label>
+                                                <h4 className="text-xl font-black uppercase tracking-tight">Select Transaction Protocol</h4>
+                                            </div>
+                                            <div className="text-right hidden sm:block">
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fulfillment Mode</p>
+                                                <p className="font-bold text-primary uppercase text-xs italic">{fulfillmentType}</p>
+                                            </div>
+                                        </div>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             {[
                                                 { id: 'GPay', label: 'Google Pay', icon: <Smartphone className="text-blue-500" /> },
                                                 { id: 'Net Banking', label: 'Net Banking', icon: <Building2 className="text-purple-500" /> },
                                                 { id: 'UPI', label: 'Any UPI App', icon: <Zap className="text-amber-500" /> },
-                                                { id: 'COD', label: 'Pay on Execution', icon: <Truck className="text-gray-500" /> }
+                                                { id: 'COD', label: 'Cash on Delivery', icon: <Truck className="text-gray-500" /> }
                                             ].map((method) => (
-                                                <button 
+                                                <motion.button 
                                                     key={method.id}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
                                                     onClick={() => setPaymentMethod(method.id)}
-                                                    className={`p-6 rounded-3xl border-2 text-center transition-all flex flex-col items-center gap-3 ${paymentMethod === method.id ? 'bg-white dark:bg-dark-card border-primary shadow-xl scale-105' : 'bg-transparent border-transparent grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`}
+                                                    className={`p-6 rounded-[2rem] border-2 text-center transition-all flex flex-col items-center gap-4 ${paymentMethod === method.id ? 'bg-white dark:bg-dark-card border-primary shadow-2xl ring-4 ring-primary/10' : 'bg-gray-50/50 dark:bg-dark-bg/50 border-transparent grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:bg-white dark:hover:bg-dark-card'}`}
                                                 >
-                                                    <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-dark-bg flex items-center justify-center">
-                                                        {method.icon}
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${paymentMethod === method.id ? 'bg-primary text-white' : 'bg-white dark:bg-dark-bg text-gray-400'}`}>
+                                                        {React.cloneElement(method.icon, { size: 24, className: paymentMethod === method.id ? 'text-white' : method.icon.props.className })}
                                                     </div>
-                                                    <p className="font-black text-[9px] uppercase tracking-tight">{method.label}</p>
-                                                </button>
+                                                    <p className="font-black text-[9px] uppercase tracking-widest">{method.label}</p>
+                                                </motion.button>
                                             ))}
                                         </div>
                                     </div>
@@ -449,25 +473,34 @@ const Checkout = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex justify-between items-start mb-8 pb-8 border-b border-gray-200 dark:border-gray-700">
+                                     <div className="flex justify-between items-start mb-8 pb-8 border-b border-gray-200/50 dark:border-gray-700/50">
                                         <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Inventory Total</p>
-                                            <h4 className="text-2xl font-black italic tracking-tighter uppercase">Forge-India Order</h4>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Inventory Total</p>
+                                            <h4 className="text-3xl font-black italic tracking-tighter uppercase">Forge-India <span className="text-primary">Order</span></h4>
                                         </div>
-                                        <span className="text-4xl font-black text-primary tracking-tighter">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
+                                        <div className="text-right">
+                                            <span className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter italic">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
+                                            <p className="text-[8px] font-black text-green-500 uppercase tracking-widest mt-1">Authorized & Secure</p>
+                                        </div>
                                     </div>
-                                    <div className="space-y-3 py-6 border-t border-gray-200 dark:border-gray-700">
-                                        <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
-                                            <span>Subtotal</span>
-                                            <span className="text-gray-900 dark:text-white">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.82).toFixed(2)}</span>
+                                    <div className="space-y-4 py-6">
+                                        <div className="flex justify-between text-[11px] font-bold uppercase text-gray-500 tracking-wider">
+                                            <span>Subtotal (Net)</span>
+                                            <span className="text-gray-900 dark:text-white font-black">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.82).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                                         </div>
-                                        <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
-                                            <span>GST (18%)</span>
-                                            <span className="text-gray-900 dark:text-white">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.18).toFixed(2)}</span>
+                                        <div className="flex justify-between text-[11px] font-bold uppercase text-gray-500 tracking-wider">
+                                            <span>GST (18% Statutory)</span>
+                                            <span className="text-gray-900 dark:text-white font-black">₹{((addMembership ? cartTotal + membershipPrice : cartTotal) * 0.18).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
                                         </div>
-                                        <div className="flex justify-between text-[10px] font-black uppercase text-gray-500">
-                                            <span>Fulfillment Fee</span>
-                                            <span className="text-green-500">Free</span>
+                                        {addMembership && (
+                                            <div className="flex justify-between text-[11px] font-bold uppercase text-blue-500 tracking-wider">
+                                                <span>Membership Access</span>
+                                                <span className="font-black">₹{membershipPrice.toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-[11px] font-bold uppercase text-green-500 tracking-wider pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
+                                            <span>Fulfillment Protocol</span>
+                                            <span className="font-black">Complimentary</span>
                                         </div>
                                     </div>
                                 </div>
@@ -498,13 +531,17 @@ const Checkout = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="p-8"
                             >
-                                <div className="text-center mb-12">
-                                    <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-2xl shadow-green-500/30">
+                                <div className="text-center mb-12 py-10 bg-green-500/5 dark:bg-green-500/10 rounded-[4rem] border-2 border-dashed border-green-500/20 shadow-inner">
+                                    <motion.div 
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        className="w-24 h-24 bg-green-500 rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-[0_0_40px_rgba(34,197,94,0.4)]"
+                                    >
                                         <CheckCircle size={48} />
-                                    </div>
-                                    <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tighter">Transaction <span className="text-primary italic">Successful</span></h2>
-                                    <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest leading-relaxed max-w-md mx-auto">
-                                        Your order has been cryptographically secured and queued for fulfillment. Digital partner assignment is in progress.
+                                    </motion.div>
+                                    <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter">Mission <span className="text-green-500 italic">Accomplished</span></h2>
+                                    <p className="text-gray-500 font-bold uppercase text-[11px] tracking-[0.3em] leading-relaxed max-w-md mx-auto">
+                                        Your requisition has been cryptographically secured. Logistics deployment initialized.
                                     </p>
                                 </div>
 
