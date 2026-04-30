@@ -297,6 +297,10 @@ const VendorDashboard = () => {
                                         <p className="text-[8px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">Current Tier</p>
                                         <p className="text-sm font-black text-white uppercase tracking-tighter italic">{userInfo?.subscriptionLevel || 'Basic Node'}</p>
                                     </div>
+                                    <div className="px-5 py-2 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl flex flex-col justify-center">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Shop Code</p>
+                                        <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">{userInfo?.shopCode || 'PENDING'}</p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="flex bg-white dark:bg-dark-card rounded-2xl p-1 border border-gray-100 dark:border-gray-800 shadow-xl">

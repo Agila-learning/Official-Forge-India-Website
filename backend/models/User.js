@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema(
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     // Onboarding Request Metadata
     businessName: { type: String },
+    shopCode: { type: String, unique: true, sparse: true },
     gstNumber: { type: String },
     profileDocuments: [{ 
       url: { type: String },

@@ -164,27 +164,27 @@ const Navbar = () => {
       <div className="max-w-full mx-auto px-4 md:px-12 xl:px-20">
         <div className="flex justify-between items-center">
           
-          <Link to="/" className="flex items-center gap-3 md:gap-4 group relative shrink-0">
-            <div className="w-10 h-10 md:w-14 md:h-14 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+          <Link to="/" className="flex items-center gap-3 md:gap-4 group relative shrink-0 h-12">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                 <motion.img 
                   src="/logo.jpg" 
                   alt="FIC Logo" 
-                  className="w-[90%] h-[90%] object-contain"
+                  className="w-[90%] h-[90%] object-contain rounded-lg"
                   animate={{ scale: [1, 1.08, 1] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 />
             </div>
-            <div className="flex flex-col -mt-0.5 overflow-hidden">
-                <span className="text-base md:text-2xl font-black tracking-tighter block leading-none uppercase truncate">
+            <div className="flex flex-col justify-center h-full overflow-hidden">
+                <span className="text-base md:text-xl font-black tracking-tighter block leading-none uppercase truncate">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
-                <div className="mt-1 md:mt-2 scale-75 md:scale-100 origin-left flex justify-start">
+                <div className="mt-1 scale-75 md:scale-100 origin-left flex justify-start">
                    <AnimatedConnectText key={location.pathname} />
                 </div>
             </div>
           </Link>
 
-          <div className="hidden xl:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-4 lg:mx-8">
+          <div className="hidden xl:flex flex-1 justify-center items-center gap-8 mx-8">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
@@ -229,114 +229,111 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden xl:flex items-center gap-4 2xl:gap-6 shrink-0">
+          <div className="hidden xl:flex items-center gap-3 2xl:gap-4 shrink-0 h-12">
             <button 
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2.5 px-4 py-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm group/loc"
+              className="flex items-center h-full gap-3 px-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm group/loc"
             >
-              <div className="w-8 h-8 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover/loc:scale-110 transition-transform">
+              <div className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center group-hover/loc:scale-110 transition-transform">
                 <MapPin size={16} />
               </div>
-              <div className="text-left leading-none min-w-[70px]">
-                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Service Area</p>
+              <div className="text-left flex flex-col justify-center leading-none">
+                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Service Area</p>
                  <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[80px] uppercase">
                     {appLocation?.city || 'Select Area'}
                  </p>
               </div>
             </button>
 
-            <ThemeToggle />
+            <div className="flex items-center h-full">
+               <ThemeToggle />
+            </div>
             
-            <div className="flex items-center gap-4">
-              <Link to="/cart" className="relative group/cart p-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl hover:border-primary transition-all shadow-sm">
-                <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
-                    {cartItems.length}
+            <Link to="/cart" className="relative flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart">
+              <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                  {cartItems.length}
+                </span>
+              )}
+            </Link>
+
+            <div className="relative group/notif h-full">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-secondary transition-all shadow-sm"
+              >
+                <Bell size={20} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
+                    {unreadCount}
                   </span>
                 )}
-              </Link>
-
-              <div className="relative group/notif">
-                <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl hover:border-secondary transition-all shadow-sm"
-                >
-                  <Bell size={20} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-                
-                <AnimatePresence>
-                  {showNotifications && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute top-full right-0 mt-4 w-80 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-6 z-[100]"
-                    >
-                      <div className="flex justify-between items-center mb-6">
-                        <h4 className="text-sm font-black uppercase tracking-tighter italic">Intelligence <span className="text-secondary">Feed</span></h4>
-                        <button onClick={markAllAsRead} className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors">Wipe All</button>
-                      </div>
-                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        {notifications.length === 0 ? (
-                          <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic tracking-widest">No signals detected</p>
-                        ) : (
-                          notifications.map((n) => (
-                            <div key={n._id} className={`p-4 rounded-2xl border ${n.read ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800' : 'bg-secondary/5 border-secondary/20 shadow-md'} transition-all`}>
-                               <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{n.message}</p>
-                               <p className="text-[8px] font-black text-gray-400 uppercase mt-2">{new Date(n.createdAt).toLocaleTimeString()}</p>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                      <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              </button>
+              
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full right-0 mt-4 w-80 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-6 z-[100]"
+                  >
+                    <div className="flex justify-between items-center mb-6">
+                      <h4 className="text-sm font-black uppercase tracking-tighter italic">Intelligence <span className="text-secondary">Feed</span></h4>
+                      <button onClick={markAllAsRead} className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors">Wipe All</button>
+                    </div>
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {notifications.length === 0 ? (
+                        <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic tracking-widest">No signals detected</p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div key={n._id} className={`p-4 rounded-2xl border ${n.read ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800' : 'bg-secondary/5 border-secondary/20 shadow-md'} transition-all`}>
+                             <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{n.message}</p>
+                             <p className="text-[8px] font-black text-gray-400 uppercase mt-2">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             
             {isLoggedIn ? (
-
-              <div className="flex items-center gap-5">
-                <div className="relative group/profile">
-                  <button className="flex items-center gap-3 p-2 pr-5 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl hover:border-primary/20 transition-all shadow-sm">
-                    <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm uppercase shadow-lg shadow-primary/20">
-                      {userInfo.firstName?.[0] ?? '?'}
-                    </div>
-                    <div className="text-left">
-                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Welcome</p>
-                       <p className="text-xs font-black text-gray-900 dark:text-white truncate max-w-[100px]">{userInfo.firstName}</p>
-                    </div>
-                  </button>
-                  <div className="absolute top-[90%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500">
-                    <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
-                      <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
-                      <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
-                    </button>
-                    <button onClick={handleDashboardClick} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
-                      <LayoutDashboard size={20} className="text-gray-400 group-hover/sub:text-primary" />
-                      <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Control Hub</span>
-                    </button>
-                    <div className="my-2 border-t border-gray-100 dark:border-gray-800"></div>
-                    <button onClick={handleLogout} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all text-left rounded-2xl group/sub">
-                      <LogOut size={20} />
-                      <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>
-                    </button>
+              <div className="relative group/profile h-full">
+                <button className="flex items-center h-full gap-3 px-2 pr-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm">
+                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-xs uppercase shadow-sm">
+                    {userInfo.firstName?.[0] ?? '?'}
                   </div>
+                  <div className="text-left flex flex-col justify-center leading-none">
+                     <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Welcome</p>
+                     <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[80px] uppercase">{userInfo.firstName}</p>
+                  </div>
+                </button>
+                <div className="absolute top-[100%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500">
+                  <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
+                    <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
+                    <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
+                  </button>
+                  <button onClick={handleDashboardClick} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
+                    <LayoutDashboard size={20} className="text-gray-400 group-hover/sub:text-primary" />
+                    <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Control Hub</span>
+                  </button>
+                  <div className="my-2 border-t border-gray-100 dark:border-gray-800"></div>
+                  <button onClick={handleLogout} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all text-left rounded-2xl group/sub">
+                    <LogOut size={20} />
+                    <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-4 h-full">
                 <Link to="/login" className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-colors">Login</Link>
                 <Link 
                   to="/contact" 
-                  className="px-8 py-3.5 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.15em] shadow-2xl shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap"
+                  className="flex items-center h-full px-6 bg-primary text-white rounded-full font-black text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap"
                 >
                   Hire Through FIC
                 </Link>

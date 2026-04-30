@@ -24,6 +24,13 @@ const registerUser = async (req, res) => {
   let isMember = false;
   let paymentStatus = 'Unpaid';
   let registrationFee = 0;
+  let shopCode = undefined;
+
+  if (assignedRole === 'Vendor') {
+      const year = new Date().getFullYear();
+      const random = Math.floor(10000 + Math.random() * 90000);
+      shopCode = `FIC-SHOP-${year}-${random}`;
+  }
 
   if (assignedRole === 'Candidate' && req.body.candidateType === 'Premium') {
       isMember = true;
@@ -58,7 +65,8 @@ const registerUser = async (req, res) => {
       isMember,
       membershipId,
       paymentStatus,
-      registrationFee
+      registrationFee,
+      shopCode
     });
     if (user) {
       res.status(201).json({
@@ -69,6 +77,7 @@ const registerUser = async (req, res) => {
         industry: user.industry,
         role: user.role,
         approvalStatus: user.approvalStatus,
+        shopCode: user.shopCode,
         token: generateToken(user._id),
       });
     } else {
@@ -103,6 +112,7 @@ const authUser = async (req, res) => {
         email: user.email,
         role: user.role,
         approvalStatus: user.approvalStatus,
+        shopCode: user.shopCode,
         token: generateToken(user._id),
       });
     } else {
@@ -128,6 +138,13 @@ const onboardUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        let shopCode = undefined;
+        if (role === 'Vendor') {
+            const year = new Date().getFullYear();
+            const random = Math.floor(10000 + Math.random() * 90000);
+            shopCode = `FIC-SHOP-${year}-${random}`;
+        }
+
         const user = await User.create({
             firstName,
             lastName,
@@ -148,6 +165,7 @@ const onboardUser = async (req, res) => {
             branches,
             strictPolicy,
             refundPolicy,
+            shopCode,
             approvalStatus: 'Approved' // Onboarded users are usually pre-approved
         });
 
@@ -201,6 +219,7 @@ const verifyOTP = async (req, res) => {
       email: user.email,
       role: user.role,
       approvalStatus: user.approvalStatus,
+      shopCode: user.shopCode,
       token: generateToken(user._id),
     });
   } catch (error) {
