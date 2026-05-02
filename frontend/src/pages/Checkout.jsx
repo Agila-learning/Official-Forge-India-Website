@@ -541,7 +541,7 @@ const Checkout = () => {
                                 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase italic mb-4"
                             >
                                 Mission <span className="text-green-500">Success</span>
-                            </h2 >
+                            </motion.h2>
                             <motion.p 
                                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
                                 className="text-sm text-white/50 font-bold uppercase tracking-widest mb-12"
