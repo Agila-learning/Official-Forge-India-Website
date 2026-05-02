@@ -157,10 +157,16 @@ const WebUsageGuide = () => {
           <h4 className="text-lg font-black uppercase tracking-tight">Onboarding Progress</h4>
           <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Complete all steps to fully authorize your mission capabilities.</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
-             <button className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+             <button 
+                onClick={() => window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank')}
+                className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
+             >
                 <PlayCircle size={14} className="text-primary" /> Watch Demo
              </button>
-             <button className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+             <button 
+                onClick={() => window.open('/FIC_Usage_Guide.pdf', '_blank')}
+                className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
+             >
                 <Download size={14} className="text-secondary" /> Download PDF
              </button>
           </div>

@@ -1,368 +1,219 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Wrench, ShieldCheck, Clock, ArrowRight, Zap, Droplets, Paintbrush, 
-    LayoutDashboard, Sparkles, Search, MapPin, ChevronRight, XCircle, 
-    Shield, Target, Star, Filter, ArrowUpRight, Play, CheckCircle2, Users,
-    Home, Info, Briefcase, Camera, Microscope, Settings
+    Sparkles, Search, MapPin, Star, Filter, CheckCircle2,
+    Home, Briefcase, Settings, Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import BeforeAfterSlider from '../../components/ui/BeforeAfterSlider';
-import LiveActivityToast from '../../components/ui/LiveActivityToast';
-import ReviewCard from '../../components/ui/ReviewCard';
-import LottieAnimation from '../../components/ui/LottieAnimation';
 import toast from 'react-hot-toast';
+import MembershipCard from '../../components/ui/MembershipCard';
 
-gsap.registerPlugin(ScrollTrigger);
+const detailedCategories = [
+    { id: 'cleaning', title: 'Deep Cleaning', icon: Sparkles, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+    { id: 'maintenance', title: 'Maintenance', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { id: 'painting', title: 'Surface Art', icon: Paintbrush, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { id: 'plumbing', title: 'Plumbing', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-500/10' }
+];
 
 const HomeServices = () => {
     const navigate = useNavigate();
-    const [selectedService, setSelectedService] = useState(null);
     const [services, setServices] = useState([]);
     const [filteredServices, setFilteredServices] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filterCategory, setFilterCategory] = useState({ name: 'All', id: 'all' });
+    const [activeCategory, setActiveCategory] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
-    const [uiConfig, setUiConfig] = useState(null);
-    const [workflowSteps, setWorkflowSteps] = useState([]);
-    const [trustCards, setTrustCards] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [testimonials, setTestimonials] = useState([]);
-
-    // Detailed Category Data
-    const detailedCategories = [
-        {
-            id: 'cleaning',
-            title: 'Sanitization & Deep Cleaning',
-            desc: 'Industrial-grade sterilization protocols for residential and commercial environments.',
-            image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop',
-            icon: Sparkles,
-            color: 'from-cyan-500 to-blue-600',
-            features: ['Bio-Hazard Control', 'Structural Sanitization', 'Air Quality Audit']
-        },
-        {
-            id: 'maintenance',
-            title: 'Strategic Maintenance',
-            desc: 'Preventative and reactive engineering for critical home systems (Electrical/Plumbing).',
-            image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop',
-            icon: Wrench,
-            color: 'from-orange-500 to-red-600',
-            features: ['Fault Diagnostics', 'System Optimization', '24/7 Rapid Response']
-        },
-        {
-            id: 'painting',
-            title: 'Surface Engineering',
-            desc: 'Precision aesthetic restoration and high-durability coating applications.',
-            image: 'https://images.unsplash.com/photo-1562033247-3c4c4ca25f05?q=80&w=2070&auto=format&fit=crop',
-            icon: Paintbrush,
-            color: 'from-purple-500 to-indigo-600',
-            features: ['Color Synthesis', 'Structural Finishing', 'Moisture Proofing']
-        }
-    ];
-
-    const executionProcess = [
-        {
-            step: '01',
-            title: 'Strategic Audit',
-            desc: 'Initial multi-point inspection and mission parameter mapping.',
-            icon: Search,
-            lottie: 'https://lottie.host/808605c4-0690-482a-a924-4e410b0e5138/9WzK6fV4pX.json'
-        },
-        {
-            step: '02',
-            title: 'Resource Deployment',
-            desc: 'Dispatching certified pros and industrial-grade equipment.',
-            icon: Briefcase,
-            lottie: 'https://lottie.host/f8b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
-        },
-        {
-            step: '03',
-            title: 'Precision Execution',
-            desc: 'Standardized delivery following FIC operational protocols.',
-            icon: Settings,
-            lottie: 'https://lottie.host/d6b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
-        },
-        {
-            step: '04',
-            title: 'Quality Verification',
-            desc: 'Final multi-stage audit and client strategic sign-off.',
-            icon: ShieldCheck,
-            lottie: 'https://lottie.host/e6b4c09d-0c5a-4e2a-89a1-d5b7a1f5f3e4/9jWzK6fV4pX.json'
-        }
-    ];
 
     useEffect(() => {
-        const fetchCMSData = async () => {
+        const fetchServices = async () => {
             try {
-                const [productsRes, configRes, catRes, workflowRes, trustRes, testRes] = await Promise.all([
-                    api.get('/products'),
-                    api.get('/home-ui-config'),
-                    api.get('/home-categories'),
-                    api.get('/workflow-steps'),
-                    api.get('/trust-cards'),
-                    api.get('/testimonials')
-                ]);
-                
-                const list = productsRes.data.filter(p => p.isService && p.isActive);
+                const { data } = await api.get('/products');
+                const list = data.filter(p => p.isService && p.isActive);
                 setServices(list);
                 setFilteredServices(list);
-                setUiConfig(configRes.data);
-                setCategories([{ name: 'All', id: 'all' }, ...catRes.data]);
-                setWorkflowSteps(workflowRes.data.length > 0 ? workflowRes.data : executionProcess);
-                setTrustCards(trustRes.data);
-                setTestimonials(testRes.data.filter(t => t.isApproved));
                 setLoading(false);
             } catch (err) {
-                console.error('Failed to fetch CMS data');
+                toast.error('Failed to load home services ecosystem');
                 setLoading(false);
             }
         };
-        fetchCMSData();
+        fetchServices();
     }, []);
 
     useEffect(() => {
-        if (!services || !Array.isArray(services)) return;
         const filtered = services.filter(s => {
-            if (!s || !s.name) return false;
-            const matchesCategory = filterCategory.id === 'all' || s.categoryRef === filterCategory.id || s.serviceType === filterCategory.name;
-            const matchesSearch = s.name.toLowerCase().includes((searchQuery || '').toLowerCase());
+            const matchesCategory = activeCategory === 'all' || s.serviceType === activeCategory || s.categoryRef === activeCategory;
+            const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
         setFilteredServices(filtered);
-    }, [filterCategory, searchQuery, services]);
-
-    // GSAP Animations
-    useEffect(() => {
-        if (!loading) {
-            gsap.from(".hero-title", { opacity: 0, y: 50, duration: 1, ease: "power4.out" });
-            gsap.from(".hero-sub", { opacity: 0, y: 30, duration: 1, delay: 0.3, ease: "power4.out" });
-            
-            // Category Cards Animation
-            gsap.from(".category-card", {
-                opacity: 0,
-                y: 100,
-                stagger: 0.2,
-                duration: 1,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: ".category-section",
-                    start: "top 80%",
-                }
-            });
-
-            // Stats Counter Animation
-            const stats = document.querySelectorAll(".stat-val");
-            stats.forEach(stat => {
-                const target = parseInt(stat.getAttribute("data-target"));
-                gsap.to(stat, {
-                    innerText: target,
-                    duration: 2,
-                    snap: { innerText: 1 },
-                    scrollTrigger: {
-                        trigger: stat,
-                        start: "top 80%",
-                    }
-                });
-            });
-        }
-    }, [loading]);
-
-    const getColor = (type) => {
-        switch(type) {
-            case 'Cleaning': return 'bg-cyan-500';
-            case 'Painting': return 'bg-purple-600';
-            case 'Plumbing': return 'bg-orange-500';
-            case 'Electrical': return 'bg-yellow-400';
-            default: return 'bg-primary';
-        }
-    };
+    }, [activeCategory, searchQuery, services]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-dark-bg font-outfit pb-20 pt-20 overflow-x-hidden antialiased selection:bg-primary/30">
-            <LiveActivityToast />
-
-            {/* Hero Section */}
-            <header className="relative py-32 px-6 overflow-hidden bg-[#050505]">
-                {/* Mesh Gradient Background */}
-                <div className="absolute inset-0 opacity-40">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-                </div>
-
-                <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-24">
-                    <div className="max-w-3xl text-left">
-                        <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
-                            <span className="px-6 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-primary/20">Authorized Operational Hub</span>
-                            <h1 className="hero-title text-5xl md:text-7xl font-black mt-12 mb-12 uppercase tracking-tighter leading-[0.8] text-white">
-                                {uiConfig?.hero?.title || 'Advanced'} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">{uiConfig?.hero?.highlightedText || 'Service'}</span> Engine.
-                            </h1>
-                            <p className="hero-sub text-lg text-gray-400 font-medium leading-relaxed max-w-xl mb-16">
-                                {uiConfig?.hero?.subtitle || 'Deploying industrial-grade domestic operational standards across elite residential sectors.'}
+        <div className="min-h-screen bg-[#0a0a0b] text-white">
+            
+            {/* --- 🔍 HERO + SMART SEARCH --- */}
+            <section className="relative pt-40 pb-24 px-6 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[800px] bg-gradient-to-b from-blue-600/10 via-transparent to-transparent pointer-events-none" />
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <motion.span 
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="px-6 py-2 bg-blue-600/10 text-blue-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-blue-600/20 mb-8 inline-block"
+                            >
+                                Optimized Home Ecosystem
+                            </motion.span>
+                            <motion.h1 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-5xl md:text-8xl font-black mb-8 tracking-tighter leading-[0.85] italic"
+                            >
+                                HOME <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">EVOLUTION</span>.
+                            </motion.h1>
+                            <p className="text-xl text-white/50 font-medium leading-relaxed max-w-lg mb-12">
+                                Deploying industrial-grade domestic operational standards across elite residential sectors. Professional. Precise. Guaranteed.
                             </p>
                             
-                            <div className="flex flex-wrap gap-8 items-center">
-                                <button 
-                                    onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
-                                    className="px-12 py-8 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-[0_20px_50px_rgba(49,46,129,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-6 group"
-                                >
-                                    {uiConfig?.hero?.ctaText || 'Initialize Service Booking'} <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                                </button>
-                                
-                                <div className="flex items-center gap-6 bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-md">
-                                    <div className="flex -space-x-4">
-                                        {[1, 2, 3].map((idx) => (
-                                            <img key={idx} src={`https://i.pravatar.cc/150?u=${idx}`} className="w-12 h-12 rounded-full border-2 border-[#050505] shadow-xl" alt="User" />
-                                        ))}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2">
-                                            <Star size={14} className="fill-secondary text-secondary" />
-                                            <span className="text-white font-black text-lg">4.9/5.0</span>
-                                        </div>
-                                        <span className="text-gray-500 text-[8px] font-black uppercase tracking-[0.2em]">Certified Reviews</span>
+                            <div className="flex flex-wrap gap-4 mb-12">
+                                <div className="flex -space-x-3">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <img key={i} src={`https://i.pravatar.cc/100?u=${i}`} className="w-10 h-10 rounded-full border-2 border-black" alt="" />
+                                    ))}
+                                </div>
+                                <div className="text-xs">
+                                    <p className="font-black">10,000+ Verified Bookings</p>
+                                    <div className="flex gap-1 text-gold-500 mt-1">
+                                        {[1, 2, 3, 4, 5].map(i => <Star key={i} size={10} fill="currentColor" />)}
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
+
+                        <div className="flex justify-center">
+                            <MembershipCard />
+                        </div>
                     </div>
 
-                    <div className="flex-1 w-full max-w-lg hidden lg:block relative">
-                         <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full"></div>
-                         <LottieAnimation 
-                            animationData="https://lottie.host/677f523c-7c05-4e78-9e63-718602522c71/fM1Jq6sYp2.json" 
-                            className="relative z-10 w-full h-full"
-                         />
-                    </div>
-                </div>
-            </header>
-
-            {/* Detailed Categories Section */}
-            <section className="category-section py-24 bg-white dark:bg-dark-bg overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-32">
-                        <span className="text-primary font-black uppercase tracking-[0.5em] text-[10px]">Strategic Portfolio</span>
-                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none mt-6">
-                            Authorized <span className="text-primary">Sectors</span>.
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                        {detailedCategories.map((cat, idx) => (
-                            <motion.div 
-                                key={cat.id}
-                                className="category-card group relative h-[50rem] rounded-[4rem] overflow-hidden shadow-4xl cursor-pointer"
-                                whileHover={{ y: -20 }}
-                            >
-                                <img src={cat.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110" alt="" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent group-hover:via-black/60 transition-all"></div>
-                                
-                                <div className="absolute inset-0 p-12 flex flex-col justify-end">
-                                    <div className={`w-20 h-20 bg-gradient-to-br ${cat.color} rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl`}>
-                                        <cat.icon size={40} />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">{cat.title}</h3>
-                                    <p className="text-gray-300 font-medium mb-10 leading-relaxed">{cat.desc}</p>
-                                    
-                                    <div className="space-y-4 mb-12">
-                                        {cat.features.map((f, i) => (
-                                            <div key={i} className="flex items-center gap-4 text-[10px] font-black text-white uppercase tracking-widest bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10">
-                                                <CheckCircle2 size={14} className="text-primary" /> {f}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button className="w-full py-6 bg-white text-dark-bg rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-4 hover:bg-primary hover:text-white transition-all">
-                                        Explore Scope <ArrowRight size={16} />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
+                    <div className="mt-16 max-w-5xl mx-auto">
+                        <div className="glass-premium p-2 rounded-[2.5rem] flex flex-col md:flex-row gap-2 shadow-2xl">
+                            <div className="flex-1 flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5">
+                                <Search className="text-white/40" size={20} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search specialized service..."
+                                    className="bg-transparent w-full outline-none font-medium placeholder:text-white/20"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5">
+                                <MapPin className="text-white/40" size={20} />
+                                <select className="bg-transparent outline-none font-bold text-sm !bg-none !pr-0 text-white">
+                                    <option className="bg-dark-bg">Krishnagiri</option>
+                                    <option className="bg-dark-bg">Chennai</option>
+                                    <option className="bg-dark-bg">Bangalore</option>
+                                </select>
+                            </div>
+                            <button className="px-12 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95">
+                                SEARCH
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Smart Filter Bar */}
-            <div className="sticky top-20 z-[100] px-6 mt-[-40px]">
-                <div className="max-w-7xl mx-auto bg-white/80 dark:bg-dark-card/90 backdrop-blur-3xl p-6 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-5xl flex flex-wrap items-center justify-between gap-6">
-                    <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2 md:pb-0">
-                        {categories.map(cat => (
-                            <button 
-                                key={cat.id}
-                                onClick={() => setFilterCategory(cat)}
-                                className={`px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filterCategory.id === cat.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary'}`}
-                            >
-                                {cat.name}
-                            </button>
-                        ))}
+            {/* --- QUICK CATEGORY BAR --- */}
+            <section className="px-6 pb-12 sticky top-20 z-50">
+                <div className="max-w-7xl mx-auto glass-premium p-4 rounded-[2rem] flex gap-4 overflow-x-auto hide-scrollbar">
+                    <button 
+                        onClick={() => setActiveCategory('all')}
+                        className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest border transition-all whitespace-nowrap ${activeCategory === 'all' ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+                    >
+                        All Protocols
+                    </button>
+                    {detailedCategories.map((cat) => (
+                        <button 
+                            key={cat.id}
+                            onClick={() => setActiveCategory(cat.title)}
+                            className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest border transition-all whitespace-nowrap flex items-center gap-3 ${activeCategory === cat.title ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+                        >
+                            <cat.icon size={16} className={activeCategory === cat.title ? 'text-black' : cat.color} />
+                            {cat.title}
+                        </button>
+                    ))}
+                </div>
+            </section>
+
+            {/* --- SERVICE GRID SECTION --- */}
+            <main className="max-w-7xl mx-auto py-20 px-6">
+                <div className="flex justify-between items-end mb-16">
+                    <div>
+                        <h2 className="text-4xl font-black uppercase italic tracking-tighter">Mission <span className="text-blue-500">Deployments</span></h2>
+                        <p className="text-white/40 font-bold uppercase text-[10px] tracking-[0.4em] mt-2">Certified Domestic Operational Standards</p>
                     </div>
-                    
-                    <div className="flex-grow max-w-md relative group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
-                        <input 
-                            type="text" 
-                            placeholder="Find specialized protocol..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary/30 rounded-full pl-16 pr-8 py-5 outline-none font-bold text-sm transition-all"
-                        />
+                    <div className="flex gap-2">
+                        <button className="p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
+                            <Filter size={20} />
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            {/* Service Grid Section */}
-            <main id="services-grid" className="max-w-7xl mx-auto py-24 px-6">
                 {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 animate-pulse">
-                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-[34rem] bg-gray-100 dark:bg-dark-card rounded-[5rem]"></div>)}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-96 bg-white/5 rounded-[3rem] animate-pulse"></div>)}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {filteredServices.map((s, i) => (
                             <motion.div 
                                 key={s._id}
-                                initial={{ opacity: 0, y: 50 }}
+                                initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: i * 0.1 }}
                                 viewport={{ once: true }}
-                                className="group relative h-[38rem] rounded-[4.5rem] overflow-hidden cursor-pointer shadow-3xl hover:shadow-5xl hover:-translate-y-4 transition-all duration-500"
+                                transition={{ delay: i * 0.1 }}
+                                className="group bg-white/5 rounded-[3rem] border border-white/10 overflow-hidden hover:border-white/30 transition-all flex flex-col relative"
                             >
-                                <div className="absolute inset-0">
-                                    <img src={s.image} className="w-full h-full object-cover transition-transform duration-[5s] group-hover:scale-110" alt="" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-                                </div>
-                                
-                                <div className="absolute inset-0 p-8 md:p-12 flex flex-col justify-end border border-white/10 rounded-[4.5rem] group-hover:border-primary/50 transition-colors">
-                                    <div className="flex justify-between items-start mb-8">
-                                        <div className={`w-16 h-16 ${getColor(s.serviceType)} rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:rotate-12 transition-transform`}>
-                                            <Sparkles size={32} />
-                                        </div>
-                                        <div className="px-5 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[8px] font-black text-white uppercase tracking-[0.3em] italic">FIC Optimized</div>
+                                <div className="relative h-72 overflow-hidden">
+                                    <img 
+                                        src={s.image} 
+                                        alt={s.name} 
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-transparent" />
+                                    <div className="absolute top-6 left-6">
+                                        <span className="px-3 py-1.5 bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-xl">
+                                            Verified Pro
+                                        </span>
                                     </div>
-                                    
-                                    <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-4 leading-tight">{s.name}</h3>
-                                    <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-10 group-hover:line-clamp-none group-hover:mb-12 transition-all">{s.description}</p>
-                                    
-                                    <div className="flex justify-between items-center pt-8 border-t border-white/10">
+                                    <button className="absolute top-6 right-6 p-4 bg-black/40 backdrop-blur-md rounded-2xl text-white hover:text-rose-500 transition-all">
+                                        <Heart size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="p-10 pt-0 flex-1 flex flex-col relative -mt-8 z-10">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Star className="text-gold-500 fill-gold-500" size={16} />
+                                        <span className="text-sm font-black tracking-tight">4.9</span>
+                                        <span className="text-white/30 text-[10px] font-bold uppercase tracking-widest ml-2">Certified Review</span>
+                                    </div>
+                                    <h4 className="text-2xl font-black uppercase italic tracking-tighter mb-4">{s.name}</h4>
+                                    <p className="text-sm text-white/40 font-medium leading-relaxed mb-8 line-clamp-2 italic">
+                                        {s.description}
+                                    </p>
+
+                                    <div className="mt-auto pt-8 border-t border-white/5 flex items-center justify-between">
                                         <div>
-                                            <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1 block">Project Initiation</span>
-                                            <span className="text-2xl font-black text-white italic">₹{s.price}</span>
+                                            <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">Standard Rate</p>
+                                            <p className="text-3xl font-black tracking-tighter italic text-blue-500">₹{s.price}</p>
                                         </div>
                                         <button 
-                                            onClick={() => {
-                                                const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
-                                                if (!userInfo) {
-                                                    toast.error('Authentication required to initialize booking.');
-                                                    navigate('/login');
-                                                    return;
-                                                }
-                                                navigate(`/home-services/booking/${s._id}`);
-                                            }}
-                                            className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-2xl shadow-primary/20 flex items-center gap-3 hover:bg-blue-600 transition-all"
+                                            onClick={() => navigate(`/home-services/booking/${s._id}`)}
+                                            className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all uppercase text-[10px] tracking-widest"
                                         >
-                                            Book Now <ChevronRight size={14} />
+                                            Book Now
                                         </button>
                                     </div>
                                 </div>
@@ -372,196 +223,27 @@ const HomeServices = () => {
                 )}
             </main>
 
-            {/* Execution Process (GSAP & Lottie) */}
-            <section className="py-24 bg-[#0a0a0a] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[40%] h-full bg-primary/5 -skew-x-12 translate-x-20"></div>
-                
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="mb-32">
-                        <span className="text-primary font-black uppercase tracking-[0.8em] text-[10px]">Operational Protocol</span>
-                        <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none mt-8">
-                            Execution <span className="text-primary">Process</span>.
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-                        {executionProcess.map((step, idx) => (
-                            <motion.div 
-                                key={idx}
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.2 }}
-                                className="p-12 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3.5rem] group hover:border-primary transition-all relative overflow-hidden"
-                            >
-                                <div className="absolute -top-10 -right-10 text-[10rem] font-black text-white/5 italic">{step.step}</div>
-                                <div className="w-20 h-20 bg-primary/20 rounded-3xl flex items-center justify-center text-primary mb-10 shadow-2xl shadow-primary/10">
-                                    <step.icon size={36} />
-                                </div>
-                                <h4 className="text-lg font-black text-white uppercase tracking-tighter mb-4">{step.title}</h4>
-                                <p className="text-sm text-gray-500 font-medium leading-relaxed mb-12">{step.desc}</p>
-                                
-                                <div className="h-32 w-32 mx-auto">
-                                     <LottieAnimation animationData={step.lottie} />
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Before / After Showcase Section */}
-            <section className="py-24 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col lg:flex-row items-center gap-32">
-                        <div className="lg:w-1/2">
-                            <span className="px-6 py-2 bg-secondary/10 text-secondary text-[10px] font-black uppercase tracking-[0.5em] rounded-full border border-secondary/20">Industrial Standards</span>
-                            <h2 className="text-5xl md:text-7xl font-black mt-12 mb-12 text-gray-900 dark:text-white uppercase tracking-tighter leading-[0.8]">
-                                Impact <br/><span className="text-secondary">Differential</span>.
-                            </h2>
-                            <p className="text-lg text-gray-500 font-medium leading-relaxed mb-16">
-                                Observe the absolute variance in operational output. We don't just maintain; we restore assets to their peak strategic configuration.
-                            </p>
-                            <div className="space-y-8">
-                                {['100% Sanitization Protocol', 'Industrial-Grade Reagents', 'Certified Mission Specialists'].map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-8 group">
-                                        <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all">
-                                            <CheckCircle2 size={24} />
-                                        </div>
-                                        <span className="text-base font-black uppercase tracking-tighter text-gray-900 dark:text-white">{item}</span>
-                                    </div>
-                                ))}
-                            </div>
+            {/* --- MEMBERSHIP UPSELL --- */}
+            <section className="px-6 py-24">
+                <div className="max-w-7xl mx-auto glass-premium rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.1),transparent_70%)]" />
+                    <div className="relative z-10 max-w-3xl mx-auto space-y-10">
+                        <div className="w-24 h-24 bg-blue-600/10 text-blue-500 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl border border-blue-600/20">
+                            <Zap size={40} />
                         </div>
-                        <div className="lg:w-1/2 w-full">
-                            <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-[4rem] border border-gray-100 dark:border-gray-800 shadow-4xl">
-                                <BeforeAfterSlider 
-                                    before="https://images.unsplash.com/photo-1581578731548-c64695cc6958?q=80&w=2070&auto=format&fit=crop" 
-                                    after="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=2070&auto=format&fit=crop" 
-                                    labelBefore="Initial State"
-                                    labelAfter="FIC Optimized"
-                                />
-                                <div className="mt-8 text-center">
-                                    <button 
-                                        onClick={() => document.getElementById('services-grid').scrollIntoView({ behavior: 'smooth' })}
-                                        className="w-full md:w-auto px-10 py-5 bg-secondary text-dark-bg rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 active:scale-95 transition-all"
-                                    >
-                                        Initialize Optimized Protocol
-                                    </button>
-                                </div>
-                            </div>
+                        <h3 className="text-4xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
+                            Infinite Home <br/><span className="text-blue-500">Management</span>.
+                        </h3>
+                        <p className="text-xl text-white/50 font-medium leading-relaxed">
+                            Join the Forge Membership to unlock unlimited on-call service requests, priority scheduling, and 24/7 strategic support for your residence.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-6">
+                            <button className="px-12 py-6 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-2xl">Activate Now</button>
+                            <button className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">View Protocols</button>
                         </div>
                     </div>
                 </div>
             </section>
-
-            {/* Testimonials */}
-            <section className="py-24 bg-gray-50 dark:bg-dark-bg">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-32">
-                        <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none mb-10 text-gray-900 dark:text-white">
-                            Client <span className="text-secondary">Briefings</span>.
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        {testimonials && testimonials.length > 0 ? (
-                            testimonials.map((t, idx) => (
-                                <ReviewCard key={idx} {...t} delay={idx * 0.2} />
-                            ))
-                        ) : (
-                            <div className="col-span-full text-center py-10">
-                                <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">No recent briefings available for public access.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            {/* Service Detail Modal */}
-            <AnimatePresence>
-                {selectedService && (
-                    <div className="fixed inset-0 z-[1000] flex items-center justify-center px-6">
-                        <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedService(null)}
-                            className="absolute inset-0 bg-dark-bg/90 backdrop-blur-3xl"
-                        />
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                            className="w-full max-w-6xl bg-white dark:bg-dark-card rounded-[5rem] border border-white/10 shadow-6xl relative overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
-                        >
-                            <div className="md:w-1/2 relative h-[40vh] md:h-auto">
-                                <img src={selectedService.image} className="w-full h-full object-cover" alt="" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                                <div className="absolute bottom-12 left-12">
-                                    <h2 className="text-5xl font-black text-white uppercase tracking-tighter italic">{selectedService.name}</h2>
-                                </div>
-                            </div>
-                            
-                            <div className="flex-1 p-16 overflow-y-auto custom-scrollbar">
-                                <div className="flex justify-between items-center mb-16">
-                                    <div className="flex gap-12">
-                                        <div>
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Protocol ID</span>
-                                            <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">FIC-{selectedService?._id?.toString().slice(-6).toUpperCase()}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Initiation Price</span>
-                                            <span className="text-sm font-black text-primary uppercase tracking-tighter">₹{selectedService.price}</span>
-                                        </div>
-                                    </div>
-                                    <button onClick={() => setSelectedService(null)} className="w-16 h-16 bg-gray-100 dark:bg-dark-bg rounded-2xl flex items-center justify-center text-gray-400 hover:text-red-500 transition-all">
-                                        <XCircle size={32} />
-                                    </button>
-                                </div>
-
-                                <div className="space-y-12 mb-20">
-                                    <div>
-                                        <h4 className="text-xs font-black text-primary uppercase tracking-[0.5em] mb-8 italic">Mission Description</h4>
-                                        <p className="text-xl text-gray-500 font-medium leading-relaxed italic">{selectedService.description}</p>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-12">
-                                        <div>
-                                            <h4 className="flex items-center gap-4 text-xs font-black text-green-500 uppercase tracking-[0.3em] mb-8 italic">
-                                                <CheckCircle2 size={18} /> Optimized Scope
-                                            </h4>
-                                            <ul className="space-y-4">
-                                                {(selectedService.whatsIncluded || ['Deep Sanitization', 'Industrial Grade Reagents', 'Certified Pros']).map((incl, idx) => (
-                                                    <li key={idx} className="text-sm font-bold text-gray-600 dark:text-gray-300 italic flex items-center gap-3">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div> {incl}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button 
-                                    onClick={() => {
-                                        const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
-                                        if (!userInfo) {
-                                            toast.error('Authentication required to initialize booking.');
-                                            navigate('/login');
-                                            return;
-                                        }
-                                        navigate(`/home-services/booking/${selectedService._id}`);
-                                    }}
-                                    className="w-full py-8 bg-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-3xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                >
-                                    Initialize Configuration Protocol
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            <LiveActivityToast />
         </div>
     );
 };

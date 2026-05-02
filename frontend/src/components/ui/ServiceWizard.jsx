@@ -262,30 +262,34 @@ const ServiceWizard = () => {
                                          <p className="text-gray-500 font-medium italic mt-2">Select an available execution window.</p>
                                      </div>
                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                         <div className="space-y-2 text-left px-4">
+                                         <div className="space-y-2 text-left px-4 relative z-[60]">
                                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Execution Date</label>
                                              <select 
                                                  value={bookingData.slot.date}
                                                  onChange={(e) => setBookingData({...bookingData, slot: { date: e.target.value, time: '' }})}
-                                                 className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 dark:bg-dark-bg border border-gray-100 font-black outline-none appearance-none cursor-pointer"
+                                                 className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 font-black outline-none appearance-none cursor-pointer relative z-[60]"
                                              >
                                                  <option value="">Select Date</option>
-                                                 {(service?.slots || []).filter(s => s.isAvailable).map(s => (
-                                                     <option key={s.date} value={s.date}>{new Date(s.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</option>
+                                                 {(service?.slots?.length > 0 ? service.slots : [
+                                                     { date: new Date(Date.now() + 86400000).toISOString().split('T')[0], isAvailable: true },
+                                                     { date: new Date(Date.now() + 172800000).toISOString().split('T')[0], isAvailable: true },
+                                                     { date: new Date(Date.now() + 259200000).toISOString().split('T')[0], isAvailable: true }
+                                                 ]).filter(s => s.isAvailable).map(s => (
+                                                     <option key={s.date} value={s.date} className="text-black">{new Date(s.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</option>
                                                  ))}
                                              </select>
                                          </div>
-                                         <div className="space-y-2 text-left px-4">
+                                         <div className="space-y-2 text-left px-4 relative z-[60]">
                                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Arrival Slot</label>
                                              <select 
                                                  value={bookingData.slot.time}
                                                  disabled={!bookingData.slot.date}
                                                  onChange={(e) => setBookingData({...bookingData, slot: {...bookingData.slot, time: e.target.value}})}
-                                                 className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 dark:bg-dark-bg border border-gray-100 font-black outline-none appearance-none cursor-pointer disabled:opacity-20"
+                                                 className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 font-black outline-none appearance-none cursor-pointer disabled:opacity-20 relative z-[60]"
                                              >
                                                  <option value="">Select Time</option>
-                                                 {bookingData.slot.date && (service?.slots?.find(s => s.date === bookingData.slot.date)?.times || []).map(t => (
-                                                     <option key={t} value={t}>{t}</option>
+                                                 {(bookingData.slot.date && (service?.slots?.find(s => s.date === bookingData.slot.date)?.times || ["09:00 AM - 12:00 PM", "12:00 PM - 03:00 PM", "03:00 PM - 06:00 PM", "06:00 PM - 09:00 PM"])).map(t => (
+                                                     <option key={t} value={t} className="text-black">{t}</option>
                                                  ))}
                                              </select>
                                          </div>

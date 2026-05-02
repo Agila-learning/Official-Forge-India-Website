@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -8,6 +8,7 @@ import InvoiceModal from '../components/ui/InvoiceModal';
 import toast from 'react-hot-toast';
 import WebUsageGuide from '../components/ui/WebUsageGuide';
 import { BookOpen } from 'lucide-react';
+import MembershipCard from '../components/ui/MembershipCard';
 
 const Profile = () => {
   const [orders, setOrders] = useState([]);
@@ -528,6 +529,58 @@ const Profile = () => {
                             <div className="flex flex-wrap gap-4">
                                 <button className="px-10 py-5 bg-white text-primary font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl flex items-center gap-3"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
                                 <button className="px-10 py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[11px] uppercase tracking-widest flex items-center gap-3"><Eye size={16} /> Activity Log</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </motion.section>
+            )}
+
+            {activeTab === 'Membership' && (
+              <motion.section 
+                key="membership"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-12"
+              >
+                <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start">
+                    <div className="lg:w-1/2 flex justify-center">
+                        <MembershipCard />
+                    </div>
+                    <div className="lg:w-1/2 space-y-8">
+                        <div className="text-left">
+                            <span className="px-4 py-1.5 bg-gold-500/10 text-gold-500 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-gold-500/20 mb-4 inline-block">Pro Access Authorized</span>
+                            <h3 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">FIC <span className="text-gold-500">Membership</span></h3>
+                            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest mt-2">Unlimited Service Access Protocol</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {[
+                                { icon: ShieldCheck, title: 'Priority Deployment', desc: 'Jump to the front of all service queues.' },
+                                { icon: Zap, title: 'Zero Service Fees', desc: 'Pay only for materials on unlimited visits.' },
+                                { icon: Star, title: 'Elite Rewards', desc: 'Accumulate credits for every mission.' },
+                                { icon: Clock, title: '24/7 Strategic Support', desc: 'Direct line to mission commanders.' }
+                            ].map((benefit, i) => (
+                                <div key={i} className="p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-gold-500/30 transition-all">
+                                    <benefit.icon className="text-gold-500 mb-4" size={24} />
+                                    <h5 className="text-xs font-black uppercase tracking-tight mb-2">{benefit.title}</h5>
+                                    <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed italic">{benefit.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="bg-gray-900 dark:bg-black p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                            <div className="flex justify-between items-center relative z-10">
+                                <div>
+                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Current Status</p>
+                                    <p className="text-2xl font-black text-white italic">ACTIVE PRO</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Expires In</p>
+                                    <p className="text-xl font-black text-gold-500">28 DAYS</p>
+                                </div>
                             </div>
                         </div>
                     </div>
