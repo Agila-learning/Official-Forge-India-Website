@@ -592,28 +592,30 @@ const Profile = () => {
 
                 {/* Active member view */}
                 {membershipData && membershipData.planTier !== 'None' && (
-                  <>
+                  <div className="space-y-12">
                     {/* 💳 CENTERPIECE & INSIGHTS */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
-                        <div className="lg:col-span-5 flex flex-col items-center">
-                            <MembershipCard userData={profileData} />
-                            <div className="mt-8 md:mt-12 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button onClick={() => setActiveTab('Service Bookings')} className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-blue-500/30 transition-all active:scale-95">
-                                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
-                                        <ShoppingBag size={24} />
+                    <div className="flex flex-col xl:flex-row gap-8 md:gap-10">
+                        <div className="w-full xl:w-5/12 flex flex-col items-center">
+                            <div className="w-full max-w-sm sm:max-w-md md:max-w-none flex justify-center">
+                                <MembershipCard userData={profileData} />
+                            </div>
+                            <div className="mt-8 md:mt-12 w-full grid grid-cols-2 gap-4">
+                                <button onClick={() => setActiveTab('Service Bookings')} className="flex flex-col items-center gap-3 p-4 sm:p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-blue-500/30 transition-all active:scale-95">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                        <ShoppingBag size={20} className="sm:w-6 sm:h-6" />
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest">My Bookings</span>
+                                    <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest">My Bookings</span>
                                 </button>
-                                <button onClick={() => setActiveTab('Order History')} className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-orange-500/30 transition-all active:scale-95">
-                                    <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
-                                        <History size={24} />
+                                <button onClick={() => setActiveTab('Order History')} className="flex flex-col items-center gap-3 p-4 sm:p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-orange-500/30 transition-all active:scale-95">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
+                                        <History size={20} className="sm:w-6 sm:h-6" />
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Order History</span>
+                                    <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest">Order History</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div className="lg:col-span-7 space-y-6 md:space-y-8">
+                        <div className="w-full xl:w-7/12 space-y-6 md:space-y-8">
                             <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-6 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden text-left">
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                                     <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Vault Insights</h4>
@@ -739,7 +741,7 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </motion.section>
             )}

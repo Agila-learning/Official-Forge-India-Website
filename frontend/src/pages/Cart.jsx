@@ -46,7 +46,13 @@ const Cart = () => {
                   <div className="flex-1 min-w-0 w-full">
                     <div className="flex justify-between items-start gap-4">
                         <div className="min-w-0">
-                            <h3 className="text-lg md:text-xl font-black text-gray-900 dark:text-white truncate uppercase tracking-tight">{item.name}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[8px] font-black text-primary uppercase tracking-[0.2em]">{item.category || 'Product'}</span>
+                                {(item.category === 'Membership' || item.isMembership || item.name?.toLowerCase().includes('membership')) && (
+                                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-600 text-[8px] font-black rounded-md border border-blue-500/20 uppercase tracking-widest">Digital Asset</span>
+                                )}
+                            </div>
+                            <h3 className="text-lg md:text-xl font-black text-gray-900 dark:text-white truncate uppercase tracking-tight leading-tight">{item.name}</h3>
                             <p className="text-primary font-black text-lg mt-1">₹{item.price}</p>
                         </div>
                         <button 
@@ -133,7 +139,12 @@ const Cart = () => {
                 >
                   Checkout Now <ArrowRight size={20} />
                 </button>
-                <p className="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-6">Secure Encrypted Payments</p>
+                <div className="flex items-center justify-center gap-3 mt-6">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-3 opacity-30 grayscale" alt="Paypal" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" className="h-2 opacity-30 grayscale" alt="Visa" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-4 opacity-30 grayscale" alt="Mastercard" />
+                </div>
+                <p className="text-center text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-4">Secure 256-bit SSL Encryption</p>
               </div>
             </div>
           </div>

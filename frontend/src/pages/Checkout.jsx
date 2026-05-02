@@ -40,6 +40,19 @@ const Checkout = () => {
         manualEdit: false
     });
 
+    // DIGITAL CHECK: Detect if cart contains ONLY digital items (Memberships)
+    const isDigitalOnly = cartItems.length > 0 && cartItems.every(item => 
+        item.isService && (item.category === 'Membership' || item.isMembership || item.name?.toLowerCase().includes('membership'))
+    );
+
+    // If digital only, we skip step 1 and 2 and go straight to 3 (Payment)
+    useEffect(() => {
+        if (isDigitalOnly && step < 3) {
+            setStep(3);
+            toast.success('Digital Access: Skipping logistics steps', { icon: '⚡' });
+        }
+    }, [isDigitalOnly, step]);
+
     const paymentOptions = [
         { 
             id: 'GPay', 
@@ -109,6 +122,9 @@ const Checkout = () => {
 
         // Check for Membership Bypass (if items are free due to membership)
         const isMembershipBypass = (totalPrice === 0 && userInfo.isMember);
+        
+        // Instant Activation for Digital Only
+        const activationMode = isDigitalOnly ? 'Digital Activation' : 'Order';
         
         if (isMembershipBypass) {
             setLoading(true);
@@ -186,16 +202,17 @@ const Checkout = () => {
             setTimeout(() => {
                 clearCart();
                 // Update local storage userInfo if membership was added
-                if (addMembership) {
+                if (addMembership || isDigitalOnly) {
                     const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
                     updatedUserInfo.isMember = true;
                     updatedUserInfo.membershipVault = {
                         ...updatedUserInfo.membershipVault,
-                        planTier: 'Basic',
-                        planValue: 999,
-                        cycleEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                        planTier: 'Pro',
+                        planValue: addMembership ? (updatedUserInfo.membershipVault?.planValue || 0) + 1000 : 1000,
+                        cycleEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
                     };
                     localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                    toast.success('Digital Membership Activated Instantly!', { icon: '💎' });
                 }
                 setStep(4);
                 setLoading(false);
@@ -264,14 +281,18 @@ const Checkout = () => {
                         
                         {/* STEP INDICATOR */}
                         <div className="flex items-center gap-4 mb-8">
-                            {[1, 2, 3].map((s) => (
-                                <div key={s} className="flex items-center gap-2">
-                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${step >= s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-dark-card text-gray-400'}`}>
-                                        {step > s ? <CheckCircle size={16} /> : s}
+                            {[1, 2, 3].map((s) => {
+                                // Skip steps for digital only
+                                if (isDigitalOnly && s < 3) return null;
+                                return (
+                                    <div key={s} className="flex items-center gap-2">
+                                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${step >= s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-dark-card text-gray-400'}`}>
+                                            {step > s ? <CheckCircle size={16} /> : s}
+                                        </div>
+                                        {s < 3 && <div className={`h-1 w-12 rounded-full ${step > s ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-800'}`} />}
                                     </div>
-                                    <div className={`h-1 w-12 rounded-full ${step > s ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-800'}`} />
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         <AnimatePresence mode="wait">
@@ -418,11 +439,27 @@ const Checkout = () => {
                                     {/* 💳 PAYMENT METHOD SECTION */}
                                     <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Payment Method</h2>
-                                            <div className="flex items-center gap-2 text-green-600 font-black text-[10px]">
-                                                <BadgeCheck size={14} /> SECURE GATEWAY ACTIVE
+                                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
+                                                {isDigitalOnly ? 'Digital Authorization' : 'Payment Method'}
+                                            </h2>
+                                            <div className="flex flex-col items-end">
+                                                <div className="flex items-center gap-2 text-green-600 font-black text-[10px]">
+                                                    <BadgeCheck size={14} /> SECURE GATEWAY ACTIVE
+                                                </div>
+                                                {isDigitalOnly && (
+                                                    <span className="text-[8px] font-black text-blue-600 uppercase tracking-widest mt-1">Instant Digital Activation</span>
+                                                )}
                                             </div>
                                         </div>
+
+                                        {isDigitalOnly && (
+                                            <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30 flex items-center gap-4">
+                                                <Info className="text-blue-600 shrink-0" size={24} />
+                                                <p className="text-xs font-bold text-blue-900 dark:text-blue-200 leading-relaxed uppercase">
+                                                    You are purchasing a <span className="text-blue-600 font-black tracking-tight">Digital Membership</span>. No physical delivery is required. Access will be granted immediately upon successful authorization.
+                                                </p>
+                                            </div>
+                                        )}
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {paymentOptions.map((opt) => (
@@ -607,11 +644,13 @@ const Checkout = () => {
                                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
                                 className="text-sm text-white/50 font-bold uppercase tracking-widest mb-12"
                             >
-                                Deployment Authorized. Check your terminal/profile for real-time tracking signals.
+                                Deployment Authorized. {isDigitalOnly ? 'Your digital assets have been activated in your vault.' : 'Check your terminal/profile for real-time tracking signals.'}
                             </motion.p>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <button onClick={() => navigate('/profile')} className="py-5 bg-white text-black font-black rounded-2xl text-[11px] uppercase tracking-widest hover:scale-105 transition-all">Track Order</button>
+                                <button onClick={() => navigate('/profile')} className="py-5 bg-white text-black font-black rounded-2xl text-[11px] uppercase tracking-widest hover:scale-105 transition-all">
+                                    {isDigitalOnly ? 'View Vault' : 'Track Order'}
+                                </button>
                                 <button onClick={() => navigate('/explore-shop')} className="py-5 bg-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10">Continue Mission</button>
                             </div>
                         </div>
