@@ -1,582 +1,381 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import SEOMeta from '../components/ui/SEOMeta';
-import {
-  Briefcase, Globe, Smartphone, TrendingUp, ShieldCheck, Home,
-  GraduationCap, ArrowRight, CheckCircle2, Users, Building2,
-  BarChart2, Megaphone, Code2, FileText, Palette, Shield, Zap,
-  Umbrella, Network, MapPin, Wrench, ShoppingBag, Sparkles
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Search, MapPin, Calendar, Star, ShieldCheck, 
+  Zap, Clock, Heart, ArrowRight, Home, 
+  Hotel, Bus, Utensils, ShoppingBag, Ticket,
+  CheckCircle2, ChevronRight, Filter, Plus
 } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
+import SEOMeta from '../components/ui/SEOMeta';
+import MembershipCard from '../components/ui/MembershipCard';
+import toast from 'react-hot-toast';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const services = [
-  // --- PRIMARY IT SERVICES ---
-  {
-    id: 'software-development',
-    icon: Code2,
-    color: 'bg-blue-600',
-    lightColor: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-    eyebrow: 'Core Technology',
-    title: 'Software Development',
-    description: 'Custom enterprise solutions designed for scalability, security, and future-ready business operations.',
-    features: [
-      'Custom ERP & CRM Solutions',
-      'Enterprise Software Architecture',
-      'Legacy System Modernization',
-      'Cloud-Native Applications',
-      'API Integration & Development',
-      'Business Process Automation',
-    ],
-    cta: 'Discuss Your Project',
-    href: '/contact',
-    badge: 'Flagship',
-    process: ['Requirement Analysis', 'Architecture Design', 'Agile Development', 'Testing', 'Deployment'],
-    image: '/images/it_solutions_service_1774516061270.png',
-  },
-  {
-    id: 'website-development',
-    icon: Globe,
-    color: 'bg-teal-500',
-    lightColor: 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
-    eyebrow: 'Web Engineering',
-    title: 'Web Development',
-    description: 'High-performance business websites, portals, and SaaS platforms built with modern tech stacks. Optimized for speed and security.',
-    features: [
-      'Corporate Business Websites',
-      'Progressive Web Apps (PWA)',
-      'E-Commerce Ecosystems',
-      'Full-Stack Web Applications',
-      'Performance Optimization',
-      'Secure Admin Dashboards',
-    ],
-    cta: 'Get a Quote',
-    href: '/services/website-development',
-    badge: 'Most Popular',
-    process: ['UI/UX Blueprint', 'Frontend Engineering', 'Backend Integration', 'QA', 'Live Launch'],
-    image: '/images/web_app_dev_service_1774516108629.png',
-  },
-  {
-    id: 'app-development',
-    icon: Smartphone,
-    color: 'bg-indigo-500',
-    lightColor: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400',
-    eyebrow: 'Mobile First',
-    title: 'Mobile App Development',
-    description: 'Native and Hybrid mobile applications (Android & iOS) designed for seamless user experiences and high performance.',
-    features: [
-      'Native Android & iOS Apps',
-      'Cross-Platform (React Native)',
-      'Enterprise Mobility Solutions',
-      'App Store Optimization (ASO)',
-      'Mobile App Maintenance',
-      'User-Centric UI/UX Design',
-    ],
-    cta: 'Get a Quote',
-    href: '/services/app-development',
-    badge: null,
-    process: ['User Flow Design', 'Native Development', 'API Sync', 'Beta Testing', 'Store Release'],
-    image: '/images/real_web_app_dev_1774517609172.png',
-  },
-  {
-    id: 'ai-ml-solutions',
-    icon: Sparkles,
-    color: 'bg-violet-600',
-    lightColor: 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400',
-    eyebrow: 'Future Tech',
-    title: 'AI & ML Solutions',
-    description: 'Leverage the power of Artificial Intelligence and Machine Learning to automate and optimize your business.',
-    features: [
-      'Intelligent AI Chatbots',
-      'Predictive Analytics Tools',
-      'Process Automation (RPA)',
-      'Computer Vision Solutions',
-      'Data-Driven Insights',
-      'Natural Language Processing',
-    ],
-    cta: 'Future-Proof My Brand',
-    href: '/contact',
-    badge: 'Cutting Edge',
-    process: ['Data Strategy', 'Model Training', 'Integration', 'Validation', 'Optimization'],
-    image: '/images/carousel_hero_1_1774517488962.png',
-  },
-  {
-    id: 'ui-ux-design',
-    icon: Palette,
-    color: 'bg-rose-500',
-    lightColor: 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400',
-    eyebrow: 'Design Thinking',
-    title: 'UI/UX Design Services',
-    description: 'User-centric design thinking to create intuitive, engaging, and beautiful digital products that convert.',
-    features: [
-      'User Interface (UI) Design',
-      'User Experience (UX) Research',
-      'Interactive Prototyping',
-      'Wireframing & User Flows',
-      'Design Systems Creation',
-      'Accessibility (A11y) Audits',
-    ],
-    cta: 'Design My Product',
-    href: '/contact',
-    badge: 'New',
-    process: ['Research', 'Wireframing', 'Visual Design', 'Prototyping', 'Testing'],
-    image: '/images/carousel_hero_3_1774517521046.png',
-  },
-  {
-    id: 'digital-marketing',
-    icon: TrendingUp,
-    color: 'bg-pink-500',
-    lightColor: 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400',
-    eyebrow: 'Brand Growth',
-    title: 'Digital Marketing',
-    description: 'Performance-driven marketing strategies including SEO, Social Media, and AI-based analytics.',
-    features: [
-      'Search Engine Optimization (SEO)',
-      'Social Media Marketing (SMM)',
-      'Performance Marketing & PPC',
-      'Content Strategy & Growth',
-      'Analytics & Conversion Tracking',
-      'Influencer Marketing',
-    ],
-    cta: 'Start Scaling',
-    href: '/contact',
-    badge: null,
-    process: ['Market Research', 'Campaign Design', 'Ad Deployment', 'Monitoring', 'ROI Analysis'],
-    image: '/images/real_digital_marketing_1774517574524.png',
-  },
-
-  // --- SECONDARY: TRAINING & PLACEMENT ---
-  {
-    id: 'training-programs',
-    icon: GraduationCap,
-    color: 'bg-amber-500',
-    lightColor: 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
-    eyebrow: 'Skill Development',
-    title: 'Professional Training',
-    description: 'Industry-ready skill development ecosystem for the next generation of IT talent.',
-    features: [
-      'Full Stack Development (MERN)',
-      'UI/UX Design Masterclass',
-      'Digital Marketing Certification',
-      'AI & Data Science Bootcamps',
-      'Resume & Portfolio Building',
-      'Soft Skills & Interview Prep',
-    ],
-    cta: 'Enroll Now',
-    href: '/contact',
-    badge: 'Career Path',
-    process: ['Enrollment', 'Hands-on Training', 'Project Building', 'Placement Prep', 'Graduation'],
-    image: '/images/carousel_hero_2_1774517504825.png',
-  },
-  {
-    id: 'placement-assistance',
-    icon: CheckCircle2,
-    color: 'bg-green-500',
-    lightColor: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
-    eyebrow: 'Career Success',
-    title: 'Placement Assistance',
-    description: 'Direct hiring pipelines connecting skilled talent with top-tier technology and business firms.',
-    features: [
-      'Direct Hiring Pipeline',
-      'MNC Placement Drives',
-      'Corporate Skill Gap Analysis',
-      'Interview Coaching',
-      'Onboarding Support',
-      'Lifetime Career Guidance',
-    ],
-    cta: 'Get Placed',
-    href: '/contact',
-    badge: 'Success Driven',
-    process: ['Profile Audit', 'Mock Interviews', 'Company Matching', 'Placement Drive', 'Onboarding'],
-    image: '/images/job_consulting_service_1774516042446.png',
-  },
-  {
-    id: 'internships',
-    icon: Users,
-    color: 'bg-cyan-500',
-    lightColor: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400',
-    eyebrow: 'Early Career',
-    title: 'Internship Programs',
-    description: 'Hands-on experience with real-world projects under the guidance of industry experts.',
-    features: [
-      'Project-Based Learning',
-      'Industry Mentorship',
-      'Live Client Projects',
-      'Internship Certification',
-      'Performance-Based PPO',
-      'Agile Workflow Exposure',
-    ],
-    cta: 'Apply for Internship',
-    href: '/contact',
-    badge: 'Student Choice',
-    process: ['Application', 'Interview', 'Onboarding', 'Mentorship', 'Completion'],
-    image: '/images/real_it_solutions_1774517558506.png',
-  },
-
-  // --- TERTIARY: CONSULTING & BUSINESS ---
-  {
-    id: 'job-consulting',
-    icon: Briefcase,
-    color: 'bg-slate-600',
-    lightColor: 'bg-slate-50 dark:bg-slate-900/20 text-slate-600 dark:text-slate-400',
-    eyebrow: 'Strategic Hiring',
-    title: 'Job Consulting',
-    description: 'Supporting careers beyond technology with strategic job placement and consulting in non-IT sectors.',
-    features: [
-      'Banking & BPO Placements',
-      'Core Engineering Hiring',
-      'HR Strategy Consulting',
-      'Staffing & Outsourcing',
-      'Executive Search',
-      'Volume Recruitment',
-    ],
-    cta: 'Consult Experts',
-    href: '/jobs',
-    badge: null,
-    process: ['Inquiry', 'Sourcing', 'Shortlisting', 'Interviewing', 'Selection'],
-    image: '/images/real_job_consulting_1774517539244.png',
-  },
-  {
-    id: 'insurance-services',
-    icon: Umbrella,
-    color: 'bg-emerald-500',
-    lightColor: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400',
-    eyebrow: 'Protection',
-    title: 'Insurance Services',
-    description: 'Comprehensive insurance solutions for individuals and businesses to mitigate risks and ensure long-term security.',
-    features: [
-      'Life & Health Insurance',
-      'Business Liability Coverage',
-      'General Insurance Support',
-      'Claim Assistance Services',
-      'Risk Assessment Consulting',
-      'Policy Portfolio Management',
-    ],
-    cta: 'Get a Quote',
-    href: '/services/insurance-services',
-    badge: 'Reliable',
-    process: ['Needs Analysis', 'Plan Comparison', 'Policy Issuance', 'Ongoing Support', 'Claim Help'],
-    image: '/images/real_insurance_1774517590965.png',
-  },
-  {
-    id: 'atomy-business',
-    icon: Network,
-    color: 'bg-orange-500',
-    lightColor: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
-    eyebrow: 'Global Network',
-    title: 'Atomy Business Opportunity',
-    description: 'Join a global consumer network and build a sustainable business with premium products.',
-    features: [
-      'Global Product Distribution',
-      'Entrepreneurship Training',
-      'Network Marketing Strategy',
-      'Direct Consumer Access',
-      'Sustainable Income Model',
-      'Product Education Support',
-    ],
-    cta: 'Join Network',
-    href: '/contact',
-    badge: 'Opportunity',
-    process: ['Introduction', 'Registration', 'Product Demo', 'Strategy', 'Growth'],
-  },
-  {
-    id: 'campus-drives',
-    icon: MapPin,
-    color: 'bg-yellow-600',
-    lightColor: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400',
-    eyebrow: 'Academic Tie-ups',
-    title: 'Campus Recruitment Drives',
-    description: 'Connecting academic institutions with corporate giants for large-scale talent acquisition.',
-    features: [
-      'University Relations',
-      'Mass Hiring Events',
-      'On-Campus Interviews',
-      'College Skill Seminars',
-      'Corporate Presentations',
-      'Logistics & Management',
-    ],
-    cta: 'Invite FIC to Campus',
-    href: '/contact',
-    badge: null,
-    process: ['Proposal', 'Scheduling', 'Pre-placement Talk', 'Evaluation', 'Hiring'],
-  },
-
-  // --- ADDITIONAL IT SERVICES ---
-  {
-    id: 'additional-it',
-    icon: Wrench,
-    color: 'bg-slate-700',
-    lightColor: 'bg-slate-50 dark:bg-slate-900/20 text-slate-600 dark:text-slate-400',
-    eyebrow: 'Support & Ops',
-    title: 'Additional IT Services',
-    description: 'Specialized technical services to optimize your business infrastructure and online presence.',
-    features: [
-      'E-commerce Development',
-      'CRM / ERP Customization',
-      'Cloud Solutions (AWS, Azure)',
-      'Website Maintenance & Support',
-      'IT Consulting for Startups',
-      'Database Management Services',
-    ],
-    cta: 'View All IT Services',
-    href: '/contact',
-    badge: 'Essential',
-    process: ['Audit', 'Implementation', 'Deployment', 'Support', 'Scaling'],
-  },
-
-  // --- PLATFORM & MARKETPLACE ---
-  {
-    id: 'platform-features',
-    icon: ShoppingBag,
-    color: 'bg-rose-600',
-    lightColor: 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400',
-    eyebrow: 'FIC Ecosystem',
-    title: 'Marketplace & Platform Features',
-    description: 'Access our proprietary platform for job management, vendor services, and professional bookings.',
-    features: [
-      'Job Posting for Employers',
-      'One-Click Job Applications',
-      'Vendor & Seller Registration',
-      'Service Booking System',
-      'Candidate Skill Dashboard',
-      'Premium Member Features',
-    ],
-    cta: 'Explore Platform',
-    href: '/register',
-    badge: 'Proprietary',
-    process: ['Sign Up', 'Verification', 'Profile Setup', 'Listing', 'Interacting'],
-  },
+const categories = [
+  { id: 'stay', label: 'PG / Stay', icon: Home, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+  { id: 'hotels', label: 'Hotels', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  { id: 'travel', label: 'Travel', icon: Bus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { id: 'food', label: 'Food', icon: Utensils, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+  { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+  { id: 'entertainment', label: 'Entertainment', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-500/10' },
 ];
 
-const ServiceCard = ({ service, index }) => {
-  const Icon = service.icon;
-  return (
-    <div
-      className="feature-card flex flex-col opacity-0 translate-y-10"
-      id={service.id}
-      data-service-card
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white ${service.color} shadow-lg`}>
-          <Icon size={26} />
-        </div>
-        {service.badge && (
-          <span className="badge-primary">{service.badge}</span>
-        )}
-      </div>
-
-      {/* Service Image */}
-      {service.image && (
-        <div className="relative h-48 mb-6 rounded-2xl overflow-hidden group/img">
-          <img 
-            src={service.image} 
-            alt={service.title} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 flex items-end p-4">
-             <span className="text-white text-[10px] font-black uppercase tracking-widest">View Details</span>
-          </div>
-        </div>
-      )}
-
-      <span className={`text-xs font-bold uppercase tracking-widest mb-2 ${service.lightColor.split(' ').slice(2).join(' ')}`}>
-        {service.eyebrow}
-      </span>
-      <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">{service.title}</h3>
-      <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6">{service.description}</p>
-
-      {/* Features */}
-      <ul className="space-y-2 mb-6 flex-1">
-        {service.features.map(f => (
-          <li key={f} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
-            <CheckCircle2 size={15} className="text-teal-500 shrink-0 mt-0.5" />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      {/* Process Timeline */}
-      <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">How it works</p>
-        <div className="flex flex-wrap gap-1.5">
-          {service.process.map((step, i) => (
-            <React.Fragment key={step}>
-              <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">{step}</span>
-              {i < service.process.length - 1 && <ArrowRight size={12} className="text-slate-300 shrink-0 mt-0.5" />}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      <Link
-        to={service.href}
-        className="btn-primary w-full justify-center group mt-auto"
-      >
-        {service.cta}
-        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-      </Link>
-    </div>
-  );
-};
+const listings = [
+  {
+    id: 1,
+    category: 'stay',
+    title: 'Premium Coliving PG - HSR Layout',
+    rating: 4.8,
+    reviews: 124,
+    price: 12000,
+    unit: 'month',
+    image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=600',
+    tags: ['WiFi', 'Food Incl.', 'AC'],
+    isPremium: true
+  },
+  {
+    id: 2,
+    category: 'travel',
+    title: 'Inter-City Luxury Sleeper Coach',
+    rating: 4.9,
+    reviews: 850,
+    price: 1500,
+    unit: 'trip',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=600',
+    tags: ['Live Tracking', 'Water Incl.'],
+    isPremium: true
+  },
+  {
+    id: 3,
+    category: 'food',
+    title: 'Gourmet Meal Plan - North Indian',
+    rating: 4.7,
+    reviews: 320,
+    price: 4500,
+    unit: 'month',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600',
+    tags: ['Freshly Cooked', 'Daily Delivery'],
+    isPremium: true
+  },
+  {
+    id: 4,
+    category: 'hotels',
+    title: 'The Grand Residency - Business Suite',
+    rating: 4.9,
+    reviews: 56,
+    price: 3500,
+    unit: 'night',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=600',
+    tags: ['5-Star', 'Breakfast Incl.'],
+    isPremium: true
+  }
+];
 
 const ServicesPage = () => {
-  useGSAP(() => {
-    gsap.from('.services-hero-content > *', {
-      y: 30,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.2,
-      ease: 'power3.out'
-    });
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showBookingPanel, setShowBookingPanel] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
-    gsap.to('[data-service-card]', {
-      y: 0,
-      opacity: 1,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: 'power2.out',
-      scrollTrigger: {
-        trigger: '.services-grid',
-        start: 'top 80%',
-      }
-    });
-  });
+  const filteredListings = listings.filter(item => 
+    (activeCategory === 'all' || item.category === activeCategory) &&
+    (item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const handleBookNow = (service) => {
+    setSelectedService(service);
+    setShowBookingPanel(true);
+  };
 
   return (
-    <>
-      <SEOMeta
-        title="IT Company Services | Web, App, AI & Digital Marketing | Forge India Connect"
-        description="Forge India Connect: A Technology-First IT Solutions Company in Chennai. Software Development, Web & App Development, AI/ML, and Digital Marketing Services."
-        keywords="IT Company in Chennai, Software Development Company, Web Development Services India, Mobile App Development Company, AI & ML Solutions Company, Digital Marketing Agency Chennai"
-        canonical="/services"
+    <div className="min-h-screen bg-[#0a0a0b] text-white">
+      <SEOMeta 
+        title="Premium Service Marketplace | Forge India Connect"
+        description="Explore premium services including stay, travel, food, and entertainment. Unlock unlimited access with our Forge Membership Card."
       />
 
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-slate-900 to-primary pt-32 pb-24 px-4 overflow-hidden">
-        <div className="absolute inset-0 mesh-gradient-bg opacity-30" />
-        <div className="container-xl relative text-center services-hero-content">
-          <span className="section-eyebrow !bg-white/20 !text-white inline-block">
-            Our Technology Ecosystem
-          </span>
-          <h1 className="text-white mt-2 mb-5">
-            Transforming Businesses with<br />
-            <span className="animated-text-gradient">Smart IT Solutions</span>
-          </h1>
-          <p className="text-white/75 text-lg max-w-2xl mx-auto mb-10">
-            Software Development | Web & App Development | AI/ML | Digital Growth Solutions. Scalable. Secure. Future-ready.
-          </p>
-          {/* Quick Navigation */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {services.map(s => (
-              <a key={s.id} href={`#${s.id}`}
-                className="px-4 py-2 bg-white/10 border border-white/20 text-white rounded-xl text-xs font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
-                {s.title}
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services Grid */}
-      <section className="section-padding bg-slate-50 dark:bg-dark-bg services-grid">
-        <div className="container-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {services.map((service, i) => (
-              <ServiceCard key={service.id} service={service} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Regional Presence Section */}
-      <section className="section-padding bg-white dark:bg-dark-card overflow-hidden">
-        <div className="container-xl">
-          <div className="section-header">
-            <span className="section-eyebrow">Our Presence</span>
-            <h2 className="section-title">Regional Headquarters</h2>
-            <p className="section-subtitle">
-              Physically established in major business hubs across South India to better serve our talent and partners.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { 
-                city: 'Krishnagiri', 
-                type: 'Head Office', 
-                address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', 
-                map: 'https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed' 
-              },
-              { 
-                city: 'Chennai', 
-                type: 'Branch Office', 
-                address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', 
-                map: 'https://maps.google.com/maps?q=22,+VVM+Towers,+3rd+Floor,+Pattullos+Rd,+Anna+Salai,+Royapettah,+Chennai,+Tamil+Nadu+600002&output=embed' 
-              },
-              { 
-                city: 'Bangalore', 
-                type: 'Liaison Office', 
-                address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', 
-                map: 'https://maps.google.com/maps?q=Excel+coworks,+Marilingappa+layout,+Nagarbhavi,+Papareddypalya+,+Bangalore&output=embed' 
-              },
-            ].map((branch, i) => (
-              <motion.div
-                key={branch.city}
+      {/* --- 🔍 1. HERO + SMART SEARCH --- */}
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-blue-600/10 via-transparent to-transparent pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10 text-center">
+            <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group p-8 rounded-[2.5rem] bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-slate-800 hover:shadow-2xl transition-all"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                  <MapPin size={22} />
+                animate={{ opacity: 1, y: 0 }}
+                className="text-5xl md:text-7xl font-black mb-8 tracking-tighter italic"
+            >
+                EXPERIENCE <span className="gold-text-gradient">UNLIMITED</span>
+            </motion.h1>
+            
+            <div className="max-w-4xl mx-auto">
+                <div className="glass-premium p-2 rounded-[2rem] flex flex-col md:flex-row gap-2 shadow-2xl">
+                    <div className="flex-1 flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5">
+                        <Search className="text-white/40" size={20} />
+                        <input 
+                            type="text" 
+                            placeholder="What service do you need today?"
+                            className="bg-transparent w-full outline-none font-medium placeholder:text-white/20"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5">
+                        <MapPin className="text-white/40" size={20} />
+                        <select className="bg-transparent outline-none font-bold text-sm !bg-none !pr-0">
+                            <option>Krishnagiri</option>
+                            <option>Chennai</option>
+                            <option>Bangalore</option>
+                        </select>
+                    </div>
+                    <button className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95">
+                        SEARCH
+                    </button>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary mb-2 block">{branch.type}</span>
-                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">{branch.city}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed h-20 overflow-hidden">{branch.address}</p>
-                
-                <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-64 w-full grayscale contrast-125 brightness-90 hover:grayscale-0 transition-all duration-700">
-                  <iframe
-                    title={`${branch.city} Headquarters`}
-                    src={branch.map}
-                    className="w-full h-full"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+            </div>
         </div>
       </section>
 
-      {/* CTA Banner */}
-      <section className="section-padding bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="container-xl text-center relative">
-          <span className="section-eyebrow !bg-white/20 !text-white">Ready to Begin?</span>
-          <h2 className="text-white mt-2 mb-5">Not sure which service is right for you?</h2>
-          <p className="text-white/75 text-lg max-w-xl mx-auto mb-8">
-            Our team will understand your needs and guide you to the best solution — completely free of charge.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/contact" className="btn-primary btn-lg !bg-white !text-primary hover:!bg-slate-100 shadow-2xl">
-              Get a Quote Now <ArrowRight size={18} />
-            </Link>
-            <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white font-black rounded-full shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all"
-            >  WhatsApp Us
-            </a>
-          </div>
+      {/* --- ⚡ 2. QUICK CATEGORY BAR --- */}
+      <section className="px-6 pb-12">
+        <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+            <button 
+                onClick={() => setActiveCategory('all')}
+                className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border transition-all whitespace-nowrap ${activeCategory === 'all' ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+            >
+                All Services
+            </button>
+            {categories.map((cat) => (
+                <button 
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border transition-all whitespace-nowrap flex items-center gap-3 ${activeCategory === cat.id ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
+                >
+                    <cat.icon size={18} className={activeCategory === cat.id ? 'text-black' : cat.color} />
+                    {cat.label}
+                </button>
+            ))}
         </div>
       </section>
-    </>
+
+      {/* --- 💳 3. MEMBERSHIP CARD BANNER --- */}
+      <section className="px-6 py-10">
+        <div className="max-w-7xl mx-auto">
+            <div className="glass-premium rounded-[3rem] p-10 md:p-20 overflow-hidden relative group">
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-gold-500/10 to-transparent pointer-events-none" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div className="space-y-8">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500/10 text-gold-500 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-gold-500/20">
+                            <Zap size={14} /> Core Marketplace USP
+                        </div>
+                        <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-none italic">
+                            ONE MEMBERSHIP.<br/>
+                            <span className="gold-text-gradient">UNLIMITED SERVICES.</span>
+                        </h2>
+                        <p className="text-white/60 font-medium text-lg leading-relaxed max-w-lg">
+                            Stop paying per booking. Preload your digital vault and unlock premium access to our entire ecosystem of stays, travel, and lifestyle services.
+                        </p>
+                        <div className="flex flex-wrap gap-4">
+                            <button className="px-10 py-5 bg-gradient-to-r from-gold-500 to-gold-600 text-black font-black rounded-2xl shadow-2xl shadow-gold-500/20 hover:scale-105 transition-all uppercase text-xs tracking-widest">
+                                Activate Membership
+                            </button>
+                            <button className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">
+                                View Benefits
+                            </button>
+                        </div>
+                    </div>
+                    <div className="flex justify-center">
+                        <MembershipCard />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* --- 📦 5. SERVICE LISTING SECTION --- */}
+      <section className="px-6 py-20">
+        <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-end mb-12">
+                <div>
+                    <h3 className="text-3xl font-black uppercase italic tracking-tighter">Premium <span className="text-blue-500">Listings</span></h3>
+                    <p className="text-white/40 font-bold uppercase text-[10px] tracking-[0.4em] mt-2">Available for immediate booking</p>
+                </div>
+                <div className="flex gap-2">
+                    <button className="p-3 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
+                        <Filter size={20} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {filteredListings.map((item, idx) => (
+                    <motion.div 
+                        key={item.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="group bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden hover:border-white/30 transition-all flex flex-col"
+                    >
+                        <div className="relative h-64 overflow-hidden">
+                            <img 
+                                src={item.image} 
+                                alt={item.title} 
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
+                            <div className="absolute top-4 left-4 flex gap-2">
+                                {item.isPremium && (
+                                    <span className="px-3 py-1.5 bg-gold-500 text-black text-[9px] font-black uppercase tracking-widest rounded-lg shadow-lg">
+                                        Membership Incl.
+                                    </span>
+                                )}
+                            </div>
+                            <button className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md rounded-xl text-white hover:text-rose-500 transition-all">
+                                <Heart size={18} />
+                            </button>
+                        </div>
+                        <div className="p-8 flex-1 flex flex-col">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Star className="text-gold-500 fill-gold-500" size={14} />
+                                <span className="text-xs font-black">{item.rating}</span>
+                                <span className="text-white/30 text-[10px] font-bold">({item.reviews} Reviews)</span>
+                            </div>
+                            <h4 className="text-xl font-black leading-tight mb-4 uppercase italic tracking-tighter truncate">{item.title}</h4>
+                            
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {item.tags.map(tag => (
+                                    <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-white/40 bg-white/5 px-3 py-1 rounded-full">{tag}</span>
+                                ))}
+                            </div>
+
+                            <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Pricing From</p>
+                                    <p className="text-xl font-black tracking-tight">₹{item.price}<span className="text-xs text-white/30 font-bold tracking-normal">/{item.unit}</span></p>
+                                </div>
+                                <button 
+                                    onClick={() => handleBookNow(item)}
+                                    className="p-4 bg-white/10 rounded-2xl hover:bg-white text-white hover:text-black transition-all"
+                                >
+                                    <ArrowRight size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* --- 💎 6. MEMBERSHIP UPSELL BLOCK (INLINE) --- */}
+            <div className="mt-20 glass-premium rounded-[3.5rem] p-12 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_150%,rgba(212,175,55,0.1),transparent_50%)]" />
+                <div className="relative z-10 max-w-2xl mx-auto space-y-8">
+                    <div className="w-20 h-20 bg-gold-500/10 text-gold-500 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl border border-gold-500/20">
+                        <Zap size={32} />
+                    </div>
+                    <h3 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter">Stop Paying Per Booking.<br/><span className="text-gold-500">Go Unlimited.</span></h3>
+                    <p className="text-white/60 font-medium text-lg leading-relaxed">
+                        Join 10,000+ members who have revolutionized their lifestyle with the Forge India Vault. No transaction fees, priority support, and infinite possibilities.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <button className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-widest">Get Membership</button>
+                        <button className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">Compare Plans</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* --- 🎁 7. BENEFITS SECTION --- */}
+      <section className="px-6 py-20 bg-white/2">
+        <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                {[
+                    { title: 'Unlimited Bookings', icon: Zap, desc: 'Zero limits on how many times you book your favorite services monthly.', color: 'text-amber-500' },
+                    { title: 'Priority Access', icon: Clock, desc: 'Skip the queue with instant approvals and guaranteed slots for members.', color: 'text-blue-500' },
+                    { title: 'Digital Vault', icon: ShieldCheck, desc: 'Securely preload funds and enjoy seamless one-click payments.', color: 'text-emerald-500' }
+                ].map((benefit, i) => (
+                    <div key={i} className="space-y-6 group">
+                        <div className={`w-16 h-16 rounded-[1.5rem] bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform ${benefit.color}`}>
+                            <benefit.icon size={28} />
+                        </div>
+                        <h4 className="text-2xl font-black uppercase italic tracking-tighter">{benefit.title}</h4>
+                        <p className="text-white/40 font-medium leading-relaxed">{benefit.desc}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+      </section>
+
+      {/* --- ⚡ 8. QUICK BOOKING PANEL --- */}
+      <AnimatePresence>
+        {showBookingPanel && (
+            <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6 bg-black/80 backdrop-blur-md">
+                <motion.div 
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    className="w-full max-w-xl bg-[#0f172a] rounded-t-[3rem] md:rounded-[3rem] p-10 border-t md:border border-white/10 shadow-2xl relative"
+                >
+                    <button 
+                        onClick={() => setShowBookingPanel(false)}
+                        className="absolute top-8 right-8 text-white/40 hover:text-white font-black text-xs uppercase tracking-widest"
+                    >
+                        Close
+                    </button>
+
+                    <div className="space-y-8">
+                        <div className="flex gap-6 items-center">
+                            <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0">
+                                <img src={selectedService?.image} alt="" className="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">{selectedService?.category}</p>
+                                <h4 className="text-2xl font-black uppercase italic tracking-tighter">{selectedService?.title}</h4>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest">Select Preference</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
+                                    <span className="text-xs font-bold">Standard Slot</span>
+                                    <Plus size={16} />
+                                </div>
+                                <div className="p-4 bg-blue-600/10 border border-blue-500/30 rounded-xl flex items-center justify-between">
+                                    <span className="text-xs font-bold text-blue-500 italic">Priority Slot</span>
+                                    <Zap size={16} className="text-blue-500" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-8 border-t border-white/5 space-y-6">
+                            <div className="flex justify-between items-center">
+                                <span className="text-white/40 text-sm font-bold">Booking Amount</span>
+                                <span className="text-2xl font-black">₹{selectedService?.price}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                                <button className="w-full py-6 bg-white text-black font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] shadow-2xl active:scale-95 transition-all">
+                                    Pay Regularly
+                                </button>
+                                <button className="w-full py-6 bg-gradient-to-r from-gold-500 to-gold-600 text-black font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-gold-500/30 active:scale-95 transition-all flex items-center justify-center gap-3">
+                                    <Zap size={16} /> Use Membership
+                                </button>
+                            </div>
+                            <p className="text-center text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                                Instant confirmation for members. Secure vault transaction.
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
+      {/* --- 📱 10. MOBILE UX (Sticky CTA for Membership) --- */}
+      <div className="fixed bottom-0 left-0 w-full p-4 md:hidden z-50">
+        <button className="w-full py-5 bg-gold-500 text-black font-black rounded-2xl shadow-2xl shadow-gold-500/40 uppercase text-xs tracking-widest active:scale-95 transition-all flex items-center justify-center gap-3">
+            <Zap size={16} /> Activate Membership
+        </button>
+      </div>
+
+    </div>
   );
 };
 

@@ -108,7 +108,32 @@
   .process-step      { @apply relative flex flex-col items-center text-center; }
   .process-step-icon { @apply w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-sm; }
 
-  /* --- Mobile Table --- */
+  /* --- Luxury Premium --- */
+  .luxury-gradient {
+    background: linear-gradient(135deg, #0a0a0b 0%, #0f172a 100%);
+  }
+
+  .glass-premium {
+    @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+
+  .gold-text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: linear-gradient(135deg, #d4af37 0%, #f9d976 50%, #d4af37 100%);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+  }
+
+  .gold-glow-hover:hover {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+  }
+
+  .electric-glow {
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
+  }
+
   .mobile-table-scroll {
     @apply w-full overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800;
     -webkit-overflow-scrolling: touch;
