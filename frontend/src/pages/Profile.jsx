@@ -546,7 +546,7 @@ const Profile = () => {
                        {/* 💳 CENTERPIECE & INSIGHTS */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
                     <div className="lg:col-span-5 flex flex-col items-center">
-                        <MembershipCard userData={userInfo} />
+                        <MembershipCard userData={profileData} />
                         <div className="mt-8 md:mt-12 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <button className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-blue-500/30 transition-all active:scale-95">
                                 <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">

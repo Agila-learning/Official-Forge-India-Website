@@ -10,7 +10,18 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+    const [userInfo, setUserInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo') || 'null'));
+
+    // Synchronize userInfo state with localStorage changes (login/logout)
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setUserInfo(JSON.parse(localStorage.getItem('userInfo') || 'null'));
+        };
+        window.addEventListener('storage', handleStorageChange);
+        // Also check periodically or on a custom event if needed, but storage event works for cross-tab.
+        // For same-tab, we can manually trigger this after login.
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const fetchNotifications = async () => {
         if (!userInfo) return;

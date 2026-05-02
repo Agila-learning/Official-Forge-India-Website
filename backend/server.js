@@ -54,13 +54,35 @@ const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   path: '/socket.io',
   cors: {
-    origin: ["https://www.forgeindiaconnect.com", "http://localhost:5173", "http://localhost:3000", "http://localhost:5001"],
+    origin: [
+      "https://www.forgeindiaconnect.com", 
+      "https://forgeindiaconnect.com",
+      "http://localhost:5173", 
+      "http://localhost:3000", 
+      "http://localhost:5001",
+      "http://localhost:5000"
+    ],
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-app.get('/socket-health', (req, res) => res.json({ status: 'up', port: PORT }));
+app.get('/socket-health', (req, res) => {
+  res.json({ 
+    status: 'up', 
+    port: PORT,
+    path: '/socket.io',
+    connections: io.engine.clientsCount
+  });
+});
+
+// Debug middleware for socket paths
+app.use((req, res, next) => {
+  if (req.url.startsWith('/socket.io')) {
+    console.log(`[Socket.io Request] ${req.method} ${req.url}`);
+  }
+  next();
+});
 
 // Expose io to req.app
 app.set('io', io);
