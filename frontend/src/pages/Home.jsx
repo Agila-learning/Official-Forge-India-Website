@@ -1,5 +1,6 @@
 import MarketplaceHero from '../components/sections/MarketplaceHero';
 import MarketplaceCategories from '../components/sections/MarketplaceCategories';
+import FICRoadmap from '../components/sections/FICRoadmap';
 import About from '../components/sections/About';
 import Services from '../components/sections/Services';
 import Features from '../components/sections/Features';
@@ -33,6 +34,8 @@ const Home = () => {
         <GSAPReveal direction="up" delay={0.1}>
           <MarketplaceCategories />
         </GSAPReveal>
+
+        <FICRoadmap />
 
         <GSAPReveal direction="right">
           <About />
