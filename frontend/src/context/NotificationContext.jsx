@@ -31,13 +31,18 @@ export const NotificationProvider = ({ children }) => {
         if (userInfo) {
             const socketUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:5001' 
-                : window.location.origin; // Vercel proxy will handle /socket.io correctly over HTTPS
+                : window.location.origin;
             
             const socket = io(socketUrl, {
                 withCredentials: true,
                 path: '/socket.io',
-                transports: ['websocket', 'polling']
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 5000,
+                timeout: 20000
             });
+
             socket.emit('user-online', userInfo._id);
 
             socket.on('new-notification', (notification) => {
@@ -76,6 +81,10 @@ export const NotificationProvider = ({ children }) => {
                 });
             });
 
+            socket.on('connect_error', (err) => {
+                console.warn('FIC Socket Signal Error:', err.message);
+            });
+
             return () => socket.disconnect();
         }
     }, [userInfo?._id]);
@@ -92,13 +101,11 @@ export const NotificationProvider = ({ children }) => {
 
     const markAllAsRead = async () => {
         try {
-            // Backend endpoint for markAllAsRead (assuming it exists or will be added)
             await api.put('/notifications/read-all');
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
             setUnreadCount(0);
             toast.success('Clearance authorized. All signals acknowledged.');
         } catch (err) {
-            // Fallback if endpoint doesn't exist yet
             notifications.forEach(n => !n.isRead && markAsRead(n._id));
         }
     };

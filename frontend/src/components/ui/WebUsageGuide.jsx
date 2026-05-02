@@ -142,13 +142,38 @@ const WebUsageGuide = () => {
       download: "PDF பதிவிறக்கவும்",
       langLabel: "மொழி: தமிழ்",
       langSwitch: "English Version",
-      sections: sections.map(s => ({
-        ...s,
-        title: s.title === 'Getting Started' ? 'தொடங்குதல்' : 
-               s.title === 'Navigation Guide' ? 'வழிசெலுத்தல் வழிகாட்டி' : 
-               s.title === 'Orders & Services' ? 'ஆர்டர்கள் மற்றும் சேவைகள்' :
-               s.title === 'Signals & Intelligence' ? 'அறிவிப்புகள்' : 'விற்பனையாளர்களுக்கு',
-      }))
+      sections: [
+        {
+          id: 'getting-started',
+          title: 'தொடங்குதல்',
+          icon: <Rocket size={20} />,
+          color: 'blue',
+          steps: [
+            { title: 'பதிவு மற்றும் உள்நுழைவு', desc: 'தலைப்பில் உள்ள "பதிவு" என்பதைக் கிளிக் செய்வதன் மூலம் உங்கள் FIC கணக்கை உருவாக்கவும்.', icon: <Rocket size={16} /> },
+            { title: 'சுயவிவர மேம்படுத்தல்', desc: 'உங்கள் சுயவிவரத்தில் முகவரி மற்றும் ஆவணங்களைச் சேர்க்கவும்.', icon: <Settings size={16} /> }
+          ]
+        },
+        {
+          id: 'navigation',
+          title: 'வழிசெலுத்தல் வழிகாட்டி',
+          icon: <Layout size={20} />,
+          color: 'indigo',
+          steps: [
+            { title: 'மெனு வரிசை', desc: 'முகப்பு, சந்தை மற்றும் சேவைகள் ஆகியவை உங்கள் முதன்மை வழிசெலுத்தல் புள்ளிகள்.', icon: <Layout size={16} /> },
+            { title: 'இடம் மற்றும் சேவை பகுதி', desc: 'உங்கள் பகுதியைத் தேர்ந்தெடுக்க தலைப்பில் உள்ள வரைபடக் குறியீட்டைக் கிளிக் செய்யவும்.', icon: <MapPin size={16} /> }
+          ]
+        },
+        {
+          id: 'marketplace',
+          title: 'ஆர்டர்கள் மற்றும் சேவைகள்',
+          icon: <ShoppingBag size={20} />,
+          color: 'amber',
+          steps: [
+            { title: 'உலாவல் மற்றும் தேர்வு', desc: 'பொருட்கள் அல்லது சேவைகளைத் தேட தொழில்துறை கடை அல்லது வீட்டுச் சேவைகளைப் பயன்படுத்தவும்.', icon: <Search size={16} /> },
+            { title: 'பாதுகாப்பான கட்டணம்', desc: 'உங்கள் நேரத்தைத் தேர்ந்தெடுத்து, பாதுகாப்பான நுழைவாயில் வழியாகக் கட்டணம் செலுத்துங்கள்.', icon: <CreditCard size={16} /> }
+          ]
+        }
+      ]
     }
   };
 
@@ -191,13 +216,19 @@ const WebUsageGuide = () => {
           <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Complete all steps to fully authorize your mission capabilities.</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
              <button 
-                onClick={() => window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank')}
+                onClick={() => toast('Mission Briefing: Demo Video Coming Soon', { icon: '📽️' })}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
              >
                 <PlayCircle size={14} className="text-primary" /> {currentContent.watch}
              </button>
              <button 
-                onClick={() => window.open('/FIC_Usage_Guide.pdf', '_blank')}
+                onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = '/FIC_Usage_Guide.pdf';
+                    link.download = 'FIC_Usage_Guide.pdf';
+                    link.click();
+                    toast.success('Initiating Guide Transfer...');
+                }}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
              >
                 <Download size={14} className="text-secondary" /> {currentContent.download}
