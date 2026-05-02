@@ -542,6 +542,7 @@ const Profile = () => {
                 key="membership"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="space-y-12 pb-20"
+              >
                        {/* 💳 CENTERPIECE & INSIGHTS */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
                     <div className="lg:col-span-5 flex flex-col items-center">
