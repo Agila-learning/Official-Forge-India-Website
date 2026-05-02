@@ -246,7 +246,7 @@ const Navbar = () => {
             </button>
 
             <div className="flex items-center h-full">
-               <ThemeToggle />
+               {/* Moved to profile dropdown */}
             </div>
             
             {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
@@ -319,6 +319,10 @@ const Navbar = () => {
                     <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
                     <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
                   </button>
+                  <div className="px-4 py-2 flex items-center justify-between border-b border-gray-50 dark:border-gray-800 mb-2">
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Interface Theme</span>
+                    <ThemeToggle />
+                  </div>
                   <button onClick={handleDashboardClick} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
                     <LayoutDashboard size={20} className="text-gray-400 group-hover/sub:text-primary" />
                     <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Control Hub</span>
@@ -352,7 +356,6 @@ const Navbar = () => {
                   </span>
                 )}
              </Link>
-             <ThemeToggle />
              <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -456,6 +459,13 @@ const Navbar = () => {
               </div>
 
               <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-bg/50">
+                <div className="flex items-center justify-between mb-8 p-4 bg-white dark:bg-dark-card rounded-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-3">
+                        <Sparkles size={18} className="text-primary" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-gray-500">Night Mode</span>
+                    </div>
+                    <ThemeToggle />
+                </div>
                 {isLoggedIn ? (
                    <div className="grid grid-cols-2 gap-4">
                       <button 

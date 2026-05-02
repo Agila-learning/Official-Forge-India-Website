@@ -11,6 +11,7 @@ import ServiceCard from '../components/ui/ServiceCard';
 import ProductCard from '../components/ui/ProductCard';
 import ProductDetailsModal from '../components/ui/ProductDetailsModal';
 import BookingFlowManager from '../components/ui/BookingFlowManager';
+import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
 
 function ExploreShop() {
     const { addToCart } = useCart();
@@ -44,6 +45,7 @@ function ExploreShop() {
     // Modal State
     const [selectedProductForBooking, setSelectedProductForBooking] = useState(null);
     const [selectedProductForDetails, setSelectedProductForDetails] = useState(null);
+    const [selectedProductForInquiry, setSelectedProductForInquiry] = useState(null);
     const [recentlyViewed, setRecentlyViewed] = useState([]);
 
     useEffect(() => {
@@ -265,11 +267,18 @@ function ExploreShop() {
                                     onBook={() => {
                                         const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
                                         if (!userInfo) {
-                                            toast.error('Authentication required to book services');
+                                            toast.error('Authentication required to proceed');
                                             navigate('/login');
                                             return;
                                         }
-                                        setSelectedProductForBooking(product);
+                                        
+                                        const isHighValue = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(product.serviceType || product.category?.toLowerCase().replace(' ', '-'));
+                                        
+                                        if (isHighValue) {
+                                            setSelectedProductForInquiry(product);
+                                        } else {
+                                            setSelectedProductForBooking(product);
+                                        }
                                         toast.dismiss(); // Clean previous toasts
                                     }}
                                 />
@@ -400,6 +409,15 @@ function ExploreShop() {
                             addToCart(p, 1);
                             setSelectedProductForDetails(null);
                         }}
+                    />
+                )}
+
+                {selectedProductForInquiry && (
+                    <ServiceInquiryForm 
+                        isOpen={!!selectedProductForInquiry}
+                        onClose={() => setSelectedProductForInquiry(null)}
+                        serviceId={selectedProductForInquiry.serviceType || selectedProductForInquiry.category?.toLowerCase().replace(' ', '-')}
+                        serviceName={selectedProductForInquiry.name}
                     />
                 )}
             </AnimatePresence>

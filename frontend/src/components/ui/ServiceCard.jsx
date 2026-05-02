@@ -169,13 +169,23 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                             Specifications
                             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
-                        <button 
-                            onClick={() => onBook(product)}
-                            className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
-                        >
-                            {isService ? 'Book Service' : 'Order Asset'}
-                            <Zap size={14} className="fill-current" />
-                        </button>
+                        {['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(product.serviceType || product.category?.toLowerCase().replace(' ', '-')) ? (
+                            <button 
+                                onClick={() => onBook(product)}
+                                className="w-full py-4 bg-secondary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-secondary/20 hover:bg-teal-600 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
+                            >
+                                Get Consultation
+                                <Sparkles size={14} className="fill-current" />
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={() => onBook(product)}
+                                className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
+                            >
+                                {isService ? 'Book Service' : 'Order Asset'}
+                                <Zap size={14} className="fill-current" />
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

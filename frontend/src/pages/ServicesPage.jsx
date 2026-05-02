@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import SEOMeta from '../components/ui/SEOMeta';
 import MembershipCard from '../components/ui/MembershipCard';
+import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
 import toast from 'react-hot-toast';
 
 const categories = [
@@ -78,6 +79,7 @@ const ServicesPage = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showBookingPanel, setShowBookingPanel] = useState(false);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
   const filteredListings = listings.filter(item => 
@@ -99,8 +101,13 @@ const ServicesPage = () => {
   };
 
   const handleBookNow = (service) => {
+    const isHighValue = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(service.id);
     setSelectedService(service);
-    setShowBookingPanel(true);
+    if (isHighValue) {
+        setShowInquiryForm(true);
+    } else {
+        setShowBookingPanel(true);
+    }
   };
 
   return (
@@ -332,6 +339,14 @@ const ServicesPage = () => {
             </div>
           )}
       </AnimatePresence>
+
+      {/* --- 📝 INQUIRY FORM --- */}
+      <ServiceInquiryForm 
+        isOpen={showInquiryForm}
+        onClose={() => setShowInquiryForm(false)}
+        serviceId={selectedService?.id}
+        serviceName={selectedService?.title}
+      />
     </div>
   );
 };

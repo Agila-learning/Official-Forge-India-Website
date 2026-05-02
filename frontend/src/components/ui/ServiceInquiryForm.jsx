@@ -29,12 +29,28 @@ const serviceSpecs = {
 
 const ServiceInquiryForm = ({ isOpen, onClose, serviceId, serviceName }) => {
   const [formData, setFormData] = useState({
+    name: '',
+    email: '',
     specificRequirement: '',
     message: '',
-    contactNumber: ''
+    contactNumber: '',
+    requestType: 'inquiry' // 'inquiry' or 'callback'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Initialize with user info if available
+  React.useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    if (userInfo.firstName) {
+      setFormData(prev => ({
+        ...prev,
+        name: `${userInfo.firstName} ${userInfo.lastName || ''}`.trim(),
+        email: userInfo.email || '',
+        contactNumber: userInfo.phone || ''
+      }));
+    }
+  }, []);
 
   const specs = serviceSpecs[serviceId] || { label: 'Requirement', options: ['Consultation', 'Standard Service', 'Custom Request'] };
 
@@ -43,10 +59,13 @@ const ServiceInquiryForm = ({ isOpen, onClose, serviceId, serviceName }) => {
     setIsSubmitting(true);
     try {
       await api.post('/inquiries', {
+        name: formData.name,
+        email: formData.email,
         serviceType: serviceName,
         specificRequirement: formData.specificRequirement,
         message: formData.message,
-        contactNumber: formData.contactNumber
+        contactNumber: formData.contactNumber,
+        requestType: formData.requestType
       });
       setIsSuccess(true);
       toast.success('Inquiry submitted successfully!');
@@ -120,18 +139,64 @@ const ServiceInquiryForm = ({ isOpen, onClose, serviceId, serviceName }) => {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Contact Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                     <input
-                      type="tel"
+                      type="text"
                       required
-                      placeholder="e.g. +91 98765 43210"
-                      value={formData.contactNumber}
-                      onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
-                      className="w-full pl-14 pr-5 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:ring-2 focus:ring-primary/20 outline-none font-bold"
+                      placeholder="Your Name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:ring-2 focus:ring-primary/20 outline-none font-bold"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="email@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:ring-2 focus:ring-primary/20 outline-none font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Contact Number</label>
+                    <div className="relative">
+                      <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 98765 43210"
+                        value={formData.contactNumber}
+                        onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                        className="w-full pl-14 pr-5 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:ring-2 focus:ring-primary/20 outline-none font-bold"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Request Type</label>
+                    <div className="flex bg-gray-50 dark:bg-dark-bg rounded-2xl p-1 border border-gray-100 dark:border-gray-800">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, requestType: 'inquiry' })}
+                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.requestType === 'inquiry' ? 'bg-primary text-white shadow-lg' : 'text-gray-400'}`}
+                      >
+                        Inquiry
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, requestType: 'callback' })}
+                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.requestType === 'callback' ? 'bg-secondary text-white shadow-lg' : 'text-gray-400'}`}
+                      >
+                        Callback
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -157,19 +222,22 @@ const ServiceInquiryForm = ({ isOpen, onClose, serviceId, serviceName }) => {
                   </p>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-16 bg-primary text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                  {isSubmitting ? (
-                    'Processing Request...'
-                  ) : (
-                    <>
-                      Submit Inquiry <Send size={16} />
-                    </>
-                  )}
-                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-16 bg-primary text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Processing...' : formData.requestType === 'callback' ? 'Request Callback' : 'Submit Inquiry'}
+                    {!isSubmitting && <Send size={16} />}
+                  </button>
+                  <a 
+                    href="tel:+916369406416"
+                    className="w-full h-16 bg-white dark:bg-dark-card text-gray-900 dark:text-white border border-gray-100 dark:border-gray-800 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+                  >
+                    Call Expert <Phone size={16} />
+                  </a>
+                </div>
               </form>
             </div>
           )}
