@@ -138,6 +138,24 @@
     @apply w-full overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800;
     -webkit-overflow-scrolling: touch;
   }
+
+  /* --- 3D Transformations --- */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
 }
 
 /* ============================================================
@@ -184,6 +202,12 @@
   /* Touch target */
   .touch-target { @apply min-h-[44px] min-w-[44px]; }
   .touch-friendly { @apply min-h-[44px]; }
+
+  /* Mobile Typography Fixes */
+  @media (max-width: 640px) {
+    .text-fluid-lg { font-size: clamp(1.5rem, 5vw, 2.25rem); }
+    .text-fluid-xl { font-size: clamp(2rem, 8vw, 3.5rem); }
+  }
 }
 
 /* ============================================================

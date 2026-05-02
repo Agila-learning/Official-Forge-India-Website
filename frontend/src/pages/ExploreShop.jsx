@@ -145,7 +145,7 @@ function ExploreShop() {
 
             {/* Filter and Search Bar Section */}
             <div className="max-w-7xl mx-auto mb-10">
-                <div className="flex flex-col md:flex-row gap-4 items-center mb-10">
+                <div className="flex flex-col lg:flex-row gap-4 items-center mb-10">
                     <div className="relative flex-grow w-full group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={18} />
                         <input 
@@ -153,19 +153,19 @@ function ExploreShop() {
                             placeholder="Search high-performance products..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-16 pr-8 py-4 rounded-3xl bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 outline-none focus:ring-4 focus:ring-primary/5 transition-all font-bold text-base shadow-xl shadow-primary/5"
+                            className="w-full pl-16 pr-8 py-4 rounded-3xl bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 outline-none focus:ring-4 focus:ring-primary/5 transition-all font-bold text-sm md:text-base shadow-xl shadow-primary/5"
                         />
                     </div>
                     
-                    <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                         <button 
                             onClick={() => setIsFilterOpen(true)}
-                            className="flex-grow md:flex-initial px-8 py-4 rounded-3xl bg-dark-bg dark:bg-dark-card border border-gray-100 dark:border-gray-800 text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-primary transition-all shadow-xl"
+                            className="w-full sm:w-auto px-8 py-4 rounded-3xl bg-dark-bg dark:bg-dark-card border border-gray-100 dark:border-gray-800 text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-primary transition-all shadow-xl"
                         >
                             <Filter size={16} /> Filters
                         </button>
                         
-                        <div className="bg-white dark:bg-dark-card p-1.5 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-800 flex items-center gap-2 group flex-grow md:max-w-[240px]">
+                        <div className="bg-white dark:bg-dark-card p-1.5 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-800 flex items-center gap-2 group w-full sm:w-[240px]">
                             <MapPin className={`ml-3 transition-colors ${locationStatus === 'serviceable' ? 'text-green-500' : locationStatus === 'not-serviceable' ? 'text-red-500' : 'text-gray-400'}`} size={16} />
                             <input 
                                 type="text" 
@@ -188,8 +188,8 @@ function ExploreShop() {
 
 
                 {/* Categories Bar */}
-                <div className="flex items-center gap-4 overflow-x-auto pb-4 hide-scrollbar">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0">Discovery:</span>
+                <div className="flex items-center gap-4 overflow-x-auto pb-4 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest shrink-0 hidden sm:block">Discovery:</span>
                     <div className="flex gap-2">
                         {categories.map(cat => (
                             <button 
@@ -246,7 +246,7 @@ function ExploreShop() {
 
             {/* Product/Service Grid */}
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {loading ? (
                         Array(6).fill(0).map((_, i) => (
                             <div key={i} className="h-[450px] bg-gray-100 dark:bg-gray-800/50 rounded-[3rem] animate-pulse"></div>

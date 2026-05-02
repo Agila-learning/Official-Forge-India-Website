@@ -5,7 +5,7 @@ import {
     MessageSquare, Star, Link as LinkIcon, MapPin, Image, 
     MessageCircle as ReviewIcon, LogOut, ShieldCheck, Mail, Phone, 
     Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, Upload, UserPlus, ClipboardList, XCircle, CheckCircle2,
-    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send
+    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -351,6 +351,7 @@ const AdminDashboard = () => {
     { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
 { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
     { id: 'messages', icon: Send, label: 'Messages' },
+    { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
     { id: 'profile', icon: Users, label: 'My Profile' }
   ].filter(tab => !isSubAdmin || !subAdminRestrictedTabs.includes(tab.id));
 
@@ -1384,6 +1385,92 @@ const AdminDashboard = () => {
         )}
 
         {/* SERVICE AREAS TAB - Consolidate to bottom block */}
+
+        {/* 💳 MEMBERSHIP PROGRAM MANAGEMENT */}
+        {activeTab === 'membership' && (
+            <div className="space-y-12">
+                <div className="glass-card p-6 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl bg-gradient-to-br from-white to-gray-50 dark:from-dark-card dark:to-dark-bg">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+                        <div>
+                            <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">Membership <span className="text-primary italic">Vault Hub</span></h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1 italic">Authorize & Manage Digital Identity Cards</p>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-center min-w-[120px]">
+                                <p className="text-2xl font-black text-primary tracking-tighter italic">{data.users.filter(u => u.membershipId).length}</p>
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Active IDs</p>
+                            </div>
+                            <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-center min-w-[120px]">
+                                <p className="text-2xl font-black text-orange-500 tracking-tighter italic">{data.users.filter(u => !u.membershipId).length}</p>
+                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Issuance</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {data.users.filter(u => u.role === 'Customer').map(user => (
+                            <div key={user._id} className="p-6 bg-white dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all hover:shadow-2xl hover:shadow-primary/5 group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -mr-12 -mt-12" />
+                                
+                                <div className="flex items-center gap-4 mb-6 relative z-10">
+                                    <div className="w-14 h-14 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
+                                        {user.firstName?.[0]}{user.lastName?.[0]}
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <h4 className="font-black text-gray-900 dark:text-white truncate uppercase tracking-tighter italic">{user.firstName} {user.lastName}</h4>
+                                        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 relative z-10">
+                                    <div className="p-4 bg-gray-50 dark:bg-dark-card rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Identity Status</p>
+                                        <div className="flex items-center justify-between">
+                                            {user.membershipId ? (
+                                                <div className="flex items-center gap-2">
+                                                    <ShieldCheck size={14} className="text-green-500" />
+                                                    <span className="text-sm font-mono font-black text-gray-900 dark:text-white tracking-widest">{user.membershipId}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <AlertCircle size={14} className="text-orange-500" />
+                                                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Unassigned</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {user.membershipId ? (
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-600 rounded-xl border border-green-500/20">
+                                            <QrCode size={16} />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Digital Scanner Active</span>
+                                        </div>
+                                    ) : (
+                                        <button 
+                                            onClick={async () => {
+                                                try {
+                                                    const newId = 'FIC-PLT-' + Math.floor(1000 + Math.random() * 9000);
+                                                    await api.put(`/users/${user._id}`, { membershipId: newId, membershipStatus: 'Active' });
+                                                    toast.success(`Success: Generated ${newId}`);
+                                                    // Refresh user list
+                                                    const { data: usersRes } = await api.get('/users');
+                                                    setData(prev => ({ ...prev, users: Array.isArray(usersRes) ? usersRes : (usersRes.data || []) }));
+                                                } catch (err) {
+                                                    toast.error('Strategic Failure: Could not assign ID');
+                                                }
+                                            }}
+                                            className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                                        >
+                                            <PlusCircle size={16} /> Auto-Generate ID
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
 
         {/* MEDIA MANAGER TAB */}
         {activeTab === 'media' && (

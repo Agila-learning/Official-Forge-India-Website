@@ -139,30 +139,44 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                 </div>
 
                 {/* Pricing and CTA */}
-                <div className="mt-auto flex items-center justify-between gap-6 pt-8 border-t border-gray-50 dark:border-gray-800">
-                    <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">
-                            {isService ? 'Service Starting From' : 'Direct Shop Value'}
-                        </p>
-                        <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
-                            ₹{product.price.toLocaleString()}
-                        </p>
+                <div className="mt-auto pt-8 border-t border-gray-50 dark:border-gray-800">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
+                        <div>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-none">
+                                {isService ? 'Service Starting From' : 'Direct Shop Value'}
+                            </p>
+                            <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter italic">
+                                ₹{product.price.toLocaleString()}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
+                            <div className="flex -space-x-2">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-dark-card bg-gray-200 overflow-hidden">
+                                        <img src={`https://i.pravatar.cc/100?u=${product._id}${i}`} alt="user" />
+                                    </div>
+                                ))}
+                            </div>
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">120+ Booked</span>
+                        </div>
                     </div>
                     
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <button 
                             onClick={() => navigate(`/services/${product._id}`)}
-                            className="w-full py-4 bg-gray-100 dark:bg-dark-bg text-gray-900 dark:text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group/btn mb-4"
+                            className="w-full py-4 bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group/btn"
                         >
-                            View Specifications
-                            <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                            Specifications
+                            <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                         <button 
                             onClick={() => onBook(product)}
-                            className="w-full py-4 bg-primary text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn"
+                            className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
                         >
                             {isService ? 'Book Service' : 'Order Asset'}
                             <Zap size={14} className="fill-current" />
                         </button>
+                    </div>
                 </div>
             </div>
         </motion.div>

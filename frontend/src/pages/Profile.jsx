@@ -542,19 +542,18 @@ const Profile = () => {
                 key="membership"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="space-y-12 pb-20"
-              >
-                {/* 💳 CENTERPIECE & INSIGHTS */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                       {/* 💳 CENTERPIECE & INSIGHTS */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
                     <div className="lg:col-span-5 flex flex-col items-center">
-                        <MembershipCard />
-                        <div className="mt-12 w-full grid grid-cols-2 gap-4">
-                            <button className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-blue-500/30 transition-all">
+                        <MembershipCard userData={userInfo} />
+                        <div className="mt-8 md:mt-12 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <button className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-blue-500/30 transition-all active:scale-95">
                                 <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                                     <ShoppingBag size={24} />
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-widest">Book Service</span>
                             </button>
-                            <button className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-orange-500/30 transition-all">
+                            <button className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl group hover:border-orange-500/30 transition-all active:scale-95">
                                 <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
                                     <History size={24} />
                                 </div>
@@ -563,39 +562,39 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-7 space-y-8">
-                        <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden">
-                            <div className="flex items-center justify-between mb-8">
+                    <div className="lg:col-span-7 space-y-6 md:space-y-8">
+                        <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-6 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden text-left">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                                 <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Usage Insights</h4>
                                 <span className="px-3 py-1 bg-green-500/10 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-full">Fair Usage Active</span>
                             </div>
                             
-                            <div className="space-y-10">
-                                <div>
-                                    <div className="flex justify-between items-end mb-4">
+                            <div className="space-y-8 md:space-y-10">
+                                <div className="text-left">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Bookings Utilized</p>
                                             <p className="text-2xl font-black text-gray-900 dark:text-white">08 <span className="text-sm text-gray-400 font-bold uppercase">/ Unlimited</span></p>
                                         </div>
-                                        <div className="text-right">
+                                        <div className="sm:text-right">
                                             <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Savings Goal</p>
                                             <p className="text-xl font-black text-green-500">₹4,250 <span className="text-[10px] font-bold text-gray-400 uppercase">Saved</span></p>
                                         </div>
                                     </div>
                                     <div className="h-2 w-full bg-gray-50 dark:bg-dark-bg rounded-full overflow-hidden">
-                                        <motion.div initial={{ width: 0 }} animate={{ width: '40%' }} className="h-full bg-blue-600" />
+                                        <motion.div initial={{ width: 0 }} animate={{ width: '40%' }} className="h-full bg-blue-600 shadow-[0_0_10px_#2563eb]" />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {[
                                         { label: 'Visits Remaining', value: '∞', color: 'text-blue-600' },
                                         { label: 'Priority Access', value: 'High', color: 'text-orange-500' },
                                         { label: 'Reward Points', value: '1,240', color: 'text-purple-600' }
                                     ].map((stat, i) => (
-                                        <div key={i} className="text-left">
+                                        <div key={i} className="text-left p-4 bg-gray-50/50 dark:bg-dark-bg/50 rounded-2xl border border-gray-100/50 dark:border-gray-800/50">
                                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                                            <p className={`text-lg font-black uppercase tracking-tighter ${stat.color}`}>{stat.value}</p>
+                                            <p className={`text-base md:text-lg font-black uppercase tracking-tighter ${stat.color}`}>{stat.value}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -603,28 +602,28 @@ const Profile = () => {
                         </div>
 
                         {/* STATUS BAR */}
-                        <div className="bg-slate-900 rounded-[2rem] p-8 border border-white/5 shadow-2xl flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                                    <Clock size={20} />
+                        <div className="bg-slate-900 rounded-[2.5rem] p-6 md:p-8 border border-white/5 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-4 text-left w-full sm:w-auto">
+                                <div className="w-12 h-12 bg-blue-600/20 border border-blue-600/30 rounded-2xl flex items-center justify-center text-blue-500 shadow-xl">
+                                    <Clock size={24} />
                                 </div>
-                                <div className="text-left">
+                                <div className="flex flex-col">
                                     <p className="text-white font-black text-sm uppercase tracking-tight">Status: Active Pro</p>
-                                    <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Renews in 28 days (May 30, 2026)</p>
+                                    <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-1">Renews in 28 days (May 30, 2026)</p>
                                 </div>
                             </div>
-                            <button className="px-6 py-3 bg-white text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all">Renew Early</button>
+                            <button className="w-full sm:w-auto px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">Renew Early</button>
                         </div>
                     </div>
                 </div>
 
                 {/* ⚡ RECOMMENDED SERVICES */}
                 <div className="space-y-8">
-                    <div className="flex items-center justify-between px-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
                         <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Use Your Membership</h4>
-                        <button className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-1">Explore Marketplace <ArrowUpRight size={14} /></button>
+                        <button className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-2 hover:translate-x-1 transition-transform">Explore Marketplace <ArrowUpRight size={14} /></button>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
                             { name: 'Home Cleaning', price: '₹499', img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6958?auto=format&fit=crop&q=80&w=400' },
                             { name: 'AC Servicing', price: '₹699', img: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=400' },
@@ -632,45 +631,50 @@ const Profile = () => {
                             { name: 'Bus Travel', price: '₹450', img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=400' }
                         ].map((s, i) => (
                             <div key={i} className="group bg-white dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden hover:border-blue-600/30 transition-all">
-                                <div className="h-32 relative overflow-hidden">
+                                <div className="h-40 relative overflow-hidden">
                                     <img src={s.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={s.name} />
                                     <div className="absolute top-3 left-3 px-3 py-1 bg-blue-600 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-xl">FREE WITH PRO</div>
                                 </div>
-                                <div className="p-5 text-left">
-                                    <h5 className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight mb-3 truncate">{s.name}</h5>
+                                <div className="p-6 text-left">
+                                    <h5 className="text-[12px] font-black text-gray-900 dark:text-white uppercase tracking-tight mb-4 truncate">{s.name}</h5>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-[10px] font-bold text-gray-400 line-through italic">{s.price}</span>
-                                        <button className="p-2 bg-gray-50 dark:bg-dark-bg rounded-lg text-blue-600 hover:bg-blue-600 hover:text-white transition-all"><Plus size={14} /></button>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-bold text-gray-400 line-through italic">{s.price}</span>
+                                            <span className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">Authorized Free</span>
+                                        </div>
+                                        <button className="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-90"><Plus size={16} /></button>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
+>
+                </div>
 
                 {/* 🎁 REWARDS VAULT */}
                 <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[3rem] p-8 md:p-14 border border-white/10 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
                     <div className="flex flex-col lg:flex-row gap-12 items-center relative z-10">
-                        <div className="lg:w-1/2 text-left">
+                        <div className="lg:w-1/2 text-left w-full">
                             <span className="px-4 py-1.5 bg-white/10 text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-white/10 mb-6 inline-block">Exclusive Rewards</span>
-                            <h3 className="text-4xl font-black text-white tracking-tighter uppercase italic mb-6">Your Monthly <span className="text-blue-400">Vault Vault</span></h3>
+                            <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase italic mb-6">Your Monthly <span className="text-blue-400">Vault Vault</span></h3>
                             <p className="text-white/50 text-sm font-medium leading-relaxed mb-10 max-w-lg italic">Every booking unlocks potential cashback, scratch cards, and strategic surprises. Deploy services and build your credit profile.</p>
-                            <div className="flex gap-4">
-                                <button className="px-8 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:scale-105 transition-all">Claim Rewards</button>
-                                <button className="px-8 py-4 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl border border-white/20 hover:bg-white/20 transition-all">View History</button>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button className="px-8 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all">Claim Rewards</button>
+                                <button className="px-8 py-4 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl border border-white/20 hover:bg-white/20 active:scale-95 transition-all">View History</button>
                             </div>
                         </div>
-                        <div className="lg:w-1/2 grid grid-cols-2 gap-4">
+                        <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                             {[1, 2].map((r) => (
-                                <div key={r} className="aspect-square bg-white/5 rounded-3xl border border-white/10 flex flex-col items-center justify-center p-6 group cursor-pointer relative overflow-hidden">
+                                <div key={r} className="aspect-square bg-white/5 rounded-[2.5rem] border border-white/10 flex flex-col items-center justify-center p-8 group cursor-pointer relative overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-white/50 mb-4 group-hover:scale-110 group-hover:text-blue-400 transition-all">
-                                        <Gift size={32} />
+                                    <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-white/50 mb-6 group-hover:scale-110 group-hover:text-blue-400 transition-all shadow-2xl">
+                                        <Gift size={40} />
                                     </div>
-                                    <p className="text-[10px] font-black text-white/40 uppercase tracking-widest group-hover:text-white transition-colors">Scratch Card</p>
-                                    <div className="mt-2 w-12 h-1 bg-blue-500/20 rounded-full overflow-hidden">
-                                        <motion.div animate={{ x: [-20, 40] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-6 h-full bg-blue-500" />
+                                    <p className="text-[11px] font-black text-white/40 uppercase tracking-widest group-hover:text-white transition-colors">Scratch Card</p>
+                                    <div className="mt-4 w-16 h-1.5 bg-blue-500/10 rounded-full overflow-hidden">
+                                        <motion.div animate={{ x: [-30, 60] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-8 h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
                                     </div>
                                 </div>
                             ))}
