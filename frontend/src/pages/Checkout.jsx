@@ -104,6 +104,55 @@ const Checkout = () => {
     }, [navigate]);
 
     const handlePayment = async () => {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const totalPrice = addMembership ? cartTotal + membershipPrice : cartTotal;
+
+        // Check for Membership Bypass (if items are free due to membership)
+        const isMembershipBypass = (totalPrice === 0 && userInfo.isMember);
+        
+        if (isMembershipBypass) {
+            setLoading(true);
+            setPaymentStatus('processing');
+            setLoadingText('Applying Membership Benefit...');
+            
+            setTimeout(async () => {
+                try {
+                    const orderData = {
+                        orderItems: cartItems.map(item => ({
+                            name: item.name, qty: item.qty, image: item.image, price: item.price, product: item._id,
+                            slot: item.slot || selectedSlot, isService: item.isService
+                        })),
+                        shippingAddress: address,
+                        paymentMethod: 'Membership Wallet',
+                        totalPrice: 0,
+                        fulfillmentType
+                    };
+
+                    await api.post('/orders', orderData);
+                    
+                    setPaymentStatus('success');
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#10b981', '#2563eb', '#f59e0b']
+                    });
+                    
+                    setTimeout(() => {
+                        clearCart();
+                        setStep(4);
+                        setLoading(false);
+                        toast.success('Membership Benefit Applied: Order Confirmed!');
+                    }, 2000);
+                } catch (err) {
+                    toast.error('Failed to process membership order');
+                    setPaymentStatus('idle');
+                    setLoading(false);
+                }
+            }, 1500);
+            return;
+        }
+
         setLoading(true);
         setPaymentStatus('processing');
         setLoadingText('Connecting to Secure Gateway...');
@@ -120,7 +169,7 @@ const Checkout = () => {
                 })),
                 shippingAddress: address,
                 paymentMethod,
-                totalPrice: addMembership ? cartTotal + membershipPrice : cartTotal,
+                totalPrice,
                 fulfillmentType
             };
 
@@ -136,6 +185,18 @@ const Checkout = () => {
             
             setTimeout(() => {
                 clearCart();
+                // Update local storage userInfo if membership was added
+                if (addMembership) {
+                    const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                    updatedUserInfo.isMember = true;
+                    updatedUserInfo.membershipVault = {
+                        ...updatedUserInfo.membershipVault,
+                        planTier: 'Basic',
+                        planValue: 999,
+                        cycleEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                    };
+                    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                }
                 setStep(4);
                 setLoading(false);
             }, 2000);

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Briefcase, DollarSign, Clock, ArrowRight, Filter, ChevronRight, Loader2, Sparkles, XCircle, CheckCircle2 } from 'lucide-react';
+import { Search, MapPin, Briefcase, DollarSign, Clock, ArrowRight, Filter, ChevronRight, Loader2, Sparkles, XCircle, CheckCircle2, X, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import JobApplicationForm from '../components/ui/JobApplicationForm';
 import toast from 'react-hot-toast';
+import { useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
 
 const ExploreJobs = () => {
+    const routerLocation = useRouterLocation();
+    const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [myApplications, setMyApplications] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(routerLocation.state?.searchQuery || '');
+    const [pincodeFilter, setPincodeFilter] = useState(routerLocation.state?.pincode || '');
     const [filters, setFilters] = useState({
         location: '',
         salaryRange: [0, 50], // in Lakhs
@@ -20,6 +24,14 @@ const ExploreJobs = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedJob, setSelectedJob] = useState(null);
+
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const returnPath = userInfo?.role === 'Admin' ? '/admin' : 
+                       userInfo?.role === 'Vendor' ? '/vendor' : 
+                       userInfo?.role === 'HR' ? '/hr' : 
+                       userInfo?.role === 'Delivery Partner' ? '/delivery' : 
+                       userInfo?.role === 'Trainer' ? '/trainer-dashboard' :
+                       '/candidate/dashboard';
 
     const experienceLevels = ['All', 'Fresher', '1-3 Years', '3-5 Years', '5+ Years'];
     const jobTypes = ['All', 'Full Time', 'Part Time', 'Contract', 'Remote'];
@@ -73,9 +85,15 @@ const ExploreJobs = () => {
         const matchesLocation = !filters.location || job.location?.toLowerCase().includes(filters.location.toLowerCase());
         const matchesExp = filters.experience === 'All' || job.experience?.includes(filters.experience);
         const matchesType = filters.jobType === 'All' || job.status?.includes(filters.jobType);
+        // Pincode filter: if job has pincodes defined, check match; otherwise show everywhere
+        const matchesPincode = !pincodeFilter || 
+                              !job.pincode || 
+                              job.pincode.length === 0 ||
+                              (Array.isArray(job.pincode) ? job.pincode.includes(pincodeFilter) : job.pincode === pincodeFilter);
         
-        return matchesSearch && matchesLocation && matchesExp && matchesType;
+        return matchesSearch && matchesLocation && matchesExp && matchesType && matchesPincode;
     });
+
 
     const removeTag = (key) => {
         if (key === 'salaryRange') setFilters({...filters, salaryRange: [0, 50]});
@@ -97,6 +115,15 @@ const ExploreJobs = () => {
 
             {/* Premium Header & Path Selection */}
             <div className="max-w-7xl mx-auto mb-20">
+                <div className="mb-12">
+                    <button 
+                        onClick={() => navigate(returnPath)} 
+                        className="group flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-all bg-white/50 dark:bg-dark-card/50 px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/5"
+                    >
+                        <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+                        Return to Dashboard
+                    </button>
+                </div>
                 <motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -187,6 +214,23 @@ const ExploreJobs = () => {
                             onChange={(e) => setFilters({...filters, location: e.target.value})}
                             className="py-5 bg-transparent outline-none font-black text-gray-800 dark:text-white uppercase text-xs tracking-widest placeholder:text-gray-300 placeholder:normal-case w-full md:w-40"
                         />
+                    </div>
+                    <div className="h-10 w-[1px] bg-gray-100 dark:bg-gray-800 hidden md:block"></div>
+                    <div className="flex items-center gap-3 px-6 w-full md:w-auto text-left relative">
+                        <MapPin className="text-primary shrink-0" size={18} />
+                        <input 
+                            type="text" 
+                            placeholder="Pincode..."
+                            maxLength={6}
+                            value={pincodeFilter}
+                            onChange={(e) => setPincodeFilter(e.target.value.replace(/\D/g, ''))}
+                            className="py-5 bg-transparent outline-none font-black text-gray-800 dark:text-white text-xs tracking-widest placeholder:text-gray-300 w-full md:w-28"
+                        />
+                        {pincodeFilter && (
+                            <button onClick={() => setPincodeFilter('')} className="text-gray-400 hover:text-red-500 transition-colors">
+                                <X size={14} />
+                            </button>
+                        )}
                     </div>
                     <button className="w-full md:w-auto px-12 py-5 bg-primary text-white font-black rounded-[2rem] shadow-3xl shadow-primary/30 hover:bg-blue-600 transition-all uppercase tracking-[0.4em] text-[10px]">
                         Scan

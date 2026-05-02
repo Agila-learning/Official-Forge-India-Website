@@ -50,7 +50,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = (id, slotTime = null) => {
     setCartItems((prevItems) => 
-      prevItems.filter((x) => !(x._id === id && x.slot?.time === slotTime))
+      prevItems.filter((x) => !(x._id === id && (x.slot?.time === slotTime || (!x.slot?.time && !slotTime))))
     );
   };
 

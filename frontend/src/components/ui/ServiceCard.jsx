@@ -7,6 +7,14 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
     const navigate = useNavigate();
     const isService = product.isService;
     
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userMembership = userInfo.membershipVault || { planValue: 0 };
+    const isIncluded = userInfo.isMember && product.price <= userMembership.planValue;
+
+    const isConsultation = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing', 'Consulting', 'IT Solutions'].some(
+        type => product.serviceType?.includes(type) || product.category?.includes(type)
+    );
+    
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -24,7 +32,12 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                 
                 {/* Floating Badges */}
                 <div className="absolute top-6 left-6 flex flex-col gap-2">
-                    {product.rating >= 4.8 && (
+                    {isIncluded && (
+                        <div className="px-4 py-1.5 bg-green-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5 border border-white/20 animate-pulse">
+                            <ShieldCheck size={12} fill="currentColor" /> Included in Membership
+                        </div>
+                    )}
+                    {product.rating >= 4.8 && !isIncluded && (
                         <div className="px-4 py-1.5 bg-yellow-400 text-dark-bg rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5">
                             <Star size={12} fill="currentColor" /> Popular
                         </div>
@@ -81,7 +94,7 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                     )}
                 </div>
 
-                <p className="text-sm text-gray-400 font-medium mb-6 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-gray-400 font-medium mb-6 line-clamp-2 leading-relaxed italic">
                     {product.description}
                 </p>
 
@@ -120,22 +133,6 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                             </div>
                         </div>
                     )}
-
-                    {product.whatsExcluded && product.whatsExcluded.length > 0 && (
-                        <div className="p-5 bg-red-500/5 rounded-[2rem] border border-red-500/10">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-red-500 mb-3 flex items-center gap-2 italic">
-                                <X size={14} /> What's Excluded
-                            </p>
-                            <div className="grid grid-cols-1 gap-2">
-                                {product.whatsExcluded.map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-tight">
-                                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm opacity-50"></div>
-                                        {item}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Pricing and CTA */}
@@ -143,22 +140,24 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-none">
-                                {isService ? 'Service Starting From' : 'Direct Shop Value'}
+                                {isIncluded ? <span className="text-green-500">Subscription Benefit</span> : (isService ? 'Service Starting From' : 'Direct Shop Value')}
                             </p>
-                            <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter italic">
-                                ₹{product.price.toLocaleString()}
+                            <p className={`text-3xl font-black tracking-tighter italic ${isIncluded ? 'text-green-500' : 'text-gray-900 dark:text-white'}`}>
+                                {isIncluded ? 'FREE' : `₹${product.price.toLocaleString()}`}
                             </p>
                         </div>
-                        <div className="flex items-center gap-3 w-full sm:w-auto">
-                            <div className="flex -space-x-2">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-dark-card bg-gray-200 overflow-hidden">
-                                        <img src={`https://i.pravatar.cc/100?u=${product._id}${i}`} alt="user" />
-                                    </div>
-                                ))}
+                        {!isIncluded && (
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <div className="flex -space-x-2">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-dark-card bg-gray-200 overflow-hidden">
+                                            <img src={`https://i.pravatar.cc/100?u=${product._id}${i}`} alt="user" />
+                                        </div>
+                                    ))}
+                                </div>
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">120+ Booked</span>
                             </div>
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">120+ Booked</span>
-                        </div>
+                        )}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -169,7 +168,7 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                             Specifications
                             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
-                        {['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(product.serviceType || product.category?.toLowerCase().replace(' ', '-')) ? (
+                        {isConsultation ? (
                             <button 
                                 onClick={() => onBook(product)}
                                 className="w-full py-4 bg-secondary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-secondary/20 hover:bg-teal-600 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
@@ -180,9 +179,9 @@ const ServiceCard = ({ product, onBook, onViewDetails }) => {
                         ) : (
                             <button 
                                 onClick={() => onBook(product)}
-                                className="w-full py-4 bg-primary text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn active:scale-95"
+                                className={`w-full py-4 ${isIncluded ? 'bg-green-500 hover:bg-green-600' : 'bg-primary hover:bg-blue-700'} text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 group/btn active:scale-95`}
                             >
-                                {isService ? 'Book Service' : 'Order Asset'}
+                                {isIncluded ? 'Use Membership' : (isService ? 'Book Now' : 'Order Asset')}
                                 <Zap size={14} className="fill-current" />
                             </button>
                         )}

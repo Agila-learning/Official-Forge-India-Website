@@ -98,16 +98,23 @@ const authUser = async (req, res) => {
   console.log(`Login attempt for normalized: ${email}`);
   try {
     const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
+    if (!user) {
+      console.log(`Login failed: User with email ${email} not found`);
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (await user.matchPassword(password)) {
         // ENFORCE APPROVAL STATUS GUARD
         if (user.approvalStatus === 'Pending') {
+            console.log(`Login blocked: User ${email} is Pending`);
             return res.status(401).json({ message: 'Account pending admin approval' });
         }
         if (user.approvalStatus === 'Rejected') {
+            console.log(`Login blocked: User ${email} is Rejected`);
             return res.status(401).json({ message: 'Account application rejected' });
         }
 
-        console.log(`Login success for: ${email}`);
+        console.log(`Login success for: ${email} (Role: ${user.role})`);
         res.json({
         _id: user._id,
         firstName: user.firstName,
@@ -191,8 +198,12 @@ const sendOTP = async (req, res) => {
   if (!mobile) return res.status(400).json({ message: 'Mobile number is required' });
 
   try {
+    console.log(`OTP Request for mobile: ${mobile}`);
     const user = await User.findOne({ mobile });
-    if (!user) return res.status(404).json({ message: 'User not found with this mobile number' });
+    if (!user) {
+      console.log(`OTP Failed: No user found for mobile ${mobile}`);
+      return res.status(404).json({ message: 'User not found with this mobile number' });
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
@@ -200,7 +211,7 @@ const sendOTP = async (req, res) => {
     await user.save();
 
     // MOCK: In production, send SMS here.
-    console.log(`[OTP] Sent ${otp} to ${mobile}`);
+    console.log(`[OTP] Generated ${otp} for ${mobile}. Expires: ${user.otpExpires}`);
     res.json({ message: 'OTP sent successfully (MOCKED)', otp: otp });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -209,11 +220,25 @@ const sendOTP = async (req, res) => {
 
 const verifyOTP = async (req, res) => {
   const { mobile, otp } = req.body;
+  console.log(`Verifying OTP: ${otp} for mobile: ${mobile}`);
   try {
     const user = await User.findOne({ mobile });
-    if (!user || user.otp !== otp || user.otpExpires < Date.now()) {
+    if (!user) {
+      console.log(`OTP Verify Failed: User ${mobile} not found`);
       return res.status(401).json({ message: 'Invalid or expired OTP' });
     }
+
+    if (user.otp !== otp) {
+      console.log(`OTP Verify Failed: Incorrect OTP for ${mobile}. Expected ${user.otp}, got ${otp}`);
+      return res.status(401).json({ message: 'Invalid or expired OTP' });
+    }
+
+    if (user.otpExpires < Date.now()) {
+      console.log(`OTP Verify Failed: OTP expired for ${mobile}`);
+      return res.status(401).json({ message: 'Invalid or expired OTP' });
+    }
+
+    console.log(`OTP Verify Success: User ${mobile} authenticated`);
 
     user.otp = undefined;
     user.otpExpires = undefined;

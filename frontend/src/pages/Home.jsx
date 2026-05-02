@@ -1,5 +1,5 @@
-import React from 'react';
-import Hero from '../components/sections/Hero';
+import MarketplaceHero from '../components/sections/MarketplaceHero';
+import MarketplaceCategories from '../components/sections/MarketplaceCategories';
 import About from '../components/sections/About';
 import Services from '../components/sections/Services';
 import Features from '../components/sections/Features';
@@ -9,13 +9,11 @@ import Testimonials from '../components/sections/Testimonials';
 import CTA from '../components/sections/CTA';
 import Contact from '../components/sections/Contact';
 import LocationMap from '../components/sections/LocationMap';
-import MetricsSection from '../components/sections/MetricsSection';
 import SEOMeta from '../components/ui/SEOMeta';
 import LogoMarquee from '../components/ui/LogoMarquee';
 import PipelineProcess from '../components/sections/PipelineProcess';
 import ServiceCoverage from '../components/sections/ServiceCoverage';
 import PlacedCandidates from '../components/sections/PlacedCandidates';
-import VisualFlow from '../components/sections/VisualFlow';
 import WelcomeModal from '../components/ui/WelcomeModal';
 import GSAPReveal from '../components/ui/GSAPReveal';
 
@@ -23,21 +21,17 @@ const Home = () => {
   return (
     <>
       <SEOMeta
-        title="Forge India Connect | IT Company in Chennai | Software & Web Development"
-        description="FIC is a Technology-First IT Solutions Company. Software Development, Web & App Development, AI/ML, and Digital Marketing Services. Your Technology Partner for Growth."
-        keywords="IT Company in Chennai, Software Development Company, Web Development Services India, Mobile App Development Company, AI & ML Solutions Company, Digital Marketing Agency Chennai, forge india connect"
+        title="Forge India Connect | Pincode-Based Multi-Service Marketplace"
+        description="FIC is India's first pincode-verified marketplace for Jobs, IT Solutions, Home Services, and Products. Unlock unlimited access with FIC Membership."
+        keywords="Pincode Marketplace, Home Services India, IT Solutions Marketplace, Job Portal India, FIC Membership, Forge India Connect"
         canonical="/"
       />
       <div className="pt-16">
-        <Hero />
+        <MarketplaceHero />
         <WelcomeModal />
         
-        <GSAPReveal delay={0.2}>
-          <MetricsSection />
-        </GSAPReveal>
-
-        <GSAPReveal direction="left">
-          <VisualFlow />
+        <GSAPReveal direction="up" delay={0.1}>
+          <MarketplaceCategories />
         </GSAPReveal>
 
         <GSAPReveal direction="right">

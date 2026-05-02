@@ -308,7 +308,15 @@ const Register = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mobile</label>
-                  <input type="tel" required placeholder="+91 00000 00000" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} className="form-input !rounded-2xl py-4" />
+                  <input 
+                    type="tel" 
+                    required 
+                    placeholder="10-digit mobile number" 
+                    maxLength={10}
+                    value={formData.mobile} 
+                    onChange={e => setFormData({...formData, mobile: e.target.value.replace(/\D/g, '').slice(0, 10)})} 
+                    className="form-input !rounded-2xl py-4" 
+                  />
                 </div>
               </div>
 

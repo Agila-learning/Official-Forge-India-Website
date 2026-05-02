@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import api from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
-import { Search, MapPin, Filter, Heart, Star, ChevronRight, X, Loader2, CheckCircle2, XCircle, ShoppingBag, Zap } from 'lucide-react';
+import { Search, MapPin, Filter, Heart, Star, ChevronRight, X, Loader2, CheckCircle2, XCircle, ShoppingBag, Zap, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ServiceCard from '../components/ui/ServiceCard';
 import ProductCard from '../components/ui/ProductCard';
@@ -26,21 +26,29 @@ function ExploreShop() {
     const location = useRouterLocation();
     const { location: appLocation } = useUserLocation();
     const [category, setCategory] = useState(location.state?.category || 'All');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [pincode, setPincode] = useState('');
+    const [searchQuery, setSearchQuery] = useState(location.state?.searchQuery || '');
+    const [pincode, setPincode] = useState(location.state?.pincode || '');
     const [locationStatus, setLocationStatus] = useState(null);
     const [checkingPincode, setCheckingPincode] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [sortBy, setSortBy] = useState('Newest');
     const [priceRange, setPriceRange] = useState(200000);
     const [shopFilter, setShopFilter] = useState('');
-    const [pincodeFilter, setPincodeFilter] = useState('');
+    const [pincodeFilter, setPincodeFilter] = useState(location.state?.pincode || '');
 
+    // Sync from app-wide location context (GPS auto-detect)
     useEffect(() => {
         if (appLocation?.pincode && !pincodeFilter) {
             setPincodeFilter(appLocation.pincode);
         }
     }, [appLocation, pincodeFilter]);
+
+    // Sync pincode input to filter on change
+    useEffect(() => {
+        if (pincode && pincode.length === 6) {
+            setPincodeFilter(pincode);
+        }
+    }, [pincode]);
 
     // Modal State
     const [selectedProductForBooking, setSelectedProductForBooking] = useState(null);
@@ -121,11 +129,21 @@ function ExploreShop() {
                        userInfo?.role === 'Vendor' ? '/vendor' : 
                        userInfo?.role === 'HR' ? '/hr' : 
                        userInfo?.role === 'Delivery Partner' ? '/delivery' : 
+                       userInfo?.role === 'Trainer' ? '/trainer-dashboard' :
                        '/candidate/dashboard';
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-12 pb-24 px-4 font-sans relative">
             
+            <div className="max-w-7xl mx-auto mb-12">
+                <button 
+                    onClick={() => navigate(returnPath)} 
+                    className="group flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] hover:text-primary transition-all bg-white/50 dark:bg-dark-card/50 px-6 py-3 rounded-2xl border border-gray-100 dark:border-white/5"
+                >
+                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+                    Return to Dashboard
+                </button>
+            </div>
 
             {/* Premium Header Section */}
             <div className="max-w-7xl mx-auto mb-16 text-center">
@@ -147,12 +165,28 @@ function ExploreShop() {
 
             {/* Filter and Search Bar Section */}
             <div className="max-w-7xl mx-auto mb-10">
+                {/* Products / Services Toggle */}
+                <div className="flex items-center justify-center mb-8">
+                    <div className="flex p-1.5 bg-white dark:bg-dark-card rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 gap-1">
+                        {['Products', 'Services'].map(t => (
+                            <button
+                                key={t}
+                                onClick={() => setViewType(t)}
+                                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${viewType === t ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
+                            >
+                                {t === 'Products' ? <ShoppingBag size={16} /> : <Zap size={16} />}
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="flex flex-col lg:flex-row gap-4 items-center mb-10">
                     <div className="relative flex-grow w-full group">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={18} />
                         <input 
                             type="text" 
-                            placeholder="Search high-performance products..." 
+                            placeholder={viewType === 'Services' ? 'Search services (cleaning, plumbing...)' : 'Search products...'} 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-16 pr-8 py-4 rounded-3xl bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 outline-none focus:ring-4 focus:ring-primary/5 transition-all font-bold text-sm md:text-base shadow-xl shadow-primary/5"

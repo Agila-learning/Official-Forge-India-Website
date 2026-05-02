@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { createNotification } = require('./notificationController');
 
@@ -43,6 +44,11 @@ const addOrderItems = async (req, res) => {
     });
 
     // Mark slots as unavailable if they are service bookings
+    // AND Handle Membership Activation logic
+    let membershipActivated = false;
+    let planTier = 'None';
+    let planValue = 0;
+
     for (const item of orderItems) {
       if (item.slot && item.slot.date && item.slot.time) {
         await Product.updateOne(
@@ -50,6 +56,43 @@ const addOrderItems = async (req, res) => {
           { $set: { "slots.$.isAvailable": false } }
         );
       }
+
+      // Check if this item is a membership plan (convention: category === 'Membership')
+      // Note: We'd ideally fetch the product from DB to verify category, but using item data for now
+      // assuming the frontend passes the correct category/flag
+      if (item.category === 'Membership' || item.name?.toLowerCase().includes('membership')) {
+        membershipActivated = true;
+        planValue = item.price;
+        if (planValue >= 5000) planTier = 'Elite';
+        else if (planValue >= 2999) planTier = 'Premium';
+        else if (planValue >= 999) planTier = 'Basic';
+      }
+    }
+
+    if (membershipActivated) {
+      const cycleStartDate = new Date();
+      const cycleEndDate = new Date();
+      cycleEndDate.setDate(cycleEndDate.getDate() + 30);
+
+      await User.findByIdAndUpdate(req.user._id, {
+        isMember: true,
+        membershipVault: {
+          planTier,
+          planValue,
+          cycleStartDate,
+          cycleEndDate,
+          balance: 0,
+          savingsThisMonth: 0
+        }
+      });
+
+      await createNotification(io, {
+        user: req.user._id,
+        title: 'Membership Activated!',
+        message: `Welcome to the ${planTier} tier. You now have unlimited access to services below ₹${planValue}.`,
+        type: 'membership',
+        link: '/profile'
+      });
     }
 
     res.status(201).json(createdOrder);

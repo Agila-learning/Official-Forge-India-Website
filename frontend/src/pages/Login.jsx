@@ -62,21 +62,29 @@ const Login = () => {
   };
 
   const handleSendOTP = async () => {
-    if (!formData.mobile) {
-        setStatus({ ...status, error: 'Please enter mobile number' });
+    if (!formData.mobile || formData.mobile.length < 10) {
+        setStatus({ ...status, error: 'Please enter a valid 10-digit mobile number' });
         return;
     }
     setStatus({ ...status, loading: true, error: '' });
     try {
         const { data } = await api.post('/auth/send-otp', { mobile: formData.mobile });
         setStatus({ ...status, loading: false, otpSent: true, error: '' });
-        toast.success(`OTP: ${data.otp}`, { duration: 10000 });
+        // Display OTP in toast (dev/mock mode — in prod this would be SMS)
+        toast.success(`OTP sent! Code: ${data.otp}`, { duration: 12000, icon: '📱' });
     } catch (err) {
+        const errMsg = err.response?.data?.message || 'Failed to send OTP';
+        const isNotFound = err.response?.status === 404;
         setStatus({ 
             ...status, 
             loading: false, 
-            error: err.response?.data?.message || 'Failed to send OTP' 
+            error: isNotFound 
+              ? 'This mobile number is not registered. Please register first.' 
+              : errMsg
         });
+        if (isNotFound) {
+            setTimeout(() => navigate('/register'), 2500);
+        }
     }
   };
 
@@ -206,7 +214,11 @@ const Login = () => {
                           <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
                           <input 
                             type="tel" required placeholder="+91 00000 00000"
-                            value={formData.mobile} onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                            value={formData.mobile} onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              const formatted = val.length > 10 ? val.slice(-10) : val;
+                              setFormData({...formData, mobile: formatted});
+                            }}
                             className="form-input pl-16 py-5 !rounded-2xl"
                           />
                         </div>
