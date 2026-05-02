@@ -33,14 +33,15 @@ export const NotificationProvider = ({ children }) => {
                 ? 'http://localhost:5001' 
                 : window.location.origin;
             
+            const isProd = window.location.hostname !== 'localhost';
             const socket = io(socketUrl, {
                 withCredentials: true,
                 path: '/socket.io',
-                transports: ['websocket', 'polling'],
+                transports: isProd ? ['websocket'] : ['websocket', 'polling'],
                 reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 5000,
-                timeout: 20000
+                reconnectionAttempts: 3,
+                reconnectionDelay: 10000,
+                timeout: 30000
             });
 
             socket.emit('user-online', userInfo._id);

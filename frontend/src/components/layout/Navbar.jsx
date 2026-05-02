@@ -385,21 +385,21 @@ const Navbar = () => {
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[100001] shadow-3xl flex flex-col overflow-y-auto"
             >
-              <div className="p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1.5 shadow-lg">
+              <div className="p-6 md:p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-sm sticky top-0 z-[10]">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1.5 shadow-lg shrink-0">
                     <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
                   </div>
-                  <div className="flex flex-col leading-none">
-                    <span className="font-black text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase">FORGE INDIA</span>
-                    <span className="font-black text-[10px] tracking-[0.2em] text-amber-500 uppercase mt-1 text-left">CONNECT</span>
+                  <div className="flex flex-col leading-none min-w-0">
+                    <span className="font-black text-base md:text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase truncate">FORGE INDIA</span>
+                    <span className="font-black text-[10px] tracking-[0.2em] text-amber-500 uppercase mt-1 text-left truncate">CONNECT</span>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsOpen(false)} 
-                  className="w-12 h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-card rounded-2xl text-gray-500 hover:text-red-500 transition-colors shadow-sm"
+                  className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-gray-50 dark:bg-dark-card rounded-2xl text-gray-500 hover:text-red-500 transition-colors shadow-sm shrink-0 ml-4"
                 >
-                  <X size={24} />
+                  <X size={20} className="md:size-24" />
                 </button>
               </div>
 

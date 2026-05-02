@@ -57,8 +57,13 @@ const MembershipCard = () => {
                         <h3 className="text-white font-black text-2xl tracking-tighter uppercase italic">Forge India <span className="text-blue-500">Connect</span></h3>
                         <p className="text-blue-500/60 text-[10px] font-bold uppercase tracking-[0.4em]">Premium Membership</p>
                     </div>
-                    <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-                        <ShieldCheck className="text-blue-500" size={24} />
+                    <div className="flex flex-col items-end gap-2">
+                        <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+                            <ShieldCheck className="text-blue-500" size={24} />
+                        </div>
+                        <span className="px-2 py-0.5 bg-blue-600 text-white text-[7px] font-black uppercase tracking-widest rounded-md shadow-lg">
+                            PRO V2.0
+                        </span>
                     </div>
                 </div>
 
