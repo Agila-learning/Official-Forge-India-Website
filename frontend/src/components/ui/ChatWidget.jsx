@@ -12,7 +12,7 @@ import api from '../../services/api';
 let socket = null;
 
 const SOCKET_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000' 
+  ? 'http://localhost:5001' 
   : window.location.origin;
 
 const getInitials = (user) => {
@@ -90,8 +90,11 @@ const ChatWidget = () => {
     if (!userInfo?._id || !token) return;
 
     if (!socket) {
+      const isProd = window.location.hostname !== 'localhost';
       socket = io(SOCKET_URL, { 
-        auth: { token }
+        auth: { token },
+        transports: isProd ? ['websocket'] : ['websocket', 'polling'],
+        path: '/socket.io'
       });
 
       socket.on('connect', () => {

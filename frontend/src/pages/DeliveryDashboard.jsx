@@ -21,8 +21,12 @@ const DeliveryDashboard = () => {
         fetchOrders();
         
         // Real-time notifications connection
-        const socketUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
-        const socket = io(socketUrl, { transports: ['polling', 'websocket'] });
+        const socketUrl = window.location.hostname === 'localhost' ? 'http://localhost:5001' : window.location.origin;
+        const isProd = window.location.hostname !== 'localhost';
+        const socket = io(socketUrl, { 
+            transports: isProd ? ['websocket'] : ['websocket', 'polling'],
+            path: '/socket.io'
+        });
         
         socket.on('notification', ({ userId, notification }) => {
             if (userId === userInfo?._id) {
