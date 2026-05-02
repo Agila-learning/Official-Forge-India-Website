@@ -161,100 +161,109 @@ const MarketplaceHero = () => {
                     </div>
 
                     {/* Right Content - Map Visualization */}
-                    <div className="w-full lg:w-[45%] h-[400px] lg:h-[600px] relative group">
-                        <div className="absolute inset-0 bg-blue-600/5 rounded-[4rem] border border-white/5 backdrop-blur-sm overflow-hidden">
-                            {/* SVG Grid Map Background */}
-                            <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 800 600">
-                                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-blue-500/30" />
-                                </pattern>
-                                <rect width="100%" height="100%" fill="url(#grid)" />
-                                {/* Simplified India Map Path or Abstract Shapes */}
+                    <div className="w-full lg:w-[50%] h-[450px] lg:h-[650px] relative">
+                        <div className="absolute inset-0 bg-blue-600/5 rounded-[4rem] border border-white/5 backdrop-blur-sm overflow-hidden group">
+                            {/* SVG Dotted India Map */}
+                            <svg className="absolute inset-0 w-full h-full opacity-40 p-10" viewBox="0 0 600 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <pattern id="dots" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                                        <circle cx="2" cy="2" r="1.5" fill="currentColor" className="text-blue-500/40" />
+                                    </pattern>
+                                </defs>
+                                {/* India Map Path (Simplified) */}
                                 <path 
-                                    d="M300,100 Q400,50 500,100 T700,300 Q750,450 600,550 T300,500 Q150,450 100,300 T300,100" 
-                                    fill="none" 
+                                    d="M300,50 L340,70 L380,60 L420,100 L450,150 L480,220 L500,300 L480,380 L450,450 L400,520 L350,600 L300,650 L250,600 L200,520 L150,450 L120,380 L100,300 L120,220 L150,150 L180,100 L220,60 L260,70 Z" 
+                                    fill="url(#dots)"
+                                    className="filter drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                                />
+                                <motion.path 
+                                    d="M300,50 L340,70 L380,60 L420,100 L450,150 L480,220 L500,300 L480,380 L450,450 L400,520 L350,600 L300,650 L250,600 L200,520 L150,450 L120,380 L100,300 L120,220 L150,150 L180,100 L220,60 L260,70 Z" 
                                     stroke="currentColor" 
-                                    strokeWidth="2" 
-                                    className="text-blue-500/20"
-                                    strokeDasharray="5,5"
+                                    strokeWidth="1" 
+                                    className="text-blue-400/20"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ duration: 3, ease: "easeInOut" }}
                                 />
                             </svg>
 
-                            {/* Dynamic Markers */}
-                            <MapMarker x={35} y={30} delay={1.0} label="Elite Jobs" icon={Briefcase} />
-                            <MapMarker x={65} y={45} delay={1.2} label="Verified Pros" icon={Zap} />
-                            <MapMarker x={45} y={70} delay={1.4} label="Premium Shop" icon={ShoppingBag} />
-                            <MapMarker x={25} y={60} delay={1.6} label="Membership Active" icon={CreditCard} />
-
-                            {/* Connection Lines (Animated) */}
-                            <svg className="absolute inset-0 w-full h-full z-10 pointer-events-none">
+                            {/* Network Connection Lines */}
+                            <svg className="absolute inset-0 w-full h-full z-10 pointer-events-none p-10">
                                 <motion.path 
-                                    d="M 35% 30% L 65% 45% L 45% 70% L 35% 30%" 
+                                    d="M 30% 30% L 60% 40% L 50% 70% L 20% 50% Z" 
                                     fill="none" 
-                                    stroke="url(#lineGradient)" 
-                                    strokeWidth="1.5"
-                                    initial={{ pathLength: 0, opacity: 0 }}
-                                    animate={{ pathLength: 1, opacity: 0.4 }}
-                                    transition={{ duration: 3, delay: 2, repeat: Infinity, repeatDelay: 5 }}
+                                    stroke="url(#lineGrad)" 
+                                    strokeWidth="1"
+                                    strokeDasharray="4 4"
+                                    animate={{ strokeDashoffset: [0, -20] }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                 />
                                 <defs>
-                                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#3b82f6" />
-                                        <stop offset="100%" stopColor="#10b981" />
+                                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
+                                        <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.5" />
+                                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
                                     </linearGradient>
                                 </defs>
                             </svg>
 
-                            {/* Floating Category Cards Overlay */}
-                            <div className="absolute inset-0 p-8 flex flex-col justify-between items-end">
-                                <motion.div 
-                                    animate={{ y: [0, -10, 0] }}
-                                    transition={{ duration: 4, repeat: Infinity }}
-                                    className="glass-premium p-4 rounded-2xl border border-white/20 shadow-2xl flex items-center gap-4 group-hover:scale-110 transition-transform"
-                                >
-                                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
-                                        <LocateFixed size={20} />
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="text-[10px] font-black text-white uppercase tracking-tighter">Your Pincode</p>
-                                        <p className="text-xs font-bold text-blue-400">{pincode || 'Detecting...'}</p>
-                                    </div>
-                                </motion.div>
+                            {/* Dynamic Map Pins with Tooltips */}
+                            <div className="absolute inset-0 p-10">
+                                <div className="relative w-full h-full">
+                                    <MapPinPoint x={30} y={30} label="120 Jobs" icon={Briefcase} />
+                                    <MapPinPoint x={60} y={40} label="45 Services" icon={Zap} />
+                                    <MapPinPoint x={50} y={70} label="20 Products" icon={ShoppingBag} />
+                                    <MapPinPoint x={20} y={50} label="Premium Pass" icon={CreditCard} />
+                                </div>
+                            </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    {categories.slice(0, 2).map((cat, idx) => (
+                            {/* Floating Category Connectors */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="relative w-full h-full">
+                                    {categories.map((cat, i) => (
                                         <motion.div
                                             key={cat.id}
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: 2.5 + (idx * 0.2) }}
+                                            transition={{ delay: 1.5 + (i * 0.2) }}
+                                            className={`absolute pointer-events-auto cursor-pointer group/cat`}
+                                            style={{ 
+                                                top: i < 2 ? '15%' : '75%', 
+                                                left: i % 2 === 0 ? '10%' : '70%' 
+                                            }}
                                             onClick={() => navigate(cat.path)}
-                                            className="w-32 h-32 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-5 hover:bg-white/10 transition-all cursor-pointer group/card"
                                         >
-                                            <div className={`w-10 h-10 ${cat.color} rounded-xl flex items-center justify-center text-white mb-3 group-hover/card:scale-110 transition-transform`}>
-                                                <cat.icon size={20} />
+                                            <div className="glass-premium p-4 rounded-3xl border border-white/10 shadow-2xl flex items-center gap-4 group-hover/cat:scale-110 group-hover/cat:border-blue-500/50 transition-all duration-500">
+                                                <div className={`w-10 h-10 ${cat.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                                                    <cat.icon size={20} />
+                                                </div>
+                                                <div className="text-left hidden md:block">
+                                                    <p className="text-[10px] font-black text-white uppercase tracking-tighter">{cat.label}</p>
+                                                    <p className="text-[8px] font-bold text-white/50 uppercase tracking-widest">{cat.sub}</p>
+                                                </div>
                                             </div>
-                                            <h4 className="text-[10px] font-black text-white uppercase tracking-widest">{cat.label}</h4>
+                                            {/* Connection Line back to center or pin */}
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent -rotate-45 -z-10 opacity-0 group-hover/cat:opacity-100 transition-opacity" />
                                         </motion.div>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Powered By Badge */}
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-white rounded-full shadow-2xl flex items-center gap-4 z-30 border border-slate-100">
-                             <div className="flex -space-x-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                                        <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
-                                    </div>
-                                ))}
+                        {/* Location Live Feed Badge */}
+                        <motion.div 
+                            animate={{ y: [0, -5, 0] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                            className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-8 py-5 bg-white dark:bg-dark-card rounded-[2rem] shadow-2xl flex items-center gap-4 z-30 border border-slate-100 dark:border-gray-800"
+                        >
+                             <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500">
+                                <Sparkles size={20} />
                              </div>
-                             <div className="h-6 w-[1px] bg-slate-100" />
-                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                                <span className="text-slate-900">5k+ Professionals</span> in your area
-                             </p>
-                        </div>
+                             <div className="text-left">
+                                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none mb-1">Active in {appLocation?.city || 'Your Area'}</p>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">5.2k+ Local Verifications Completed</p>
+                             </div>
+                        </motion.div>
                     </div>
                 </div>
 
@@ -287,5 +296,34 @@ const MarketplaceHero = () => {
         </section>
     );
 };
+
+const MapPinPoint = ({ x, y, label, icon: Icon }) => (
+    <motion.div 
+        className="absolute z-20 group"
+        style={{ left: `${x}%`, top: `${y}%` }}
+    >
+        <div className="relative">
+            <motion.div 
+                animate={{ scale: [1, 2, 1], opacity: [0.6, 0, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-blue-500 rounded-full blur-md -m-2"
+            />
+            <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center justify-center relative cursor-help">
+                <Icon size={10} className="text-white" />
+                
+                {/* Enhanced Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+                    <div className="bg-slate-900/90 backdrop-blur-md text-white px-4 py-2 rounded-xl shadow-2xl border border-white/10 whitespace-nowrap">
+                        <p className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            {label}
+                        </p>
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-slate-900/90" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </motion.div>
+);
 
 export default MarketplaceHero;

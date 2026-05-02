@@ -134,7 +134,7 @@ const Navbar = () => {
         { name: 'About Us', path: '/about' },
         { name: 'Explore', isDropdown: true, items: exploreOptions },
         { name: 'Services', isDropdown: true, items: services },
-        { name: 'Training & Placement', path: '/training-placement' },
+        { name: 'Skill Academy', path: '/training-placement' },
         { name: 'FAQs', path: '/faq' },
       ];
     }
@@ -144,7 +144,7 @@ const Navbar = () => {
         return [
           { name: 'Explore', isDropdown: true, items: exploreOptions },
           { name: 'Services', isDropdown: true, items: services },
-          { name: 'Training', path: '/training-placement' },
+          { name: 'Skill Academy', path: '/training-placement' },
           { name: 'My Activity', onClick: handleDashboardClick },
           { name: 'Wishlist', path: '/wishlist' },
         ];

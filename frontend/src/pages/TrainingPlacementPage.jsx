@@ -59,7 +59,7 @@ const CourseCard = ({ title, desc, duration, mode, icon, color, delay, onClick }
                 onClick={onClick}
                 className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.25em] text-white shadow-xl hover:-translate-y-1 transition-all ${color}`}
             >
-                View Syllabus <ArrowRight size={14} className="inline ml-2" />
+                View Syllabus & Apply for Jobs <ArrowRight size={14} className="inline ml-2" />
             </button>
         </motion.div>
     );
@@ -103,15 +103,15 @@ const TrainingPlacementPage = () => {
                 transition={{ duration: 0.8 }}
               >
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-600 font-black uppercase text-[10px] tracking-[0.3em] rounded-full mb-8">
-                  JUNE 2026 BATCH - ADMISSIONS OPEN
+                  SKILL ACADEMY - CAREER TRANSFORMATION
                 </span>
                 <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-[-0.05em] leading-[0.9] mb-8 uppercase">
-                  Transforming <br />
-                  Talent into <br />
-                  <span className="text-blue-600">Careers.</span>
+                  Learn <br />
+                  Apply <br />
+                  <span className="text-blue-600">Get Hired.</span>
                 </h1>
                 <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 font-medium max-w-xl lg:mx-0 mx-auto mb-10 leading-relaxed">
-                  Join Forge India's premier training & placement ecosystem. Master in-demand skills and secure your future with 250+ hiring partners.
+                  Upgrade your skills to get hired faster. Master in-demand technologies and bridge the gap between learning and your dream career.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
                   <button 
