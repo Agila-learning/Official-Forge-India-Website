@@ -650,8 +650,8 @@ const Profile = () => {
                         ))}
                     </div>
                 </div>
->
-                </div>
+
+
 
                 {/* 🎁 REWARDS VAULT */}
                 <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[3rem] p-8 md:p-14 border border-white/10 shadow-2xl relative overflow-hidden">
