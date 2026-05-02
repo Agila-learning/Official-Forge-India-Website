@@ -121,6 +121,39 @@ const WebUsageGuide = () => {
     s.steps.some(st => st.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const [language, setLanguage] = useState('English');
+
+  const translations = {
+    English: {
+      title: "Web Usage Guide",
+      subtitle: "Master the FIC Ecosystem Operations",
+      hero: "Mission Onboarding Progress",
+      watch: "Watch Demo",
+      download: "Download PDF",
+      langLabel: "Language: English",
+      langSwitch: "Tamil Version",
+      sections: sections
+    },
+    Tamil: {
+      title: "இணைய பயன்பாட்டு வழிகாட்டி",
+      subtitle: "FIC சுற்றுச்சூழல் செயல்பாடுகளில் தேர்ச்சி பெறுங்கள்",
+      hero: "பயிற்சி முன்னேற்றம்",
+      watch: "டெமோ பார்க்க",
+      download: "PDF பதிவிறக்கவும்",
+      langLabel: "மொழி: தமிழ்",
+      langSwitch: "English Version",
+      sections: sections.map(s => ({
+        ...s,
+        title: s.title === 'Getting Started' ? 'தொடங்குதல்' : 
+               s.title === 'Navigation Guide' ? 'வழிசெலுத்தல் வழிகாட்டி' : 
+               s.title === 'Orders & Services' ? 'ஆர்டர்கள் மற்றும் சேவைகள்' :
+               s.title === 'Signals & Intelligence' ? 'அறிவிப்புகள்' : 'விற்பனையாளர்களுக்கு',
+      }))
+    }
+  };
+
+  const currentContent = translations[language];
+
   return (
     <div className="space-y-10 py-6 max-w-5xl mx-auto px-4 font-sans">
       
@@ -128,8 +161,8 @@ const WebUsageGuide = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="text-left">
           <span className="section-eyebrow text-primary bg-primary/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4 inline-block">Support Protocol</span>
-          <h2 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">Web Usage <span className="text-primary">Guide</span></h2>
-          <p className="text-sm text-gray-500 font-bold uppercase tracking-widest mt-2">Master the FIC Ecosystem Operations</p>
+          <h2 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">{currentContent.title.split(' ').map((word, i) => i === currentContent.title.split(' ').length - 1 ? <span key={i} className="text-primary">{word}</span> : word + ' ')}</h2>
+          <p className="text-sm text-gray-500 font-bold uppercase tracking-widest mt-2">{currentContent.subtitle}</p>
         </div>
         
         <div className="relative group w-full md:w-80">
@@ -154,20 +187,20 @@ const WebUsageGuide = () => {
           <span className="absolute font-black text-xl text-primary">{progress}%</span>
         </div>
         <div className="text-center md:text-left">
-          <h4 className="text-lg font-black uppercase tracking-tight">Onboarding Progress</h4>
+          <h4 className="text-lg font-black uppercase tracking-tight">{currentContent.hero}</h4>
           <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Complete all steps to fully authorize your mission capabilities.</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
              <button 
                 onClick={() => window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank')}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
              >
-                <PlayCircle size={14} className="text-primary" /> Watch Demo
+                <PlayCircle size={14} className="text-primary" /> {currentContent.watch}
              </button>
              <button 
                 onClick={() => window.open('/FIC_Usage_Guide.pdf', '_blank')}
                 className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
              >
-                <Download size={14} className="text-secondary" /> Download PDF
+                <Download size={14} className="text-secondary" /> {currentContent.download}
              </button>
           </div>
         </div>
@@ -175,7 +208,7 @@ const WebUsageGuide = () => {
 
       {/* Steps Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-        {filteredSections.map((section, idx) => (
+        {currentContent.sections.map((section, idx) => (
           <motion.div 
             key={section.id}
             initial={{ opacity: 0, y: 20 }}
@@ -188,7 +221,7 @@ const WebUsageGuide = () => {
             </div>
             <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-6">{section.title}</h3>
             
-            <div className="space-y-6">
+            <div className="space-y-6 text-left">
               {section.steps.map((step, sIdx) => {
                 const isCompleted = completedSteps.includes(step.title);
                 return (
@@ -233,7 +266,7 @@ const WebUsageGuide = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-8 pb-8 pt-2">
+                    <div className="px-8 pb-8 pt-2 text-left">
                       <p className="text-xs text-gray-500 font-bold uppercase leading-relaxed border-t border-gray-50 dark:border-gray-800 pt-6 italic">
                         {faq.a}
                       </p>
@@ -248,20 +281,23 @@ const WebUsageGuide = () => {
 
       {/* Support CTA */}
       <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1 p-8 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 group cursor-pointer hover:scale-[1.02] transition-all">
+        <div className="flex-1 p-8 rounded-[2.5rem] bg-indigo-600 text-white shadow-2xl shadow-indigo-600/20 group cursor-pointer hover:scale-[1.02] transition-all text-left">
            <FileText size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
            <h4 className="text-xl font-black uppercase tracking-tight">Need Advanced Help?</h4>
-           <p className="text-xs text-white/70 font-bold uppercase tracking-widest mt-2 mb-6">Connect with our strategic support division for specialized assistance.</p>
+           <p className="text-xs text-white/70 font-bold uppercase tracking-widest mt-2 mb-6 italic">Connect with our strategic support division for specialized assistance.</p>
            <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/20">
               Contact Support <ChevronRight size={14} />
            </button>
         </div>
-        <div className="flex-1 p-8 rounded-[2.5rem] bg-secondary text-dark-bg shadow-2xl shadow-secondary/20 group cursor-pointer hover:scale-[1.02] transition-all">
+        <div className="flex-1 p-8 rounded-[2.5rem] bg-secondary text-dark-bg shadow-2xl shadow-secondary/20 group cursor-pointer hover:scale-[1.02] transition-all text-left">
            <Monitor size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
-           <h4 className="text-xl font-black uppercase tracking-tight">Language: English</h4>
-           <p className="text-xs text-dark-bg/60 font-bold uppercase tracking-widest mt-2 mb-6">Switch to local language for better understanding of FIC operations.</p>
-           <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-dark-bg/10 rounded-full hover:bg-dark-bg/20 transition-all border border-dark-bg/10">
-              Tamil Version <ChevronRight size={14} />
+           <h4 className="text-xl font-black uppercase tracking-tight">{currentContent.langLabel}</h4>
+           <p className="text-xs text-dark-bg/60 font-bold uppercase tracking-widest mt-2 mb-6 italic">Switch to local language for better understanding of FIC operations.</p>
+           <button 
+             onClick={() => setLanguage(language === 'English' ? 'Tamil' : 'English')}
+             className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-dark-bg/10 rounded-full hover:bg-dark-bg/20 transition-all border border-dark-bg/10"
+           >
+              {currentContent.langSwitch} <ChevronRight size={14} />
            </button>
         </div>
       </div>

@@ -133,8 +133,44 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      {/* --- ⚡ 2. QUICK CATEGORY BAR --- */}
-      <section className="px-6 pb-12">
+      {/* --- 🛡️ MEMBERSHIP PROMPT --- */}
+      <section className="px-6 pb-20">
+        <div className="max-w-7xl mx-auto glass-premium rounded-[3rem] p-8 md:p-12 border border-blue-600/20 bg-gradient-to-br from-blue-600/5 to-transparent relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            <div className="flex flex-col lg:flex-row items-center gap-12 relative z-10">
+                <div className="lg:w-1/3 flex justify-center scale-90 group-hover:scale-100 transition-transform duration-500">
+                    <MembershipCard />
+                </div>
+                <div className="lg:w-2/3 text-left">
+                    <span className="px-4 py-1.5 bg-blue-600/10 text-blue-500 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-blue-600/20 mb-6 inline-block">Pro Tier Authorized</span>
+                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase italic mb-6">Forge <span className="text-blue-500">Membership Card</span></h2>
+                    <p className="text-lg text-white/50 font-medium leading-relaxed mb-10 max-w-2xl italic">Unlock unlimited access to all verified services for one monthly fee. Pre-load credits and deploy services at zero fulfillment cost.</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                        {[
+                            { icon: Zap, title: 'Unlimited Visits', desc: 'Deploy services anytime.' },
+                            { icon: ShieldCheck, title: 'Zero Fees', desc: 'No transaction charges.' },
+                            { icon: Clock, title: 'Elite Priority', desc: 'Fastest response time.' }
+                        ].map((b, i) => (
+                            <div key={i} className="space-y-2">
+                                <b.icon className="text-blue-500" size={24} />
+                                <h5 className="text-xs font-black uppercase tracking-tight text-white">{b.title}</h5>
+                                <p className="text-[10px] text-white/30 font-bold uppercase italic">{b.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap gap-4">
+                        <button className="px-10 py-5 bg-blue-600 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-2xl shadow-blue-600/30 hover:scale-105 active:scale-95 transition-all">Buy Membership - ₹999/mo</button>
+                        <button className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all">View Full Protocol</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* --- 🏷️ CATEGORY BAR --- */}
+      <section className="px-6 pb-12 sticky top-20 z-50">
         <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
             <button 
                 onClick={() => setActiveCategory('all')}

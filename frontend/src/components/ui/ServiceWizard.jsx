@@ -288,7 +288,7 @@ const ServiceWizard = () => {
                                                  className="w-full px-8 py-5 rounded-[2rem] bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 font-black outline-none appearance-none cursor-pointer disabled:opacity-20 relative z-[60]"
                                              >
                                                  <option value="">Select Time</option>
-                                                 {(bookingData.slot.date && (service?.slots?.find(s => s.date === bookingData.slot.date)?.times || ["09:00 AM - 12:00 PM", "12:00 PM - 03:00 PM", "03:00 PM - 06:00 PM", "06:00 PM - 09:00 PM"])).map(t => (
+                                                 {bookingData.slot.date && (service?.slots?.find(s => s.date === bookingData.slot.date)?.times || ["09:00 AM - 12:00 PM", "12:00 PM - 03:00 PM", "03:00 PM - 06:00 PM", "06:00 PM - 09:00 PM"]).map(t => (
                                                      <option key={t} value={t} className="text-black">{t}</option>
                                                  ))}
                                              </select>

@@ -158,6 +158,7 @@ const Profile = () => {
             {[
               { label: 'Order History', icon: Package, count: productOrders.length, show: profileData?.role === 'Customer' },
               { label: 'Service Bookings', icon: Clock, count: serviceBookings.length, show: profileData?.role === 'Customer' },
+              { label: 'Membership', icon: Zap, count: 'PRO', show: profileData?.role === 'Customer' },
               { label: 'My Favorites', icon: Heart, count: favorites.length, show: profileData?.role === 'Customer' },
               { label: 'Review History', icon: History, count: reviews.length, show: profileData?.role === 'Customer' },
               { label: 'Security Vault', icon: Lock, count: null, show: profileData?.role === 'Customer' },
@@ -484,11 +485,11 @@ const Profile = () => {
                     </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                         <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6"><Database size={28} /></div>
                         <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Secure Credentials</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8">Store your secondary contact person or emergency documents for service verification.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Store your secondary contact person or emergency documents for service verification.</p>
                         
                         <div className="space-y-4 mb-8">
                             {vaultDocs.map((doc, idx) => (
@@ -512,23 +513,23 @@ const Profile = () => {
                         </label>
                     </div>
 
-                    <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                    <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
                         <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6"><FileText size={28} /></div>
                         <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Digital ID Wallet</h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8">Pre-upload identity documents to speed up verification for high-value services.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Pre-upload identity documents to speed up verification for high-value services.</p>
                         <button className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-400 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2">
                             <Plus size={16} /> Upload Document
                         </button>
                     </div>
 
-                    <div className="md:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                    <div className="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 md:p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48 transition-transform group-hover:scale-110"></div>
-                        <div className="relative z-10 text-white">
-                            <h4 className="text-4xl font-black mb-4 tracking-tighter uppercase">Vault Status: <span className="opacity-60 italic">Locked</span></h4>
-                            <p className="text-white/80 text-lg max-w-xl font-medium leading-relaxed mb-10">Your personal data vault uses enterprise-grade encryption to protect your sensitive service data and history.</p>
+                        <div className="relative z-10 text-white text-left">
+                            <h4 className="text-2xl md:text-4xl font-black mb-4 tracking-tighter uppercase italic">Vault Status: <span className="opacity-60">Locked</span></h4>
+                            <p className="text-white/80 text-base md:text-lg max-w-xl font-medium leading-relaxed mb-10 italic">Your personal data vault uses enterprise-grade encryption to protect your sensitive service data and history.</p>
                             <div className="flex flex-wrap gap-4">
-                                <button className="px-10 py-5 bg-white text-primary font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl flex items-center gap-3"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
-                                <button className="px-10 py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[11px] uppercase tracking-widest flex items-center gap-3"><Eye size={16} /> Activity Log</button>
+                                <button className="px-8 md:px-10 py-4 md:py-5 bg-white text-primary font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl flex items-center gap-3"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
+                                <button className="px-8 md:px-10 py-4 md:py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest flex items-center gap-3"><Eye size={16} /> Activity Log</button>
                             </div>
                         </div>
                     </div>
