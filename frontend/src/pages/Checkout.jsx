@@ -454,13 +454,9 @@ const Checkout = () => {
                                             </div>
                                         </div>
 
-                                        {isDigitalOnly && (
-                                            <div className="mb-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30 flex items-center gap-4">
-                                                <Info className="text-blue-600 shrink-0" size={24} />
-                                                <p className="text-xs font-bold text-blue-900 dark:text-blue-200 leading-relaxed uppercase">
-                                                    You are purchasing a <span className="text-blue-600 font-black tracking-tight">Digital Membership</span>. No physical delivery is required. Access will be granted immediately upon successful authorization.
                                                 </p>
                                             </div>
+                                        )}
                                                                          <div className="flex flex-wrap items-center gap-6 mb-8 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                                             <div className="flex items-center gap-2"><ShieldCheck size={14} className="text-green-500" /> 100% Secure Payments</div>
                                             <div className="flex items-center gap-2"><Clock size={14} className="text-blue-500" /> Instant Confirmation</div>

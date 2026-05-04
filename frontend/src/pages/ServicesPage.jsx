@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 const categories = [
   { id: 'stay', label: 'PG / Stay', icon: Home, color: 'text-orange-500', bg: 'bg-orange-500/10' },
   { id: 'hotels', label: 'Hotels', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { id: 'travel', label: 'Travel', icon: Bus, icon: Bus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { id: 'travel', label: 'Travel', icon: Bus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
   { id: 'food', label: 'Food', icon: Utensils, color: 'text-rose-500', bg: 'bg-rose-500/10' },
   { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
   { id: 'entertainment', label: 'Entertainment', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-500/10' },
