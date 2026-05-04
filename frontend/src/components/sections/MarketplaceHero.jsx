@@ -308,7 +308,7 @@ const MapPinPoint = ({ x, y, label, icon: Icon }) => (
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute inset-0 bg-blue-500 rounded-full blur-md -m-2"
             />
-            <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center justify-center relative cursor-help">
+            <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white shadow-[0_0_15px_rgba(59,130,246,0.5)] flex items-center justify-center relative cursor-pointer">
                 <Icon size={10} className="text-white" />
                 
                 {/* Enhanced Tooltip */}

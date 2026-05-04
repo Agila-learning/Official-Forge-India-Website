@@ -112,7 +112,7 @@ const AdminDashboard = () => {
     const fetchData = async () => {
         setLoadStatus({ loading: true, error: '' });
         try {
-            const [eventsRes, jobsRes, productsRes, faqsRes, candidatesRes, usersRes, locationsRes, reviewsRes, ordersRes, appsRes, testimonialsRes, locationRequestsRes, ticketsRes, inquiriesRes] = await Promise.all([
+            const [eventsRes, jobsRes, productsRes, faqsRes, candidatesRes, usersRes, locationsRes, reviewsRes, ordersRes, appsRes, testimonialsRes, locationRequestsRes, ticketsRes, inquiriesRes, contactsRes] = await Promise.all([
                 api.get('/events').catch(() => ({ data: [] })),
                 api.get('/jobs').catch(() => ({ data: [] })),
                 api.get('/products').catch(() => ({ data: [] })),
@@ -126,7 +126,8 @@ const AdminDashboard = () => {
                 api.get('/testimonials').catch(() => ({ data: [] })),
                 api.get('/location-requests').catch(() => ({ data: [] })),
                 api.get('/tickets').catch(() => ({ data: [] })),
-                api.get('/inquiries').catch(() => ({ data: [] }))
+                api.get('/inquiries').catch(() => ({ data: [] })),
+                api.get('/contacts').catch(() => ({ data: [] }))
             ]);
             
             setData(prev => ({ 
@@ -140,7 +141,8 @@ const AdminDashboard = () => {
                 applications: appsRes.data || [],
                 testimonials: testimonialsRes.data || [],
                 tickets: ticketsRes.data || (Array.isArray(ticketsRes) ? ticketsRes : []),
-                inquiries: inquiriesRes.data || []
+                inquiries: inquiriesRes.data || [],
+                contacts: contactsRes.data || []
             }));
             setReviews(reviewsRes.data || []);
             setOrders(ordersRes.data || []);
@@ -349,7 +351,8 @@ const AdminDashboard = () => {
     { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
     { id: 'media', icon: Image, label: 'Media Manager' },
     { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
-{ id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
+    { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
+    { id: 'contacts', icon: Mail, label: 'Contact Queries' },
     { id: 'messages', icon: Send, label: 'Messages' },
     { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
     { id: 'profile', icon: Users, label: 'My Profile' }
@@ -2793,6 +2796,148 @@ const AdminDashboard = () => {
             </div>
           );
         })()}
+
+        {activeTab === 'inquiries' && (
+            <div className="space-y-8">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter">Service <span className="text-primary italic">Inquiries</span></h2>
+                        <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">{data.inquiries?.length || 0} active consultations</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {data.inquiries?.map(inq => (
+                        <div key={inq._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all shadow-sm">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
+                                        <Briefcase size={22} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tight">{inq.serviceType}</h3>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{inq.user?.firstName} {inq.user?.lastName}</p>
+                                    </div>
+                                </div>
+                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                    inq.status === 'Resolved' ? 'bg-green-100 text-green-600' : 
+                                    inq.status === 'In Progress' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-700'
+                                }`}>{inq.status}</span>
+                            </div>
+
+                            <div className="space-y-4 mb-8">
+                                <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Requirement</p>
+                                    <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{inq.specificRequirement}</p>
+                                </div>
+                                <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Detailed Message</p>
+                                    <p className="text-xs text-gray-500 italic leading-relaxed">"{inq.message}"</p>
+                                </div>
+                                <div className="flex items-center gap-3 text-xs font-bold text-gray-500">
+                                    <Phone size={14} className="text-primary" /> {inq.contactNumber}
+                                    <span className="mx-2">•</span>
+                                    <Mail size={14} className="text-primary" /> {inq.user?.email}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <select 
+                                    value={inq.status}
+                                    onChange={async (e) => {
+                                        try {
+                                            await api.put(`/inquiries/${inq._id}/status`, { status: e.target.value });
+                                            toast.success('Status synchronized');
+                                            setData(prev => ({
+                                                ...prev,
+                                                inquiries: prev.inquiries.map(i => i._id === inq._id ? { ...i, status: e.target.value } : i)
+                                            }));
+                                        } catch { toast.error('Update failed'); }
+                                    }}
+                                    className="flex-1 px-5 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-[10px] font-black uppercase tracking-widest outline-none focus:border-primary"
+                                >
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <button onClick={() => handleDelete('inquiries', inq._id)} className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {(data.inquiries?.length === 0) && (
+                        <div className="col-span-full py-24 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+                            <ClipboardList className="mx-auto text-gray-200 mb-4" size={48} />
+                            <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No active service inquiries</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'contacts' && (
+            <div className="space-y-8">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter">Contact <span className="text-secondary italic">Queries</span></h2>
+                        <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">{data.contacts?.length || 0} direct messages</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {data.contacts?.map(contact => (
+                        <div key={contact._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:border-secondary/30 transition-all shadow-sm">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary">
+                                        <Mail size={22} />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tight">{contact.firstName} {contact.lastName}</h3>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{contact.category || 'General Inquiry'}</p>
+                                    </div>
+                                </div>
+                                <span className="px-3 py-1 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-500">{contact.status || 'New'}</span>
+                            </div>
+
+                            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 mb-8">
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Message Content</p>
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-relaxed italic">"{contact.message}"</p>
+                            </div>
+
+                            <div className="flex flex-wrap gap-4 mb-8">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-800 text-xs font-bold">
+                                    <Mail size={14} className="text-secondary" /> {contact.email}
+                                </div>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-800 text-xs font-bold">
+                                    <Phone size={14} className="text-secondary" /> {contact.phone}
+                                </div>
+                                {contact.attachmentUrl && (
+                                    <a href={contact.attachmentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-xl border border-blue-100 dark:border-blue-800 text-xs font-bold hover:bg-blue-500 hover:text-white transition-all">
+                                        <FileText size={14} /> View Attachment
+                                    </a>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <a href={`mailto:${contact.email}`} className="flex-1 py-4 bg-secondary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest text-center shadow-lg shadow-secondary/20 hover:scale-105 transition-all">Reply via Email</a>
+                                <button onClick={() => handleDelete('contacts', contact._id)} className="p-4 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {(data.contacts?.length === 0) && (
+                        <div className="col-span-full py-24 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+                            <Mail className="mx-auto text-gray-200 mb-4" size={48} />
+                            <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No direct queries logged</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
 
         {activeTab === 'profile' && (
             <div className="max-w-4xl mx-auto space-y-12">

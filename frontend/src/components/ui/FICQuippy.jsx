@@ -58,6 +58,24 @@ const SERVICES = {
     keywords: ['bank', 'banking', 'finance', 'loan', 'credit', 'investment'],
     route: '/jobs',
     category: 'consulting'
+  },
+  atomy: {
+    title: 'Atomy Product Marketing',
+    icon: ShoppingBag,
+    color: 'from-pink-500 to-rose-400',
+    desc: 'Explore the exclusive range of Atomy products on our marketplace. High-quality personal care, health supplements, and beauty products.',
+    keywords: ['atomy', 'hemohim', 'beauty', 'skin care', 'supplement', 'atomy product'],
+    route: '/explore-shop',
+    category: 'products'
+  },
+  agent_platform: {
+    title: 'FIC Agent Platform',
+    icon: UserPlus,
+    color: 'from-orange-500 to-amber-400',
+    desc: 'Join our growing network of agents! Earn commissions by connecting customers to FIC services and marketplace products.',
+    keywords: ['agent', 'join as agent', 'agent platform', 'earn money', 'commission', 'agent registration'],
+    route: '/yet-to-launch',
+    category: 'platform'
   }
 };
 
@@ -144,15 +162,23 @@ const INTENTS = {
   greeting: {
     patterns: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy', 'sup', 'hola', 'namaste', 'vanakkam'],
     response: () => ({
-      text: `Hello! 👋 Welcome to **Forge India Connect**!\n\nI'm **FIC Quippy**, your personal assistant. I can help you with:\n\n🏢 **Job Consulting** — IT, Banking, Non-IT, Insurance, BPO\n💻 **IT Solutions & Digital Marketing**\n🛍️ **Atomy Product Marketing**\n🏠 **Home Services** — Cleaning, Painting & more\n📋 **Platform Actions** — Post/Apply jobs, Vendor access\n\nWhat would you like to know about?`,
-      quickReplies: ['Job Consulting', 'IT Solutions', 'Home Services', 'Post a Job', 'Apply for Jobs', 'Atomy Products', 'All Services']
+      text: `Hello! 👋 Welcome to **Forge India Connect**!\n\nI'm **FIC Quippy**, your personal assistant. I can help you with:\n\n🏢 **Job Consulting** — IT, Banking, Non-IT, Insurance, BPO\n💻 **IT Solutions & Digital Marketing**\n🛍️ **Atomy Product Marketing**\n🏠 **Home Services** — Cleaning, Painting & more\n🤝 **Join as Agent** — Start earning today!\n📋 **Platform Actions** — Post/Apply jobs, Vendor access\n\nWhat would you like to know about?`,
+      quickReplies: ['Job Consulting', 'IT Solutions', 'Home Services', 'Join as Agent', 'Atomy Products', 'All Services']
     })
   },
   about_fic: {
     patterns: ['what is fic', 'about fic', 'forge india', 'what do you do', 'what services', 'tell me about', 'what is forge india connect', 'what you offer', 'your company', 'company info', 'all services', 'what do you provide', 'provide services', 'fic provide', 'services provided'],
     response: () => ({
-      text: `**Forge India Connect (FIC)** is a Technology-First IT Solutions company! 🇮🇳\n\nHere's what we specialize in:\n\n**💻 IT & Digital Solutions:**\n• Web & Mobile App Development\n• Enterprise Software (ERP/CRM)\n• AI & Machine Learning Solutions\n• UI/UX Design & Branding\n• Digital Marketing & SEO\n\n**📋 Consulting Services:**\n• IT Consulting\n• Banking & Finance\n• Insurance Consulting\n• BPO Services\n\n**🏠 Home Services:**\n• Cleaning, Painting, & Maintenance\n\nWhat can I help you build or find today? 👇`,
-      quickReplies: ['Web Development', 'App Development', 'IT Consulting', 'Digital Marketing', 'Insurance', 'Apply for Jobs']
+      text: `**Forge India Connect (FIC)** is a Technology-First IT Solutions company! 🇮🇳\n\nHere's what we specialize in:\n\n**💻 IT & Digital Solutions:**\n• Web & Mobile App Development\n• Enterprise Software (ERP/CRM)\n• AI & Machine Learning Solutions\n• UI/UX Design & Branding\n\n**📋 Consulting & Platforms:**\n• IT, Banking, & BPO Consulting\n• **Agent Platform** — Empowering Local Partners\n• **Atomy Marketplace** — Premium Global Products\n\n**🏠 Home Services:**\n• Cleaning, Painting, & Maintenance\n\nWhat can I help you build or find today? 👇`,
+      quickReplies: ['Web Development', 'App Development', 'Agent Platform', 'Atomy Products', 'Insurance', 'Apply for Jobs']
+    })
+  },
+  kyc_info: {
+    patterns: ['kyc', 'register as vendor', 'vendor requirements', 'shop code', 'how to sell', 'document', 'aadhar', 'pan', 'identity'],
+    response: () => ({
+      text: `**Vendor Registration & KYC** 📋\n\nTo join as a Vendor, Seller, or Service Provider, you need to provide:\n\n• **Aadhar Card** (Identity Proof)\n• **PAN Card** (Tax Information)\n• **Shop/Business Details**\n\nOnce registered, you will receive a unique **Shop Code**. Your account will be **Pending** until our Admin team verifies your documents. 🛡️`,
+      quickReplies: ['Register Now', 'Shop Code Help', 'Contact Us'],
+      actions: [{ label: 'Start Registration', route: '/register', icon: 'register' }]
     })
   },
   thanks: {

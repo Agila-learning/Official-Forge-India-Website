@@ -9,6 +9,7 @@ const contactSchema = mongoose.Schema(
     category: { type: String },
     service: { type: String },
     message: { type: String, required: false },
+    attachmentUrl: { type: String },
     status: { type: String, default: 'New' }
   },
   { timestamps: true }
