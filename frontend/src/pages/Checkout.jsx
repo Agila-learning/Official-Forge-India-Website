@@ -463,20 +463,23 @@ const Checkout = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-6">
+                                            <div className="flex items-center gap-4">
                                                 <div className="text-right">
+                                                    <p className="text-xs font-black text-white/50 uppercase tracking-widest mb-1">Benefit Value</p>
                                                     <p className="text-2xl font-black text-white tracking-tighter italic">₹{membershipPrice}</p>
-                                                    <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">SAVE ₹1,500+</p>
                                                 </div>
-                                                <button 
-                                                    onClick={() => setAddMembership(!addMembership)}
-                                                    className={`w-14 h-8 rounded-full transition-all relative ${addMembership ? 'bg-blue-600' : 'bg-white/10'}`}
-                                                >
-                                                    <motion.div 
-                                                        animate={{ x: addMembership ? 24 : 4 }}
-                                                        className="w-6 h-6 bg-white rounded-full absolute top-1 shadow-lg"
-                                                    />
-                                                </button>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest">ADD TO MISSION</p>
+                                                    <button 
+                                                        onClick={() => setAddMembership(!addMembership)}
+                                                        className={`w-14 h-8 rounded-full transition-all relative ${addMembership ? 'bg-blue-600' : 'bg-white/10'}`}
+                                                    >
+                                                        <motion.div 
+                                                            animate={{ x: addMembership ? 24 : 4 }}
+                                                            className="w-6 h-6 bg-white rounded-full absolute top-1 shadow-lg"
+                                                        />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -516,10 +519,13 @@ const Checkout = () => {
                                                 </div>
                                                 <span className="bg-white/20 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest backdrop-blur-md">MOST POPULAR</span>
                                             </div>
-                                            <ul className="space-y-2 mb-6">
-                                                {['Unlimited Services', 'Up to ₹5,000 Service Value', 'Priority Support', 'Exclusive Member Benefits'].map(benefit => (
-                                                    <li key={benefit} className="flex items-center gap-2 text-[10px] font-bold text-white/80">
-                                                        <CheckCircle size={12} className="text-yellow-400" /> {benefit}
+                                            <ul className="space-y-3 mb-6">
+                                                {['Unlimited Services', 'Priority Support', 'Exclusive Member Benefits'].map(benefit => (
+                                                    <li key={benefit} className="flex items-center gap-3 text-[11px] font-bold text-white/90">
+                                                        <div className="w-4 h-4 bg-yellow-400/20 rounded-full flex items-center justify-center">
+                                                            <CheckCircle size={12} className="text-yellow-400" />
+                                                        </div>
+                                                        {benefit}
                                                     </li>
                                                 ))}
                                             </ul>
