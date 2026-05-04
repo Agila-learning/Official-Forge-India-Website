@@ -7,7 +7,7 @@ import {
   CreditCard, Truck, MapPin, CheckCircle, ArrowRight, ShieldCheck, 
   ChevronRight, Calendar, Clock, Smartphone, Building2, Zap, 
   Lock, ArrowLeft, Info, HelpCircle, BadgeCheck, ShieldAlert,
-  Loader2
+  Loader2, Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -19,8 +19,9 @@ const Checkout = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [paymentStatus, setPaymentStatus] = useState('idle'); // idle, processing, success
+    const [paymentStatus, setPaymentStatus] = useState('idle'); // idle, processing, verifying, success
     const [loadingText, setLoadingText] = useState('Initiating Protocol...');
+    const [lastOrder, setLastOrder] = useState(null);
     
     // Logic: If only services, default to Home Service
     const hasPhysicalProducts = cartItems.some(item => !item.isService);
@@ -96,6 +97,17 @@ const Checkout = () => {
     }, [address.city, fetchPincodeByCity]);
 
     useEffect(() => {
+        if (userLocation && !address.manualEdit) {
+            setAddress(prev => ({
+                ...prev,
+                city: userLocation.city || prev.city,
+                postalCode: userLocation.pincode || prev.postalCode,
+                address: userLocation.formatted ? `${userLocation.formatted}, ${prev.address}` : prev.address
+            }));
+        }
+    }, [userLocation]);
+
+    useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             toast.error('Session Required: Please Sign In');
@@ -141,13 +153,34 @@ const Checkout = () => {
                     slot: item.slot || selectedSlot, isService: item.isService
                 })),
                 shippingAddress: isDigitalOnly ? { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' } : address,
-                paymentMethod: `Razorpay (${paymentMethod})`,
+                paymentMethod: `Razorpay QR (${paymentMethod})`,
                 totalPrice,
                 fulfillmentType: isDigitalOnly ? 'Instant Activation' : fulfillmentType,
-                paymentResult: { id: rzpOrder.id, status: 'Completed' }
+                paymentResult: { id: rzpOrder.id, status: 'Pending Verification' }
             };
 
-            await api.post('/orders', orderData);
+            const { data: finalOrder } = await api.post('/orders', orderData);
+            setLastOrder(finalOrder);
+            
+            // 4. Show Verification Screen (QR Scanner)
+            setPaymentStatus('verifying');
+            setLoading(false);
+            
+        } catch (err) {
+            console.error('Payment Error:', err);
+            toast.error(err.response?.data?.message || 'Unable to initiate payment. Please try again.');
+            setPaymentStatus('idle');
+            setLoading(false);
+        }
+    };
+
+    const confirmPaymentVerification = async () => {
+        setLoading(true);
+        setLoadingText('Verifying Transaction...');
+        try {
+            // In a real app, we'd poll or wait for webhook. 
+            // Here we simulate verification after the user scans.
+            await new Promise(r => setTimeout(r, 2000));
             
             setPaymentStatus('success');
             confetti({
@@ -166,13 +199,25 @@ const Checkout = () => {
                 }
                 setStep(4);
                 setLoading(false);
-            }, 2000);
-            
-        } catch (err) {
-            console.error('Payment Error:', err);
-            toast.error(err.response?.data?.message || 'Unable to initiate payment. Please try again.');
-            setPaymentStatus('idle');
+            }, 1000);
+        } catch {
+            toast.error('Verification failed. Please try again.');
             setLoading(false);
+        }
+    };
+
+    const handleDownloadInvoice = () => {
+        window.print();
+    };
+
+    const handleShareInvoice = (platform) => {
+        const text = `Invoice for Order #${lastOrder?._id?.slice(-8) || 'FIC-ORDER'}. Total: ₹${(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}. View at Forge India Connect.`;
+        const url = window.location.origin;
+        
+        if (platform === 'whatsapp') {
+            window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
+        } else if (platform === 'gmail') {
+            window.open(`mailto:?subject=Invoice from Forge India Connect&body=${encodeURIComponent(text + '\n' + url)}`, '_blank');
         }
     };
 
@@ -198,6 +243,39 @@ const Checkout = () => {
                         </div>
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-2">{loadingText}</h2>
                         <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">Please do not refresh or close this window</p>
+                    </motion.div>
+                )}
+
+                {paymentStatus === 'verifying' && (
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] bg-slate-900 flex flex-col items-center justify-center p-6 text-center"
+                    >
+                        <div className="max-w-md w-full bg-white rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                            
+                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">Secure <span className="text-blue-600">Payment Scanner</span></h3>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-8">Order ID: {lastOrder?._id?.slice(-12)}</p>
+                            
+                            <div className="relative w-full aspect-square bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex items-center justify-center mb-8 p-4 group">
+                                <img src="/registration_qr.png" alt="Payment QR" className="w-full h-full object-contain" />
+                                <div className="absolute inset-0 border-2 border-blue-600 rounded-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
+                            </div>
+
+                            <p className="text-xs text-slate-500 font-bold uppercase leading-relaxed mb-8">
+                                Scan the code above with any UPI app (GPay, PhonePe, Paytm) to authorize the transaction of <span className="text-blue-600 font-black">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
+                            </p>
+
+                            <button 
+                                onClick={confirmPaymentVerification}
+                                disabled={loading}
+                                className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+                            >
+                                {loading ? <Loader2 className="animate-spin" /> : <><ShieldCheck size={18} /> I have paid successfully</>}
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -265,20 +343,20 @@ const Checkout = () => {
                                             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Delivery Protocol</label>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <button 
-                                                    onClick={() => setFulfillmentType('Delivery Partner')}
-                                                    className={`p-6 rounded-2xl border-2 text-left transition-all group ${fulfillmentType === 'Delivery Partner' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 dark:border-gray-800'}`}
+                                                    onClick={() => setFulfillmentType(hasPhysicalProducts ? 'Delivery Partner' : 'Technician Visit')}
+                                                    className={`p-6 rounded-2xl border-2 text-left transition-all group ${fulfillmentType === (hasPhysicalProducts ? 'Delivery Partner' : 'Technician Visit') ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 dark:border-gray-800'}`}
                                                 >
-                                                    <Truck size={20} className={fulfillmentType === 'Delivery Partner' ? 'text-blue-600' : 'text-gray-400'} />
-                                                    <p className="font-black text-xs uppercase mt-4">Home Delivery</p>
-                                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Verified Logistics</p>
+                                                    <Truck size={20} className={fulfillmentType === (hasPhysicalProducts ? 'Delivery Partner' : 'Technician Visit') ? 'text-blue-600' : 'text-gray-400'} />
+                                                    <p className="font-black text-xs uppercase mt-4">{hasPhysicalProducts ? 'Home Delivery' : 'Technician Visit'}</p>
+                                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">{hasPhysicalProducts ? 'Verified Logistics' : 'Professional Deployment'}</p>
                                                 </button>
                                                 <button 
-                                                    onClick={() => setFulfillmentType('Direct Shopping')}
-                                                    className={`p-6 rounded-2xl border-2 text-left transition-all group ${fulfillmentType === 'Direct Shopping' ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 dark:border-gray-800'}`}
+                                                    onClick={() => setFulfillmentType(hasPhysicalProducts ? 'Direct Shopping' : 'Remote Consultation')}
+                                                    className={`p-6 rounded-2xl border-2 text-left transition-all group ${fulfillmentType === (hasPhysicalProducts ? 'Direct Shopping' : 'Remote Consultation') ? 'border-blue-600 bg-blue-50/50' : 'border-gray-100 dark:border-gray-800'}`}
                                                 >
-                                                    <Building2 size={20} className={fulfillmentType === 'Direct Shopping' ? 'text-blue-600' : 'text-gray-400'} />
-                                                    <p className="font-black text-xs uppercase mt-4">Self Pickup</p>
-                                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Local Hub Protocol</p>
+                                                    <Building2 size={20} className={fulfillmentType === (hasPhysicalProducts ? 'Direct Shopping' : 'Remote Consultation') ? 'text-blue-600' : 'text-gray-400'} />
+                                                    <p className="font-black text-xs uppercase mt-4">{hasPhysicalProducts ? 'Self Pickup' : 'Remote Support'}</p>
+                                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">{hasPhysicalProducts ? 'Local Hub Protocol' : 'Digital Solution'}</p>
                                                 </button>
                                             </div>
                                         </div>
@@ -622,11 +700,70 @@ const Checkout = () => {
                                 Deployment Authorized. {isDigitalOnly ? 'Your digital assets have been activated in your vault.' : 'Check your terminal/profile for real-time tracking signals.'}
                             </motion.p>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 mb-8">
                                 <button onClick={() => navigate('/profile')} className="py-5 bg-white text-black font-black rounded-2xl text-[11px] uppercase tracking-widest hover:scale-105 transition-all">
                                     {isDigitalOnly ? 'View Vault' : 'Track Order'}
                                 </button>
                                 <button onClick={() => navigate('/explore-shop')} className="py-5 bg-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10">Continue Mission</button>
+                            </div>
+
+                            {/* INVOICE PREVIEW AREA (Visible only on success) */}
+                            <div id="printable-invoice" className="bg-white rounded-3xl p-8 text-left shadow-2xl relative overflow-hidden mb-8 no-print-background">
+                                <div className="flex justify-between items-start mb-8">
+                                    <div>
+                                        <img src="/logo.jpg" alt="FIC" className="h-12 mb-4 rounded-lg" />
+                                        <h4 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Forge India <span className="text-blue-600 italic">Connect</span></h4>
+                                        <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Digital Solutions Ecosystem</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <h5 className="text-xs font-black text-slate-900 uppercase mb-1">Tax Invoice</h5>
+                                        <p className="text-[9px] text-slate-400 font-bold uppercase">Order: #{lastOrder?._id?.slice(-8)}</p>
+                                        <p className="text-[9px] text-slate-400 font-bold uppercase">Date: {new Date().toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 mb-8">
+                                    {cartItems.map((item, i) => (
+                                        <div key={i} className="flex justify-between border-b border-slate-50 pb-2">
+                                            <div className="text-[10px] font-bold text-slate-700 uppercase">{item.name} x {item.qty}</div>
+                                            <div className="text-[10px] font-black text-slate-900">₹{item.price?.toLocaleString()}</div>
+                                        </div>
+                                    ))}
+                                    {addMembership && (
+                                        <div className="flex justify-between border-b border-slate-50 pb-2">
+                                            <div className="text-[10px] font-bold text-blue-600 uppercase italic">FIC Premium Membership</div>
+                                            <div className="text-[10px] font-black text-blue-600">₹{membershipPrice}</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl">
+                                    <div className="text-xs font-black text-slate-900 uppercase tracking-tight italic">Total Amount Paid</div>
+                                    <div className="text-xl font-black text-blue-600 tracking-tighter">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</div>
+                                </div>
+
+                                <div className="mt-8 flex items-center gap-4">
+                                    <img src="/registration_qr.png" alt="Scan" className="w-12 h-12 grayscale opacity-30" />
+                                    <div>
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Verification Signal</p>
+                                        <p className="text-[9px] font-bold text-slate-900 uppercase">Transaction ID: {lastOrder?.paymentResult?.id || 'AUTH_PENDING'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* DOWNLOAD & SHARE ACTIONS */}
+                            <div className="flex flex-col gap-4">
+                                <button onClick={handleDownloadInvoice} className="w-full py-4 bg-green-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-green-500/20 hover:scale-105 transition-all flex items-center justify-center gap-3">
+                                    Download Digital Invoice
+                                </button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button onClick={() => handleShareInvoice('whatsapp')} className="py-4 bg-[#25D366] text-white font-black rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2">
+                                        <Smartphone size={14} /> WhatsApp
+                                    </button>
+                                    <button onClick={() => handleShareInvoice('gmail')} className="py-4 bg-[#EA4335] text-white font-black rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2">
+                                        <Mail size={14} /> Gmail
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 const LocationContext = createContext();
 
@@ -21,15 +22,21 @@ export const LocationProvider = ({ children }) => {
         setStatus('loading');
         if (!navigator.geolocation) {
             setStatus('error');
+            toast.error('Geolocation is not supported by your browser');
             return;
         }
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        };
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
                 try {
-                    // Using BigDataCloud for free reverse geocoding (no key required for client-side basic requests usually)
-                    // Or OpenStreetMap Nominatim
+                    // Using BigDataCloud for reverse geocoding
                     const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
                     const data = await response.json();
                     
@@ -47,16 +54,22 @@ export const LocationProvider = ({ children }) => {
                     localStorage.setItem('fic_location_asked', 'true');
                     setStatus('success');
                     setShowModal(false);
+                    toast.success(`Location identified: ${newLocation.city}`);
                 } catch (err) {
                     console.error('Reverse geocoding failed:', err);
                     setStatus('error');
+                    toast.error('Failed to resolve city name');
                 }
             },
             (error) => {
                 console.error('Geolocation error:', error);
                 setStatus('denied');
                 localStorage.setItem('fic_location_asked', 'true');
-            }
+                if (error.code === 1) toast.error('Location permission denied');
+                else if (error.code === 2) toast.error('Location unavailable');
+                else if (error.code === 3) toast.error('Location request timed out');
+            },
+            options
         );
     };
 
