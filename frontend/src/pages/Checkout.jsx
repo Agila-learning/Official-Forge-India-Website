@@ -619,17 +619,18 @@ const Checkout = () => {
                                             <Lock size={18} /> PAY SECURELY NOW
                                         </button>
                                     </div>
-                           )}
                                 </div>
-                                 <div className="bg-white dark:bg-dark-card rounded-2xl p-6 border border-gray-100 dark:border-gray-800 flex items-center gap-4">
+                            </div>
+
+                            <div className="bg-white dark:bg-dark-card rounded-2xl p-6 border border-gray-100 dark:border-gray-800 flex items-center gap-4">
                                 <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600">
                                     <HelpCircle size={20} />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase">Need Help?</p>
-                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-0.5">Direct line: +91 00000 00000</p>
+                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-0.5">Call: +91 63694 06416 | support@forgeindia.com</p>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                     </div>
                 </div>
