@@ -124,7 +124,8 @@ const Navbar = () => {
   const exploreOptions = [
     { name: 'Job Hub', desc: 'Careers & Recruitment', path: '/explore-jobs', icon: <Briefcase size={20} /> },
     { name: 'Home Services', desc: 'Book verified experts', path: '/home-services', icon: <Wrench size={20} /> },
-    { name: 'Industrial Shop', desc: 'Direct Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> }
+    { name: 'Industrial Shop', desc: 'Direct Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> },
+    { name: 'Join as Agent', desc: 'Partner with FIC', path: '/yet-to-launch', icon: <Network size={20} /> }
   ];
 
   const getNavLinks = () => {
@@ -167,9 +168,13 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-3 md:gap-4 group relative shrink-0 h-12">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                 <motion.img 
-                  src="/logo.jpg" 
+                  src="/logo.svg" 
                   alt="FIC Logo" 
                   className="w-[90%] h-[90%] object-contain rounded-lg"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/logo.jpg";
+                  }}
                   animate={{ scale: [1, 1.08, 1] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -406,7 +411,15 @@ const Navbar = () => {
               <div className="p-6 md:p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-sm sticky top-0 z-[10]">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1.5 shadow-lg shrink-0">
-                    <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
+                    <img 
+                      src="/logo.svg" 
+                      alt="Logo" 
+                      className="w-full h-full object-contain rounded-lg" 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/logo.jpg";
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col leading-none min-w-0">
                     <span className="font-black text-base md:text-lg tracking-tighter text-blue-600 dark:text-blue-400 uppercase truncate">FORGE INDIA</span>

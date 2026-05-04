@@ -45,6 +45,8 @@ const Register = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
+  const [showShopCodeModal, setShowShopCodeModal] = useState(false);
+  const [generatedShopCode, setGeneratedShopCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -57,7 +59,8 @@ const Register = () => {
     try {
       const { data } = await api.post('/upload', formDataUpload);
       const url = typeof data === 'string' ? (data.startsWith('/') ? `http://localhost:5000${data}` : data) : data.url || data;
-      setFormData({ ...formData, profileDocuments: [...formData.profileDocuments, url] });
+      const fileName = file.name;
+      setFormData({ ...formData, profileDocuments: [...formData.profileDocuments, { url, name: fileName }] });
     } catch (err) {
       setError('File upload failed. Please try again.');
     } finally {
@@ -133,7 +136,12 @@ const Register = () => {
       const { data } = await api.post('/auth/register', submissionData);
       
       if (data.approvalStatus === 'Pending') {
-         setShowPendingApproval(true);
+         if (data.shopCode) {
+            setGeneratedShopCode(data.shopCode);
+            setShowShopCodeModal(true);
+         } else {
+            setShowPendingApproval(true);
+         }
       } else {
          localStorage.setItem('token', data.token);
          localStorage.setItem('userInfo', JSON.stringify(data));
@@ -448,6 +456,34 @@ const Register = () => {
                       <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={14}/> {formData.role === 'Service Provider' ? 'Service Area' : 'Shop Location'} on Map</label>
                       <ShopLocationPicker onLocationSelect={loc => setFormData({...formData, exactLocation: loc})} />
                     </div>
+
+                    <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">KYC Documents (Required)</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aadhar Card (Front/Back Combined)</label>
+                          <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
+                            <div className="flex items-center gap-3">
+                              <FileText size={20} className={formData.profileDocuments.some(d => d.name?.toLowerCase().includes('aadhar')) ? "text-green-500" : "text-slate-300"} />
+                              <span className="text-xs font-bold text-slate-500">{formData.profileDocuments.some(d => d.name?.toLowerCase().includes('aadhar')) ? 'Aadhar Attached' : 'Select PDF/Image'}</span>
+                            </div>
+                            <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleFileUpload} />
+                            {uploading && <Loader2 className="animate-spin text-primary" size={16} />}
+                          </label>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PAN Card</label>
+                          <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
+                            <div className="flex items-center gap-3">
+                              <FileText size={20} className={formData.profileDocuments.some(d => d.name?.toLowerCase().includes('pan')) ? "text-green-500" : "text-slate-300"} />
+                              <span className="text-xs font-bold text-slate-500">{formData.profileDocuments.some(d => d.name?.toLowerCase().includes('pan')) ? 'PAN Attached' : 'Select PDF/Image'}</span>
+                            </div>
+                            <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleFileUpload} />
+                            {uploading && <Loader2 className="animate-spin text-primary" size={16} />}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -518,6 +554,29 @@ const Register = () => {
                <div className="grid grid-cols-1 gap-4">
                   <button onClick={handleRegistrationSubmit} className="btn-primary w-full !py-5 !rounded-2xl shadow-xl shadow-primary/20">Authorize & Pay</button>
                   <button onClick={() => setShowPayment(false)} className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500">Cancel</button>
+               </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showShopCodeModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/80 backdrop-blur-xl p-6">
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-white dark:bg-dark-card w-full max-w-lg rounded-[3rem] p-12 text-center shadow-2xl border border-slate-100 dark:border-slate-800">
+               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 text-primary">
+                  <ShoppingBag size={40} />
+               </div>
+               <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-2">Registration Success!</h3>
+               <p className="text-slate-500 font-medium mb-8">Your account is created and pending admin verification. Here is your unique Shop Code:</p>
+               
+               <div className="p-8 bg-slate-50 dark:bg-dark-bg rounded-[2rem] mb-10 border-2 border-dashed border-primary/30 relative group overflow-hidden">
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 relative z-10">Official Shop Identifier</p>
+                  <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10">{generatedShopCode}</p>
+               </div>
+
+               <div className="space-y-4">
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">You can login once the admin approves your KYC documents.</p>
+                  <Link to="/" className="btn-primary w-full !py-5 !rounded-2xl !bg-slate-900">Return to Homepage</Link>
                </div>
             </motion.div>
           </motion.div>

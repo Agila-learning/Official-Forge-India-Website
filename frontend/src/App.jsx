@@ -36,6 +36,7 @@ import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
 import JobConsultingPage from './pages/JobConsultingPage';
 import AgentDashboard from './pages/AgentDashboard';
+import YetToLaunch from './pages/YetToLaunch';
 
 import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
@@ -157,6 +158,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProductRedirect />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/yet-to-launch" element={<YetToLaunch />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
@@ -164,9 +166,13 @@ const ContentWrapper = ({ loading }) => {
       {/* Global Branded Watermark */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[-1] overflow-hidden">
         <img 
-          src="/logo.jpg" 
+          src="/logo.svg" 
           alt="Connect Watermark" 
           className="w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] object-contain opacity-[0.03] grayscale dark:invert transition-opacity duration-1000"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/logo.jpg";
+          }}
         />
       </div>
       

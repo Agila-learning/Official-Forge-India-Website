@@ -141,8 +141,16 @@ const Login = () => {
             {/* Logo Mobile */}
             <div className="lg:hidden flex justify-center mb-8">
               <Link to="/" className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-xl p-1 shadow-lg border border-slate-100">
-                  <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
+                <div className="w-12 h-12 bg-white rounded-xl p-1 shadow-lg border border-slate-100 flex items-center justify-center">
+                  <img 
+                    src="/logo.svg" 
+                    alt="FIC Logo" 
+                    className="w-full h-full object-contain" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/logo.jpg";
+                    }}
+                  />
                 </div>
                 <div className="text-left leading-none">
                   <span className="text-xl font-black text-slate-900 dark:text-white block tracking-tighter uppercase">FORGE INDIA</span>

@@ -26,7 +26,7 @@ const registerUser = async (req, res) => {
   let registrationFee = 0;
   let shopCode = undefined;
 
-  if (assignedRole === 'Vendor') {
+  if (['Vendor', 'Seller', 'Service Provider'].includes(assignedRole)) {
       const year = new Date().getFullYear();
       const random = Math.floor(10000 + Math.random() * 90000);
       shopCode = `FIC-SHOP-${year}-${random}`;
@@ -150,7 +150,7 @@ const onboardUser = async (req, res) => {
         }
 
         let shopCode = undefined;
-        if (role === 'Vendor') {
+        if (['Vendor', 'Seller', 'Service Provider'].includes(role)) {
             const year = new Date().getFullYear();
             const random = Math.floor(10000 + Math.random() * 90000);
             shopCode = `FIC-SHOP-${year}-${random}`;

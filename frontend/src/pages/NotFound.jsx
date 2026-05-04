@@ -63,7 +63,15 @@ const NotFound = () => {
 
         {/* Decorative elements */}
         <div className="mt-20 flex justify-center gap-12 opacity-20 grayscale">
-            <img src="/logo.jpg" alt="" className="w-12 h-12 object-contain rounded-xl" />
+            <img 
+              src="/logo.svg" 
+              alt="" 
+              className="w-12 h-12 object-contain rounded-xl" 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/logo.jpg";
+              }}
+            />
             <div className="w-12 h-12 bg-primary rounded-xl" />
             <div className="w-12 h-12 bg-secondary rounded-xl" />
         </div>
