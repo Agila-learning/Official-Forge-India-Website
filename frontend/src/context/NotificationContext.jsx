@@ -48,10 +48,10 @@ export const NotificationProvider = ({ children }) => {
             const socket = io(socketUrl, {
                 withCredentials: true,
                 path: '/socket.io',
-                transports: isProd ? ['websocket'] : ['websocket', 'polling'],
+                transports: ['polling', 'websocket'], // Force polling fallback for production stability
                 reconnection: true,
-                reconnectionAttempts: 3,
-                reconnectionDelay: 10000,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 5000,
                 timeout: 30000
             });
 
