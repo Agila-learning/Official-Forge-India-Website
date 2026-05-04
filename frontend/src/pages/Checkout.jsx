@@ -57,29 +57,29 @@ const Checkout = () => {
         { 
             id: 'GPay', 
             name: 'Google Pay', 
-            logo: 'https://www.gstatic.com/lamda/images/pay_logo_light.v2.svg',
+            logo: '/payment-logos/gpay.svg',
             desc: 'Fast & Secure UPI',
             time: 'Instant'
         },
         { 
             id: 'PhonePe', 
             name: 'PhonePe', 
-            logo: 'https://www.vectorlogo.zone/logos/phonepe/phonepe-icon.svg',
+            logo: '/payment-logos/phonepe.svg',
             desc: 'Unified Payments Interface',
             time: 'Instant'
         },
         { 
             id: 'Paytm', 
             name: 'Paytm', 
-            logo: 'https://www.vectorlogo.zone/logos/paytm/paytm-ar21.svg',
+            logo: '/payment-logos/paytm.svg',
             desc: 'Digital Wallet & UPI',
             time: 'Instant'
         },
         { 
             id: 'Card', 
             name: 'Credit / Debit Card', 
-            logo: 'https://www.vectorlogo.zone/logos/visa/visa-ar21.svg',
-            secondaryLogo: 'https://www.vectorlogo.zone/logos/mastercard/mastercard-ar21.svg',
+            logo: '/payment-logos/visa.svg',
+            secondaryLogo: '/payment-logos/mastercard.svg',
             desc: 'Visa, Mastercard, RuPay',
             time: 'Secure'
         }
