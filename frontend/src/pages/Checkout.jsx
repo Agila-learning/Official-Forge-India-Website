@@ -635,6 +635,7 @@ const Checkout = () => {
                     </div>
                 </div>
             </div>
+        </div>
 
             {/* SUCCESS MODAL FLOW */}
             <AnimatePresence>
