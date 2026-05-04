@@ -190,7 +190,7 @@ const MarketplaceHero = () => {
                             {/* Network Connection Lines */}
                             <svg className="absolute inset-0 w-full h-full z-10 pointer-events-none p-10">
                                 <motion.path 
-                                    d="M 30% 30% L 60% 40% L 50% 70% L 20% 50% Z" 
+                                    d="M 180 210 L 360 280 L 300 490 L 120 350 Z" 
                                     fill="none" 
                                     stroke="url(#lineGrad)" 
                                     strokeWidth="1"
