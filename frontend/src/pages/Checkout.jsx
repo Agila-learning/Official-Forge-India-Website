@@ -57,44 +57,30 @@ const Checkout = () => {
         { 
             id: 'GPay', 
             name: 'Google Pay', 
-            logo: 'https://www.vectorlogo.zone/logos/google_pay/google_pay-icon.svg',
+            logo: 'https://www.vectorlogo.zone/logos/google_pay/google_pay-official.svg',
             desc: 'Pay instantly via UPI',
             time: 'Instant'
         },
         { 
             id: 'PhonePe', 
             name: 'PhonePe', 
-            logo: 'https://www.vectorlogo.zone/logos/phonepe/phonepe-icon.svg',
+            logo: 'https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.svg',
             desc: 'Secure UPI payment',
             time: 'Instant'
         },
         { 
             id: 'Paytm', 
             name: 'Paytm', 
-            logo: 'https://www.vectorlogo.zone/logos/paytm/paytm-icon.svg',
+            logo: 'https://www.vectorlogo.zone/logos/paytm/paytm-ar21.svg',
             desc: 'Wallet or UPI',
             time: 'Instant'
         },
         { 
             id: 'Card', 
             name: 'Credit / Debit Card', 
-            icon: <CreditCard className="text-gray-400" />,
+            logo: 'https://www.vectorlogo.zone/logos/visa/visa-ar21.svg',
             desc: 'Visa, Mastercard, RuPay',
             time: '2-3 mins'
-        },
-        { 
-            id: 'NetBanking', 
-            name: 'Net Banking', 
-            icon: <Building2 className="text-gray-400" />,
-            desc: 'All major Indian banks',
-            time: '3-5 mins'
-        },
-        { 
-            id: 'COD', 
-            name: 'Cash on Delivery', 
-            icon: <Truck className="text-gray-400" />,
-            desc: 'Pay after service execution',
-            time: 'Variable'
         }
     ];
 
@@ -174,19 +160,26 @@ const Checkout = () => {
         setLoadingText('Connecting to Secure Gateway...');
         
         try {
-            await new Promise(r => setTimeout(r, 2000));
+            // Integration: Create real Razorpay order
+            const { data: rzpOrder } = await api.post('/payments/create-order', {
+                amount: totalPrice,
+                orderId: `TMP_${Date.now()}`
+            });
+
             setLoadingText('Authenticating Transaction...');
-            await new Promise(r => setTimeout(r, 1500));
+            
+            // Simulation: Success after creating order
+            await new Promise(r => setTimeout(r, 2000));
             
             const orderData = {
                 orderItems: cartItems.map(item => ({
                     name: item.name, qty: item.qty, image: item.image, price: item.price, product: item._id,
                     slot: item.slot || selectedSlot, isService: item.isService
                 })),
-                shippingAddress: address,
+                shippingAddress: isDigitalOnly ? { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' } : address,
                 paymentMethod,
                 totalPrice,
-                fulfillmentType
+                fulfillmentType: isDigitalOnly ? 'Instant Activation' : fulfillmentType
             };
 
             await api.post('/orders', orderData);
@@ -201,16 +194,9 @@ const Checkout = () => {
             
             setTimeout(() => {
                 clearCart();
-                // Update local storage userInfo if membership was added
                 if (addMembership || isDigitalOnly) {
                     const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
                     updatedUserInfo.isMember = true;
-                    updatedUserInfo.membershipVault = {
-                        ...updatedUserInfo.membershipVault,
-                        planTier: 'Pro',
-                        planValue: addMembership ? (updatedUserInfo.membershipVault?.planValue || 0) + 1000 : 1000,
-                        cycleEndDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
-                    };
                     localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
                     toast.success('Digital Membership Activated Instantly!', { icon: '💎' });
                 }
@@ -219,7 +205,8 @@ const Checkout = () => {
             }, 2000);
             
         } catch (err) {
-            toast.error('Payment Authorization Failed');
+            console.error('Payment Error:', err);
+            toast.error(err.response?.data?.message || 'Payment Authorization Failed');
             setPaymentStatus('idle');
             setLoading(false);
         }

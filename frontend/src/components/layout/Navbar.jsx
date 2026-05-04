@@ -283,16 +283,31 @@ const Navbar = () => {
                   >
                     <div className="flex justify-between items-center mb-6">
                       <h4 className="text-sm font-black uppercase tracking-tighter italic">Intelligence <span className="text-secondary">Feed</span></h4>
-                      <button onClick={markAllAsRead} className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors">Wipe All</button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAllAsRead();
+                        }} 
+                        className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors bg-gray-50 dark:bg-dark-bg px-3 py-1.5 rounded-full border border-gray-100 dark:border-gray-800"
+                      >
+                        Clear Signals
+                      </button>
                     </div>
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                       {notifications.length === 0 ? (
                         <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic tracking-widest">No signals detected</p>
                       ) : (
                         notifications.map((n) => (
-                          <div key={n._id} className={`p-4 rounded-2xl border ${n.read ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800' : 'bg-secondary/5 border-secondary/20 shadow-md'} transition-all`}>
-                             <p className="text-xs font-bold text-gray-900 dark:text-white leading-tight">{n.message}</p>
-                             <p className="text-[8px] font-black text-gray-400 uppercase mt-2">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                          <div 
+                            key={n._id} 
+                            onClick={() => !n.isRead && markAsRead(n._id)}
+                            className={`p-4 rounded-2xl border cursor-pointer group/notifitem transition-all ${n.isRead ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800 opacity-60' : 'bg-secondary/5 border-secondary/20 shadow-md ring-1 ring-secondary/10'}`}
+                          >
+                             <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
+                             <div className="flex items-center justify-between mt-2">
+                                <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                                {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
+                             </div>
                           </div>
                         ))
                       )}

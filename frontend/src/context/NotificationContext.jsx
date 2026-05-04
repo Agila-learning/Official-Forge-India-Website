@@ -112,12 +112,15 @@ export const NotificationProvider = ({ children }) => {
     };
 
     const markAllAsRead = async () => {
+        if (!userInfo) return;
         try {
             await api.put('/notifications/read-all');
             setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
             setUnreadCount(0);
             toast.success('Clearance authorized. All signals acknowledged.');
         } catch (err) {
+            console.error('Clear All Failed:', err);
+            // Fallback: Try marking individually if bulk fails
             notifications.forEach(n => !n.isRead && markAsRead(n._id));
         }
     };

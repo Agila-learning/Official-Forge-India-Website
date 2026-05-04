@@ -129,6 +129,8 @@ const Profile = () => {
     }
   };
 
+  const [isPremiumView, setIsPremiumView] = useState(true);
+
   const handleRemoveDoc = async (docId) => {
     try {
         const updatedDocs = vaultDocs.filter(doc => doc._id !== docId);
@@ -536,9 +538,9 @@ const Profile = () => {
                         <div className="relative z-10 text-white text-left">
                             <h4 className="text-2xl md:text-4xl font-black mb-4 tracking-tighter uppercase italic">Vault Status: <span className="opacity-60">Locked</span></h4>
                             <p className="text-white/80 text-base md:text-lg max-w-xl font-medium leading-relaxed mb-10 italic">Your personal data vault uses enterprise-grade encryption to protect your sensitive service data and history.</p>
-                            <div className="flex flex-wrap gap-4">
-                                <button className="px-8 md:px-10 py-4 md:py-5 bg-white text-primary font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl flex items-center gap-3"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
-                                <button className="px-8 md:px-10 py-4 md:py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest flex items-center gap-3"><Eye size={16} /> Activity Log</button>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <button className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-primary font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
+                                <button className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all"><Eye size={16} /> Activity Log</button>
                             </div>
                         </div>
                     </div>
@@ -552,36 +554,62 @@ const Profile = () => {
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="space-y-12 pb-20"
               >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-10">
+                  <div className="text-left">
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-2">Member <span className="text-primary italic">Central</span></h3>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Control your digital service access & tier benefits</p>
+                  </div>
+                  
+                  <div className="flex items-center bg-white dark:bg-dark-card p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg">
+                    <button 
+                      onClick={() => setIsPremiumView(true)}
+                      className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isPremiumView ? 'bg-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
+                    >
+                      Premium View
+                    </button>
+                    <button 
+                      onClick={() => setIsPremiumView(false)}
+                      className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${!isPremiumView ? 'bg-primary text-white shadow-lg' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white'}`}
+                    >
+                      Classic View
+                    </button>
+                  </div>
+                </div>
+
                 {/* Non-member CTA */}
                 {(!membershipData || membershipData.planTier === 'None') && (
-                  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[3rem] p-10 md:p-16 text-white text-center relative overflow-hidden shadow-2xl">
-                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                  <div className={isPremiumView ? "bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[3rem] p-10 md:p-16 text-white text-center relative overflow-hidden shadow-2xl" : "bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-[2.5rem] p-10 text-center"}>
                     <div className="relative z-10">
-                      <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 text-yellow-300">
+                      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-8 ${isPremiumView ? 'bg-white/10 text-yellow-300' : 'bg-primary/10 text-primary'}`}>
                         <Zap size={40} />
                       </div>
-                      <h3 className="text-3xl md:text-5xl font-black tracking-tighter mb-6 uppercase italic">Unlock Forge <span className="text-yellow-300">Membership</span></h3>
-                      <p className="text-white/70 max-w-xl mx-auto text-lg font-medium leading-relaxed mb-10 italic">Get unlimited access to Home Services, Job Consulting, and Premium Products for one flat monthly fee.</p>
-                      <div className="flex flex-wrap justify-center gap-4 mb-12">
+                      <h3 className={`text-3xl md:text-5xl font-black tracking-tighter mb-6 uppercase italic ${!isPremiumView && 'text-gray-900 dark:text-white'}`}>Unlock Forge <span className={isPremiumView ? "text-yellow-300" : "text-primary"}>Membership</span></h3>
+                      <p className={`max-w-xl mx-auto text-lg font-medium leading-relaxed mb-10 italic ${isPremiumView ? "text-white/70" : "text-gray-500"}`}>Get unlimited access to Home Services, Job Consulting, and Premium Products for one flat monthly fee.</p>
+                      <div className="flex flex-wrap justify-center gap-6 mb-12">
                         {[
-                          { tier: 'Basic', price: '₹5,000', perks: ['5 Service Credits', 'Job Portal Access', 'Priority Support'] },
-                          { tier: 'Premium', price: '₹10,000', perks: ['15 Service Credits', 'IT Consultation', 'Featured Listings'] },
-                          { tier: 'Elite', price: '₹25,000', perks: ['Unlimited Credits', 'Dedicated Manager', 'All-Access Pass'] },
+                          { tier: 'Basic', price: '₹5,000', tag: 'Strategic Choice', perks: ['5 Service Credits', 'Job Portal Access', 'Priority Support'] },
+                          { tier: 'Premium', price: '₹10,000', tag: 'Best Value', perks: ['15 Service Credits', 'IT Consultation', 'Featured Listings'] },
+                          { tier: 'Elite', price: '₹25,000', tag: 'Enterprise Grade', perks: ['Unlimited Credits', 'Dedicated Manager', 'All-Access Pass'] },
                         ].map(plan => (
-                          <div key={plan.tier} className="bg-white/10 backdrop-blur-md rounded-[2rem] p-8 border border-white/20 text-left min-w-[200px]">
-                            <p className="text-xs font-black uppercase tracking-widest text-white/60 mb-2">{plan.tier}</p>
-                            <p className="text-2xl font-black text-white mb-4">{plan.price}</p>
-                            <ul className="space-y-2">
-                              {plan.perks.map(p => <li key={p} className="text-xs text-white/70 font-bold flex items-center gap-2"><ShieldCheck size={12} className="text-yellow-300 shrink-0" />{p}</li>)}
+                          <div key={plan.tier} className={`${isPremiumView ? 'bg-white/10 backdrop-blur-md border-white/20' : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-gray-800'} rounded-[2rem] p-8 border text-left min-w-[280px] group hover:-translate-y-2 transition-all duration-500 relative overflow-hidden`}>
+                            {plan.tag && (
+                                <div className="absolute top-0 right-0 px-4 py-1.5 bg-yellow-400 text-dark-bg text-[9px] font-black uppercase tracking-widest rounded-bl-2xl shadow-lg">
+                                    {plan.tag}
+                                </div>
+                            )}
+                            <p className={`text-xs font-black uppercase tracking-widest mb-2 ${isPremiumView ? "text-white/60" : "text-gray-400"}`}>{plan.tier}</p>
+                            <p className={`text-3xl font-black mb-6 ${isPremiumView ? "text-white" : "text-gray-900 dark:text-white"}`}>{plan.price}</p>
+                            <ul className="space-y-3 mb-8">
+                              {plan.perks.map(p => <li key={p} className={`text-xs font-bold flex items-center gap-2 ${isPremiumView ? "text-white/70" : "text-gray-500"}`}><ShieldCheck size={14} className={isPremiumView ? "text-yellow-300" : "text-primary"} />{p}</li>)}
                             </ul>
                             <button
                               onClick={() => {
                                 addToCart({ _id: `membership-${plan.tier.toLowerCase()}`, name: `FIC ${plan.tier} Membership`, price: parseInt(plan.price.replace(/[^0-9]/g, '')), isService: true, qty: 1 });
                                 toast.success(`${plan.tier} Membership added to cart!`);
                               }}
-                              className="mt-6 w-full py-3 bg-white text-blue-700 font-black rounded-2xl text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
+                              className={`w-full py-4 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 ${isPremiumView ? "bg-white text-blue-700 hover:bg-yellow-400 hover:text-dark-bg" : "bg-primary text-white hover:bg-blue-700"}`}
                             >
-                              Get {plan.tier}
+                              Activate Membership
                             </button>
                           </div>
                         ))}
