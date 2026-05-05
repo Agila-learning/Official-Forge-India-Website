@@ -25,7 +25,7 @@ const DeliveryDashboard = () => {
         const socket = io(SOCKET_URL, {
             withCredentials: true,
             path: SOCKET_PATH,
-            transports: ['websocket', 'polling'],
+            transports: ['polling', 'websocket'],
             reconnection: true,
             reconnectionAttempts: 10
         });
