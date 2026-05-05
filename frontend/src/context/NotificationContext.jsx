@@ -43,7 +43,7 @@ export const NotificationProvider = ({ children }) => {
             const isProd = window.location.hostname !== 'localhost';
             const socket = io(SOCKET_URL, {
                 withCredentials: true,
-                path: '/socket.io',
+                path: '/fic-ws',
                 transports: ['polling', 'websocket'], // Force polling fallback for production stability
                 reconnection: true,
                 reconnectionAttempts: 5,
