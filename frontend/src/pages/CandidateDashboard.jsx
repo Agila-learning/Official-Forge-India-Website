@@ -100,54 +100,73 @@ const CandidateDashboard = () => {
     }
   };
 
-  // Removed Razorpay load script
-
-  // ── Handle Consulting Form Submit + Open QR Modal ──────────
+  // ── Handle Consulting Form Submit with Razorpay ──────────
   const handleConsultingPayment = async () => {
     if (!consultingForm.consultingType || !consultingForm.specificRequirement || !consultingForm.contactNumber) {
-      toast.error('Please fill all required fields.');
+      toast.error('Strategic Intelligence: Please fill all required fields');
       return;
     }
+
     setIsSubmittingConsulting(true);
     try {
-      // Step 1: Create inquiry on backend
+      // Step 1: Create inquiry + Razorpay Order on backend
       const { data } = await api.post('/job-consulting/submit', consultingForm);
-      setPendingInquiryId(data.inquiryId);
+      
+      const options = {
+        key: data.keyId,
+        amount: data.amount * 100,
+        currency: data.currency,
+        name: "Forge India Connect",
+        description: `Job Consulting - ${data.consultingType}`,
+        image: "/logo.jpg",
+        order_id: data.razorpayOrderId,
+        handler: async (response) => {
+          setIsSubmittingConsulting(true);
+          try {
+            // Step 2: Verify payment on backend
+            await api.post('/job-consulting/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              inquiryId: data.inquiryId
+            });
+            
+            setConsultingPaymentSuccess(true);
+            toast.success('🎉 Payment Confirmed! Our expert will reach out to you shortly.');
+            setConsultingForm({
+              consultingType: 'Career Guidance',
+              experience: 'Fresher (0-1 yr)',
+              currentRole: '', specificRequirement: '', message: '',
+              contactNumber: userInfo?.mobile || '',
+            });
+            fetchData();
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
+          } finally {
+            setIsSubmittingConsulting(false);
+          }
+        },
+        prefill: {
+          name: data.candidateName,
+          email: data.email,
+          contact: data.contactNumber
+        },
+        theme: { color: "#2563eb" },
+        modal: {
+          ondismiss: () => {
+            setIsSubmittingConsulting(false);
+            toast.error('Payment cancelled');
+          }
+        }
+      };
 
-      // Step 2: Show QR Modal
-      setShowQRModal(true);
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Something went wrong. Please try again.');
-    } finally {
+      toast.error(err.response?.data?.message || 'Payment initialization failed');
       setIsSubmittingConsulting(false);
     }
   };
-
-  const handleQRConfirm = async () => {
-      setShowQRModal(false);
-      setIsSubmittingConsulting(true);
-      try {
-          // Verify with backend
-          await api.post('/job-consulting/verify-payment', {
-              razorpay_order_id: `order_mock_${Date.now()}`,
-              razorpay_payment_id: `pay_mock_${Date.now()}`,
-              razorpay_signature: 'mock_signature',
-              inquiryId: pendingInquiryId
-          });
-          
-          setConsultingPaymentSuccess(true);
-          toast.success('🎉 Payment Confirmed! Our expert will reach out to you shortly.');
-          setConsultingForm({
-            consultingType: 'Career Guidance',
-            experience: 'Fresher (0-1 yr)',
-            currentRole: '', specificRequirement: '', message: '',
-            contactNumber: userInfo?.mobile || '',
-          });
-          fetchData();
-      } catch (err) {
-          toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
-      } finally {
-          setIsSubmittingConsulting(false);
       }
   };
 
@@ -866,41 +885,6 @@ const CandidateDashboard = () => {
                 </motion.div>
                 )}
 
-                {/* ── EXPLORE SHOP ────────────────────────────────────────── */}
-                {activeTab === 'shop' && (
-                <motion.div key="shop" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
-                    <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[3rem] p-12 text-center border border-white/5 shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
-                        <div className="relative z-10">
-                            <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 -rotate-12">
-                                <ShoppingBag size={48} className="text-primary" />
-                            </div>
-                            <h2 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Connect <span className="text-primary italic">Marketplace</span></h2>
-                            <p className="text-gray-400 text-lg font-medium mb-12 max-w-xl mx-auto">
-                                Access our exclusive ecosystem of high-performance products, professional services, and essential kits curated for the FIC network.
-                            </p>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
-                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Products</h4>
-                                    <p className="text-[10px] text-gray-500 font-bold">Industrial assets, health, beauty, and electronics.</p>
-                                </div>
-                                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                                    <h4 className="text-primary font-black text-xs uppercase tracking-widest mb-2">Services</h4>
-                                    <p className="text-[10px] text-gray-500 font-bold">Professional consulting, home services, and more.</p>
-                                </div>
-                            </div>
-
-                            <button 
-                                onClick={() => navigate('/explore-shop')}
-                                className="px-10 py-5 bg-primary text-white font-black rounded-full text-lg shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
-                            >
-                                Enter Marketplace
-                            </button>
-                        </div>
-                    </div>
-                </motion.div>
-                )}
 
                 {/* ── JOB CONSULTING ────────────────────────────────────── */}
                 {activeTab === 'consulting' && (

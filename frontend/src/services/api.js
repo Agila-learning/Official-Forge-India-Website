@@ -3,6 +3,10 @@ import axios from 'axios';
 // Use relative path for API, which is proxied by Vite (dev) or Vercel (prod)
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
+// Socket.io URL configuration
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 
+  (window.location.hostname === 'localhost' ? 'http://localhost:5001' : window.location.origin);
+
 const api = axios.create({
   baseURL: API_URL,
 });

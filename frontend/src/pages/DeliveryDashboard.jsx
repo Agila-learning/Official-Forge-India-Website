@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, MapPin, CheckCircle2, Clock, LogOut, Package, Navigation, AlertTriangle, Edit, LayoutDashboard, Users, ShieldCheck } from 'lucide-react';
-import api from '../services/api';
+import api, { SOCKET_URL } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,9 +21,8 @@ const DeliveryDashboard = () => {
         fetchOrders();
         
         // Real-time notifications connection
-        const socketUrl = window.location.hostname === 'localhost' ? 'http://localhost:5001' : window.location.origin;
         const isProd = window.location.hostname !== 'localhost';
-        const socket = io(socketUrl, { 
+        const socket = io(SOCKET_URL, { 
             transports: isProd ? ['websocket'] : ['websocket', 'polling'],
             path: '/socket.io'
         });

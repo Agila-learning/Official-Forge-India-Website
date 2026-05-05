@@ -1,4 +1,11 @@
 const User = require('../models/User');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret'
+});
 
 const getUsers = async (req, res) => {
   try {
@@ -210,6 +217,52 @@ const purchaseMembershipVault = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    // Create Razorpay Order
+    const options = {
+      amount: Number(planValue) * 100, // paise
+      currency: "INR",
+      receipt: `vault_${user._id.toString().slice(-6)}_${Date.now()}`,
+      notes: {
+        planTier,
+        userId: user._id.toString(),
+        type: 'MembershipVault'
+      }
+    };
+
+    const rzpOrder = await razorpay.orders.create(options);
+
+    res.json({
+      orderId: rzpOrder.id,
+      amount: rzpOrder.amount,
+      currency: rzpOrder.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
+      planTier,
+      planValue
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const verifyMembershipVaultPayment = async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planValue, planTier } = req.body;
+
+  try {
+    // 1. Verify Signature
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret')
+      .update(body.toString())
+      .digest("hex");
+
+    if (razorpay_signature !== expectedSignature) {
+      return res.status(400).json({ message: 'Invalid Payment Signature' });
+    }
+
+    // 2. Update User Vault
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
     const now = new Date();
     const cycleEnd = new Date(now);
     cycleEnd.setMonth(cycleEnd.getMonth() + 1);
@@ -231,5 +284,5 @@ const purchaseMembershipVault = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault };
+module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault, verifyMembershipVaultPayment };
 

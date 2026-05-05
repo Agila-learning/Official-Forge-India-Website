@@ -126,82 +126,114 @@ const Checkout = () => {
 
         setLoading(true);
         setPaymentStatus('processing');
-        setLoadingText('Connecting to Secure Gateway...');
+        setLoadingText('Initiating Secure Transaction...');
         
         try {
-            // 1. Create Order on Backend
-            const { data: rzpOrder } = await api.post('/payments/create-order', {
-                amount: totalPrice,
-                currency: 'INR',
-                receipt: `FIC_${Date.now()}`
-            });
-
-            if (!rzpOrder || !rzpOrder.id) {
-                throw new Error('Failed to initiate payment protocol');
-            }
-
-            setLoadingText('Redirecting to secure payment...');
-
-            // 2. Initialize Razorpay (Mocking successful flow for testing if no key)
-            // In production, this would open the Razorpay SDK
-            await new Promise(r => setTimeout(r, 2000));
-            
-            // 3. Process Final Order
+            // 1. Create Pending Order on Backend
             const orderData = {
                 orderItems: cartItems.map(item => ({
-                    name: item.name, qty: item.qty, image: item.image, price: item.price, product: item._id,
-                    slot: item.slot || selectedSlot, isService: item.isService
+                    name: item.name, 
+                    qty: item.qty, 
+                    image: item.image, 
+                    price: item.price, 
+                    product: item._id,
+                    slot: item.slot || selectedSlot, 
+                    isService: item.isService
                 })),
                 shippingAddress: isDigitalOnly ? { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' } : address,
-                paymentMethod: `Razorpay QR (${paymentMethod})`,
+                paymentMethod: `Razorpay (${paymentMethod})`,
                 totalPrice,
                 fulfillmentType: isDigitalOnly ? 'Instant Activation' : fulfillmentType,
-                paymentResult: { id: rzpOrder.id, status: 'Pending Verification' }
+                instructions: 'Standard deployment protocol initiated via web checkout.'
             };
 
             const { data: finalOrder } = await api.post('/orders', orderData);
             setLastOrder(finalOrder);
-            
-            // 4. Show Verification Screen (QR Scanner)
-            setPaymentStatus('verifying');
+
+            // 2. Create Razorpay Order
+            const { data: rzpOrder } = await api.post('/payments/create-order', {
+                amount: totalPrice,
+                receipt: `order_${finalOrder._id.slice(-8)}`
+            });
+
+            if (!rzpOrder || !rzpOrder.id) {
+                throw new Error('Failed to synchronize with payment gateway');
+            }
+
+            // 3. Initialize Razorpay Checkout
+            const options = {
+                key: rzpOrder.keyId,
+                amount: rzpOrder.amount,
+                currency: rzpOrder.currency,
+                name: "Forge India Connect",
+                description: isDigitalOnly ? "Membership Activation" : "Service & Product Deployment",
+                image: "/logo.jpg",
+                order_id: rzpOrder.id,
+                handler: async (response) => {
+                    setLoading(true);
+                    setPaymentStatus('processing');
+                    setLoadingText('Verifying Authorization Signature...');
+                    try {
+                        const verifyPayload = {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: finalOrder._id
+                        };
+
+                        await api.post('/payments/verify', verifyPayload);
+                        
+                        setPaymentStatus('success');
+                        confetti({
+                            particleCount: 150,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#2563eb', '#10b981', '#f59e0b']
+                        });
+                        
+                        setTimeout(() => {
+                            clearCart();
+                            if (addMembership || isDigitalOnly) {
+                                const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                                updatedUserInfo.isMember = true;
+                                localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                            }
+                            setStep(4);
+                            setLoading(false);
+                        }, 1000);
+                    } catch (err) {
+                        toast.error('Signature verification failed. Please contact support.');
+                        setPaymentStatus('idle');
+                        setLoading(false);
+                    }
+                },
+                prefill: {
+                    name: `${userInfo.firstName || ''} ${userInfo.lastName || ''}`,
+                    email: userInfo.email,
+                    contact: ''
+                },
+                notes: {
+                    order_id: finalOrder._id
+                },
+                theme: { color: "#2563eb" },
+                modal: {
+                    ondismiss: () => {
+                        setPaymentStatus('idle');
+                        setLoading(false);
+                        toast('Transaction Aborted by User', { icon: '🛡️' });
+                    }
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
             setLoading(false);
+            setPaymentStatus('idle');
+            rzp.open();
             
         } catch (err) {
-            console.error('Payment Error:', err);
-            toast.error(err.response?.data?.message || 'Unable to initiate payment. Please try again.');
+            console.error('Payment Protocol Error:', err);
+            toast.error(err.response?.data?.message || 'Gateway Operational Failure');
             setPaymentStatus('idle');
-            setLoading(false);
-        }
-    };
-
-    const confirmPaymentVerification = async () => {
-        setLoading(true);
-        setLoadingText('Verifying Transaction...');
-        try {
-            // In a real app, we'd poll or wait for webhook. 
-            // Here we simulate verification after the user scans.
-            await new Promise(r => setTimeout(r, 2000));
-            
-            setPaymentStatus('success');
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#2563eb', '#10b981', '#f59e0b']
-            });
-            
-            setTimeout(() => {
-                clearCart();
-                if (addMembership || isDigitalOnly) {
-                    const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-                    updatedUserInfo.isMember = true;
-                    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
-                }
-                setStep(4);
-                setLoading(false);
-            }, 1000);
-        } catch {
-            toast.error('Verification failed. Please try again.');
             setLoading(false);
         }
     };
@@ -246,38 +278,7 @@ const Checkout = () => {
                     </motion.div>
                 )}
 
-                {paymentStatus === 'verifying' && (
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] bg-slate-900 flex flex-col items-center justify-center p-6 text-center"
-                    >
-                        <div className="max-w-md w-full bg-white rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full blur-3xl -mr-16 -mt-16" />
-                            
-                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">Secure <span className="text-blue-600">Payment Scanner</span></h3>
-                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-8">Order ID: {lastOrder?._id?.slice(-12)}</p>
-                            
-                            <div className="relative w-full aspect-square bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex items-center justify-center mb-8 p-4 group">
-                                <img src="/registration_qr.png" alt="Payment QR" className="w-full h-full object-contain" />
-                                <div className="absolute inset-0 border-2 border-blue-600 rounded-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
-                            </div>
 
-                            <p className="text-xs text-slate-500 font-bold uppercase leading-relaxed mb-8">
-                                Scan the code above with any UPI app (GPay, PhonePe, Paytm) to authorize the transaction of <span className="text-blue-600 font-black">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</span>
-                            </p>
-
-                            <button 
-                                onClick={confirmPaymentVerification}
-                                disabled={loading}
-                                className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
-                            >
-                                {loading ? <Loader2 className="animate-spin" /> : <><ShieldCheck size={18} /> I have paid successfully</>}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
             </AnimatePresence>
 
             <div className="max-w-7xl mx-auto">

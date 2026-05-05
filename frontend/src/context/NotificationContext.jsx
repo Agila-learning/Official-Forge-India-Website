@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import api, { SOCKET_URL } from '../services/api';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import { X, Bell } from 'lucide-react';
@@ -40,12 +40,8 @@ export const NotificationProvider = ({ children }) => {
 
         // Socket.io integration for real-time notifications
         if (userInfo) {
-            const socketUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:5001' 
-                : window.location.origin;
-            
             const isProd = window.location.hostname !== 'localhost';
-            const socket = io(socketUrl, {
+            const socket = io(SOCKET_URL, {
                 withCredentials: true,
                 path: '/socket.io',
                 transports: ['polling', 'websocket'], // Force polling fallback for production stability

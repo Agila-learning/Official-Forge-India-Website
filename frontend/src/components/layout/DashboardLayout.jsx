@@ -273,7 +273,14 @@ const DashboardLayout = ({
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => { setActiveTab(tab.id); setIsSidebarOpen(false); }}
+                            onClick={() => { 
+                                if (tab.id === 'shop' && role === 'Candidate') {
+                                    navigate('/explore-shop');
+                                } else {
+                                    setActiveTab(tab.id);
+                                }
+                                setIsSidebarOpen(false); 
+                            }}
                             className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'} py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === tab.id ? theme.active : `text-gray-500 ${theme.hover}`}`}
                             title={isCollapsed ? tab.label : ''}
                         >

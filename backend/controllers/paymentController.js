@@ -12,20 +12,23 @@ const razorpay = new Razorpay({
 // @route   POST /api/payments/create-order
 // @access  Private
 const createRazorpayOrder = asyncHandler(async (req, res) => {
-  const { amount, orderId } = req.body;
+  const { amount, receipt } = req.body;
 
   const options = {
     amount: Math.round(amount * 100), // amount in the smallest currency unit (paise)
     currency: "INR",
-    receipt: `receipt_${orderId}`,
+    receipt: receipt || `receipt_${Date.now()}`,
   };
 
   try {
     const order = await razorpay.orders.create(options);
-    res.json(order);
+    res.json({
+      ...order,
+      keyId: process.env.RAZORPAY_KEY_ID
+    });
   } catch (error) {
     res.status(500);
-    throw new Error('Razorpay Order Creation Failed');
+    throw new Error('Razorpay Order Creation Failed: Gateway connection error');
   }
 });
 
@@ -40,34 +43,64 @@ const verifyPayment = asyncHandler(async (req, res) => {
     orderId
   } = req.body;
 
-  const sign = razorpay_order_id + "|" + razorpay_payment_id;
-  const expectedSign = crypto
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+    res.status(400);
+    throw new Error('Missing payment verification parameters');
+  }
+
+  // 1. Verify HMAC Signature
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+  const expectedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret')
-    .update(sign.toString())
+    .update(body.toString())
     .digest("hex");
 
-  if (razorpay_signature === expectedSign) {
-    // Payment verified
-    const order = await Order.findById(orderId);
-    if (order) {
-      order.isPaid = true;
-      order.paidAt = Date.now();
-      order.paymentResult = {
-        id: razorpay_payment_id,
-        status: 'Paid',
-        update_time: Date.now().toString(),
-        email_address: req.user.email,
-      };
-      const updatedOrder = await order.save();
-      res.json({ message: "Payment verified successfully", order: updatedOrder });
-    } else {
-      res.status(404);
-      throw new Error('Order not found');
-    }
-  } else {
+  if (razorpay_signature !== expectedSignature) {
     res.status(400);
-    throw new Error('Invalid Payment Signature');
+    throw new Error('Invalid Payment Signature: Transaction integrity compromised');
   }
+
+  // 2. Fetch and Update Order
+  const order = await Order.findById(orderId);
+  if (!order) {
+    res.status(404);
+    throw new Error('Order sequence not found in database');
+  }
+
+  // Security check: Only owner or Admin can verify
+  if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+    res.status(403);
+    throw new Error('Authorization Failure: Access denied to verify this transaction');
+  }
+
+  if (order.isPaid) {
+    return res.json({ message: "Payment already verified", order });
+  }
+
+  order.isPaid = true;
+  order.paidAt = Date.now();
+  order.paymentResult = {
+    id: razorpay_payment_id,
+    status: 'Authorized',
+    update_time: Date.now().toString(),
+    email_address: req.user.email,
+    razorpayOrderId: razorpay_order_id,
+    razorpayPaymentId: razorpay_payment_id,
+    razorpaySignature: razorpay_signature
+  };
+
+  // Update status if it's a standard flow
+  if (order.status === 'Order Confirmed' || !order.status) {
+    order.status = 'Order Confirmed'; // Ensure it's set
+  }
+
+  const updatedOrder = await order.save();
+  
+  res.json({ 
+    success: true, 
+    message: "Payment authorized and verified successfully", 
+    order: updatedOrder 
+  });
 });
 
 module.exports = {

@@ -67,27 +67,73 @@ const MembershipPopup = ({ onClose }) => {
     const handlePurchase = async (plan) => {
         setLoading(true);
         try {
-            await api.post('/users/membership-vault', { planValue: plan.value, planTier: plan.name });
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            const updated = {
-                ...userInfo,
-                membershipVault: {
-                    balance: plan.value,
-                    planValue: plan.value,
-                    planTier: plan.name,
-                    cycleStartDate: new Date().toISOString(),
-                    savingsThisMonth: 0,
+            // Step 1: Create Order
+            const { data } = await api.post('/users/membership-vault', { planValue: plan.value, planTier: plan.name });
+            
+            const options = {
+                key: data.keyId,
+                amount: data.amount,
+                currency: data.currency,
+                name: "Forge India Connect",
+                description: `${data.planTier} Activation`,
+                image: "/logo.jpg",
+                order_id: data.orderId,
+                handler: async (response) => {
+                    setLoading(true);
+                    try {
+                        // Step 2: Verify Payment
+                        await api.post('/users/membership-vault/verify', {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            planValue: data.planValue,
+                            planTier: data.planTier
+                        });
+                        
+                        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                        const updated = {
+                            ...userInfo,
+                            membershipVault: {
+                                balance: data.planValue,
+                                planValue: data.planValue,
+                                planTier: data.planTier,
+                                cycleStartDate: new Date().toISOString(),
+                                savingsThisMonth: 0,
+                            },
+                            isMember: true
+                        };
+                        localStorage.setItem('userInfo', JSON.stringify(updated));
+                        toast.success(`${data.planTier} activated! ₹${data.planValue.toLocaleString()} credited to your vault.`);
+                        onClose();
+                    } catch (err) {
+                        toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
+                    } finally {
+                        setLoading(false);
+                    }
                 },
+                prefill: {
+                    name: `${userInfo.firstName} ${userInfo.lastName}`,
+                    email: userInfo.email,
+                    contact: userInfo.mobile
+                },
+                theme: { color: "#2563eb" },
+                modal: {
+                    ondismiss: () => {
+                        setLoading(false);
+                        toast.error('Payment cancelled');
+                    }
+                }
             };
-            localStorage.setItem('userInfo', JSON.stringify(updated));
-            toast.success(`${plan.name} activated! ₹${plan.value.toLocaleString()} credited to your vault.`);
-            onClose();
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Purchase failed. Please try again.');
-        } finally {
             setLoading(false);
         }
     };
+
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
     return (
         <AnimatePresence>

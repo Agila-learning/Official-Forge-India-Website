@@ -7,6 +7,7 @@ router.route('/subscribe').post(subscribeNewsletter);
 router.route('/').get(protect, getUsers);
 router.route('/subadmin').post(protect, admin, createSubAdmin);
 router.route('/membership-vault').post(protect, purchaseMembershipVault);
+router.route('/membership-vault/verify').post(protect, verifyMembershipVaultPayment);
 router.route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
