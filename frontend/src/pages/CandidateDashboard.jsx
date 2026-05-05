@@ -167,8 +167,6 @@ const CandidateDashboard = () => {
       setIsSubmittingConsulting(false);
     }
   };
-      }
-  };
 
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
