@@ -38,7 +38,7 @@ const addOrderItems = async (req, res) => {
     await createNotification(io, {
         user: req.user._id,
         title: 'Order Deployment Confirmed',
-        message: `Your order #${createdOrder._id.slice(-6).toUpperCase()} has been successfully processed and added to our fulfillment queue.`,
+        message: `Your order #${createdOrder._id.toString().slice(-6).toUpperCase()} has been successfully processed and added to our fulfillment queue.`,
         type: 'order',
         link: '/profile'
     });
@@ -156,7 +156,7 @@ const updateOrderToPaid = async (req, res) => {
     await createNotification(io, {
         user: order.user,
         title: 'Payment Verification Successful',
-        message: `Transaction verified for Order #${order._id.slice(-6).toUpperCase()}. Your service/product is now authorized for fulfillment.`,
+        message: `Transaction verified for Order #${order._id.toString().slice(-6).toUpperCase()}. Your service/product is now authorized for fulfillment.`,
         type: 'payment',
         link: '/track-mission'
     });
@@ -184,7 +184,7 @@ const updateOrderToDelivered = async (req, res) => {
     await createNotification(io, {
         user: order.user,
         title: 'Mission Accomplished',
-        message: `Order #${order._id.slice(-6).toUpperCase()} has been marked as fully delivered/completed. Thank you for choosing Forge India Connect.`,
+        message: `Order #${order._id.toString().slice(-6).toUpperCase()} has been marked as fully delivered/completed. Thank you for choosing Forge India Connect.`,
         type: 'delivery',
         link: '/profile'
     });

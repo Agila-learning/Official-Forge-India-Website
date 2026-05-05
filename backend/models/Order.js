@@ -96,7 +96,7 @@ const orderSchema = mongoose.Schema(
     },
     fulfillmentType: { 
       type: String, 
-      enum: ['Direct Shopping', 'Delivery Partner'],
+      enum: ['Direct Shopping', 'Delivery Partner', 'Home Service Execution', 'Digital Fulfillment', 'Courier'],
       default: 'Direct Shopping'
     },
     pickupDetails: {
