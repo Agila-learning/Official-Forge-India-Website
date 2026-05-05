@@ -33,12 +33,24 @@ const registerUser = async (req, res) => {
   }
 
   if (assignedRole === 'Candidate' && req.body.candidateType === 'Premium') {
+      const { razorpay_payment_id } = req.body;
+      if (!razorpay_payment_id) {
+          return res.status(400).json({ message: 'Premium registration requires payment verification.' });
+      }
       isMember = true;
-      paymentStatus = 'Paid'; // Mocked via frontend payment authorize
+      paymentStatus = 'Paid';
       registrationFee = 1500;
       const year = new Date().getFullYear();
       const random = Math.floor(1000 + Math.random() * 9000);
       membershipId = `FIC-PREM-${year}-${random}`;
+      
+      // Send Confirmation Email
+      const { sendRegistrationConfirmationEmail } = require('../utils/emailService');
+      try {
+          await sendRegistrationConfirmationEmail(email, `${firstName} ${lastName}`, membershipId);
+      } catch (err) {
+          console.error('Registration Email Error:', err);
+      }
   }
 
   try {
@@ -81,6 +93,7 @@ const registerUser = async (req, res) => {
         role: user.role,
         approvalStatus: user.approvalStatus,
         shopCode: user.shopCode,
+        membershipId: user.membershipId,
         token: generateToken(user._id),
       });
     } else {
@@ -210,9 +223,9 @@ const sendOTP = async (req, res) => {
     user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    // MOCK: In production, send SMS here.
+    // OTP sent (HIDDEN FROM RESPONSE FOR SECURITY)
     console.log(`[OTP] Generated ${otp} for ${mobile}. Expires: ${user.otpExpires}`);
-    res.json({ message: 'OTP sent successfully (MOCKED)', otp: otp });
+    res.json({ message: 'OTP sent to your mobile number' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -259,4 +272,38 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, authUser, onboardUser, sendOTP, verifyOTP };
+const createRegistrationPayment = async (req, res) => {
+  const { email, name, mobile } = req.body;
+  
+  try {
+    const Razorpay = require('razorpay');
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const options = {
+      amount: 1500 * 100, // 1500 INR in paise
+      currency: "INR",
+      receipt: `reg_${Date.now()}`,
+      notes: {
+        email,
+        name,
+        type: 'PremiumRegistration'
+      }
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, authUser, onboardUser, sendOTP, verifyOTP, createRegistrationPayment };

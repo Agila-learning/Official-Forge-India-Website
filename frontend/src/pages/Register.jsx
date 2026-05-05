@@ -42,11 +42,10 @@ const Register = () => {
   });
 
   const [error, setError] = useState('');
-  const [showPayment, setShowPayment] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [showPendingApproval, setShowPendingApproval] = useState(false);
   const [showShopCodeModal, setShowShopCodeModal] = useState(false);
   const [generatedShopCode, setGeneratedShopCode] = useState('');
+  const [generatedMembershipId, setGeneratedMembershipId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -69,16 +68,55 @@ const Register = () => {
   };
 
   const handlePayment = async () => {
-    // TEST MODE: Display QR code instead of Razorpay
-    setShowQRModal(true);
-  };
+    setIsProcessing(true);
+    try {
+        // Step 1: Create a temporary registration intent or just trigger Razorpay for 1500
+        // We'll use a generic payment endpoint or just initialize it with the amount
+        // But the best way is to have the backend create the order first.
+        
+        // Let's create a temporary order for "Premium Registration"
+        const { data } = await api.post('/auth/create-registration-payment', { 
+            email: formData.email, 
+            name: `${formData.firstName} ${formData.lastName}`,
+            mobile: formData.mobile
+        });
+        
+        const options = {
+            key: data.keyId,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Forge India Connect",
+            description: "Premium Candidate Registration",
+            image: "/logo.jpg",
+            order_id: data.orderId,
+            handler: async (response) => {
+                // Success: Finalize registration with payment details
+                handleRegistrationSubmit({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature
+                });
+            },
+            prefill: {
+                name: `${formData.firstName} ${formData.lastName}`,
+                email: formData.email,
+                contact: formData.mobile
+            },
+            theme: { color: "#2563eb" },
+            modal: {
+                ondismiss: () => {
+                    setIsProcessing(false);
+                    toast.error('Payment cancelled. Please pay to complete premium registration.');
+                }
+            }
+        };
 
-  const handleQRConfirm = () => {
-    setShowQRModal(false);
-    handleRegistrationSubmit({ 
-        paymentId: 'TEST_QR_PAYMENT_' + Math.floor(Math.random() * 1000000),
-        paymentStatus: 'Pending Verification'
-    });
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+    } catch (err) {
+        setError(err.response?.data?.message || 'Payment initialization failed');
+        setIsProcessing(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -142,6 +180,9 @@ const Register = () => {
          } else {
             setShowPendingApproval(true);
          }
+      } else if (data.membershipId) {
+          setGeneratedMembershipId(data.membershipId);
+          setShowShopCodeModal(true);
       } else {
          localStorage.setItem('token', data.token);
          localStorage.setItem('userInfo', JSON.stringify(data));
@@ -174,52 +215,6 @@ const Register = () => {
         canonical="/register"
       />
 
-      {/* TEST MODE QR MODAL */}
-      <AnimatePresence>
-        {showQRModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
-            >
-              <button 
-                onClick={() => setShowQRModal(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
-              >
-                ✕
-              </button>
-              
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Globe className="text-primary" size={32} />
-              </div>
-              
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
-                Secure Scanner Pay
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Please consult with our sales team before making the payment. Scan and pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> below.
-              </p>
-              
-              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
-                <img 
-                  src="/registration_qr.png" 
-                  alt="UPI QR Code" 
-                  className="w-48 h-48 mx-auto rounded-xl shadow-inner"
-                />
-              </div>
-
-              <button 
-                onClick={handleQRConfirm}
-                className="w-full btn-primary btn-lg flex items-center justify-center gap-2"
-              >
-                I have Scanned & Paid <CheckCircle2 size={18} />
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       <div className="min-h-screen bg-slate-50 dark:bg-dark-bg flex items-start justify-center px-4 pt-24 pb-24 relative overflow-hidden">
         {/* Background Decor */}
@@ -535,29 +530,6 @@ const Register = () => {
           </motion.div>
         )}
 
-        {showPayment && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/80 backdrop-blur-xl p-6">
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="bg-white dark:bg-dark-card w-full max-w-lg rounded-[3rem] p-12 text-center shadow-2xl border border-slate-100 dark:border-slate-800">
-               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 text-primary">
-                  <Briefcase size={40} />
-               </div>
-               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">Consulting Membership</h3>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10 italic">LIFETIME PLACEMENT ASSURANCE</p>
-               
-               <div className="p-8 bg-slate-50 dark:bg-dark-bg rounded-[2rem] mb-10 border border-slate-100 dark:border-slate-800">
-                  <div className="flex justify-between items-center text-3xl font-black text-primary">
-                    <span className="text-xs uppercase tracking-widest text-slate-400">Total Fee</span>
-                    <span>₹1500.00</span>
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 gap-4">
-                  <button onClick={handleRegistrationSubmit} className="btn-primary w-full !py-5 !rounded-2xl shadow-xl shadow-primary/20">Authorize & Pay</button>
-                  <button onClick={() => setShowPayment(false)} className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500">Cancel</button>
-               </div>
-            </motion.div>
-          </motion.div>
-        )}
 
         {showShopCodeModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/80 backdrop-blur-xl p-6">
@@ -570,8 +542,12 @@ const Register = () => {
                
                <div className="p-8 bg-slate-50 dark:bg-dark-bg rounded-[2rem] mb-10 border-2 border-dashed border-primary/30 relative group overflow-hidden">
                   <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 relative z-10">Official Shop Identifier</p>
-                  <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10">{generatedShopCode}</p>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 relative z-10">
+                    {generatedMembershipId ? 'Premium Membership ID' : 'Official Shop Identifier'}
+                  </p>
+                  <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10">
+                    {generatedMembershipId || generatedShopCode}
+                  </p>
                </div>
 
                <div className="space-y-4">

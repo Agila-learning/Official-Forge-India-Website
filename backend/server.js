@@ -67,7 +67,7 @@ const io = new Server(httpServer, {
   }
 });
 
-app.get('/socket-health', (req, res) => {
+app.get('/api/socket-health', (req, res) => {
   res.json({ 
     status: 'up', 
     port: PORT,

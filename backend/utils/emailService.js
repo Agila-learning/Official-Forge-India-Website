@@ -171,4 +171,34 @@ const sendPaymentConfirmationEmail = async (to, name, inquiryId, amount, type) =
   await transporter.sendMail(mailOptions);
 };
 
-module.exports = { sendPaymentConfirmationEmail };
+/**
+ * Send Registration Confirmation Email for Premium Candidates
+ * @param {string} to   - Candidate's email address
+ * @param {string} name - Candidate's full name
+ * @param {string} id   - Membership ID generated
+ */
+const sendRegistrationConfirmationEmail = async (to, name, id) => {
+  const mailOptions = {
+    from: `"Forge India HR Team" <forgeindiahr22@gmail.com>`,
+    to,
+    replyTo: 'forgeindiahr22@gmail.com',
+    subject: `✅ Registration Confirmed — Welcome to Forge India Connect!`,
+    html: `
+<div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+  <h2 style="color: #2563eb;">Hello ${name},</h2>
+  <p style="font-size: 16px; color: #333;">Thanks for choosing Forge India Connect!</p>
+  <p style="font-size: 16px; color: #333;">Your Premium Registration is complete. Your Membership ID is: <strong>${id}</strong></p>
+  <p style="font-size: 16px; color: #333;">Good luck for your job hunting! Our team will reach out to you shortly for further processing.</p>
+  <br/>
+  <p style="font-size: 14px; color: #666;">Best Regards,<br/><strong>HR Team</strong><br/>Forge India Connect</p>
+</div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = { 
+  sendPaymentConfirmationEmail,
+  sendRegistrationConfirmationEmail 
+};

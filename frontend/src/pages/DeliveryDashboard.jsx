@@ -22,9 +22,12 @@ const DeliveryDashboard = () => {
         
         // Real-time notifications connection
         const isProd = window.location.hostname !== 'localhost';
-        const socket = io(SOCKET_URL, { 
-            transports: isProd ? ['websocket'] : ['websocket', 'polling'],
-            path: SOCKET_PATH
+        const socket = io(SOCKET_URL, {
+            withCredentials: true,
+            path: SOCKET_PATH,
+            transports: isProd ? ['polling'] : ['polling', 'websocket'],
+            reconnection: true,
+            reconnectionAttempts: 10
         });
         
         socket.on('notification', ({ userId, notification }) => {

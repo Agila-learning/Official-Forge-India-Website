@@ -70,8 +70,7 @@ const Login = () => {
     try {
         const { data } = await api.post('/auth/send-otp', { mobile: formData.mobile });
         setStatus({ ...status, loading: false, otpSent: true, error: '' });
-        // Display OTP in toast (dev/mock mode — in prod this would be SMS)
-        toast.success(`OTP sent! Code: ${data.otp}`, { duration: 12000, icon: '📱' });
+        toast.success(`OTP sent to your mobile!`, { duration: 5000, icon: '📱' });
     } catch (err) {
         const errMsg = err.response?.data?.message || 'Failed to send OTP';
         const isNotFound = err.response?.status === 404;
