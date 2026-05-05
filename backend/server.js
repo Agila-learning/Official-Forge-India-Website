@@ -52,7 +52,7 @@ const { registerUser } = require('./controllers/authController');
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
-  path: '/fic-socket',
+  path: '/api/fic-socket',
   cors: {
     origin: [
       "https://www.forgeindiaconnect.com", 
@@ -71,7 +71,7 @@ app.get('/api/socket-health', (req, res) => {
   res.json({ 
     status: 'up', 
     port: PORT,
-    path: '/fic-socket',
+    path: '/api/fic-socket',
     connections: io.engine.clientsCount
   });
 });
