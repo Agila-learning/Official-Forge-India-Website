@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api, { SOCKET_URL } from '../services/api';
+import api, { SOCKET_URL, SOCKET_PATH } from '../services/api';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import { X, Bell } from 'lucide-react';
@@ -43,7 +43,7 @@ export const NotificationProvider = ({ children }) => {
             const isProd = window.location.hostname !== 'localhost';
             const socket = io(SOCKET_URL, {
                 withCredentials: true,
-                path: '/fic-ws',
+                path: SOCKET_PATH,
                 transports: ['polling', 'websocket'], // Force polling fallback for production stability
                 reconnection: true,
                 reconnectionAttempts: 5,

@@ -7,7 +7,7 @@ import {
   Volume2, Check, CheckCheck, Loader2, ChevronDown, Trash2, Edit2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api, { SOCKET_URL } from '../../services/api';
+import api, { SOCKET_URL, SOCKET_PATH } from '../../services/api';
 
 let socket = null;
 
@@ -92,7 +92,7 @@ const ChatWidget = () => {
       socket = io(SOCKET_URL, { 
         auth: { token },
         transports: isProd ? ['websocket'] : ['websocket', 'polling'],
-        path: '/socket.io'
+        path: SOCKET_PATH
       });
 
       socket.on('connect', () => {
