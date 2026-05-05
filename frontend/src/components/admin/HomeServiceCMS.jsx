@@ -342,14 +342,14 @@ const TestimonialManager = ({ items, onUpdate }) => {
 };
 
 const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
-    const [newItem, setNewItem] = useState({ name: '', slug: '', order: 0, isActive: true });
+    const [newItem, setNewItem] = useState({ name: '', slug: '', order: 0, isActive: true, type: 'product' });
 
     const handleCreate = async () => {
         try {
             await api.post('/home-categories', newItem);
             toast.success('Category authorized');
             onUpdate();
-            setNewItem({ name: '', slug: '', order: 0, isActive: true });
+            setNewItem({ name: '', slug: '', order: 0, isActive: true, type: 'product' });
         } catch (err) {
             toast.error('Authorization failed');
         }
@@ -371,14 +371,20 @@ const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-8 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800">
                 <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
                 <input placeholder="Slug" value={newItem.slug} onChange={e => setNewItem({...newItem, slug: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
-                <input type="number" placeholder="Sort Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm" />
-                <button 
-                    onClick={handleCreate} 
-                    disabled={isVendorMode}
-                    className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    Add Vertical
-                </button>
+                <select value={newItem.type} onChange={e => setNewItem({...newItem, type: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm">
+                    <option value="product">Product Vertical</option>
+                    <option value="service">Service Vertical</option>
+                </select>
+                <div className="flex gap-2 items-center">
+                    <input type="number" placeholder="Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="w-full px-5 py-4 rounded-xl outline-none font-bold text-sm" />
+                    <button 
+                        onClick={handleCreate} 
+                        disabled={isVendorMode}
+                        className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-4 px-6 ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                        Add Vertical
+                    </button>
+                </div>
             </div>
             
             <div className="space-y-4">
@@ -386,7 +392,12 @@ const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
                     <div key={cat._id} className="flex justify-between items-center p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
                         <div className="flex gap-10 items-center">
                             <span className="text-[10px] font-black text-gray-400">#{cat.order}</span>
-                            <span className="font-black italic uppercase text-lg">{cat.name}</span>
+                            <div className="flex flex-col">
+                                <span className={`w-fit px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest mb-1 ${cat.type === 'service' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                                    {cat.type || 'product'}
+                                </span>
+                                <span className="font-black italic uppercase text-lg leading-tight">{cat.name}</span>
+                            </div>
                             <span className="text-xs text-gray-500 font-bold tracking-widest">{cat.slug}</span>
                         </div>
                         {!isVendorMode && (

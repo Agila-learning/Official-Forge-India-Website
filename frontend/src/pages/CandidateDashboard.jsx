@@ -289,6 +289,12 @@ const CandidateDashboard = () => {
               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
                 Secure Scanner Pay
               </h3>
+              <div className="flex items-center justify-center gap-3 mb-4 opacity-40 grayscale group-hover:grayscale-0 transition-all">
+                  <img src="/payment-logos/gpay.svg" className="h-3" alt="GPay" />
+                  <img src="/payment-logos/phonepe.svg" className="h-4" alt="PhonePe" />
+                  <img src="/payment-logos/paytm.svg" className="h-3" alt="Paytm" />
+                  <img src="/payment-logos/visa.svg" className="h-3" alt="Visa" />
+              </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
                 Please consult with our sales team before making the payment. Scan and pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> below.
               </p>
@@ -297,7 +303,7 @@ const CandidateDashboard = () => {
                 <img 
                   src="/registration_qr.png" 
                   alt="UPI QR Code" 
-                  className="w-48 h-48 mx-auto rounded-xl shadow-inner"
+                  className="w-48 h-48 mx-auto rounded-xl shadow-inner group-hover:scale-105 transition-transform"
                 />
               </div>
 

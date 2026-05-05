@@ -25,6 +25,11 @@ const productSchema = mongoose.Schema(
     rating: { type: Number, default: 0 },
     numReviews: { type: Number, default: 0 },
     isService: { type: Boolean, default: false },
+    serviceMode: {
+      type: String,
+      enum: ['at_home', 'at_center'],
+      default: 'at_home',
+    },
     serviceType: { 
       type: String, 
       enum: ['Cleaning', 'Painting', 'Plumbing', 'Carpentry', 'Electrical', 'Tiling', 'Inspection', 'None'],

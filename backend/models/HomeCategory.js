@@ -7,6 +7,11 @@ const homeCategorySchema = mongoose.Schema(
     image: { type: String },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    type: {
+      type: String,
+      enum: ['product', 'service'],
+      default: 'product',
+    },
   },
   { timestamps: true }
 );

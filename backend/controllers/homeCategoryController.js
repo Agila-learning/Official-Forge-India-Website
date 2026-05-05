@@ -6,7 +6,11 @@ const asyncHandler = require('express-async-handler');
 // @route   GET /api/home-categories
 // @access  Public
 const getHomeCategories = asyncHandler(async (req, res) => {
-  const categories = await HomeCategory.find({}).sort('order');
+  const filter = {};
+  if (req.query.type && ['product', 'service'].includes(req.query.type)) {
+    filter.type = req.query.type;
+  }
+  const categories = await HomeCategory.find(filter).sort('order');
   res.json(categories);
 });
 
@@ -14,8 +18,8 @@ const getHomeCategories = asyncHandler(async (req, res) => {
 // @route   POST /api/home-categories
 // @access  Private/Admin
 const createHomeCategory = asyncHandler(async (req, res) => {
-  const { name, slug, order, isActive } = req.body;
-  const category = await HomeCategory.create({ name, slug, order, isActive });
+  const { name, slug, order, isActive, type } = req.body;
+  const category = await HomeCategory.create({ name, slug, order, isActive, type: type || 'product' });
   res.status(201).json(category);
 });
 
@@ -29,6 +33,9 @@ const updateHomeCategory = asyncHandler(async (req, res) => {
     category.slug = req.body.slug || category.slug;
     category.order = req.body.order !== undefined ? req.body.order : category.order;
     category.isActive = req.body.isActive !== undefined ? req.body.isActive : category.isActive;
+    if (req.body.type && ['product', 'service'].includes(req.body.type)) {
+      category.type = req.body.type;
+    }
 
     const updatedCategory = await category.save();
     res.json(updatedCategory);

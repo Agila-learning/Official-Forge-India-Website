@@ -20,7 +20,8 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 
 const AdminDashboard = () => {
-  const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [] });
+  const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [] });
+  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
   const [locationRequests, setLocationRequests] = useState([]);
   const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
   const location = useLocation();
@@ -40,10 +41,19 @@ const AdminDashboard = () => {
         const pr = editingItem.products.pricingRules || {};
         const prArray = Object.keys(pr).map(key => ({ key, value: pr[key] }));
         setManagedPricingRules(prArray);
+
+        // Pre-fill service category filter when editing a service
+        if (editingItem.products.isService && editingItem.products.categoryRef) {
+            const catId = typeof editingItem.products.categoryRef === 'object'
+                ? editingItem.products.categoryRef._id
+                : editingItem.products.categoryRef;
+            setSelectedServiceCategoryId(catId || '');
+        }
     } else {
         setManagedSlots([]);
         setManagedServiceConfig([]);
         setManagedPricingRules([]);
+        setSelectedServiceCategoryId('');
     }
   }, [editingItem.products]);
 
@@ -176,9 +186,13 @@ const AdminDashboard = () => {
             const finalCats = Array.isArray(catsResponse.data) ? catsResponse.data : (Array.isArray(catsResponse) ? catsResponse : []);
             const finalSubs = Array.isArray(subsResponse.data) ? subsResponse.data : (Array.isArray(subsResponse) ? subsResponse : []);
             
+            const prodCats = finalCats.filter(c => c.type === 'product' || !c.type);
+            const svcCats = finalCats.filter(c => c.type === 'service');
             setData(prev => ({ 
                 ...prev, 
-                homeCategories: finalCats, 
+                homeCategories: finalCats,
+                productCategories: prodCats,
+                serviceCategories: svcCats,
                 homeSubCategories: finalSubs 
             }));
 
@@ -207,6 +221,12 @@ const AdminDashboard = () => {
     if (activeTab === 'services') payload.isService = true;
     else if (payload.isService) payload.isService = true;
     else payload.isService = false;
+
+    // For services: auto-derive category name from selected categoryRef
+    if (payload.isService === true && payload.categoryRef) {
+        const svcCat = data.serviceCategories?.find(c => c._id === payload.categoryRef);
+        if (svcCat) payload.category = svcCat.name;
+    }
     
     if (endpoint === 'testimonials') {
         payload.featured = payload.featured === 'on';
@@ -220,6 +240,8 @@ const AdminDashboard = () => {
         if (payload.tags) payload.tags = payload.tags.split(',').map(tag => tag.trim()).filter(Boolean);
         if (payload.highlights) payload.highlights = payload.highlights.split(',').map(h => h.trim()).filter(Boolean);
         if (payload.whatsIncluded) payload.whatsIncluded = payload.whatsIncluded.split(',').map(h => h.trim()).filter(Boolean);
+        if (payload.whatsExcluded) payload.whatsExcluded = payload.whatsExcluded.split(',').map(h => h.trim()).filter(Boolean);
+        if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim()).filter(Boolean);
 
         // Provide default image for services if none given
         if (!payload.image || payload.image.trim() === '') {
@@ -255,7 +277,6 @@ const AdminDashboard = () => {
         // Service-specific fields
         payload.teamSize = Number(payload.teamSize || 0);
         payload.equipmentProvided = payload.equipmentProvided === 'true';
-        if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim()).filter(Boolean);
     }
 
     const currentEdit = editingItem[endpoint];
@@ -609,10 +630,13 @@ const AdminDashboard = () => {
                         <div>
                             <label className="block text-sm font-bold mb-2 uppercase">Category</label>
                             <select name="category" defaultValue={editingItem.products?.category || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
-                                <option value="">Select Category</option>
-                                {data.homeCategories?.map(cat => (
+                                <option value="">Select Product Category</option>
+                                {data.productCategories?.map(cat => (
                                     <option key={cat._id} value={cat.name}>{cat.name}</option>
                                 ))}
+                                {data.productCategories?.length === 0 && (
+                                    <option disabled>No product categories — add in Home Service CMS</option>
+                                )}
                             </select>
                         </div>
                         <div>
@@ -771,30 +795,29 @@ const AdminDashboard = () => {
                             <input name="name" defaultValue={editingItem.products?.name || ''} required type="text" placeholder="Deep Cleaning" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
                         </div>
                         <div>
-                            <select name="category" defaultValue={editingItem.products?.category || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
-                                <option value="Inspection">Inspection Services</option>
-                                <option value="Cleaning">Cleaning & Hygiene</option>
-                                <option value="Maintenance">Maintenance & Repair</option>
-                                <option value="IT Services">IT & Consulting</option>
-                                <option value="Healthcare">Healthcare & Wellness</option>
-                                <option value="Construction">Construction & Renovation</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold mb-2 uppercase text-blue-600">Home Service Category (CMS)</label>
-                            <select name="categoryRef" defaultValue={editingItem.products?.categoryRef?._id || editingItem.products?.categoryRef || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
-                                <option value="">Legacy / Unmapped</option>
-                                {data.homeCategories?.map(cat => (
+                            <label className="block text-sm font-bold mb-2 uppercase text-blue-600">Service Category</label>
+                            <select 
+                                name="categoryRef" 
+                                value={selectedServiceCategoryId}
+                                onChange={(e) => setSelectedServiceCategoryId(e.target.value)}
+                                required 
+                                className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold"
+                            >
+                                <option value="">Select Service Category</option>
+                                {data.serviceCategories?.map(cat => (
                                     <option key={cat._id} value={cat._id}>{cat.name}</option>
                                 ))}
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold mb-2 uppercase text-blue-400">Home Service Sub-Category (CMS)</label>
+                            <label className="block text-sm font-bold mb-2 uppercase text-blue-400">Service Sub-Category</label>
                             <select name="subCategoryRef" defaultValue={editingItem.products?.subCategoryRef?._id || editingItem.products?.subCategoryRef || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
-                                <option value="">None / Unmapped</option>
-                                {data.homeSubCategories?.map(sub => (
-                                    <option key={sub._id} value={sub._id}>{sub.name} ({sub.categoryId?.name})</option>
+                                <option value="">Select Sub-Category</option>
+                                {data.homeSubCategories?.filter(sub => 
+                                    !selectedServiceCategoryId || 
+                                    (typeof sub.categoryId === 'object' ? sub.categoryId?._id === selectedServiceCategoryId : sub.categoryId === selectedServiceCategoryId)
+                                ).map(sub => (
+                                    <option key={sub._id} value={sub._id}>{sub.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -838,11 +861,11 @@ const AdminDashboard = () => {
                         </div>
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
                             <div>
-                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-gray-400">Fulfillment Strategy</label>
-                                <select disabled name="fulfillmentType" defaultValue="Home Service Execution" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-dark-bg/50 text-gray-400 outline-none font-bold text-sm cursor-not-allowed">
-                                    <option value="Home Service Execution">Home Service Execution</option>
+                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Service Execution Mode</label>
+                                <select name="serviceMode" defaultValue={editingItem.products?.serviceMode || 'at_home'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                                    <option value="at_home">At Customer's Home/Site</option>
+                                    <option value="at_center">At Our Service Center</option>
                                 </select>
-                                <p className="text-[8px] font-black uppercase tracking-widest text-orange-500 mt-2">Not applicable for services</p>
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Base Warranty / Service Guarantee</label>
@@ -853,8 +876,8 @@ const AdminDashboard = () => {
                                 <input name="duration" defaultValue={editingItem.products?.duration || ''} type="text" placeholder="2-3 Hours" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Estimated Delivery / Fulfillment</label>
-                                <input name="estimatedDeliveryTime" defaultValue={editingItem.products?.estimatedDeliveryTime || ''} type="text" placeholder="3-5 Business Days" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Estimated Completion Time</label>
+                                <input name="estimatedDeliveryTime" defaultValue={editingItem.products?.estimatedDeliveryTime || ''} type="text" placeholder="Immediate / 24-48 Hours" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Service Highlights (CSV)</label>
@@ -866,7 +889,7 @@ const AdminDashboard = () => {
                                     <textarea name="whatsIncluded" defaultValue={editingItem.products?.whatsIncluded?.join(', ') || ''} rows="2" placeholder="Labor, Materials, Basic Cleanup" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm"></textarea>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Pickup / Site Instructions</label>
+                                    <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-purple-600">Service Area / On-Site Instructions</label>
                                     <textarea name="pickupInstructions" defaultValue={editingItem.products?.pickupInstructions || ''} rows="2" placeholder="Clear the area before arrival. Ensure water/power supply." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm"></textarea>
                                 </div>
                             </div>

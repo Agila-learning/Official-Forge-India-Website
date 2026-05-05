@@ -291,22 +291,14 @@ const updateOrderStatus = async (req, res) => {
     const updatedOrder = await order.save();
 
     // Notify User about Status Change
-    const notification = await Notification.create({
+    const io = req.app.get('io');
+    const notification = await createNotification(io, {
       user: order.user,
       title: 'Order Status Update',
       message: `Strategic Update: Your order #${order._id.toString().slice(-6).toUpperCase()} has transitioned to: ${order.status}`,
       type: 'Order',
       link: '/candidate/dashboard'
     });
-
-    // LIVE NOTIFICATION VIA SOCKET.IO
-    const io = req.app.get('io');
-    if (io) {
-      io.emit('notification', { 
-        userId: order.user, 
-        notification 
-      });
-    }
 
     res.json(updatedOrder);
   } else {
@@ -338,8 +330,10 @@ const assignPartner = async (req, res) => {
             order.status = 'Partner Assigned';
             const updatedOrder = await order.save();
 
+            const io = req.app.get('io');
+
             // Notify Candidate
-            const userNote = await Notification.create({
+            await createNotification(io, {
                 user: order.user,
                 title: 'Operation Specialist Assigned',
                 message: `An FIC partner has been dispatched for order #${order._id.toString().slice(-6).toUpperCase()}.`,
@@ -348,20 +342,13 @@ const assignPartner = async (req, res) => {
             });
 
             // Notify Partner
-            const partnerNote = await Notification.create({
+            await createNotification(io, {
                 user: partnerId,
                 title: 'New Mission Protocol!',
                 message: `Strategic assignment: Order #${order._id.toString().slice(-6).toUpperCase()} is now under your jurisdiction.`,
                 type: 'Order',
                 link: '/delivery/dashboard'
             });
-
-            // LIVE NOTIFICATION
-            const io = req.app.get('io');
-            if (io) {
-                io.emit('notification', { userId: order.user, notification: userNote });
-                io.emit('notification', { userId: partnerId, notification: partnerNote });
-            }
 
             res.json(updatedOrder);
         } else {

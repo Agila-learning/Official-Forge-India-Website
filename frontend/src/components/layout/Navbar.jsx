@@ -81,13 +81,30 @@ const Navbar = () => {
       navigate('/login');
     } else {
       switch(userInfo.role) {
-        case 'Admin': navigate('/admin/dashboard'); break;
-        case 'Vendor': navigate('/vendor'); break;
-        case 'HR': navigate('/hr'); break;
-        case 'Delivery Partner': navigate('/delivery'); break;
-        case 'Candidate': navigate('/candidate/dashboard'); break;
-        case 'Trainer': navigate('/trainer-dashboard'); break;
-        default: navigate('/profile'); break;
+        case 'Admin': 
+        case 'Sub-Admin':
+          navigate('/admin/dashboard'); 
+          break;
+        case 'Vendor': 
+        case 'Seller':
+        case 'Service Provider':
+          navigate('/vendor'); 
+          break;
+        case 'HR': 
+          navigate('/hr'); 
+          break;
+        case 'Delivery Partner': 
+          navigate('/delivery'); 
+          break;
+        case 'Candidate': 
+          navigate('/candidate/dashboard'); 
+          break;
+        case 'Trainer': 
+          navigate('/trainer-dashboard'); 
+          break;
+        default: 
+          navigate('/profile'); 
+          break;
       }
     }
   };

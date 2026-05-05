@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import MembershipCard from '../../components/ui/MembershipCard';
+import { useLocation } from '../../context/LocationContext';
 
 const detailedCategories = [
     { id: 'cleaning', title: 'Deep Cleaning', icon: Sparkles, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
@@ -19,6 +20,7 @@ const detailedCategories = [
 
 const HomeServices = () => {
     const navigate = useNavigate();
+    const { location: userLocation, setShowModal } = useLocation();
     const [services, setServices] = useState([]);
     const [filteredServices, setFilteredServices] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -45,10 +47,16 @@ const HomeServices = () => {
         const filtered = services.filter(s => {
             const matchesCategory = activeCategory === 'all' || s.serviceType === activeCategory || s.categoryRef === activeCategory;
             const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesCategory && matchesSearch;
+            
+            // Smart Location Filtering: Check if service matches user's city hub
+            const matchesLocation = !userLocation || !userLocation.city || 
+                (s.cityHub && s.cityHub.toLowerCase() === userLocation.city.toLowerCase()) ||
+                (s.availableCities && s.availableCities.includes(userLocation.city));
+
+            return matchesCategory && matchesSearch && matchesLocation;
         });
         setFilteredServices(filtered);
-    }, [activeCategory, searchQuery, services]);
+    }, [activeCategory, searchQuery, services, userLocation]);
 
     return (
         <div className="min-h-screen bg-[#0a0a0b] text-white">
@@ -109,13 +117,12 @@ const HomeServices = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
-                            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5">
+                            <div className="flex items-center gap-4 px-6 py-4 bg-white/5 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all" onClick={() => setShowModal(true)}>
                                 <MapPin className="text-white/40" size={20} />
-                                <select className="bg-transparent outline-none font-bold text-sm !bg-none !pr-0 text-white">
-                                    <option className="bg-dark-bg">Krishnagiri</option>
-                                    <option className="bg-dark-bg">Chennai</option>
-                                    <option className="bg-dark-bg">Bangalore</option>
-                                </select>
+                                <div className="text-left flex flex-col justify-center">
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Service Area</p>
+                                    <p className="text-sm font-bold text-white uppercase">{userLocation?.city || 'Select Area'}</p>
+                                </div>
                             </div>
                             <button className="px-12 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95">
                                 SEARCH

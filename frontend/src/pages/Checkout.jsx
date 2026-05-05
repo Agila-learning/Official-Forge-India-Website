@@ -297,10 +297,11 @@ const Checkout = () => {
                            All transactions are encrypted & protected by enterprise-grade security.
                         </p>
                     </div>
-                    <div className="flex items-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-gray-100 dark:border-gray-800 pl-6">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" className="h-4 opacity-50 grayscale" alt="Paypal" />
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" className="h-3 opacity-50 grayscale" alt="Visa" />
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" className="h-5 opacity-50 grayscale" alt="Mastercard" />
+                    <div className="flex items-center gap-6 text-[10px] font-black text-gray-400 uppercase tracking-widest border-l-2 border-gray-100 dark:border-gray-800 pl-6 h-10">
+                        <img src="/payment-logos/visa.svg" className="h-4 dark:invert opacity-80" alt="Visa" />
+                        <img src="/payment-logos/mastercard.svg" className="h-6 dark:invert opacity-80" alt="Mastercard" />
+                        <img src="/payment-logos/phonepe.svg" className="h-5 opacity-80" alt="PhonePe" />
+                        <img src="/payment-logos/gpay.svg" className="h-4 opacity-80" alt="GPay" />
                     </div>
                 </header>
 
