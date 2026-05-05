@@ -4,7 +4,7 @@ const serviceInquirySchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   serviceType: {
     type: String,
@@ -27,6 +27,8 @@ const serviceInquirySchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  guestName: { type: String },
+  guestEmail: { type: String },
 
   // ── Job Consulting Payment Fields ────────────────────────────
   consultingType: {

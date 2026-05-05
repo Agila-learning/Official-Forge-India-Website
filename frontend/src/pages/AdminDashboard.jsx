@@ -2053,8 +2053,12 @@ const AdminDashboard = () => {
                        {data.inquiries?.map(inquiry => (
                           <tr key={inquiry._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
                              <td className="py-5 pr-4">
-                               <p className="font-bold text-sm">{inquiry.user?.firstName} {inquiry.user?.lastName}</p>
-                               <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{inquiry.user?.email}</p>
+                               <p className="font-bold text-sm">
+                                 {inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : (inquiry.guestName || 'Guest Candidate')}
+                               </p>
+                               <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
+                                 {inquiry.user ? inquiry.user.email : (inquiry.guestEmail || 'Email Undisclosed')}
+                               </p>
                              </td>
                              <td className="py-5 pr-4">
                                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{inquiry.serviceType}</span>

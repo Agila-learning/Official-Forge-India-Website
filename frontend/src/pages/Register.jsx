@@ -32,7 +32,7 @@ const Register = () => {
     refundPolicy: '',
     resumeUrl: '',
     domainInterest: 'IT',
-    candidateType: 'Standard', // Standard (Free) or Premium (Paid 1500)
+    candidateType: 'Premium', // Standard (Free) or Premium (Paid 1500)
     subscriptionLevel: 'Free', // Free (Default), Basic, Premium, Elite
     referredByAgentName: '',
     agentMobile: '',
@@ -378,11 +378,11 @@ const Register = () => {
                   <motion.div key="cand" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registration Level</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mission Protocol</label>
                         <div className="flex p-1 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800">
-                          {['Standard', 'Premium'].map(t => (
-                            <button key={t} type="button" onClick={() => setFormData({...formData, candidateType: t})} className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.candidateType === t ? 'bg-white dark:bg-dark-card text-primary shadow-sm' : 'text-slate-400'}`}>
-                              {t === 'Standard' ? 'Free' : 'Consult (₹1.5k)'}
+                          {['Premium'].map(t => (
+                            <button key={t} type="button" className="flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-dark-card text-primary shadow-sm">
+                              Elite Consultation (₹1.5k)
                             </button>
                           ))}
                         </div>
