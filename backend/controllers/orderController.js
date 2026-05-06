@@ -43,6 +43,37 @@ const addOrderItems = async (req, res) => {
         link: '/profile'
     });
 
+    // Fetch Admins and notify them
+    const admins = await User.find({ role: 'Admin' });
+    for (const admin of admins) {
+      await createNotification(io, {
+        user: admin._id,
+        title: 'New Order Received',
+        message: `Strategic Alert: A new order #${createdOrder._id.toString().slice(-6).toUpperCase()} has been placed by ${req.user.firstName || 'a customer'}.`,
+        type: 'order',
+        link: '/admin/orders'
+      });
+    }
+
+    // Identify unique products to notify vendors
+    const productIds = orderItems.map(item => item.product);
+    const products = await Product.find({ _id: { $in: productIds } });
+    const vendorIds = new Set();
+    products.forEach(p => {
+      if (p.vendorId) vendorIds.add(p.vendorId.toString());
+      if (p.seller) vendorIds.add(p.seller.toString()); // Also check seller just in case
+    });
+
+    for (const vId of vendorIds) {
+      await createNotification(io, {
+        user: vId,
+        title: 'New Mission Assigned (Order)',
+        message: `Action Required: Your product/service has been booked in Order #${createdOrder._id.toString().slice(-6).toUpperCase()}.`,
+        type: 'order',
+        link: '/vendor/orders'
+      });
+    }
+
     // Mark slots as unavailable if they are service bookings
     // AND Handle Membership Activation logic
     let membershipActivated = false;
@@ -414,6 +445,90 @@ const rescheduleOrder = async (req, res) => {
   }
 };
 
+// @desc    Cancel order
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+const cancelOrder = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+        return res.status(403).json({ message: 'Not authorized for cancellation' });
+    }
+
+    if (order.status === 'Delivered' || order.status === 'Completed') {
+        return res.status(400).json({ message: 'Cannot cancel a completed or delivered order' });
+    }
+
+    if (order.status === 'Cancelled' || order.status === 'Refund Processing') {
+        return res.status(400).json({ message: 'Order is already cancelled' });
+    }
+
+    const previousStatus = order.status;
+    order.status = order.isPaid ? 'Refund Processing' : 'Cancelled';
+
+    const updatedOrder = await order.save();
+
+    // Release slots in Product model
+    for (const item of order.orderItems) {
+      if (item.slot && item.slot.date) {
+        await Product.updateOne(
+            { _id: item.product, "slots.date": item.slot.date },
+            { $set: { "slots.$.isAvailable": true } }
+        );
+      }
+    }
+
+    const io = req.app.get('io');
+    
+    // Notify User
+    await createNotification(io, {
+        user: order.user,
+        title: order.isPaid ? 'Refund Initiated' : 'Order Cancelled',
+        message: order.isPaid 
+            ? `Order #${order._id.toString().slice(-6).toUpperCase()} has been cancelled. Refund processing has started.`
+            : `Order #${order._id.toString().slice(-6).toUpperCase()} has been cancelled successfully.`,
+        type: 'order',
+        link: '/profile'
+    });
+
+    // Notify Admins
+    const admins = await User.find({ role: 'Admin' });
+    for (const admin of admins) {
+      await createNotification(io, {
+        user: admin._id,
+        title: 'Order Cancelled Alert',
+        message: `Order #${order._id.toString().slice(-6).toUpperCase()} was cancelled by user. Requires attention${order.isPaid ? ' for refund' : ''}.`,
+        type: 'order',
+        link: '/admin/orders'
+      });
+    }
+
+    // Notify Vendors
+    const productIds = order.orderItems.map(item => item.product);
+    const products = await Product.find({ _id: { $in: productIds } });
+    const vendorIds = new Set();
+    products.forEach(p => {
+      if (p.vendorId) vendorIds.add(p.vendorId.toString());
+      if (p.seller) vendorIds.add(p.seller.toString());
+    });
+
+    for (const vId of vendorIds) {
+      await createNotification(io, {
+        user: vId,
+        title: 'Mission Aborted (Order Cancelled)',
+        message: `Action Required: Order #${order._id.toString().slice(-6).toUpperCase()} has been cancelled by the customer. Release resources.`,
+        type: 'order',
+        link: '/vendor/orders'
+      });
+    }
+
+    res.json(updatedOrder);
+  } else {
+    res.status(404).json({ message: 'Order not found' });
+  }
+};
+
 module.exports = {
   addOrderItems,
   getOrderById,
@@ -425,4 +540,5 @@ module.exports = {
   getOrderActivity,
   assignPartner,
   rescheduleOrder,
+  cancelOrder,
 };

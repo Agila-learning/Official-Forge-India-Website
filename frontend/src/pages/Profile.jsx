@@ -64,6 +64,17 @@ const Profile = () => {
   );
 
   const StatusPipeline = ({ status, type = 'product' }) => {
+    if (status === 'Cancelled' || status === 'Refund Processing' || status === 'Refunded') {
+        return (
+          <div className="flex items-center gap-2 mt-4 text-red-500 font-black uppercase text-xs tracking-widest">
+              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center text-red-500">
+                  X
+              </div>
+              {status}
+          </div>
+        );
+    }
+
     const productSteps = ['Confirmed', 'Processing', 'Shipped', 'Delivered'];
     const serviceSteps = ['Confirmed', 'Assigned', 'In Progress', 'Completed'];
     const steps = type === 'product' ? productSteps : serviceSteps;
@@ -88,6 +99,17 @@ const Profile = () => {
         ))}
       </div>
     );
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    try {
+      const { data } = await api.put(`/orders/${orderId}/cancel`);
+      setOrders(orders.map(o => o._id === orderId ? data : o));
+      toast.success(data.status === 'Refund Processing' ? 'Order Cancelled. Refund initiated.' : 'Order Cancelled.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Cancellation failed');
+    }
   };
 
   const handleUpdateProfile = async (e) => {
@@ -263,11 +285,17 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
                            <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest">
                                <Clock size={14} /> Ordered on {new Date(order.createdAt).toLocaleDateString()}
                            </div>
-                           <div className="flex items-center gap-3">
+                           <div className="flex flex-wrap items-center gap-4">
+                               {order.status === 'Delivered' && (
+                                   <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
+                               )}
+                               {order.status !== 'Delivered' && order.status !== 'Completed' && order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded' && (
+                                   <button onClick={() => handleCancelOrder(order._id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Cancel Order</button>
+                               )}
                                <button 
                                  onClick={() => {
                                    setSelectedOrder(order);
@@ -354,19 +382,26 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-4">
                            <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest">
                                <ShieldCheck size={14} className="text-green-500" /> Forge India Verified Professional Assigned
                            </div>
-                           <button 
-                             onClick={() => {
-                               setSelectedOrder(order);
-                               setIsInvoiceOpen(true);
-                             }}
-                             className="flex items-center gap-4 py-3 px-8 bg-gray-900 dark:bg-white text-white dark:text-dark-bg text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary transition-all shadow-xl shadow-gray-900/10"
-                           >
-                               Manifest & Invoice <ChevronRight size={14} />
-                           </button>
+                           <div className="flex flex-wrap items-center gap-4">
+                               {(order.status === 'Completed' || order.status === 'Delivered') ? (
+                                   <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
+                               ) : (order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded') ? (
+                                   <button onClick={() => handleCancelOrder(order._id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Cancel Booking</button>
+                               ) : null}
+                               <button 
+                                 onClick={() => {
+                                   setSelectedOrder(order);
+                                   setIsInvoiceOpen(true);
+                                 }}
+                                 className="flex items-center gap-4 py-3 px-8 bg-gray-900 dark:bg-white text-white dark:text-dark-bg text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary transition-all shadow-xl shadow-gray-900/10"
+                               >
+                                   Manifest & Invoice <ChevronRight size={14} />
+                               </button>
+                           </div>
                         </div>
                       </motion.div>
                     ))}

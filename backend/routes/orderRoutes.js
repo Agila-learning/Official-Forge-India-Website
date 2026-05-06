@@ -11,6 +11,7 @@ const {
   updateOrderStatus,
   assignPartner,
   rescheduleOrder,
+  cancelOrder,
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -23,5 +24,6 @@ router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
 router.route('/:id/status').put(protect, updateOrderStatus);
 router.route('/:id/assign').put(protect, assignPartner);
 router.route('/:id/reschedule').put(protect, rescheduleOrder);
+router.route('/:id/cancel').put(protect, cancelOrder);
 
 module.exports = router;

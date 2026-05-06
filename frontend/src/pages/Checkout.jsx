@@ -725,23 +725,22 @@ const Checkout = () => {
                                 </div>
 
                                 <div className="space-y-4 mb-8">
-                                    {cartItems.map((item, i) => (
+                                    {lastOrder?.orderItems?.map((item, i) => (
                                         <div key={i} className="flex justify-between border-b border-slate-50 pb-2">
                                             <div className="text-[10px] font-bold text-slate-700 uppercase">{item.name} x {item.qty}</div>
                                             <div className="text-[10px] font-black text-slate-900">₹{item.price?.toLocaleString()}</div>
                                         </div>
                                     ))}
-                                    {addMembership && (
+                                    {lastOrder?.user?.isMember && !isDigitalOnly && (
                                         <div className="flex justify-between border-b border-slate-50 pb-2">
-                                            <div className="text-[10px] font-bold text-blue-600 uppercase italic">FIC Premium Membership</div>
-                                            <div className="text-[10px] font-black text-blue-600">₹{membershipPrice}</div>
+                                            <div className="text-[10px] font-bold text-blue-600 uppercase italic">FIC Premium Membership Active</div>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl">
                                     <div className="text-xs font-black text-slate-900 uppercase tracking-tight italic">Total Amount Paid</div>
-                                    <div className="text-xl font-black text-blue-600 tracking-tighter">₹{(addMembership ? cartTotal + membershipPrice : cartTotal).toLocaleString()}</div>
+                                    <div className="text-xl font-black text-blue-600 tracking-tighter">₹{lastOrder?.totalPrice?.toLocaleString() || 0}</div>
                                 </div>
 
                                 <div className="mt-8 flex items-center gap-4">

@@ -28,6 +28,9 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
                         <div className="flex justify-between items-center p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-bg/50 no-print">
                             <h3 className="text-xl font-black uppercase tracking-widest text-primary italic">Forge India <span className="text-secondary">Invoice</span></h3>
                             <div className="flex gap-4">
+                                <button onClick={handlePrint} className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 font-black uppercase text-[10px] tracking-widest">
+                                    <Download size={16} /> Download Invoice
+                                </button>
                                 <button onClick={handlePrint} className="p-3 bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-800 hover:text-primary transition-all shadow-sm">
                                     <Printer size={20} />
                                 </button>
@@ -147,9 +150,12 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
                                             <span>Logistic Charges</span>
                                             <span className="text-gray-900 dark:text-white font-bold">₹{(order.shippingPrice || 0).toLocaleString()}</span>
                                         </div>
-                                        <div className="flex justify-between items-center pt-2">
-                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Final Total</span>
-                                            <span className="text-3xl font-black text-primary italic">₹{order.totalPrice.toLocaleString()}</span>
+                                        <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Amount Paid</span>
+                                            <span className="text-3xl font-black text-primary italic">₹{order.totalPrice.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</span>
+                                        </div>
+                                        <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-right mt-1">
+                                            {order.isPaid ? 'Transaction Fully Authorized' : 'Pending Verification'}
                                         </div>
                                     </div>
                                 </div>
