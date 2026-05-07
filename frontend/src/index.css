@@ -375,6 +375,37 @@
 @keyframes gradientShift  { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 @keyframes fadeUp         { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ── Premium animated heading gradient ── */
+@keyframes headingGradientMove {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Typewriter cursor blink ── */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Moving dot along route ── */
+@keyframes routeDotMove {
+  0%   { stroke-dashoffset: 300; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes routeGlowPulse {
+  0%, 100% { opacity: 0.4; r: 3; }
+  50%       { opacity: 1;   r: 5; }
+}
+@keyframes scooterRide {
+  0%   { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
+}
+@keyframes pingExpand {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
 .animate-float        { animation: float 6s ease-in-out infinite; }
 .animate-blob         { animation: blobFloat 18s ease-in-out infinite; }
 .animation-delay-2000 { animation-delay: 2s; }
@@ -382,6 +413,60 @@
 .animate-pulse-ring   { animation: pulseRing 2.5s ease infinite; }
 .animate-border-glow  { animation: borderGlow 3s ease-in-out infinite; }
 .animate-fade-up      { animation: fadeUp 0.6s ease forwards; }
+.animate-cursor-blink { animation: cursorBlink 1s step-end infinite; }
+
+/* Premium animated gradient heading utility */
+.gradient-heading {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #818cf8 20%,
+    #38bdf8 40%,
+    #34d399 60%,
+    #818cf8 80%,
+    #ffffff 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: headingGradientMove 7s ease infinite;
+}
+
+/* Light-mode variant — shifts through indigo → blue → teal */
+.gradient-heading-dark {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #1e1b4b 0%,
+    #4338ca 25%,
+    #0284c7 50%,
+    #0d9488 75%,
+    #4338ca 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: headingGradientMove 7s ease infinite;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-heading,
+  .gradient-heading-dark,
+  .animated-text-gradient,
+  .animate-float,
+  .animate-blob,
+  .animate-border-glow,
+  .animate-cursor-blink {
+    animation: none !important;
+    background-position: 0% 50% !important;
+  }
+  .animate-cursor-blink { opacity: 1; }
+}
+
 
 /* ============================================================
    SHIMMER LOADING SKELETON

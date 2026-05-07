@@ -81,7 +81,7 @@ const FICRoadmap = () => {
                         className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-[0.95] mb-8"
                     >
                         Solutions for Your <br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">Career, Business & Future</span>
+                        <span className="gradient-heading-dark dark:gradient-heading">Career, Business &amp; Future</span>
                     </motion.h2>
                     <p className="text-lg text-gray-500 font-medium max-w-2xl">
                         Explore our official company services designed to help you grow personally and professionally. 
@@ -124,8 +124,17 @@ const FICRoadmap = () => {
                         </div>
 
                         <div className="relative">
-                            {/* Roadmap Line */}
-                            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/10 hidden lg:block -translate-y-1/2" />
+                        {/* Animated glowing roadmap line */}
+                        <div className="absolute top-6 left-0 w-full h-[2px] hidden lg:block overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                            <motion.div
+                                initial={{ width: '0%' }}
+                                whileInView={{ width: '100%' }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 2, ease: 'easeInOut', delay: 0.5 }}
+                                className="h-full rounded-full"
+                                style={{ background: 'linear-gradient(90deg, #4f46e5, #7c3aed, #0d9488)', boxShadow: '0 0 12px rgba(79,70,229,0.6)' }}
+                            />
+                        </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
                                 {timeline.map((item, idx) => (

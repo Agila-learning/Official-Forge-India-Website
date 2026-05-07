@@ -40,7 +40,7 @@ const PipelineProcess = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             className="text-5xl md:text-7xl font-black mb-6 tracking-tighter"
           >
-            The Forge <span className="animated-text-gradient">Pulse</span> Pipeline
+            The Forge <span className="gradient-heading">Pulse</span> Pipeline
           </motion.h2>
           <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto font-medium opacity-80">
             A frictionless journey from ambition to achievement, engineered for the elite.

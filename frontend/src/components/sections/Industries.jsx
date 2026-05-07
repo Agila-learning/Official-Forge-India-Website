@@ -87,7 +87,7 @@ const Industries = () => {
             className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter leading-[0.9] uppercase"
           >
             Engine of <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400 italic">Global Industry</span>
+            <span className="gradient-heading italic">Global Industry</span>
           </motion.h2>
           
           <motion.p

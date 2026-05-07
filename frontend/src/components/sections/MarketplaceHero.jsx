@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, MapPin, Zap, ShoppingBag, 
@@ -9,6 +9,48 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation as useUserLocation } from '../../context/LocationContext';
+
+/* ── Typewriter hook ── */
+const PLACEHOLDER_PHRASES = [
+  'Enter your pincode to explore',
+  '560001 — Bangalore',
+  '600001 — Chennai',
+  '682001 — Kochi',
+  '635001 — Krishnagiri',
+  'Check delivery near you',
+];
+
+function useTypewriter(phrases, typingSpeed = 65, pauseMs = 1600, deleteSpeed = 35) {
+  const [displayed, setDisplayed] = useState('');
+  const [phaseIdx, setPhaseIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const pausing = useRef(false);
+
+  useEffect(() => {
+    const phrase = phrases[phaseIdx % phrases.length];
+    let timeout;
+
+    if (!deleting && charIdx < phrase.length) {
+      timeout = setTimeout(() => setCharIdx(i => i + 1), typingSpeed);
+    } else if (!deleting && charIdx === phrase.length) {
+      if (!pausing.current) {
+        pausing.current = true;
+        timeout = setTimeout(() => { setDeleting(true); pausing.current = false; }, pauseMs);
+      }
+    } else if (deleting && charIdx > 0) {
+      timeout = setTimeout(() => setCharIdx(i => i - 1), deleteSpeed);
+    } else if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setPhaseIdx(i => i + 1);
+    }
+
+    setDisplayed(phrase.slice(0, charIdx));
+    return () => clearTimeout(timeout);
+  }, [charIdx, deleting, phaseIdx, phrases, typingSpeed, pauseMs, deleteSpeed]);
+
+  return displayed;
+}
 
 const MapMarker = ({ x, y, delay, label, icon: Icon }) => (
     <motion.div 
@@ -40,6 +82,8 @@ const MarketplaceHero = () => {
     const { location: appLocation, detectLocation, status } = useUserLocation();
     const [pincode, setPincode] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [inputFocused, setInputFocused] = useState(false);
+    const typewriterText = useTypewriter(PLACEHOLDER_PHRASES);
 
     useEffect(() => {
         if (appLocation?.pincode) {
@@ -103,7 +147,7 @@ const MarketplaceHero = () => {
                         >
                             All Services. <br />
                             One Hub. <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400">Your Location.</span>
+                            <span className="gradient-heading">Your Location.</span>
                         </motion.h1>
 
                         <motion.p 
@@ -125,14 +169,22 @@ const MarketplaceHero = () => {
                         >
                             <div className="flex-1 flex items-center gap-4 px-6 py-4">
                                 <LocateFixed className="text-slate-400" size={20} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Enter your pincode to explore"
-                                    value={pincode}
-                                    onChange={(e) => setPincode(e.target.value)}
-                                    maxLength={6}
-                                    className="w-full outline-none text-slate-900 font-bold placeholder:text-slate-400 text-sm"
-                                />
+                                <div className="relative flex-1 flex items-center">
+                                  <input 
+                                      type="text" 
+                                      placeholder={inputFocused || pincode ? 'Enter your pincode to explore' : typewriterText}
+                                      value={pincode}
+                                      onChange={(e) => setPincode(e.target.value)}
+                                      onFocus={() => setInputFocused(true)}
+                                      onBlur={() => setInputFocused(false)}
+                                      maxLength={6}
+                                      className="w-full outline-none text-slate-900 font-bold placeholder:text-slate-400 text-sm bg-transparent"
+                                  />
+                                  {/* Blinking cursor shown when not focused and not typing */}
+                                  {!inputFocused && !pincode && (
+                                    <span className="animate-cursor-blink text-slate-400 font-light text-sm select-none -ml-1">|</span>
+                                  )}
+                                </div>
                                 <button 
                                     onClick={detectLocation}
                                     className="p-2 hover:bg-slate-100 rounded-lg transition-colors group"
