@@ -38,6 +38,7 @@ import JobConsultingPage from './pages/JobConsultingPage';
 import AgentDashboard from './pages/AgentDashboard';
 import ServiceProviderDashboard from './pages/ServiceProviderDashboard';
 import YetToLaunch from './pages/YetToLaunch';
+import Notifications from './pages/Notifications';
 
 import SmoothScroll from './components/layout/SmoothScroll';
 import CustomCursor from './components/ui/CustomCursor';
@@ -161,6 +162,9 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/products/:id" element={<ProductRedirect />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/yet-to-launch" element={<YetToLaunch />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/rides" element={<YetToLaunch />} />
+          <Route path="/rentals" element={<YetToLaunch />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

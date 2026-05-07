@@ -56,50 +56,27 @@ const JobConsultingPage = () => {
 
     setLoading(true);
     try {
-      const { data: orderData } = await api.post('/job-consulting/submit', formData);
+      // 1. Save inquiry to DB for tracking
+      const { data } = await api.post('/job-consulting/submit', formData);
 
-      const options = {
-        key: orderData.keyId,
-        amount: orderData.amount * 100,
-        currency: orderData.currency,
-        name: "Forge India Connect",
-        description: `Consultation: ${formData.consultingType}`,
-        image: "/logo.jpg",
-        order_id: orderData.razorpayOrderId,
-        handler: async (response) => {
-          try {
-            const verifyPayload = {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              inquiryId: orderData.inquiryId,
-            };
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to save inquiry.');
+      }
 
-            await api.post('/job-consulting/verify-payment', verifyPayload);
-            toast.success('Strategic Success: Payment Verified. Mission Initiated!', { duration: 6000 });
-            navigate('/candidate/dashboard');
-          } catch (err) {
-            toast.error('Signature Verification Failed: Potential communication breach.');
-          }
-        },
-        prefill: {
-          name: orderData.candidateName,
-          email: orderData.email,
-          contact: orderData.contactNumber,
-        },
-        theme: { color: "#0A66C2" },
-      };
+      toast.success('Inquiry registered! Redirecting to secure payment...', { duration: 3000 });
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      // 2. Redirect to the direct Razorpay payment link
+      setTimeout(() => {
+        window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
+      }, 800);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Gateway Operational Failure');
+      toast.error(err.response?.data?.message || err.message || 'Gateway Operational Failure');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickPay = () => {
+  const handleQuickPay = async () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     if (!userInfo) {
       toast.error('Strategic Authorization Required: Please login for Quick Pay.');
@@ -107,15 +84,25 @@ const JobConsultingPage = () => {
       return;
     }
     
-    setFormData(prev => ({
-        ...prev,
-        specificRequirement: 'Quick Pay via Direct Dashboard Access',
-        contactNumber: userInfo.mobile || userInfo.phone || 'N/A'
-    }));
+    const quickFormData = {
+      ...formData,
+      specificRequirement: formData.specificRequirement || 'Quick Pay via Direct Dashboard Access',
+      contactNumber: formData.contactNumber || userInfo.mobile || userInfo.phone || 'N/A',
+    };
 
-    setTimeout(() => {
-        handlePayment();
-    }, 100);
+    setLoading(true);
+    try {
+      const { data } = await api.post('/job-consulting/submit', quickFormData);
+      if (!data.success) throw new Error(data.message);
+      toast.success('Redirecting to secure payment gateway...', { duration: 3000 });
+      setTimeout(() => {
+        window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
+      }, 800);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to initiate payment.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -193,7 +180,7 @@ const JobConsultingPage = () => {
                 <span className="px-4 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-white/20 mb-8 inline-block">Elite Tier Authorized</span>
                 <h3 className="text-4xl font-black mb-6 italic tracking-tighter uppercase">Elite Consultation</h3>
                 <div className="flex items-baseline gap-4 mb-10">
-                  <span className="text-6xl font-black text-white">₹1,500</span>
+                <span className="text-6xl font-black text-white">₹2,500</span>
                   <span className="text-white/50 font-bold uppercase tracking-widest text-sm">/ Mission</span>
                 </div>
                 <ul className="space-y-4 mb-12">
@@ -331,7 +318,7 @@ const ConsultingForm = ({ formData, setFormData, handlePayment, loading }) => {
         disabled={loading}
         className="btn-primary w-full !py-6 !rounded-3xl !text-sm group shadow-xl shadow-primary/20"
       >
-        {loading ? 'Initializing Gateway...' : <>Confirm & Pay ₹1,500 <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
+        {loading ? 'Saving & Redirecting...' : <>Confirm & Pay ₹2,500 <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
       </button>
       
       <p className="text-[10px] text-center text-slate-400 font-bold uppercase leading-relaxed px-4">

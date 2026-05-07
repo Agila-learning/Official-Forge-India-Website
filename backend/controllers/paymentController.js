@@ -11,13 +11,42 @@ const razorpay = new Razorpay({
 // @desc    Create Razorpay Order
 // @route   POST /api/payments/create-order
 // @access  Private
+// SECURITY: Amount is ALWAYS fetched from the DB Order record — never trusted from the client.
 const createRazorpayOrder = asyncHandler(async (req, res) => {
-  const { amount, receipt } = req.body;
+  const { orderId, receipt } = req.body;
+
+  if (!orderId) {
+    res.status(400);
+    throw new Error('Order ID is required to initiate payment.');
+  }
+
+  // 1. Fetch the order from DB to get the authoritative price
+  const dbOrder = await Order.findById(orderId);
+  if (!dbOrder) {
+    res.status(404);
+    throw new Error('Order not found. Cannot initiate payment for a non-existent order.');
+  }
+
+  // 2. Verify the requesting user is the order owner
+  if (dbOrder.user.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
+    res.status(403);
+    throw new Error('Authorization Failure: You are not permitted to pay for this order.');
+  }
+
+  // 3. Prevent double-payment
+  if (dbOrder.isPaid) {
+    res.status(400);
+    throw new Error('This order has already been paid.');
+  }
 
   const options = {
-    amount: Math.round(amount * 100), // amount in the smallest currency unit (paise)
+    amount: Math.round(dbOrder.totalPrice * 100), // DB-sourced amount in paise — cannot be manipulated
     currency: "INR",
-    receipt: receipt || `receipt_${Date.now()}`,
+    receipt: receipt || `receipt_${dbOrder._id.toString().slice(-8)}_${Date.now()}`,
+    notes: {
+      mongoOrderId: dbOrder._id.toString(),
+      userId: req.user._id.toString(),
+    }
   };
 
   try {

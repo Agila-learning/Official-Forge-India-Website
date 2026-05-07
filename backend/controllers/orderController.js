@@ -21,12 +21,45 @@ const addOrderItems = async (req, res) => {
     res.status(400).json({ message: 'No order items' });
     return;
   } else {
+    // 1. HARDENING: Calculate total price server-side to prevent tampering
+    let calculatedTotalPrice = 0;
+    const productIds = orderItems.map(item => item.product);
+    const dbProducts = await Product.find({ _id: { $in: productIds } });
+
+    const validatedOrderItems = orderItems.map(item => {
+      const product = dbProducts.find(p => p._id.toString() === item.product.toString());
+      if (!product) {
+        throw new Error(`Strategic Failure: Asset ${item.product} not found in inventory.`);
+      }
+      
+      const itemPrice = product.discountPrice || product.price;
+      calculatedTotalPrice += itemPrice * (item.qty || 1);
+      
+      return {
+        ...item,
+        price: itemPrice // Force DB price
+      };
+    });
+
+    // Handle delivery charges (simplistic logic for now, using max delivery charge from items)
+    let maxDeliveryCharge = 0;
+    dbProducts.forEach(p => {
+        if (p.deliveryCharge > maxDeliveryCharge) {
+            const threshold = p.freeDeliveryThreshold || 0;
+            if (threshold === 0 || calculatedTotalPrice < threshold) {
+                maxDeliveryCharge = p.deliveryCharge;
+            }
+        }
+    });
+    
+    calculatedTotalPrice += maxDeliveryCharge;
+
     const order = new Order({
-      orderItems,
+      orderItems: validatedOrderItems,
       user: req.user._id,
       shippingAddress,
       paymentMethod,
-      totalPrice,
+      totalPrice: calculatedTotalPrice, // Use server-calculated price
       instructions,
       fulfillmentType
     });
@@ -56,8 +89,8 @@ const addOrderItems = async (req, res) => {
     }
 
     // Identify unique products to notify vendors
-    const productIds = orderItems.map(item => item.product);
-    const products = await Product.find({ _id: { $in: productIds } });
+    const vendorProductIds = orderItems.map(item => item.product);
+    const products = await Product.find({ _id: { $in: vendorProductIds } });
     const vendorIds = new Set();
     products.forEach(p => {
       if (p.vendorId) vendorIds.add(p.vendorId.toString());

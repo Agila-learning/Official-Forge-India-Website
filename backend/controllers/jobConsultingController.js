@@ -1,21 +1,11 @@
-const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
 const ServiceInquiry = require('../models/ServiceInquiry');
 const User = require('../models/User');
 const { sendPaymentConfirmationEmail } = require('../utils/emailService');
 
-// Initialize Razorpay lazily to ensure environment variables are loaded
-let razorpay;
-const getRazorpayInstance = () => {
-  if (!razorpay) {
-    razorpay = new Razorpay({
-      key_id:     process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
-      key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
-    });
-  }
-  return razorpay;
-};
+// Direct payment link — no Razorpay server-side order creation needed
+const DIRECT_PAYMENT_LINK = 'https://rzp.io/rzp/KJFPhwG';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // @desc    Submit Job Consulting Inquiry + Create Razorpay Order
@@ -38,9 +28,9 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     throw new Error('Consulting type, requirements, and contact number are required.');
   }
 
-  const AMOUNT_INR = 1500; // Consulting fee in INR
+  const AMOUNT_INR = 2500; // Updated consulting fee in INR
 
-  // 1. Save inquiry to DB with paymentStatus: Pending
+  // 1. Save inquiry to DB with paymentStatus: Pending (for tracking purposes)
   let inquiry;
   try {
     inquiry = await ServiceInquiry.create({
@@ -64,56 +54,18 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     });
   }
 
-  // 2. Create Razorpay Order
-  let razorpayOrder;
-  const isTestKey = !process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID.includes('REPLACE_WITH_YOUR_KEY_ID');
-
-  if (isTestKey) {
-    // TEST MODE: Skip Razorpay and return a mock order ID
-    razorpayOrder = { id: `order_mock_${Date.now()}` };
-    console.log('--- TEST MODE: Razorpay Order Creation Skipped ---');
-    try {
-      const rzp = getRazorpayInstance();
-      razorpayOrder = await rzp.orders.create({
-        amount:   Math.round(AMOUNT_INR * 100), // amount in the smallest currency unit (paise)
-        currency: 'INR',
-        receipt:  `jc_${inquiry._id.toString().slice(-8)}`,
-        notes: {
-          inquiryId:      inquiry._id.toString(),
-          candidateEmail: req.user?.email || 'N/A',
-          candidateName:  `${req.user?.firstName || ''} ${req.user?.lastName || ''}`.trim() || 'Anonymous Candidate',
-          consultingType: consultingType || 'General',
-        },
-      });
-    } catch (err) {
-      console.error('[Razorpay Order Error - Job Consulting]:', err);
-      // Clean up the inquiry so we don't have orphans
-      await ServiceInquiry.findByIdAndDelete(inquiry._id);
-      
-      // Send a clean JSON error response instead of just throwing
-      return res.status(500).json({ 
-        success: false,
-        message: `Strategic Gateway Failure: ${err.message || 'Check gateway connectivity'}`,
-        details: err.description || 'Razorpay initialization failed'
-      });
-    }
-  }
-
-  // 3. Save Razorpay order ID back to inquiry
-  inquiry.razorpayOrderId = razorpayOrder.id;
-  await inquiry.save();
-
+  // 2. Return the direct payment link — no server-side Razorpay order needed.
+  //    The client will redirect to the direct payment page.
   res.status(201).json({
     success: true,
-    inquiryId:      inquiry._id,
-    razorpayOrderId: razorpayOrder.id,
-    keyId:          process.env.RAZORPAY_KEY_ID,
-    amount:         AMOUNT_INR,
-    currency:       'INR',
-    candidateName:  `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
-    email:          req.user?.email,
+    inquiryId:       inquiry._id,
+    amount:          AMOUNT_INR,
+    paymentLink:     DIRECT_PAYMENT_LINK,
+    candidateName:   `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
+    email:           req.user?.email,
     contactNumber,
     consultingType,
+    message:         'Inquiry saved. Please complete payment via the provided link.',
   });
 });
 
