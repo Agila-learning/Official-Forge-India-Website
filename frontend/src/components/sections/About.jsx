@@ -50,7 +50,7 @@ const About = () => {
             transition={{ duration: 0.65 }}
           >
             <span className="section-eyebrow">Why Choose FIC</span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-[1.05] tracking-tighter mt-3">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-[1.08] tracking-tighter mt-3">
               Why Choose{' '}
               <span className="text-gradient-primary">FIC?</span>{' '}
               End-to-End{' '}

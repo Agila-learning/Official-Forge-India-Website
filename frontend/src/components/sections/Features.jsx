@@ -111,7 +111,7 @@ const FeatureCard = ({ feat, idx }) => {
 
 const Features = () => {
   return (
-    <section className="py-20 md:py-28 bg-white dark:bg-transparent overflow-hidden">
+    <section className="py-20 md:py-28 overflow-hidden" style={{ background: 'linear-gradient(160deg, #060912 0%, #0a0f20 50%, #060d1a 100%)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* ── Metric Strip ── */}
@@ -156,12 +156,12 @@ const Features = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <span className="section-eyebrow">Platform Advantages</span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-6 leading-[1.08] tracking-tighter mt-3">
-              Powerful Features for{' '}
+            <span className="section-eyebrow-dark">Platform Advantages</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-[1.08] tracking-tighter mt-3">
+              Powerful Features for{' '}<br />
               <span className="text-gradient-blue">Ambitious Teams.</span>
             </h2>
-            <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 leading-relaxed max-w-xl">
+            <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-xl">
               Experience a sophisticated networking environment designed for performance and scale. Real-time updates, 
               secure connections, and verified profiles ensure your growth is our priority.
             </p>

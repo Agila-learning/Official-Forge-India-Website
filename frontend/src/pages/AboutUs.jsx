@@ -182,7 +182,7 @@ const AboutUs = () => {
                 </motion.span>
                 <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-8">
                   India's Premier<br />
-                  <span className="bg-gradient-to-r from-primary via-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                  <span className="inline-block bg-gradient-to-r from-primary via-blue-400 to-indigo-400 bg-clip-text text-transparent">
                     Business Ecosystem.
                   </span>
                 </h1>
