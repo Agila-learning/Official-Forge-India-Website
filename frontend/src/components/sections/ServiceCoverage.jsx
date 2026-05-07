@@ -25,15 +25,46 @@ const RouteNode = ({ cx, cy, label, icon: Icon, color, delay = 0 }) => (
   </g>
 );
 
-const TravelingDot = ({ pathId, duration, delay, color = '#818cf8' }) => (
-  <circle r="3.5" fill={color}
+const TravelingScooter = ({ pathId, duration, delay, color = '#818cf8' }) => (
+  <g
     style={{
       offsetPath: `path('${pathId}')`,
-      offsetRotate: '0deg',
+      offsetRotate: 'auto',
       animation: `scooterRide ${duration}s linear ${delay}s infinite`,
-      filter: `drop-shadow(0 0 4px ${color})`,
+      transformBox: 'fill-box',
+      transformOrigin: 'center'
     }}
-  />
+  >
+    <defs>
+      <linearGradient id={`beam-${pathId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#fef08a" stopOpacity="0.7" />
+        <stop offset="100%" stopColor="#fef08a" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    
+    <g style={{ animation: 'scooterBounce 0.4s infinite alternate ease-in-out' }} transform="scale(0.8)">
+      {/* Headlight beam */}
+      <polygon points="8,-2 40,-12 40,8" fill={`url(#beam-${pathId})`} style={{ mixBlendMode: 'screen' }} />
+      
+      {/* Delivery Box */}
+      <rect x="-10" y="-8" width="8" height="8" rx="1.5" fill={color} />
+      <path d="M-10,-8 L-2,-8 L-2,-10 L-10,-10 Z" fill="#ffffff" opacity="0.3" />
+      
+      {/* Chassis */}
+      <path d="M-10,0 L2,0 L6,-6 L9,-6 L10,0 L12,2 L-10,2 Z" fill={color} />
+      
+      {/* Wheels */}
+      <circle cx="-6" cy="2" r="3.5" fill="#0f172a" stroke={color} strokeWidth="1.5" />
+      <circle cx="8" cy="2" r="3.5" fill="#0f172a" stroke={color} strokeWidth="1.5" />
+      
+      {/* Headlight Dot */}
+      <circle cx="10" cy="-1.5" r="1.5" fill="#fef08a" filter="url(#glow)" />
+
+      {/* Rider (Simplified) */}
+      <path d="M-2,-2 L-2,-12 L2,-12 L2,-2 Z" fill={color} opacity="0.9" />
+      <circle cx="0" cy="-14" r="3" fill={color} />
+    </g>
+  </g>
 );
 
 const AnimatedRouteMap = () => {
@@ -99,9 +130,9 @@ const AnimatedRouteMap = () => {
           <path key={`s-${r.id}`} d={r.d} fill="none" stroke={r.color} strokeWidth="0.5" opacity="0.15" />
         ))}
 
-        {/* Traveling glowing dots */}
+        {/* Traveling glowing scooters */}
         {routes.map(r => (
-          <TravelingDot key={`dot-${r.id}`} pathId={r.d} duration={r.dur} delay={r.delay} color={r.color} />
+          <TravelingScooter key={`scooter-${r.id}`} pathId={r.d} duration={r.dur} delay={r.delay} color={r.color} />
         ))}
 
         {/* City nodes */}

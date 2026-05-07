@@ -405,6 +405,10 @@
   0%   { transform: scale(0.8); opacity: 0.8; }
   100% { transform: scale(2.2); opacity: 0; }
 }
+@keyframes scooterBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-2.5px) scale(1.02); }
+}
 
 .animate-float        { animation: float 6s ease-in-out infinite; }
 .animate-blob         { animation: blobFloat 18s ease-in-out infinite; }
