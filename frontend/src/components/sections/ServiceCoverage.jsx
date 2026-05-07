@@ -25,10 +25,10 @@ const RouteNode = ({ cx, cy, label, icon: Icon, color, delay = 0 }) => (
   </g>
 );
 
-const TravelingScooter = ({ pathId, duration, delay, color = '#818cf8' }) => (
+const TravelingScooter = ({ id, pathData, duration, delay, color = '#818cf8' }) => (
   <g
     style={{
-      offsetPath: `path('${pathId}')`,
+      offsetPath: `path('${pathData}')`,
       offsetRotate: 'auto',
       animation: `scooterRide ${duration}s linear ${delay}s infinite`,
       transformBox: 'fill-box',
@@ -36,7 +36,7 @@ const TravelingScooter = ({ pathId, duration, delay, color = '#818cf8' }) => (
     }}
   >
     <defs>
-      <linearGradient id={`beam-${pathId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+      <linearGradient id={`beam-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stopColor="#fef08a" stopOpacity="0.7" />
         <stop offset="100%" stopColor="#fef08a" stopOpacity="0" />
       </linearGradient>
@@ -44,7 +44,7 @@ const TravelingScooter = ({ pathId, duration, delay, color = '#818cf8' }) => (
     
     <g style={{ animation: 'scooterBounce 0.4s infinite alternate ease-in-out' }} transform="scale(0.8)">
       {/* Headlight beam */}
-      <polygon points="8,-2 40,-12 40,8" fill={`url(#beam-${pathId})`} style={{ mixBlendMode: 'screen' }} />
+      <polygon points="8,-2 40,-12 40,8" fill={`url(#beam-${id})`} style={{ mixBlendMode: 'screen' }} />
       
       {/* Delivery Box */}
       <rect x="-10" y="-8" width="8" height="8" rx="1.5" fill={color} />
@@ -132,7 +132,7 @@ const AnimatedRouteMap = () => {
 
         {/* Traveling glowing scooters */}
         {routes.map(r => (
-          <TravelingScooter key={`scooter-${r.id}`} pathId={r.d} duration={r.dur} delay={r.delay} color={r.color} />
+          <TravelingScooter key={`scooter-${r.id}`} id={r.id} pathData={r.d} duration={r.dur} delay={r.delay} color={r.color} />
         ))}
 
         {/* City nodes */}
