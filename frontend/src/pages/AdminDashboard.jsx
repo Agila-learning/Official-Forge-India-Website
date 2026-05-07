@@ -5,7 +5,7 @@ import {
     MessageSquare, Star, Link as LinkIcon, MapPin, Image, 
     MessageCircle as ReviewIcon, LogOut, ShieldCheck, Mail, Phone, 
     Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, Upload, UserPlus, ClipboardList, XCircle, CheckCircle2,
-    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode
+    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -363,6 +363,8 @@ const AdminDashboard = () => {
     { id: 'events', icon: Calendar, label: 'Events' },
     { id: 'atomy', icon: Package, label: 'Product Catalog' },
     { id: 'services', icon: Wrench, label: 'Services' },
+    { id: 'rentals', icon: Building2, label: 'Rentals' },
+    { id: 'rides', icon: Truck, label: 'Rides' },
     { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
     { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
@@ -1042,6 +1044,105 @@ const AdminDashboard = () => {
                             </div>
                         ))}
                     </div>
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'rentals' && (
+            <div className="space-y-12">
+                <header className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter italic">Property <span className="text-primary italic">Portfolio Hub</span></h2>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage all FIC rental assets and lease agreements.</p>
+                    </div>
+                    <button onClick={() => setActiveTab('atomy')} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+                        <Plus size={16} /> New Property Listing
+                    </button>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {data.products.filter(p => p.propertyType && p.propertyType !== 'None').map(prop => (
+                        <div key={prop._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
+                            <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
+                                <img src={prop.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+                                <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur text-[8px] font-black uppercase rounded-full border border-gray-100">{prop.propertyType}</div>
+                            </div>
+                            <div className="flex justify-between items-start mb-4">
+                                <h3 className="font-black text-lg uppercase truncate italic">{prop.name}</h3>
+                                <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase ${prop.isAvailable ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>{prop.isAvailable ? 'Available' : 'Occupied'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 mb-6">
+                                <MapPin size={12} className="text-primary" />
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{prop.location || 'Location Pending'}</span>
+                            </div>
+                            <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
+                                <p className="text-xl font-black text-primary italic">₹{prop.price.toLocaleString()}<span className="text-[10px] text-gray-400 font-bold tracking-normal italic ml-1">/mo</span></p>
+                                <div className="flex gap-2">
+                                    <button onClick={() => { setEditingItem(prev => ({ ...prev, products: prop })); setActiveTab('atomy'); }} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary rounded-xl transition-all"><Edit size={16} /></button>
+                                    <button onClick={() => handleDelete('products', prop._id)} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-red-500 rounded-xl transition-all"><Trash2 size={16} /></button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {data.products.filter(p => p.propertyType && p.propertyType !== 'None').length === 0 && (
+                        <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
+                            <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest italic">No property assets detected in the global registry.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'rides' && (
+            <div className="space-y-12">
+                <header className="flex justify-between items-center">
+                    <div>
+                        <h2 className="text-3xl font-black uppercase tracking-tighter italic">Fleet <span className="text-primary italic">Control Center</span></h2>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage ride-hailing operations and vehicle logistics.</p>
+                    </div>
+                    <button onClick={() => setActiveTab('services')} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+                        <Plus size={16} /> Register New Vehicle
+                    </button>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {data.products.filter(p => p.category === 'Rides' || p.serviceType === 'Ride').map(ride => (
+                        <div key={ride._id} className="glass-card p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group border-b-4 border-b-primary">
+                            <div className="flex items-center gap-6 mb-8">
+                                <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary border border-primary/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                    <Truck size={36} />
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-xl uppercase tracking-tighter italic">{ride.name}</h3>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 mt-1">
+                                        <div className={`w-2 h-2 rounded-full ${ride.isOnline ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                                        {ride.isOnline ? 'Active on Mission' : 'Idle / Offline'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800">
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Base Logistics Fare</span>
+                                    <span className="text-xs font-black text-gray-900 dark:text-white">₹{ride.price}</span>
+                                </div>
+                                <div className="flex justify-between p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800">
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Global Rate/KM</span>
+                                    <span className="text-xs font-black text-gray-900 dark:text-white">₹{ride.perKmRate || 12}</span>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => { setEditingItem(prev => ({ ...prev, products: ride })); setActiveTab('services'); }} className="flex-1 py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Command Asset</button>
+                                <button onClick={() => handleDelete('products', ride._id)} className="p-4 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><Trash2 size={18} /></button>
+                            </div>
+                        </div>
+                    ))}
+                    {data.products.filter(p => p.category === 'Rides' || p.serviceType === 'Ride').length === 0 && (
+                        <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
+                            <Truck size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest italic">No fleet assets registered in the global operations map.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         )}

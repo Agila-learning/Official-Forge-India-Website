@@ -36,6 +36,7 @@ import ContactPage from './pages/ContactPage';
 import ServicesPage from './pages/ServicesPage';
 import JobConsultingPage from './pages/JobConsultingPage';
 import AgentDashboard from './pages/AgentDashboard';
+import ServiceProviderDashboard from './pages/ServiceProviderDashboard';
 import YetToLaunch from './pages/YetToLaunch';
 
 import SmoothScroll from './components/layout/SmoothScroll';
@@ -63,7 +64,7 @@ const ContentWrapper = ({ loading }) => {
   const [showInactivityPopup, setShowInactivityPopup] = useState(false);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
   
-  const hideNavPaths = ['/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', '/employer', '/track-mission'];
+  const hideNavPaths = ['/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', '/employer', '/track-mission', '/service-provider'];
   const isDashboard = hideNavPaths.some(path => location.pathname.startsWith(path));
   const dashboardRoles = ['Admin', 'Sub-Admin', 'Vendor', 'HR', 'Delivery Partner', 'Candidate', 'Employer'];
   const shouldHide = isDashboard;
@@ -155,6 +156,7 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/track-mission" element={<TrackMission />} />
           <Route path="/job-consulting" element={<JobConsultingPage />} />
           <Route path="/training-placement" element={<TrainingPlacementPage />} />
+          <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
           <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProductRedirect />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />

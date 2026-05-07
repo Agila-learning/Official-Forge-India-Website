@@ -147,6 +147,10 @@ const VendorDashboard = () => {
             const vendorProducts = data.filter(p => (p.vendorId?._id || p.vendorId) === userInfo?._id);
             setProducts(vendorProducts);
             
+            // Categorize for specific views
+            const rentalAssets = vendorProducts.filter(p => p.propertyType && p.propertyType !== 'None');
+            const rideAssets = vendorProducts.filter(p => p.category === 'Rides' || p.serviceType === 'Ride');
+            
             // Generate Stock Report
             const lowStock = vendorProducts.filter(p => !p.isService && p.countInStock < 10);
             setStockReport(lowStock);
@@ -247,10 +251,12 @@ const VendorDashboard = () => {
             top: data.viewImages_top,
             bottom: data.viewImages_bottom
         };
-        delete data.viewImages_front;
-        delete data.viewImages_back;
-        delete data.viewImages_top;
         delete data.viewImages_bottom;
+
+        // Specialized fields
+        if (data.perKmRate) data.perKmRate = Number(data.perKmRate);
+        if (data.sqft) data.sqft = Number(data.sqft);
+        if (data.isOnline) data.isOnline = data.isOnline === 'true';
         
         try {
             if (editingProduct) {
@@ -408,6 +414,73 @@ const VendorDashboard = () => {
                                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
                                             <textarea name="description" defaultValue={editingProduct?.description} rows="3" className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none resize-none"></textarea>
                                         </div>
+
+                                        {/* Dynamic Rental/Ride Fields */}
+                                        {(categories.find(c => c._id === selectedCategory)?.name === 'Rentals' || editingProduct?.propertyType !== 'None') && (
+                                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-primary/5 rounded-[2.5rem] border border-primary/10">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Property Type</label>
+                                                    <select name="propertyType" defaultValue={editingProduct?.propertyType || 'Apartment'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                                                        <option value="Apartment">Apartment</option>
+                                                        <option value="Individual House">Individual House</option>
+                                                        <option value="PG">PG</option>
+                                                        <option value="Hotel">Hotel</option>
+                                                        <option value="Room">Room</option>
+                                                        <option value="Villa">Villa</option>
+                                                        <option value="Office Space">Office Space</option>
+                                                        <option value="Vehicle Rental">Vehicle Rental</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Furnishing Status</label>
+                                                    <select name="furnishingStatus" defaultValue={editingProduct?.furnishingStatus || 'Unfurnished'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                                                        <option value="Unfurnished">Unfurnished</option>
+                                                        <option value="Furnished">Furnished</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">BHK / Room Type</label>
+                                                    <input name="bhkType" defaultValue={editingProduct?.bhkType} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 2BHK, Deluxe Room" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Total Sqft</label>
+                                                    <input name="sqft" type="number" defaultValue={editingProduct?.sqft} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 1200" />
+                                                </div>
+                                                <div className="md:col-span-2 space-y-2">
+                                                    <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Property Location</label>
+                                                    <input name="location" defaultValue={editingProduct?.location} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="Enter full address of the property" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(categories.find(c => c._id === selectedCategory)?.name === 'Rides' || editingProduct?.vehicleType !== 'None') && (
+                                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-secondary/5 rounded-[2.5rem] border border-secondary/10">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-secondary uppercase tracking-widest ml-1">Vehicle Category</label>
+                                                    <select name="vehicleType" defaultValue={editingProduct?.vehicleType || 'Auto'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                                                        <option value="Auto">Auto Rickshaw</option>
+                                                        <option value="Car">Sedan/SUV</option>
+                                                        <option value="Bike">Bike/Scooter</option>
+                                                        <option value="Truck">Cargo Truck</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-secondary uppercase tracking-widest ml-1">Rate Per KM (INR)</label>
+                                                    <input name="perKmRate" type="number" defaultValue={editingProduct?.perKmRate || 12} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-secondary uppercase tracking-widest ml-1">Operating Status</label>
+                                                    <select name="isOnline" defaultValue={editingProduct?.isOnline ? 'true' : 'false'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                                                        <option value="true">Go Online (Live Tracking)</option>
+                                                        <option value="false">Stay Offline</option>
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-secondary uppercase tracking-widest ml-1">Service Base Location</label>
+                                                    <input name="location" defaultValue={editingProduct?.location} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. Tiruppur HQ" />
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="md:col-span-2 flex gap-4 mt-4">
                                             <button type="submit" className="flex-1 py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all">Save Changes</button>
                                             <button type="button" onClick={() => { setIsAdding(false); setEditingProduct(null); }} className="px-10 py-5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-[2rem] font-black uppercase tracking-widest transition-all">Cancel</button>

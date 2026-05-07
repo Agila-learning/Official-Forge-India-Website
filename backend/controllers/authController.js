@@ -16,7 +16,7 @@ const registerUser = async (req, res) => {
   const email = req.body.email?.toLowerCase().trim();
   
   // Auto-set approvalStatus: Customers and Candidates are instantly Approved. Others are Pending.
-  const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider'];
+  const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Rental Provider'];
   const assignedRole = role && validRoles.includes(role) ? role : 'Customer';
   const approvalStatus = (assignedRole === 'Customer' || assignedRole === 'Candidate' || assignedRole === 'Trainer') ? 'Approved' : 'Pending';
 
@@ -26,7 +26,7 @@ const registerUser = async (req, res) => {
   let registrationFee = 0;
   let shopCode = undefined;
 
-  if (['Vendor', 'Seller', 'Service Provider'].includes(assignedRole)) {
+  if (['Vendor', 'Seller', 'Service Provider', 'Rental Provider'].includes(assignedRole)) {
       const year = new Date().getFullYear();
       const random = Math.floor(10000 + Math.random() * 90000);
       shopCode = `FIC-SHOP-${year}-${random}`;
@@ -81,7 +81,19 @@ const registerUser = async (req, res) => {
       shopCode,
       address,
       city,
-      pincode
+      pincode,
+      // Ride / Service Provider Specifics
+      drivingLicense: req.body.drivingLicense,
+      vehicleRC: req.body.vehicleRC,
+      vehicleInsurance: req.body.vehicleInsurance,
+      vehicleType: req.body.vehicleType,
+      vehicleModel: req.body.vehicleModel,
+      bankDetails: req.body.bankDetails,
+      // Rental Provider Specifics
+      propertyName: req.body.propertyName,
+      propertyType: req.body.propertyType,
+      amenities: req.body.amenities,
+      pricingRange: req.body.pricingRange
     });
     if (user) {
       res.status(201).json({
@@ -163,7 +175,7 @@ const onboardUser = async (req, res) => {
         }
 
         let shopCode = undefined;
-        if (['Vendor', 'Seller', 'Service Provider'].includes(role)) {
+        if (['Vendor', 'Seller', 'Service Provider', 'Rental Provider'].includes(role)) {
             const year = new Date().getFullYear();
             const random = Math.floor(10000 + Math.random() * 90000);
             shopCode = `FIC-SHOP-${year}-${random}`;
@@ -193,6 +205,17 @@ const onboardUser = async (req, res) => {
             address,
             city,
             pincode,
+            // Extended fields for onboarding
+            drivingLicense: req.body.drivingLicense,
+            vehicleRC: req.body.vehicleRC,
+            vehicleInsurance: req.body.vehicleInsurance,
+            vehicleType: req.body.vehicleType,
+            vehicleModel: req.body.vehicleModel,
+            bankDetails: req.body.bankDetails,
+            propertyName: req.body.propertyName,
+            propertyType: req.body.propertyType,
+            amenities: req.body.amenities,
+            pricingRange: req.body.pricingRange,
             approvalStatus: 'Approved' // Onboarded users are usually pre-approved
         });
 

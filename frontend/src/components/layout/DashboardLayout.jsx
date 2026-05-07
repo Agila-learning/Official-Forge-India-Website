@@ -10,7 +10,7 @@ import {
     Upload, UserPlus, ClipboardList, XCircle, CheckCircle2, Menu, X,
     Bell, Settings, User, ChevronRight, PanelLeftClose, PanelLeftOpen,
     Shield, Target, Zap, LifeBuoy, Send, CreditCard, MessageCircle,
-    GraduationCap, BookOpen, Share2
+    GraduationCap, BookOpen, Share2, Building2, Truck
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import LiveActivityToast from '../ui/LiveActivityToast';
@@ -118,6 +118,8 @@ const DashboardLayout = ({
                     { id: 'events', icon: Calendar, label: 'Events' },
                     { id: 'atomy', icon: Package, label: 'Product Catalog' },
                     { id: 'services', icon: Wrench, label: 'Services' },
+                    { id: 'rentals', icon: Building2, label: 'Rentals' },
+                    { id: 'rides', icon: Truck, label: 'Rides' },
                     { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
                     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
                     { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
@@ -140,6 +142,8 @@ const DashboardLayout = ({
                     { id: 'overview',      icon: LayoutDashboard, label: 'Overview' },
                     { id: 'orders',        icon: ShoppingBag, label: 'Orders & Bookings' },
                     { id: 'inventory',     icon: Package, label: 'Service Listings' },
+                    { id: 'rentals',       icon: Building2, label: 'Managed Properties' },
+                    { id: 'rides',         icon: Truck, label: 'Ride Operations' },
                     { id: 'customers',     icon: Users, label: 'Customers' },
                     { id: 'subscription',  icon: Shield, label: 'Subscription & Billing' },
                     { id: 'alerts',        icon: Bell, label: 'Alerts' },

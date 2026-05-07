@@ -38,6 +38,8 @@ const trustCardRoutes = require('./routes/trustCardRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const jobConsultingRoutes = require('./routes/jobConsultingRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
+const rentalRoutes = require('./routes/rentalRoutes');
+const rideRoutes = require('./routes/rideRoutes');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -171,6 +173,8 @@ app.use('/api/trust-cards', trustCardRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/job-consulting', jobConsultingRoutes);
 app.use('/api/training', trainingRoutes);
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/rides', rideRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();

@@ -71,14 +71,18 @@ const productSchema = mongoose.Schema(
     displayOrder: { type: Number, default: 0 },
     categoryRef: { type: mongoose.Schema.Types.ObjectId, ref: 'HomeCategory' },
     subCategoryRef: { type: mongoose.Schema.Types.ObjectId, ref: 'HomeSubCategory' },
-    propertyType: { type: String, enum: ['Apartment', 'Individual House', 'None'], default: 'None' },
+    propertyType: { type: String, enum: ['Apartment', 'Individual House', 'PG', 'Hotel', 'Room', 'Villa', 'Office Space', 'Vehicle Rental', 'None'], default: 'None' },
     furnishingStatus: { type: String, enum: ['Furnished', 'Unfurnished', 'None'], default: 'None' },
     bhkType: { type: String }, // e.g. '1BHK', '2BHK'
     sqft: { type: Number },
     teamSize: { type: Number, default: 0 },
     equipmentProvided: { type: Boolean, default: false },
     safetyMeasures: [{ type: String }],
-    serviceTerms: { type: String }
+    serviceTerms: { type: String },
+    perKmRate: { type: Number, default: 0 },
+    isOnline: { type: Boolean, default: false },
+    vehicleType: { type: String, enum: ['Auto', 'Car', 'Bike', 'Truck', 'None'], default: 'None' },
+    location: { type: String }
   },
   { timestamps: true }
 );

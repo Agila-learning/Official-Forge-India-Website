@@ -9,7 +9,7 @@ const homeCategorySchema = mongoose.Schema(
     isActive: { type: Boolean, default: true },
     type: {
       type: String,
-      enum: ['product', 'service'],
+      enum: ['product', 'service', 'rental', 'ride'],
       default: 'product',
     },
   },

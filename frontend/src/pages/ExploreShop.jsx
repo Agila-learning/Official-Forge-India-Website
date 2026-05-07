@@ -21,6 +21,8 @@ function ExploreShop() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [viewType, setViewType] = useState('Products'); 
+    const [propertyFilter, setPropertyFilter] = useState('All');
+    const [vehicleFilter, setVehicleFilter] = useState('All');
     
     // UI State
     const location = useRouterLocation();
@@ -99,21 +101,26 @@ function ExploreShop() {
     };
 
     const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
-        const matchesViewType = viewType === 'Services' ? product.isService : !product.isService;
+        const matchesViewType = 
+            viewType === 'Services' ? (product.isService && product.propertyType === 'None') : 
+            viewType === 'Rentals' ? (product.propertyType && product.propertyType !== 'None') :
+            viewType === 'Rides' ? (product.category === 'Rides' || product.serviceType === 'Ride') :
+            !product.isService;
+
         const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
         const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
         
-        // Match pincode logic: If product has no pincodes defined (empty array or undefined), it's available everywhere.
-        // Otherwise, it must include the pincodeFilter.
         const matchesPincode = !pincodeFilter || 
-                               !product.pincode || 
-                               product.pincode.length === 0 || 
-                               (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
-                               
+                                !product.pincode || 
+                                product.pincode.length === 0 || 
+                                (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
+                                
         const matchesPrice = (product.price || 0) <= priceRange;
+        const matchesProperty = propertyFilter === 'All' || product.propertyType === propertyFilter;
+        const matchesVehicle = vehicleFilter === 'All' || product.vehicleType === vehicleFilter;
         
-        return matchesViewType && matchesCategory && matchesSearch && matchesShop && matchesPincode && matchesPrice;
+        return matchesViewType && matchesCategory && matchesSearch && matchesShop && matchesPincode && matchesPrice && matchesProperty && matchesVehicle;
     }).sort((a, b) => {
         if (sortBy === 'Price Low') return (a.price || 0) - (b.price || 0);
         if (sortBy === 'Price High') return (b.price || 0) - (a.price || 0);
@@ -167,14 +174,14 @@ function ExploreShop() {
             <div className="max-w-7xl mx-auto mb-10">
                 {/* Products / Services Toggle */}
                 <div className="flex items-center justify-center mb-8">
-                    <div className="flex p-1.5 bg-white dark:bg-dark-card rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 gap-1">
-                        {['Products', 'Services'].map(t => (
+                    <div className="flex p-1.5 bg-white dark:bg-dark-card rounded-2xl shadow-lg border border-gray-100 dark:border-gray-800 gap-1 overflow-x-auto no-scrollbar">
+                        {['Products', 'Services', 'Rentals', 'Rides'].map(t => (
                             <button
                                 key={t}
                                 onClick={() => setViewType(t)}
-                                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${viewType === t ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewType === t ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
                             >
-                                {t === 'Products' ? <ShoppingBag size={16} /> : <Zap size={16} />}
+                                {t === 'Products' ? <ShoppingBag size={14} /> : t === 'Rentals' ? <Building2 size={14} /> : t === 'Rides' ? <Truck size={14} /> : <Zap size={14} />}
                                 {t}
                             </button>
                         ))}
@@ -406,6 +413,22 @@ function ExploreShop() {
                                         ))}
                                     </div>
                                 </div>
+
+                                {viewType === 'Rentals' && (
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Property Type</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['All', 'PG', 'Hotel', 'Room', 'Villa', 'Office Space'].map(p => (
+                                                <button 
+                                                    key={p} onClick={() => setPropertyFilter(p)}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all ${propertyFilter === p ? 'bg-secondary text-dark-bg border-secondary' : 'border-gray-100 text-gray-400 hover:border-secondary/50'}`}
+                                                >
+                                                    {p}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             
                             <div className="mt-auto pt-10">

@@ -10,6 +10,8 @@ import Testimonials from '../components/sections/Testimonials';
 import CTA from '../components/sections/CTA';
 import Contact from '../components/sections/Contact';
 import LocationMap from '../components/sections/LocationMap';
+import RideServices from '../components/sections/RideServices';
+import RentalServices from '../components/sections/RentalServices';
 import SEOMeta from '../components/ui/SEOMeta';
 import LogoMarquee from '../components/ui/LogoMarquee';
 import PipelineProcess from '../components/sections/PipelineProcess';
@@ -47,6 +49,14 @@ const Home = () => {
 
         <GSAPReveal direction="up">
           <Services />
+        </GSAPReveal>
+
+        <GSAPReveal direction="right">
+          <RideServices />
+        </GSAPReveal>
+
+        <GSAPReveal direction="left">
+          <RentalServices />
         </GSAPReveal>
 
         <LogoMarquee />

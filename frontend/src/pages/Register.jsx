@@ -38,7 +38,24 @@ const Register = () => {
     agentMobile: '',
     agentReference: '',
     additionalComments: '',
-    acceptedTerms: false
+    acceptedTerms: false,
+    // Ride / Service Provider Specifics
+    drivingLicense: '',
+    vehicleRC: '',
+    vehicleInsurance: '',
+    vehicleType: 'None',
+    vehicleModel: '',
+    bankDetails: {
+      accountNumber: '',
+      ifscCode: '',
+      bankName: '',
+      holderName: ''
+    },
+    // Rental Provider Specifics
+    propertyName: '',
+    propertyType: 'None',
+    amenities: [],
+    pricingRange: { min: 0, max: 0, unit: 'Month' }
   });
 
   const [error, setError] = useState('');
@@ -202,7 +219,8 @@ const Register = () => {
     Seller: ShoppingBag,
     'Service Provider': Wrench,
     HR: Network,
-    'Delivery Partner': Truck
+    'Delivery Partner': Truck,
+    'Rental Provider': Building2
   };
 
   const RoleIcon = roleIcons[formData.role] || UserCircle;
@@ -342,6 +360,7 @@ const Register = () => {
                       <option value="Service Provider" className="text-slate-900 bg-white">Local Service Provider</option>
                       <option value="HR" className="text-slate-900 bg-white">HR / Recruiter</option>
                       <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
+                      <option value="Rental Provider" className="text-slate-900 bg-white">Rental Provider (PG/Hotel/Villas)</option>
                     </select>
                     <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
@@ -456,28 +475,84 @@ const Register = () => {
                       <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">KYC Documents (Required)</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aadhar Card (Front/Back Combined)</label>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aadhar Card / Gov ID</label>
                           <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
                             <div className="flex items-center gap-3">
-                              <FileText size={20} className={formData.profileDocuments.some(d => d.name?.toLowerCase().includes('aadhar')) ? "text-green-500" : "text-slate-300"} />
-                              <span className="text-xs font-bold text-slate-500">{formData.profileDocuments.some(d => d.name?.toLowerCase().includes('aadhar')) ? 'Aadhar Attached' : 'Select PDF/Image'}</span>
-                            </div>
-                            <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleFileUpload} />
-                            {uploading && <Loader2 className="animate-spin text-primary" size={16} />}
-                          </label>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">PAN Card</label>
-                          <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
-                            <div className="flex items-center gap-3">
-                              <FileText size={20} className={formData.profileDocuments.some(d => d.name?.toLowerCase().includes('pan')) ? "text-green-500" : "text-slate-300"} />
-                              <span className="text-xs font-bold text-slate-500">{formData.profileDocuments.some(d => d.name?.toLowerCase().includes('pan')) ? 'PAN Attached' : 'Select PDF/Image'}</span>
+                              <FileText size={20} className={formData.profileDocuments.length > 0 ? "text-green-500" : "text-slate-300"} />
+                              <span className="text-xs font-bold text-slate-500">{formData.profileDocuments.length > 0 ? 'Document Attached' : 'Select PDF/Image'}</span>
                             </div>
                             <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleFileUpload} />
                             {uploading && <Loader2 className="animate-spin text-primary" size={16} />}
                           </label>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Ride Provider Specific Fields */}
+                    {formData.role === 'Service Provider' && (
+                      <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <h3 className="text-sm font-black text-primary uppercase tracking-widest flex items-center gap-2"><Truck size={16}/> Vehicle & License Specs</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           <div className="space-y-2">
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle Type</label>
+                             <select value={formData.vehicleType} onChange={e => setFormData({...formData, vehicleType: e.target.value})} className="form-input !rounded-2xl py-4 dark:bg-dark-bg dark:text-white">
+                               <option value="Bike">Bike / Two Wheeler</option>
+                               <option value="Car">Car / Taxi</option>
+                               <option value="Scooter">Scooter</option>
+                               <option value="Truck">Delivery Truck</option>
+                             </select>
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle Model</label>
+                             <input type="text" placeholder="e.g. Swift Dzire, Activa 6G" value={formData.vehicleModel} onChange={e => setFormData({...formData, vehicleModel: e.target.value})} className="form-input !rounded-2xl py-4" />
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           <div className="space-y-2">
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Driving License Number</label>
+                             <input type="text" placeholder="DL-XXXXX..." value={formData.drivingLicense} onChange={e => setFormData({...formData, drivingLicense: e.target.value})} className="form-input !rounded-2xl py-4" />
+                           </div>
+                           <div className="space-y-2">
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle RC Number</label>
+                             <input type="text" placeholder="RC-XXXXX..." value={formData.vehicleRC} onChange={e => setFormData({...formData, vehicleRC: e.target.value})} className="form-input !rounded-2xl py-4" />
+                           </div>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {formData.role === 'Rental Provider' && (
+                  <motion.div key="rental" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 className="text-sm font-black text-primary uppercase tracking-widest flex items-center gap-2"><Building2 size={16}/> Property Details</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Property Name</label>
+                         <input type="text" placeholder="e.g. Green Valley PG" value={formData.propertyName} onChange={e => setFormData({...formData, propertyName: e.target.value})} className="form-input !rounded-2xl py-4" />
+                       </div>
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Property Type</label>
+                         <select value={formData.propertyType} onChange={e => setFormData({...formData, propertyType: e.target.value})} className="form-input !rounded-2xl py-4 dark:bg-dark-bg dark:text-white">
+                           <option value="PG">Paying Guest (PG)</option>
+                           <option value="Hotel">Hotel</option>
+                           <option value="Room">Individual Room</option>
+                           <option value="Villa">Luxury Villa</option>
+                           <option value="Office Space">Co-working / Office</option>
+                           <option value="Vehicle Rental">Vehicle Rental Fleet</option>
+                         </select>
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Monthly Pricing Range (Min - Max)</label>
+                      <div className="flex items-center gap-4">
+                        <input type="number" placeholder="Min ₹" value={formData.pricingRange.min} onChange={e => setFormData({...formData, pricingRange: {...formData.pricingRange, min: e.target.value}})} className="form-input !rounded-2xl py-4 flex-1" />
+                        <span className="text-slate-400">-</span>
+                        <input type="number" placeholder="Max ₹" value={formData.pricingRange.max} onChange={e => setFormData({...formData, pricingRange: {...formData.pricingRange, max: e.target.value}})} className="form-input !rounded-2xl py-4 flex-1" />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1 flex items-center gap-2"><Globe size={14}/> Property Location on Map</label>
+                      <ShopLocationPicker onLocationSelect={loc => setFormData({...formData, exactLocation: loc})} />
                     </div>
                   </motion.div>
                 )}

@@ -5,10 +5,17 @@ const ServiceInquiry = require('../models/ServiceInquiry');
 const User = require('../models/User');
 const { sendPaymentConfirmationEmail } = require('../utils/emailService');
 
-const razorpay = new Razorpay({
-  key_id:     process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
-});
+// Initialize Razorpay lazily to ensure environment variables are loaded
+let razorpay;
+const getRazorpayInstance = () => {
+  if (!razorpay) {
+    razorpay = new Razorpay({
+      key_id:     process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy',
+      key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+    });
+  }
+  return razorpay;
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // @desc    Submit Job Consulting Inquiry + Create Razorpay Order
@@ -34,18 +41,28 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
   const AMOUNT_INR = 1500; // Consulting fee in INR
 
   // 1. Save inquiry to DB with paymentStatus: Pending
-  const inquiry = await ServiceInquiry.create({
-    user:                req.user._id,
-    serviceType:         'Job Consulting',
-    consultingType,
-    experience:          experience || 'Fresher (0-1 yr)',
-    currentRole:         currentRole || '',
-    specificRequirement,
-    message:             message || specificRequirement,
-    contactNumber,
-    amount:              AMOUNT_INR,
-    paymentStatus:       'Pending',
-  });
+  let inquiry;
+  try {
+    inquiry = await ServiceInquiry.create({
+      user:                req.user?._id,
+      serviceType:         'Job Consulting',
+      consultingType:      consultingType || 'Career Guidance',
+      experience:          experience || 'Fresher (0-1 yr)',
+      currentRole:         currentRole || '',
+      specificRequirement,
+      message:             message || specificRequirement,
+      contactNumber,
+      amount:              AMOUNT_INR,
+      paymentStatus:       'Pending',
+    });
+  } catch (dbErr) {
+    console.error('[DB Error - Job Consulting Inquiry]:', dbErr);
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Failed to initialize consultation record. Please verify your inputs.',
+      error: dbErr.message
+    });
+  }
 
   // 2. Create Razorpay Order
   let razorpayOrder;
@@ -55,25 +72,30 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     // TEST MODE: Skip Razorpay and return a mock order ID
     razorpayOrder = { id: `order_mock_${Date.now()}` };
     console.log('--- TEST MODE: Razorpay Order Creation Skipped ---');
-  } else {
     try {
-      razorpayOrder = await razorpay.orders.create({
+      const rzp = getRazorpayInstance();
+      razorpayOrder = await rzp.orders.create({
         amount:   Math.round(AMOUNT_INR * 100), // amount in the smallest currency unit (paise)
         currency: 'INR',
         receipt:  `jc_${inquiry._id.toString().slice(-8)}`,
         notes: {
           inquiryId:      inquiry._id.toString(),
-          candidateEmail: req.user.email || 'N/A',
-          candidateName:  `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
+          candidateEmail: req.user?.email || 'N/A',
+          candidateName:  `${req.user?.firstName || ''} ${req.user?.lastName || ''}`.trim() || 'Anonymous Candidate',
           consultingType: consultingType || 'General',
         },
       });
     } catch (err) {
       console.error('[Razorpay Order Error - Job Consulting]:', err);
-      // If Razorpay fails, clean up the inquiry
+      // Clean up the inquiry so we don't have orphans
       await ServiceInquiry.findByIdAndDelete(inquiry._id);
-      res.status(500);
-      throw new Error(`Payment gateway error: ${err.message || 'Check gateway connectivity'}`);
+      
+      // Send a clean JSON error response instead of just throwing
+      return res.status(500).json({ 
+        success: false,
+        message: `Strategic Gateway Failure: ${err.message || 'Check gateway connectivity'}`,
+        details: err.description || 'Razorpay initialization failed'
+      });
     }
   }
 
@@ -82,13 +104,14 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
   await inquiry.save();
 
   res.status(201).json({
+    success: true,
     inquiryId:      inquiry._id,
     razorpayOrderId: razorpayOrder.id,
     keyId:          process.env.RAZORPAY_KEY_ID,
     amount:         AMOUNT_INR,
     currency:       'INR',
-    candidateName:  `${req.user.firstName} ${req.user.lastName}`,
-    email:          req.user.email,
+    candidateName:  `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
+    email:          req.user?.email,
     contactNumber,
     consultingType,
   });
@@ -124,13 +147,13 @@ const verifyConsultingPayment = asyncHandler(async (req, res) => {
     }
 
     const expectedSig = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'dummy_secret')
       .update(body)
       .digest('hex');
 
     if (expectedSig !== razorpay_signature) {
-      res.status(400);
-      throw new Error('Payment signature verification failed. Possible tampering detected.');
+      console.warn('[Razorpay Verification Failure]: Signature mismatch');
+      return res.status(400).json({ success: false, message: 'Payment signature verification failed.' });
     }
   } else {
     console.log('--- TEST MODE: Skipping Signature Verification for Mock Order ---');

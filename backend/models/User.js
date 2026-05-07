@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema(
     industry: { type: String }, // Optional now since some roles might not need it
     role: { 
       type: String, 
-      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Trainer'], 
+      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Trainer', 'Rental Provider'], 
       default: 'Customer' 
     },
     address: { type: String },
@@ -96,6 +96,41 @@ const userSchema = mongoose.Schema(
     agentReference: { type: String },
     additionalComments: { type: String },
     isSubscribed: { type: Boolean, default: false },
+    // ─── Ride / Service Provider Fields ───────────────────────────────
+    isOnline: { type: Boolean, default: false },
+    drivingLicense: { type: String },
+    vehicleRC: { type: String },
+    vehicleInsurance: { type: String },
+    vehicleType: { type: String, enum: ['Bike', 'Car', 'Scooter', 'Truck', 'None'], default: 'None' },
+    vehicleModel: { type: String },
+    bankDetails: {
+      accountNumber: { type: String },
+      ifscCode: { type: String },
+      bankName: { type: String },
+      holderName: { type: String }
+    },
+    walletBalance: { type: Number, default: 0 },
+    currentLiveLocation: {
+      lat: { type: Number },
+      lng: { type: Number },
+      lastUpdated: { type: Date }
+    },
+
+    // ─── Rental Provider Fields ──────────────────────────────────────
+    propertyName: { type: String },
+    propertyType: { 
+      type: String, 
+      enum: ['PG', 'Hotel', 'Room', 'Villa', 'Office Space', 'Vehicle Rental', 'None'],
+      default: 'None'
+    },
+    amenities: [{ type: String }],
+    pricingRange: {
+      min: { type: Number },
+      max: { type: Number },
+      unit: { type: String, default: 'Month' }
+    },
+
+    // ─── Sub-Admin Configuration ─────────────────────────────────────
     isSubAdmin: { type: Boolean, default: false },
     subAdminConfig: {
       level: { type: String, enum: ['State', 'District', 'Division', 'Pincode', 'All'] },
