@@ -9,14 +9,11 @@ const { protect, hr } = require('../middleware/authMiddleware');
 // @access Private (HR/Admin)
 router.get('/', protect, hr, async (req, res) => {
   try {
-    let query = {};
-    // HR and Admin can see all applications in the pipeline
-    query = {};
-
-    const applications = await Application.find(query)
+    // Both HR and Admin see all applications
+    const applications = await Application.find({})
       .sort({ createdAt: -1 })
-      .populate('user', 'firstName lastName email')
-      .populate('job', 'title companyName');
+      .populate('user', 'firstName lastName email mobile')
+      .populate('job', 'title companyName location');
     res.json(applications);
   } catch (err) {
     res.status(500).json({ message: err.message });

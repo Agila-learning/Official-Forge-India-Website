@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Send, CheckCircle2, User, Mail, Phone, Briefcase, FileText } from 'lucide-react';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 const JobApplicationForm = ({ isOpen, onClose, jobId, onSuccess, jobTitle = "General Application" }) => {
   const [step, setStep] = useState(1);
@@ -60,10 +61,11 @@ const JobApplicationForm = ({ isOpen, onClose, jobId, onSuccess, jobTitle = "Gen
       });
       console.log('Submission Success:', response.data);
       setIsSuccess(true);
+      toast.success('Application submitted successfully!');
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error('Submission failed:', error);
-      alert('Failed to submit application. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to submit application. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

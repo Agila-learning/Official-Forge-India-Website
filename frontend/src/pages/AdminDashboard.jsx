@@ -2008,8 +2008,7 @@ const AdminDashboard = () => {
               <div className="mobile-table-scroll">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-gray-100 dark:border-gray-800">
-                      {['Candidate', 'Role', 'Status', 'Date', 'Dossier'].map(h => (
+                    <tr className="border-b border-g                      {['Candidate', 'Role', 'Status', 'Date', 'Dossier', 'Actions'].map(h => (
                         <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
                       ))}
                     </tr>
@@ -2020,22 +2019,57 @@ const AdminDashboard = () => {
                         <td className="py-5 pr-4">
                           <p className="font-bold text-sm">{app.fullName}</p>
                           <p className="text-[10px] text-gray-500 dark:text-gray-400">{app.email}</p>
+                          {app.phone && <p className="text-[9px] font-mono text-gray-400 mt-0.5">{app.phone}</p>}
                         </td>
                         <td className="py-5 pr-4">
                           <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest">{app.jobRole}</span>
                         </td>
                         <td className="py-5 pr-4">
-                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${app.status === 'Hired' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
-                            {app.status}
-                          </span>
+                          <select 
+                            value={app.status}
+                            onChange={async (e) => {
+                              try {
+                                await api.put(`/applications/${app._id}/status`, { status: e.target.value });
+                                setData(prev => ({
+                                  ...prev,
+                                  applications: prev.applications.map(a => a._id === app._id ? { ...a, status: e.target.value } : a)
+                                }));
+                                toast.success('Application status updated');
+                              } catch { toast.error('Failed to update status'); }
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg
+                              ${app.status === 'Hired' ? 'text-green-500' : app.status === 'Shortlisted' ? 'text-blue-500' : app.status === 'Rejected' ? 'text-red-500' : 'text-gray-600'}`}
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Shortlisted">Shortlisted</option>
+                            <option value="Hired">Hired</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
                         </td>
                         <td className="py-5 pr-4 text-xs font-bold text-gray-500 dark:text-gray-400">{new Date(app.createdAt).toLocaleDateString()}</td>
-                        <td className="py-5">
-                          {app.resumeUrl && (
-                            <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-all inline-block">
+                        <td className="py-5 pr-4">
+                          {app.resumeUrl ? (
+                            <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/5 text-primary hover:bg-primary hover:text-white rounded-xl transition-all inline-block shadow-sm">
                               <FileText size={18} />
                             </a>
+                          ) : (
+                            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No Resume</span>
                           )}
+                        </td>
+                        <td className="py-5">
+                          <button 
+                            onClick={async () => {
+                              if (!window.confirm('Permanently remove this application?')) return;
+                              try {
+                                await api.delete(`/applications/${app._id}`);
+                                setData(prev => ({ ...prev, applications: prev.applications.filter(a => a._id !== app._id) }));
+                                toast.success('Application removed');
+                              } catch { toast.error('Deletion failed'); }
+                            }}
+                            className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+                          >
+                            <Trash2 size={18} />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -2154,7 +2188,7 @@ const AdminDashboard = () => {
                  <table className="w-full text-left">
                     <thead>
                        <tr className="border-b border-gray-100 dark:border-gray-800">
-                          {['Client', 'Type', 'Requirement', 'Message', 'Contact', 'Status', 'Actions'].map(h => (
+                          {['Client', 'Type', 'Payment', 'Requirement', 'Contact', 'Status', 'Actions'].map(h => (
                              <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
                           ))}
                        </tr>
@@ -2172,12 +2206,21 @@ const AdminDashboard = () => {
                              </td>
                              <td className="py-5 pr-4">
                                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{inquiry.serviceType}</span>
+                               {inquiry.consultingType && (
+                                 <p className="text-[8px] font-black text-gray-400 uppercase mt-1 tracking-wider">{inquiry.consultingType}</p>
+                               )}
                              </td>
                              <td className="py-5 pr-4">
-                               <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{inquiry.specificRequirement}</p>
+                               <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${inquiry.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+                                 {inquiry.paymentStatus || 'Unpaid'}
+                               </span>
+                               {inquiry.razorpayPaymentId && (
+                                 <p className="text-[8px] font-mono text-gray-400 mt-1">{inquiry.razorpayPaymentId.slice(-8)}</p>
+                               )}
                              </td>
-                             <td className="py-5 pr-4 max-w-xs">
-                               <p className="text-xs text-gray-500 line-clamp-2">{inquiry.message}</p>
+                             <td className="py-5 pr-4">
+                               <p className="text-xs font-bold text-gray-700 dark:text-gray-300 line-clamp-1">{inquiry.specificRequirement}</p>
+                               <p className="text-[9px] text-gray-500 line-clamp-1 italic mt-0.5">{inquiry.message}</p>
                              </td>
                              <td className="py-5 pr-4">
                                <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{inquiry.contactNumber}</p>
