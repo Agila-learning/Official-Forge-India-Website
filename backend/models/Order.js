@@ -83,7 +83,8 @@ const orderSchema = mongoose.Schema(
           'Delivered', 
           'Cancelled',
           'Completed',
-          'Rescheduled'
+          'Rescheduled',
+          'Refund Processing'
         ],
         default: 'Order Confirmed'
     },
@@ -96,7 +97,16 @@ const orderSchema = mongoose.Schema(
     },
     fulfillmentType: { 
       type: String, 
-      enum: ['Direct Shopping', 'Delivery Partner', 'Home Service Execution', 'Digital Fulfillment', 'Courier'],
+      enum: [
+        'Direct Shopping', 
+        'Delivery Partner', 
+        'Home Service Execution', 
+        'Digital Fulfillment', 
+        'Courier',
+        'Technician Visit',
+        'Remote Consultation',
+        'Instant Activation'
+      ],
       default: 'Direct Shopping'
     },
     pickupDetails: {
