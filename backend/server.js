@@ -54,7 +54,7 @@ const { registerUser } = require('./controllers/authController');
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
-  path: '/fic-socket',
+  path: '/api/fic-socket',
   cors: {
     origin: [
       "https://www.forgeindiaconnect.com", 

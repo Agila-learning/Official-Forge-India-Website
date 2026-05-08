@@ -152,7 +152,7 @@ const Checkout = () => {
 
             // 2. Create Razorpay Order
             const { data: rzpOrder } = await api.post('/payments/create-order', {
-                amount: totalPrice,
+                orderId: finalOrder._id,
                 receipt: `order_${finalOrder._id.slice(-8)}`
             });
 
