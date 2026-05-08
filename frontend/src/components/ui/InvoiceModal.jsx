@@ -172,29 +172,48 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
             )}
 
             <style dangerouslySetInnerHTML={{ __html: `
+                .mobile-table-scroll {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    margin-bottom: 2rem;
+                }
+                .mobile-table-scroll table {
+                    min-width: 600px;
+                }
+                @media (max-width: 768px) {
+                    #printable-invoice {
+                        padding: 1.5rem !important;
+                    }
+                }
                 @media print {
                     .no-print { display: none !important; }
-                    body { background: white !important; margin: 0 !important; padding: 0 !important; }
+                    body { background: white !important; margin: 0 !important; padding: 0 !important; visibility: hidden; }
                     #printable-invoice { 
+                        visibility: visible;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100% !important;
                         padding: 0 !important; 
                         margin: 0 !important;
-                        width: 100% !important; 
-                        max-width: 100% !important; 
-                        height: auto !important;
-                        overflow: visible !important;
                         max-height: none !important;
+                        overflow: visible !important;
+                        display: block !important;
                     }
-                    .fixed { position: static !important; }
-                    .backdrop-blur-sm { backdrop-filter: none !important; }
-                    .bg-dark-bg\/80 { background: white !important; }
-                    .modal-overlay { display: none !important; }
-                    #printable-invoice { position: absolute; top: 0; left: 0; width: 100%; visibility: visible; }
-                    body > *:not(#printable-invoice) { visibility: hidden; }
-                    .dark #printable-invoice { color: black !important; }
+                    .mobile-table-scroll {
+                        overflow: visible !important;
+                        display: block !important;
+                    }
+                    .mobile-table-scroll table {
+                        width: 100% !important;
+                        min-width: 0 !important;
+                    }
+                    .fixed, .absolute { position: static !important; }
+                    .dark #printable-invoice { color: black !important; background: white !important; }
                     .dark #printable-invoice * { color: black !important; border-color: #eee !important; transition: none !important; }
                     @page {
-                        size: auto;
-                        margin: 10mm;
+                        size: A4;
+                        margin: 15mm;
                     }
                 }
             `}} />

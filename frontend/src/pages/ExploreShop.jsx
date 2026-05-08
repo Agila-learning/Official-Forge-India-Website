@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import api from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
-import { Search, MapPin, Filter, Heart, Star, ChevronRight, X, Loader2, CheckCircle2, XCircle, ShoppingBag, Zap, ArrowLeft } from 'lucide-react';
+import { Search, MapPin, Filter, Heart, Star, ChevronRight, X, Loader2, CheckCircle2, XCircle, ShoppingBag, Zap, ArrowLeft, Building2, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ServiceCard from '../components/ui/ServiceCard';
 import ProductCard from '../components/ui/ProductCard';

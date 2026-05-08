@@ -24,6 +24,13 @@ const Profile = () => {
   const [vaultDocs, setVaultDocs] = useState([]);
   const [membershipData, setMembershipData] = useState(null);
   
+  // Cancellation Modal State
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelStep, setCancelStep] = useState(1);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  
   const userInfoStr = localStorage.getItem('userInfo');
   const [profileData, setProfileData] = useState(userInfoStr ? JSON.parse(userInfoStr) : {});
 
@@ -101,14 +108,20 @@ const Profile = () => {
     );
   };
 
-  const handleCancelOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+  const handleCancelOrder = async (orderId, reason = '') => {
+    setCancelLoading(true);
     try {
-      const { data } = await api.put(`/orders/${orderId}/cancel`);
+      const { data } = await api.put(`/orders/${orderId}/cancel`, { reason });
       setOrders(orders.map(o => o._id === orderId ? data : o));
       toast.success(data.status === 'Refund Processing' ? 'Order Cancelled. Refund initiated.' : 'Order Cancelled.');
+      setIsCancelModalOpen(false);
+      setCancellingOrderId(null);
+      setCancelReason('');
+      setCancelStep(1);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Cancellation failed');
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -294,7 +307,16 @@ const Profile = () => {
                                    <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
                                )}
                                {order.status !== 'Delivered' && order.status !== 'Completed' && order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded' && (
-                                   <button onClick={() => handleCancelOrder(order._id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Cancel Order</button>
+                                   <button 
+                                     onClick={() => {
+                                       setCancellingOrderId(order._id);
+                                       setIsCancelModalOpen(true);
+                                       setCancelStep(1);
+                                     }} 
+                                     className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline"
+                                   >
+                                     Cancel Order
+                                   </button>
                                )}
                                <button 
                                  onClick={() => {
@@ -390,7 +412,16 @@ const Profile = () => {
                                {(order.status === 'Completed' || order.status === 'Delivered') ? (
                                    <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
                                ) : (order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded') ? (
-                                   <button onClick={() => handleCancelOrder(order._id)} className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline">Cancel Booking</button>
+                                   <button 
+                                     onClick={() => {
+                                       setCancellingOrderId(order._id);
+                                       setIsCancelModalOpen(true);
+                                       setCancelStep(1);
+                                     }} 
+                                     className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:underline"
+                                   >
+                                     Cancel Booking
+                                   </button>
                                ) : null}
                                <button 
                                  onClick={() => {
@@ -930,6 +961,93 @@ const Profile = () => {
         </main>
       </div>
       
+      <AnimatePresence>
+        {isCancelModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[3000] bg-dark-bg/90 backdrop-blur-xl flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+              className="bg-white dark:bg-dark-card w-full max-w-lg rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-3xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+              
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Cancel <span className="text-red-500">Operation</span></h3>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Strategic Feedback Required</p>
+                  </div>
+                  <button onClick={() => setIsCancelModalOpen(false)} className="p-3 hover:bg-gray-50 dark:hover:bg-dark-bg rounded-xl transition-colors"><X size={20} /></button>
+                </div>
+
+                {cancelStep === 1 ? (
+                  <div className="space-y-6">
+                    <p className="text-sm font-medium text-gray-500 leading-relaxed italic">"To improve our ecosystem protocol, please select the primary reason for mission abort."</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        'Change of Plans / Mistake',
+                        'Delayed Service / Long Wait',
+                        'Price / Discount Issues',
+                        'Quality Concerns',
+                        'Technician/Agent Unavailability',
+                        'Other Strategic Reason'
+                      ].map((reason) => (
+                        <button 
+                          key={reason}
+                          onClick={() => {
+                            setCancelReason(reason);
+                            setCancelStep(2);
+                          }}
+                          className="w-full p-4 text-left bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-xs uppercase tracking-tight hover:border-red-500/30 hover:bg-red-500/5 transition-all flex justify-between items-center group"
+                        >
+                          {reason} <ChevronRight size={14} className="text-gray-300 group-hover:text-red-500 transition-colors" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    <div className="p-6 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20">
+                      <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-2">Selected Reason</p>
+                      <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">{cancelReason}</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Additional Intelligence (Optional)</label>
+                      <textarea 
+                        className="w-full p-6 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-red-500/10 font-bold text-sm min-h-[120px]"
+                        placeholder="Provide more context for our administrators..."
+                        onChange={(e) => {
+                          // Handled via ID selection in CONFIRM click for simplicity or we can use a state
+                        }}
+                        id="cancel-details"
+                      />
+                    </div>
+
+                    <div className="flex gap-4">
+                      <button onClick={() => setCancelStep(1)} className="flex-1 py-5 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl text-[10px] uppercase tracking-widest">Back</button>
+                      <button 
+                        disabled={cancelLoading}
+                        onClick={() => {
+                          const details = document.getElementById('cancel-details')?.value;
+                          const finalReason = details ? `${cancelReason}: ${details}` : cancelReason;
+                          handleCancelOrder(cancellingOrderId, finalReason);
+                        }} 
+                        className="flex-[2] py-5 bg-red-500 text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      >
+                        {cancelLoading ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />} Confirm Cancellation
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <InvoiceModal 
         isOpen={isInvoiceOpen} 
         onClose={() => setIsInvoiceOpen(false)} 

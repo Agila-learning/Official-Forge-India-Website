@@ -550,6 +550,7 @@ const VendorDashboard = () => {
                                         <tr className="border-b border-gray-100 dark:border-gray-800">
                                             <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Reference</th>
                                             <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
+                                            <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Reason</th>
                                             <th className="pb-6 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Value (INR)</th>
                                         </tr>
                                     </thead>
@@ -559,6 +560,13 @@ const VendorDashboard = () => {
                                                 <td className="py-6 font-mono text-xs font-bold text-gray-500">#{order._id.slice(-8).toUpperCase()}</td>
                                                 <td className="py-6">
                                                    <span className="px-3 py-1 bg-primary/5 text-primary rounded-xl text-[10px] font-black uppercase">{order.status}</span>
+                                                </td>
+                                                <td className="py-6">
+                                                  {order.cancellationReason ? (
+                                                    <p className="text-[10px] font-bold text-red-500 max-w-[120px] line-clamp-1 italic" title={order.cancellationReason}>{order.cancellationReason}</p>
+                                                  ) : (
+                                                    <p className="text-[10px] text-gray-400 italic">N/A</p>
+                                                  )}
                                                 </td>
                                                 <td className="py-6 text-right font-black text-gray-900 dark:text-white">₹{order.totalPrice.toLocaleString()}</td>
                                             </tr>

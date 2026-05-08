@@ -1920,7 +1920,7 @@ const AdminDashboard = () => {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-gray-100 dark:border-gray-800">
-                      {['Order ID', 'Customer', 'Items', 'Total', 'Paid', 'Delivered', 'Partner', 'Date', 'Action'].map(h => (
+                      {['Order ID', 'Customer', 'Items', 'Total', 'Paid', 'Delivered', 'Partner', 'Reason', 'Date', 'Action'].map(h => (
                         <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
                       ))}
                     </tr>
@@ -1962,6 +1962,15 @@ const AdminDashboard = () => {
                                 <option key={p._id} value={p._id}>{p.firstName} {p.lastName}</option>
                               ))}
                            </select>
+                        </td>
+                        <td className="py-5 pr-4">
+                          {order.cancellationReason ? (
+                            <p className="text-[10px] font-bold text-red-500 max-w-[150px] line-clamp-2 italic" title={order.cancellationReason}>
+                              {order.cancellationReason}
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-gray-400 italic">N/A</p>
+                          )}
                         </td>
                         <td className="py-5 pr-4">
                           <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>

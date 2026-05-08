@@ -15,7 +15,7 @@ const orderSchema = mongoose.Schema(
         price: { type: Number, required: true },
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          required: true,
+          required: false,
           ref: 'Product',
         },
         slot: {
@@ -109,6 +109,9 @@ const orderSchema = mongoose.Schema(
       ref: 'User'
     },
     instructions: {
+      type: String
+    },
+    cancellationReason: {
       type: String
     }
   },

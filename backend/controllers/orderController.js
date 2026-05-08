@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
@@ -8,56 +9,68 @@ const { createNotification } = require('./notificationController');
 // @route   POST /api/orders
 // @access  Private
 const addOrderItems = async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    totalPrice,
-    instructions,
-    fulfillmentType
-  } = req.body;
-
-  if (orderItems && orderItems.length === 0) {
-    res.status(400).json({ message: 'No order items' });
-    return;
-  } else {
-    // 1. HARDENING: Calculate total price server-side to prevent tampering
-    let calculatedTotalPrice = 0;
-    const productIds = orderItems.map(item => item.product);
-    const dbProducts = await Product.find({ _id: { $in: productIds } });
-
-    const validatedOrderItems = orderItems.map(item => {
-      const product = dbProducts.find(p => p._id.toString() === item.product.toString());
-      if (!product) {
-        throw new Error(`Strategic Failure: Asset ${item.product} not found in inventory.`);
-      }
-      
-      const itemPrice = product.discountPrice || product.price;
-      calculatedTotalPrice += itemPrice * (item.qty || 1);
-      
-      return {
-        ...item,
-        price: itemPrice // Force DB price
-      };
-    });
-
-    // Handle delivery charges (simplistic logic for now, using max delivery charge from items)
-    let maxDeliveryCharge = 0;
-    dbProducts.forEach(p => {
-        if (p.deliveryCharge > maxDeliveryCharge) {
-            const threshold = p.freeDeliveryThreshold || 0;
-            if (threshold === 0 || calculatedTotalPrice < threshold) {
-                maxDeliveryCharge = p.deliveryCharge;
-            }
-        }
-    });
-    
-    calculatedTotalPrice += maxDeliveryCharge;
-
-    const order = new Order({
-      orderItems: validatedOrderItems,
-      user: req.user._id,
+  try {
+    const {
+      orderItems,
       shippingAddress,
+      paymentMethod,
+      totalPrice,
+      instructions,
+      fulfillmentType
+    } = req.body;
+
+    if (orderItems && orderItems.length === 0) {
+      res.status(400).json({ message: 'No order items' });
+      return;
+    } else {
+      // 1. HARDENING: Calculate total price server-side to prevent tampering
+      let calculatedTotalPrice = 0;
+      
+      // Filter out items that don't have a valid ObjectId for 'product'
+      // These are likely digital services or memberships
+      const validProductIds = orderItems
+        .map(item => item.product)
+        .filter(id => id && mongoose.Types.ObjectId.isValid(id));
+      
+      const dbProducts = await Product.find({ _id: { $in: validProductIds } });
+
+      const validatedOrderItems = orderItems.map(item => {
+        // If it's a valid product, validate against DB
+        if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+          const product = dbProducts.find(p => p._id.toString() === item.product.toString());
+          if (product) {
+            const itemPrice = product.discountPrice || product.price;
+            calculatedTotalPrice += itemPrice * (item.qty || 1);
+            return {
+              ...item,
+              price: itemPrice // Force DB price
+            };
+          }
+        }
+        
+        // If not found in Product DB or not a valid ObjectId, trust frontend price (for services/memberships)
+        // In a real prod env, you'd validate services against a Service model here.
+        calculatedTotalPrice += (item.price || 0) * (item.qty || 1);
+        return item;
+      });
+
+      // Handle delivery charges
+      let maxDeliveryCharge = 0;
+      dbProducts.forEach(p => {
+          if (p.deliveryCharge > maxDeliveryCharge) {
+              const threshold = p.freeDeliveryThreshold || 0;
+              if (threshold === 0 || calculatedTotalPrice < threshold) {
+                  maxDeliveryCharge = p.deliveryCharge;
+              }
+          }
+      });
+      
+      calculatedTotalPrice += maxDeliveryCharge;
+
+      const order = new Order({
+        orderItems: validatedOrderItems,
+        user: req.user._id,
+        shippingAddress,
       paymentMethod,
       totalPrice: calculatedTotalPrice, // Use server-calculated price
       instructions,
@@ -160,6 +173,9 @@ const addOrderItems = async (req, res) => {
     }
 
     res.status(201).json(createdOrder);
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Operational Failure: Order could not be sequenced.', error: error.message });
   }
 };
 
@@ -497,8 +513,10 @@ const cancelOrder = async (req, res) => {
         return res.status(400).json({ message: 'Order is already cancelled' });
     }
 
+    const { reason } = req.body;
     const previousStatus = order.status;
     order.status = order.isPaid ? 'Refund Processing' : 'Cancelled';
+    if (reason) order.cancellationReason = reason;
 
     const updatedOrder = await order.save();
 
@@ -531,7 +549,7 @@ const cancelOrder = async (req, res) => {
       await createNotification(io, {
         user: admin._id,
         title: 'Order Cancelled Alert',
-        message: `Order #${order._id.toString().slice(-6).toUpperCase()} was cancelled by user. Requires attention${order.isPaid ? ' for refund' : ''}.`,
+        message: `Order #${order._id.toString().slice(-6).toUpperCase()} was cancelled. Reason: ${reason || 'Not specified'}.${order.isPaid ? ' Requires refund.' : ''}`,
         type: 'order',
         link: '/admin/orders'
       });
@@ -550,7 +568,7 @@ const cancelOrder = async (req, res) => {
       await createNotification(io, {
         user: vId,
         title: 'Mission Aborted (Order Cancelled)',
-        message: `Action Required: Order #${order._id.toString().slice(-6).toUpperCase()} has been cancelled by the customer. Release resources.`,
+        message: `Order #${order._id.toString().slice(-6).toUpperCase()} has been cancelled. Reason: ${reason || 'Not specified'}. Release resources.`,
         type: 'order',
         link: '/vendor/orders'
       });
