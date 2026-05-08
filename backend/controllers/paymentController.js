@@ -14,15 +14,30 @@ const razorpay = new Razorpay({
 // SECURITY: Amount is ALWAYS fetched from the DB Order record — never trusted from the client.
 const createRazorpayOrder = asyncHandler(async (req, res) => {
   const { orderId, receipt } = req.body;
+  console.log('--- RAZORPAY ORDER CREATION ATTEMPT ---');
+  console.log('Request Body:', JSON.stringify(req.body));
+  console.log('Order ID Received:', orderId);
 
   if (!orderId) {
+    console.error('Validation Failure: Missing orderId in request body');
     res.status(400);
     throw new Error('Order ID is required to initiate payment.');
   }
 
   // 1. Fetch the order from DB to get the authoritative price
   const dbOrder = await Order.findById(orderId);
+  console.log('Database Order Lookup:', dbOrder ? 'SUCCESS' : 'FAILED');
+  if (dbOrder) {
+    console.log('Order Details:', {
+      id: dbOrder._id,
+      totalPrice: dbOrder.totalPrice,
+      isPaid: dbOrder.isPaid,
+      userId: dbOrder.user
+    });
+  }
+
   if (!dbOrder) {
+    console.error('Lookup Failure: Order ID', orderId, 'not found in database');
     res.status(404);
     throw new Error('Order not found. Cannot initiate payment for a non-existent order.');
   }
