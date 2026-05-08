@@ -35,7 +35,7 @@ const staticServices = {
   'job-consulting': {
     name: 'Job Consulting',
     description: 'Elite career consulting and placement support for Banking, IT, and Corporate sectors.',
-    price: 1500,
+    price: 2500,
     image: '/images/real_job_consulting_1774517539244.png',
     included: ['Resume Engineering', 'Mock Interviews', 'Direct Access to HR Networks'],
     excluded: ['Guaranteed Job Offer', 'Application Fees']
