@@ -49,7 +49,7 @@ const RideServices = () => {
                         </p>
                     </div>
                     <button 
-                        onClick={() => navigate('/rides')}
+                        onClick={() => navigate('/services/category/bike-taxi')}
                         className="group flex items-center gap-3 px-8 py-4 bg-white dark:bg-dark-card border border-slate-100 dark:border-slate-800 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:border-primary transition-all"
                     >
                         Explore Rides <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

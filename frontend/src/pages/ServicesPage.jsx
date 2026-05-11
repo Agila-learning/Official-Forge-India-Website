@@ -97,6 +97,20 @@ const ServicesPage = () => {
   useEffect(() => {
     if (categorySlug) {
         setActiveCategory(categorySlug);
+    } else {
+        // Handle legacy paths
+        const path = window.location.pathname;
+        if (path.includes('/rentals/pg') || path.includes('/rentals/villas')) {
+            setActiveCategory('stay');
+        } else if (path.includes('/rentals/hotels')) {
+            setActiveCategory('hotels');
+        } else if (path.includes('/rides/bike')) {
+            setActiveCategory('bike-taxi');
+        } else if (path.includes('/rides/taxi')) {
+            setActiveCategory('car-taxi');
+        } else if (path.includes('/rides/delivery')) {
+            setActiveCategory('express-delivery');
+        }
     }
   }, [categorySlug]);
 

@@ -164,8 +164,14 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/yet-to-launch" element={<YetToLaunch />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/rides" element={<YetToLaunch />} />
-          <Route path="/rentals" element={<YetToLaunch />} />
+          <Route path="/rentals/pg" element={<ServicesPage />} />
+          <Route path="/rentals/villas" element={<ServicesPage />} />
+          <Route path="/rentals/hotels" element={<ServicesPage />} />
+          <Route path="/rides/bike" element={<ServicesPage />} />
+          <Route path="/rides/taxi" element={<ServicesPage />} />
+          <Route path="/rides/delivery" element={<ServicesPage />} />
+          <Route path="/rentals/*" element={<Navigate to="/services/category/stay" replace />} />
+          <Route path="/rides/*" element={<Navigate to="/services/category/bike-taxi" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
