@@ -401,7 +401,7 @@ const Register = () => {
                         <div className="flex p-1 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800">
                           {['Premium'].map(t => (
                             <button key={t} type="button" className="flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-dark-card text-primary shadow-sm">
-                              Elite Consultation (₹1.5k)
+                              Elite Consultation (₹2.5k)
                             </button>
                           ))}
                         </div>

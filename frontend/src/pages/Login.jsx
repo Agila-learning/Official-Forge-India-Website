@@ -5,9 +5,11 @@ import { LogIn, Mail, Lock, ArrowRight, AlertCircle, Loader2, Phone, Fingerprint
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import SEOMeta from '../components/ui/SEOMeta';
+import { useNotifications } from '../context/NotificationContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { pushLocalNotification } = useNotifications();
   const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'mobile'
   const [formData, setFormData] = useState({ email: '', password: '', mobile: '', otp: '' });
   const [status, setStatus] = useState({ loading: false, error: '', otpSent: false });
@@ -70,7 +72,12 @@ const Login = () => {
     try {
         const { data } = await api.post('/auth/send-otp', { mobile: formData.mobile });
         setStatus({ ...status, loading: false, otpSent: true, error: '' });
-        toast.success(`OTP sent to your mobile!`, { duration: 5000, icon: '📱' });
+        pushLocalNotification({
+            title: 'Security Alert: OTP Sent',
+            message: `A login code has been transmitted to +91 ${formData.mobile}. Please verify to proceed.`,
+            type: 'otp'
+        });
+        toast.success(`Secure code transmitted! Check notification panel.`, { duration: 5000, icon: '📱' });
     } catch (err) {
         const errMsg = err.response?.data?.message || 'Failed to send OTP';
         const isNotFound = err.response?.status === 404;

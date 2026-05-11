@@ -1,10 +1,17 @@
+const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const asyncHandler = require('express-async-handler');
 const ServiceInquiry = require('../models/ServiceInquiry');
 const User = require('../models/User');
 const { sendPaymentConfirmationEmail } = require('../utils/emailService');
 
-// Direct payment link — no Razorpay server-side order creation needed
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret'
+});
+
+// Direct payment link fallback
 const DIRECT_PAYMENT_LINK = 'https://rzp.io/rzp/KJFPhwG';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -20,6 +27,7 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     specificRequirement,
     message,
     contactNumber,
+    domain, // New field for domain selection
   } = req.body;
 
   // Validation
@@ -28,7 +36,8 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     throw new Error('Consulting type, requirements, and contact number are required.');
   }
 
-  const AMOUNT_INR = 2500; // Updated consulting fee in INR
+  // Dynamic pricing: ₹2500 for Banking, ₹1500 for others
+  const AMOUNT_INR = domain === 'Banking' ? 2500 : 1500;
 
   // 1. Save inquiry to DB with paymentStatus: Pending (for tracking purposes)
   let inquiry;
@@ -37,6 +46,7 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
       user:                req.user?._id,
       serviceType:         'Job Consulting',
       consultingType:      consultingType || 'Career Guidance',
+      domain:              domain || 'General',
       experience:          experience || 'Fresher (0-1 yr)',
       currentRole:         currentRole || '',
       specificRequirement,
@@ -54,19 +64,50 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     });
   }
 
-  // 2. Return the direct payment link — no server-side Razorpay order needed.
-  //    The client will redirect to the direct payment page.
-  res.status(201).json({
-    success: true,
-    inquiryId:       inquiry._id,
-    amount:          AMOUNT_INR,
-    paymentLink:     DIRECT_PAYMENT_LINK,
-    candidateName:   `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
-    email:           req.user?.email,
-    contactNumber,
-    consultingType,
-    message:         'Inquiry saved. Please complete payment via the provided link.',
-  });
+  // 2. Create Razorpay Order
+  const options = {
+    amount:   AMOUNT_INR * 100, // amount in paise
+    currency: "INR",
+    receipt:  `receipt_jc_${inquiry._id.toString().slice(-8)}`,
+    notes: {
+      inquiryId: inquiry._id.toString(),
+      type:      'Job Consulting'
+    }
+  };
+
+  try {
+    const rzpOrder = await razorpay.orders.create(options);
+    
+    // Return order details for the frontend Razorpay modal
+    res.status(201).json({
+      success: true,
+      inquiryId:       inquiry._id,
+      amount:          AMOUNT_INR,
+      currency:        'INR',
+      razorpayOrderId: rzpOrder.id,
+      keyId:           process.env.RAZORPAY_KEY_ID,
+      paymentLink:     DIRECT_PAYMENT_LINK, // fallback
+      candidateName:   `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
+      email:           req.user?.email,
+      contactNumber,
+      consultingType,
+      message:         'Inquiry saved. Please complete payment.',
+    });
+  } catch (rzpErr) {
+    console.error('[Razorpay Error - Job Consulting]:', rzpErr);
+    // If Razorpay order creation fails, we can still return the direct link as fallback
+    res.status(201).json({
+      success: true,
+      inquiryId:       inquiry._id,
+      amount:          AMOUNT_INR,
+      paymentLink:     DIRECT_PAYMENT_LINK,
+      candidateName:   `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
+      email:           req.user?.email,
+      contactNumber,
+      consultingType,
+      message:         'Inquiry saved. Razorpay integration busy, please use the direct link.',
+    });
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
       }
       isMember = true;
       paymentStatus = 'Paid';
-      registrationFee = 1500;
+      registrationFee = 2500;
       const year = new Date().getFullYear();
       const random = Math.floor(1000 + Math.random() * 9000);
       membershipId = `FIC-PREM-${year}-${random}`;
@@ -306,7 +306,7 @@ const createRegistrationPayment = async (req, res) => {
     });
 
     const options = {
-      amount: 1500 * 100, // 1500 INR in paise
+      amount: 2500 * 100, // 2500 INR in paise
       currency: "INR",
       receipt: `reg_${Date.now()}`,
       notes: {

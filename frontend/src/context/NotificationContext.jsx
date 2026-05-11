@@ -24,14 +24,18 @@ export const NotificationProvider = ({ children }) => {
     }, []);
 
     const fetchNotifications = async () => {
-        if (!userInfo) return;
+        if (!userInfo) {
+            setLoading(false);
+            return;
+        }
         try {
             const { data } = await api.get('/notifications');
             setNotifications(data);
             setUnreadCount(data.filter(n => !n.isRead).length);
-            setLoading(false);
         } catch (err) {
             console.error('Failed to fetch notifications:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -121,8 +125,30 @@ export const NotificationProvider = ({ children }) => {
         }
     };
 
+    const pushLocalNotification = (notification) => {
+        const newNotif = {
+            _id: `local_${Date.now()}`,
+            title: notification.title,
+            message: notification.message,
+            createdAt: new Date().toISOString(),
+            isRead: false,
+            type: notification.type || 'info',
+            ...notification
+        };
+        setNotifications(prev => [newNotif, ...prev]);
+        setUnreadCount(prev => prev + 1);
+    };
+
     return (
-        <NotificationContext.Provider value={{ notifications, unreadCount, loading, markAsRead, markAllAsRead, fetchNotifications }}>
+        <NotificationContext.Provider value={{ 
+            notifications, 
+            unreadCount, 
+            loading, 
+            markAsRead, 
+            markAllAsRead, 
+            fetchNotifications,
+            pushLocalNotification 
+        }}>
             {children}
         </NotificationContext.Provider>
     );

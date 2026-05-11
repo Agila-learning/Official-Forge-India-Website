@@ -7,7 +7,7 @@ import {
   CheckCircle2, ChevronRight, Filter, Plus, ArrowUpRight,
   ChevronLeft, ArrowRightIcon
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import SEOMeta from '../components/ui/SEOMeta';
 import MembershipCard from '../components/ui/MembershipCard';
@@ -69,7 +69,8 @@ const HorizontalCarousel = ({ title, items, onBook }) => {
 const ServicesPage = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [activeCategory, setActiveCategory] = useState('all');
+  const { categorySlug } = useParams();
+  const [activeCategory, setActiveCategory] = useState(categorySlug || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showBookingPanel, setShowBookingPanel] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
@@ -93,6 +94,12 @@ const ServicesPage = () => {
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    if (categorySlug) {
+        setActiveCategory(categorySlug);
+    }
+  }, [categorySlug]);
+
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const userMembership = userInfo.membershipVault || { planValue: 0 };
 
@@ -101,10 +108,13 @@ const ServicesPage = () => {
   const topRatedServices = [...services].sort((a, b) => b.rating - a.rating).slice(0, 8);
   const newServices = [...services].reverse().slice(0, 8);
 
-  const filteredListings = services.filter(item => 
-    (activeCategory === 'all' || item.category === activeCategory) &&
-    (item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredListings = services.filter(item => {
+    const itemCategorySlug = item.category?.toLowerCase().replace(/\s+/g, '-');
+    const activeCategorySlug = activeCategory?.toLowerCase().replace(/\s+/g, '-');
+    
+    return (activeCategory === 'all' || itemCategorySlug === activeCategorySlug) &&
+           (item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   const handleBuyMembership = () => {
     navigate('/profile');

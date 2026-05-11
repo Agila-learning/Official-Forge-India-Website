@@ -41,6 +41,8 @@ const serviceInquirySchema = new mongoose.Schema({
     enum: ['Fresher (0-1 yr)', '1-3 Years', '3-6 Years', '6-10 Years', '10+ Years'],
   },
   currentRole: { type: String },
+  domain: { type: String }, // Target Industry/Domain
+  category: { type: String }, // Sub-category for classification
   amount: { type: Number, default: 499 },
   paymentStatus: {
     type: String,

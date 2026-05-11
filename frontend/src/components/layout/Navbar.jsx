@@ -319,19 +319,34 @@ const Navbar = () => {
                       {notifications.length === 0 ? (
                         <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic tracking-widest">No signals detected</p>
                       ) : (
-                        notifications.map((n) => (
-                          <div 
-                            key={n._id} 
-                            onClick={() => !n.isRead && markAsRead(n._id)}
-                            className={`p-4 rounded-2xl border cursor-pointer group/notifitem transition-all ${n.isRead ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800 opacity-60' : 'bg-secondary/5 border-secondary/20 shadow-md ring-1 ring-secondary/10'}`}
-                          >
-                             <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
-                             <div className="flex items-center justify-between mt-2">
-                                <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
-                                {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
-                             </div>
-                          </div>
-                        ))
+                        notifications.map((n) => {
+                          const isOTP = n.type === 'otp' || n.title?.toLowerCase().includes('otp');
+                          return (
+                            <div 
+                              key={n._id} 
+                              onClick={() => !n.isRead && markAsRead(n._id)}
+                              className={`p-4 rounded-2xl border cursor-pointer group/notifitem transition-all ${n.isRead ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800 opacity-60' : 'bg-secondary/5 border-secondary/20 shadow-md ring-1 ring-secondary/10'}`}
+                            >
+                               <div className="flex items-start gap-3">
+                                 {isOTP && (
+                                   <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                                     <Zap size={14} />
+                                   </div>
+                                 )}
+                                 <div className="flex-1">
+                                   <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${n.isRead ? 'text-gray-400' : 'text-secondary'}`}>
+                                     {n.title || (isOTP ? 'Security Alert' : 'System Message')}
+                                   </p>
+                                   <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
+                                   <div className="flex items-center justify-between mt-2">
+                                      <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                                      {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
+                                   </div>
+                                 </div>
+                               </div>
+                            </div>
+                          );
+                        })
                       )}
                     </div>
                     <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>

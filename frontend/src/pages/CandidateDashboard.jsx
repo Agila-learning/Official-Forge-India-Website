@@ -4,7 +4,7 @@ import {
   Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
   CheckCircle2, Clock, XCircle, Star, MapPin, DollarSign, Send,
   Menu, X, ArrowUpRight, Loader2, AlertCircle, ShoppingCart, LayoutDashboard,
-  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet
+  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet, ExternalLink
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
@@ -58,6 +58,7 @@ const CandidateDashboard = () => {
     specificRequirement: '',
     message:             '',
     contactNumber:       userInfo?.mobile || '',
+    domain:              'General', // New field
   });
   const [isSubmittingConsulting, setIsSubmittingConsulting] = useState(false);
   const [consultingPaymentSuccess, setConsultingPaymentSuccess] = useState(false);
@@ -138,6 +139,7 @@ const CandidateDashboard = () => {
               experience: 'Fresher (0-1 yr)',
               currentRole: '', specificRequirement: '', message: '',
               contactNumber: userInfo?.mobile || '',
+              domain: 'General',
             });
             fetchData();
           } catch (err) {
@@ -899,7 +901,7 @@ const CandidateDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2 bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20 px-6 py-3 rounded-2xl">
                             <Sparkles size={16} className="text-primary" />
-                            <span className="text-sm font-black text-primary">₹1500 / Session</span>
+                            <span className="text-sm font-black text-primary">₹2500 / Session</span>
                         </div>
                     </div>
 
@@ -1007,6 +1009,17 @@ const CandidateDashboard = () => {
                                     />
                                 </div>
 
+                                {/* Target Domain */}
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Target Domain *</label>
+                                    <select
+                                        value={consultingForm.domain}
+                                        onChange={e => setConsultingForm(f => ({ ...f, domain: e.target.value }))}
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold outline-none focus:border-primary transition-all appearance-none">
+                                        {['General', 'Banking', 'IT / Software', 'Core Engineering', 'Management', 'Other'].map(d => <option key={d} value={d}>{d}</option>)}
+                                    </select>
+                                </div>
+
                                 {/* Contact Number */}
                                 <div>
                                     <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact Number *</label>
@@ -1035,6 +1048,18 @@ const CandidateDashboard = () => {
                                 </div>
                             </div>
 
+                            {/* Dynamic Price Display */}
+                            <div className="mt-8 flex items-center justify-between p-6 bg-blue-50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-800">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">Total Consultation Fee</p>
+                                    <p className="text-2xl font-black text-gray-900 dark:text-white">₹{consultingForm.domain === 'Banking' ? '2,500' : '1,500'}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Session Duration</p>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">60-90 Mins</p>
+                                </div>
+                            </div>
+
                             {/* Security Note */}
                             <div className="mt-6 flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
                                 <ShieldCheck size={18} className="text-green-500 shrink-0" />
@@ -1043,18 +1068,27 @@ const CandidateDashboard = () => {
                                 </p>
                             </div>
 
-                            {/* Pay Button */}
-                            <button
-                                onClick={handleConsultingPayment}
-                                disabled={isSubmittingConsulting}
-                                className="mt-8 w-full py-5 bg-gradient-to-r from-primary to-blue-600 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {isSubmittingConsulting ? (
-                                    <><Loader2 className="animate-spin" size={18} /> Processing...</>
-                                ) : (
-                                    <><CreditCard size={18} /> Pay ₹1500 &amp; Book Session</>
-                                )}
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                                <button
+                                    onClick={handleConsultingPayment}
+                                    disabled={isSubmittingConsulting}
+                                    className="flex-[1.5] py-5 bg-gradient-to-r from-primary to-blue-600 text-white font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmittingConsulting ? (
+                                        <><Loader2 className="animate-spin" size={18} /> Processing...</>
+                                    ) : (
+                                        <><CreditCard size={18} /> Pay ₹{consultingForm.domain === 'Banking' ? '2500' : '1500'} &amp; Book Session</>
+                                    )}
+                                </button>
+                                <a 
+                                    href={consultingForm.domain === 'Banking' ? 'https://rzp.io/rzp/KJFPhwG' : 'https://rzp.io/rzp/KJFPhwG'} // Fallback link (update if separate link exists for 1500)
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="flex-1 py-5 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"
+                                >
+                                    <ExternalLink size={18} /> Direct Link
+                                </a>
+                            </div>
                         </div>
                     )}
 

@@ -53,10 +53,18 @@ const RentalServices = () => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group cursor-pointer"
-                            onClick={() => navigate(`/rentals/${item.id}`)}
+                            className="group cursor-pointer flex flex-col h-full"
+                            onClick={() => {
+                                // Map IDs to the new dynamic category routes
+                                const routeMap = {
+                                    'pg': '/services/category/stay',
+                                    'villas': '/services/category/stay',
+                                    'hotels': '/services/category/hotels'
+                                };
+                                navigate(routeMap[item.id] || '/services');
+                            }}
                         >
-                            <div className="relative rounded-[3rem] overflow-hidden mb-8 shadow-2xl shadow-slate-200 dark:shadow-black/20 h-[400px]">
+                            <div className="relative rounded-[3rem] overflow-hidden mb-8 shadow-2xl shadow-slate-200 dark:shadow-black/20 h-[300px] md:h-[400px] flex-shrink-0">
                                 <img 
                                     src={item.image} 
                                     alt={item.title} 
@@ -75,9 +83,9 @@ const RentalServices = () => {
                                         <MapPin size={14} className="text-primary" />
                                         <span className="text-[10px] font-black uppercase tracking-widest">{item.location}</span>
                                     </div>
-                                    <h3 className="text-2xl font-black tracking-tight mb-4">{item.title}</h3>
+                                    <h3 className="text-xl md:text-2xl font-black tracking-tight mb-4">{item.title}</h3>
                                     <div className="flex items-center justify-between">
-                                        <p className="text-xl font-black text-primary">{item.price}</p>
+                                        <p className="text-lg md:text-xl font-black text-primary">{item.price}</p>
                                         <div className="flex items-center gap-1">
                                             <Star size={14} className="text-yellow-500 fill-yellow-500" />
                                             <span className="text-xs font-black">4.9</span>

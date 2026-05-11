@@ -294,18 +294,26 @@ const VendorDashboard = () => {
                     {view === 'overview' && (
                         <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-4">
-                                <div className="flex items-center gap-6">
+                                <div className="flex flex-wrap items-center gap-6">
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Business Statistics</p>
                                         <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Growth <span className="text-primary italic">Stats</span></h2>
                                     </div>
-                                    <div className="px-5 py-2 bg-gradient-to-r from-primary to-indigo-600 rounded-2xl shadow-xl shadow-primary/20 flex flex-col justify-center">
-                                        <p className="text-[8px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">Current Tier</p>
-                                        <p className="text-sm font-black text-white uppercase tracking-tighter italic">{userInfo?.subscriptionLevel || 'Basic Node'}</p>
-                                    </div>
-                                    <div className="px-5 py-2 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl flex flex-col justify-center">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Shop Code</p>
-                                        <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">{userInfo?.shopCode || 'PENDING'}</p>
+                                    <div className="flex flex-wrap gap-4">
+                                        <div className="px-5 py-2 bg-gradient-to-r from-primary to-indigo-600 rounded-2xl shadow-xl shadow-primary/20 flex flex-col justify-center">
+                                            <p className="text-[8px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">Current Tier</p>
+                                            <p className="text-sm font-black text-white uppercase tracking-tighter italic">{userInfo?.subscriptionLevel || 'Basic Node'}</p>
+                                        </div>
+                                        <div className={`px-5 py-2 border rounded-2xl shadow-xl flex flex-col justify-center ${userInfo?.isVerified ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200'}`}>
+                                            <p className={`text-[8px] font-black uppercase tracking-widest leading-none mb-1 ${userInfo?.isVerified ? 'text-green-600' : 'text-amber-600'}`}>Security Status</p>
+                                            <p className={`text-sm font-black uppercase tracking-tighter italic flex items-center gap-2 ${userInfo?.isVerified ? 'text-green-700 dark:text-green-300' : 'text-amber-700 dark:text-amber-300'}`}>
+                                                {userInfo?.isVerified ? <><ShieldCheck size={14} /> Verified</> : <><Info size={14} /> Verification Pending</>}
+                                            </p>
+                                        </div>
+                                        <div className="px-5 py-2 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl flex flex-col justify-center">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Shop Code</p>
+                                            <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">{userInfo?.shopCode || 'PENDING'}</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -520,6 +528,25 @@ const VendorDashboard = () => {
 
                     {view === 'missions' && (
                         <motion.div key="missions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+                            {/* Earnings Summary */}
+                            <div className="p-10 bg-gradient-to-br from-slate-900 to-gray-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+                                <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2">Total Earnings</p>
+                                        <h3 className="text-4xl font-black tracking-tighter italic">₹{salesReport.totalRevenue.toLocaleString()}</h3>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2">Successful Missions</p>
+                                        <h3 className="text-4xl font-black tracking-tighter italic">{orders.filter(o => o.status === 'Completed' || o.status === 'Delivered').length}</h3>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2">Success Rate</p>
+                                        <h3 className="text-4xl font-black tracking-tighter italic">{salesReport.successRate}%</h3>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-1 gap-8">
                                 {orders.filter(o => o.orderItems.some(i => i.isService)).map(mission => (
                                     <div key={mission._id} className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
@@ -528,8 +555,36 @@ const VendorDashboard = () => {
                                                 <div className="flex items-center gap-4 mb-4">
                                                     <span className="px-5 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-full">Ref: #{mission._id.slice(-6).toUpperCase()}</span>
                                                     <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase ${mission.status === 'Completed' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-dark-bg'}`}>{mission.status}</span>
+                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{new Date(mission.createdAt).toLocaleDateString()}</span>
                                                 </div>
-                                                <h4 className="text-3xl font-black uppercase tracking-tighter italic mb-2">{mission.orderItems.filter(i => i.isService).map(i => i.name).join(', ')}</h4>
+                                                <h4 className="text-3xl font-black uppercase tracking-tighter italic mb-4">
+                                                    {mission.orderItems.filter(i => i.isService).map(i => i.name).join(', ')}
+                                                </h4>
+                                                
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                    <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Customer</p>
+                                                        <p className="text-xs font-bold truncate">{mission.user?.firstName} {mission.user?.lastName}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Mission Type</p>
+                                                        <p className="text-xs font-bold uppercase">{mission.orderItems[0]?.category || 'General Service'}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Execution Hub</p>
+                                                        <p className="text-xs font-bold truncate">{mission.shippingAddress?.city || 'HQ'}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Revenue</p>
+                                                        <p className="text-xs font-black text-primary">₹{mission.totalPrice.toLocaleString()}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col justify-center gap-4">
+                                                <button onClick={() => setViewingInvoice(mission)} className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:-translate-y-1 transition-all">Details</button>
+                                                {mission.status !== 'Completed' && (
+                                                    <button onClick={() => handleUpdateStatus(mission._id, 'Completed')} className="px-8 py-4 bg-secondary text-dark-bg rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-secondary/20 hover:-translate-y-1 transition-all">Mark Ready</button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
