@@ -113,6 +113,14 @@ const CandidateDashboard = () => {
       // Step 1: Create inquiry + Razorpay Order on backend
       const { data } = await api.post('/job-consulting/submit', consultingForm);
       
+      if (!data.razorpayOrderId) {
+        toast.info('Razorpay API busy. Redirecting to secure payment link...');
+        setTimeout(() => {
+            window.open(data.paymentLink, '_blank');
+        }, 2000);
+        return;
+      }
+      
       const options = {
         key: data.keyId,
         amount: data.amount * 100,
@@ -165,7 +173,9 @@ const CandidateDashboard = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment initialization failed');
+      const msg = err.response?.data?.message || 'Payment initialization failed';
+      const fields = err.response?.data?.fields ? ` Missing: ${err.response.data.fields.join(', ')}` : '';
+      toast.error(msg + fields);
       setIsSubmittingConsulting(false);
     }
   };

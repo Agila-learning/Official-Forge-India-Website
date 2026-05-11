@@ -32,8 +32,11 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
 
   // Validation
   if (!consultingType || !specificRequirement || !contactNumber) {
-    res.status(400);
-    throw new Error('Consulting type, requirements, and contact number are required.');
+    console.warn('[Job Consulting] Validation Failed:', { consultingType, specificRequirement, contactNumber });
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Consulting type, requirements, and contact number are required.' 
+    });
   }
 
   // Dynamic pricing: ₹2500 for Banking, ₹1500 for others
@@ -42,7 +45,7 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
   // 1. Save inquiry to DB with paymentStatus: Pending (for tracking purposes)
   let inquiry;
   try {
-    inquiry = await ServiceInquiry.create({
+    const inquiryData = {
       user:                req.user?._id,
       serviceType:         'Job Consulting',
       consultingType:      consultingType || 'Career Guidance',
@@ -54,13 +57,16 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
       contactNumber,
       amount:              AMOUNT_INR,
       paymentStatus:       'Pending',
-    });
+    };
+    
+    inquiry = await ServiceInquiry.create(inquiryData);
   } catch (dbErr) {
     console.error('[DB Error - Job Consulting Inquiry]:', dbErr);
     return res.status(400).json({ 
       success: false, 
-      message: 'Failed to initialize consultation record. Please verify your inputs.',
-      error: dbErr.message
+      message: 'Database Validation Error. Please check if all fields match required formats.',
+      error: dbErr.message,
+      fields: dbErr.errors ? Object.keys(dbErr.errors) : []
     });
   }
 
@@ -95,16 +101,14 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     });
   } catch (rzpErr) {
     console.error('[Razorpay Error - Job Consulting]:', rzpErr);
-    // If Razorpay order creation fails, we can still return the direct link as fallback
+    // If Razorpay order creation fails, return 201 with direct link instead of failing
+    // This allows the user to still pay via the link even if the API is down
     res.status(201).json({
       success: true,
       inquiryId:       inquiry._id,
       amount:          AMOUNT_INR,
       paymentLink:     DIRECT_PAYMENT_LINK,
-      candidateName:   `${req.user?.firstName || 'Candidate'} ${req.user?.lastName || ''}`.trim(),
-      email:           req.user?.email,
-      contactNumber,
-      consultingType,
+      razorpayOrderId: null, // Explicitly null
       message:         'Inquiry saved. Razorpay integration busy, please use the direct link.',
     });
   }
