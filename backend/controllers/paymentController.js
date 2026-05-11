@@ -54,12 +54,20 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     throw new Error('Authorization Failure: You are not permitted to pay for this order.');
   }
 
-  // 3. Prevent double-payment
+  // 3. Prevent double-payment or zero-amount payment
   if (dbOrder.isPaid) {
     return res.status(400).json({
       success: false,
       message: 'This order has already been paid and processed.',
       orderStatus: dbOrder.status
+    });
+  }
+
+  if (dbOrder.totalPrice <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Strategic Error: Transaction amount cannot be zero. Please verify items in your deployment.',
+      totalPrice: dbOrder.totalPrice
     });
   }
 
