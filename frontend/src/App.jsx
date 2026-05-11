@@ -124,8 +124,8 @@ const ContentWrapper = ({ loading }) => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
+          <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetails />} />
           <Route path="/clientele" element={<Clientele />} />
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />

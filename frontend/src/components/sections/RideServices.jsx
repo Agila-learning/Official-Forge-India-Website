@@ -63,7 +63,15 @@ const RideServices = () => {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="glass-card p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] bg-white dark:bg-dark-card border border-slate-100 dark:border-slate-800 shadow-2xl group hover:-translate-y-2 transition-all relative overflow-hidden flex flex-col h-full"
+                            className="glass-card p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] bg-white dark:bg-dark-card border border-slate-100 dark:border-slate-800 shadow-2xl group hover:-translate-y-2 transition-all relative overflow-hidden flex flex-col h-full cursor-pointer"
+                            onClick={() => {
+                                const routeMap = {
+                                    'bike': '/services/category/bike-taxi',
+                                    'taxi': '/services/category/car-taxi',
+                                    'delivery': '/services/category/express-delivery'
+                                };
+                                navigate(routeMap[ride.id] || '/services');
+                            }}
                         >
                             <div className={`w-14 h-14 md:w-16 md:h-16 ${ride.color} rounded-2xl flex items-center justify-center mb-6 md:mb-8 shadow-2xl shadow-primary/20 relative z-10 flex-shrink-0`}>
                                 <ride.icon size={28} className="text-white" />
