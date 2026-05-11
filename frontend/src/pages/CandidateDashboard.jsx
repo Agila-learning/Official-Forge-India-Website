@@ -62,7 +62,6 @@ const CandidateDashboard = () => {
   });
   const [isSubmittingConsulting, setIsSubmittingConsulting] = useState(false);
   const [consultingPaymentSuccess, setConsultingPaymentSuccess] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [pendingInquiryId, setPendingInquiryId] = useState(null);
   const [showMembershipPopup, setShowMembershipPopup] = useState(false);
   const vault = userInfo?.membershipVault;
@@ -294,58 +293,7 @@ const CandidateDashboard = () => {
       {/* MEMBERSHIP VAULT POPUP */}
       {showMembershipPopup && <MembershipPopup onClose={() => setShowMembershipPopup(false)} />}
 
-      {/* TEST MODE QR MODAL */}
-      <AnimatePresence>
-        {showQRModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white dark:bg-dark-card rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8 max-w-sm w-full text-center relative"
-            >
-              <button 
-                onClick={() => setShowQRModal(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white"
-              >
-                ✕
-              </button>
-              
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <ShieldCheck className="text-primary" size={32} />
-              </div>
-              
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tighter">
-                Secure Scanner Pay
-              </h3>
-              <div className="flex items-center justify-center gap-3 mb-4 opacity-40 grayscale group-hover:grayscale-0 transition-all">
-                  <img src="/payment-logos/gpay.svg" className="h-3" alt="GPay" />
-                  <img src="/payment-logos/phonepe.svg" className="h-4" alt="PhonePe" />
-                  <img src="/payment-logos/paytm.svg" className="h-3" alt="Paytm" />
-                  <img src="/payment-logos/visa.svg" className="h-3" alt="Visa" />
-              </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
-                Please consult with our sales team before making the payment. Scan and pay the <span className="text-primary font-black">₹1,500 Registration Fee</span> below.
-              </p>
-              
-              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700">
-                <img 
-                  src="/registration_qr.png" 
-                  alt="UPI QR Code" 
-                  className="w-48 h-48 mx-auto rounded-xl shadow-inner group-hover:scale-105 transition-transform"
-                />
-              </div>
 
-              <button 
-                onClick={handleQRConfirm}
-                className="w-full bg-primary text-white font-black uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
-              >
-                I have Scanned & Paid <CheckCircle2 size={18} />
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
         <div className="space-y-12">
             <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
@@ -1091,7 +1039,7 @@ const CandidateDashboard = () => {
                                     )}
                                 </button>
                                 <a 
-                                    href={consultingForm.domain === 'Banking' ? 'https://rzp.io/rzp/KJFPhwG' : 'https://rzp.io/rzp/KJFPhwG'} // Fallback link (update if separate link exists for 1500)
+                                    href="https://rzp.io/rzp/KJFPhwG"
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="flex-1 py-5 bg-gray-100 dark:bg-dark-bg text-gray-500 font-black rounded-2xl uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 border border-gray-200 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"
