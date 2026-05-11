@@ -2008,7 +2008,8 @@ const AdminDashboard = () => {
               <div className="mobile-table-scroll">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b border-g                      {['Candidate', 'Role', 'Status', 'Date', 'Dossier', 'Actions'].map(h => (
+                    <tr className="border-b border-gray-100 dark:border-gray-800">
+                      {['Candidate', 'Role', 'Status', 'Date', 'Dossier', 'Actions'].map(h => (
                         <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
                       ))}
                     </tr>
