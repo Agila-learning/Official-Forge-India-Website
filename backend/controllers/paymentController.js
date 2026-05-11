@@ -20,8 +20,11 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
 
   if (!orderId) {
     console.error('Validation Failure: Missing orderId in request body');
-    res.status(400);
-    throw new Error('Order ID is required to initiate payment.');
+    return res.status(400).json({
+      success: false,
+      message: 'Order ID is required to initiate payment.',
+      receivedBody: req.body
+    });
   }
 
   // 1. Fetch the order from DB to get the authoritative price
@@ -38,8 +41,11 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
 
   if (!dbOrder) {
     console.error('Lookup Failure: Order ID', orderId, 'not found in database');
-    res.status(404);
-    throw new Error('Order not found. Cannot initiate payment for a non-existent order.');
+    return res.status(404).json({
+      success: false,
+      message: 'Order sequence not detected in command center database.',
+      orderId
+    });
   }
 
   // 2. Verify the requesting user is the order owner
@@ -50,8 +56,11 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
 
   // 3. Prevent double-payment
   if (dbOrder.isPaid) {
-    res.status(400);
-    throw new Error('This order has already been paid.');
+    return res.status(400).json({
+      success: false,
+      message: 'This order has already been paid and processed.',
+      orderStatus: dbOrder.status
+    });
   }
 
   const options = {

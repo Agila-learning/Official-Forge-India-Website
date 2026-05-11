@@ -14,9 +14,10 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/socket.io': {
+      '/api/fic-socket': {
         target: 'http://localhost:5001',
         ws: true,
+        changeOrigin: true
       }
     }
   }

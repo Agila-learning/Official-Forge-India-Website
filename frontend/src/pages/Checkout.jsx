@@ -151,9 +151,15 @@ const Checkout = () => {
             setLastOrder(finalOrder);
 
             // 2. Create Razorpay Order
+            const orderIdForPayment = finalOrder._id || finalOrder.id;
+            if (!orderIdForPayment) {
+                console.error('CRITICAL: Order created but ID missing from response', finalOrder);
+                throw new Error('Mission sequence interrupted: Order ID not returned by command center.');
+            }
+
             const { data: rzpOrder } = await api.post('/payments/create-order', {
-                orderId: finalOrder._id,
-                receipt: `order_${finalOrder._id.slice(-8)}`
+                orderId: orderIdForPayment,
+                receipt: `order_${(orderIdForPayment).toString().slice(-8)}`
             });
 
             if (!rzpOrder || !rzpOrder.id) {

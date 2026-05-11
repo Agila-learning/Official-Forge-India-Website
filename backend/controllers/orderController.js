@@ -175,7 +175,12 @@ const addOrderItems = async (req, res) => {
     res.status(201).json(createdOrder);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Operational Failure: Order could not be sequenced.', error: error.message });
+    console.error('Order Creation Failure:', error);
+    res.status(400).json({ 
+      message: 'Strategic Failure: Order sequence rejected by command center.', 
+      error: error.message,
+      details: error.errors ? Object.keys(error.errors) : []
+    });
   }
 };
 
