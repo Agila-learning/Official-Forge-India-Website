@@ -198,7 +198,8 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("%c FIC DEPLOYMENT VERSION: 1.0.8 - ZEPRO UPGRADE ", "color: white; background: #2563eb; font-weight: bold; padding: 4px; border-radius: 4px;");
+    console.log("%c FIC DEPLOYMENT VERSION: 1.0.9 - PAYMENT_SOCKET_STABILIZE_V1 ", "color: white; background: #2563eb; font-weight: bold; padding: 4px; border-radius: 4px;");
+    console.log("Build Timestamp:", "2026-05-11T12:10:00Z");
   }, []);
 
   return (
