@@ -26,10 +26,7 @@ const JobConsultingPage = () => {
     currentRole: '',
     specificRequirement: '',
     contactNumber: '',
-    email: '',
-    domain: 'General',
   });
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
@@ -37,7 +34,6 @@ const JobConsultingPage = () => {
       setFormData(prev => ({
         ...prev,
         contactNumber: userInfo.mobile || userInfo.phone || '',
-        email: userInfo.email || '',
         currentRole: userInfo.candidateRole || ''
       }));
     }
@@ -45,82 +41,69 @@ const JobConsultingPage = () => {
 
   const handlePayment = async (e) => {
     if (e) e.preventDefault();
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     
-    if (!formData.contactNumber || !formData.specificRequirement || !formData.email) {
-        toast.error('Mission Parameters Incomplete: Email, Contact number and requirements are mandatory.');
+    if (!userInfo) {
+      toast.error('Strategic Authorization Required: Please login to proceed.');
+      navigate('/login');
+      return;
+    }
+
+    if (!formData.contactNumber || !formData.specificRequirement) {
+        toast.error('Mission Parameters Incomplete: Contact number and requirements are mandatory.');
         return;
     }
 
     setLoading(true);
     try {
-      // 1. Submit Inquiry & Get Razorpay Order
+      // 1. Save inquiry to DB for tracking
       const { data } = await api.post('/job-consulting/submit', formData);
 
       if (!data.success) {
         throw new Error(data.message || 'Failed to save inquiry.');
       }
 
-      // 2. If Razorpay Order ID exists, open modal
-      if (data.razorpayOrderId) {
-        const options = {
-          key: data.keyId,
-          amount: data.amount * 100,
-          currency: data.currency,
-          name: "Forge India Connect",
-          description: `Job Consulting - ${formData.consultingType}`,
-          image: "/logo.jpg",
-          order_id: data.razorpayOrderId,
-          handler: async (response) => {
-            setLoading(true);
-            try {
-              await api.post('/job-consulting/verify-payment', {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                inquiryId: data.inquiryId
-              });
-              setPaymentSuccess(true);
-              toast.success('🎉 Transaction successful! Expert will contact you shortly.');
-              setFormData({
-                ...formData,
-                specificRequirement: '',
-              });
-            } catch (err) {
-              toast.error('Payment verification failed.');
-            } finally {
-              setLoading(false);
-            }
-          },
-          prefill: {
-            name: data.candidateName,
-            email: formData.email,
-            contact: formData.contactNumber
-          },
-          theme: { color: "#2563eb" },
-          modal: {
-            ondismiss: () => {
-              setLoading(false);
-              toast.error('Payment cancelled');
-            }
-          }
-        };
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } else {
-        // Fallback to direct link if order creation failed
-        toast.info('Redirecting to secure payment link...');
-        setTimeout(() => {
-          window.open(data.paymentLink, '_blank');
-          setLoading(false);
-        }, 1500);
-      }
+      toast.success('Inquiry registered! Redirecting to secure payment...', { duration: 3000 });
+
+      // 2. Redirect to the direct Razorpay payment link
+      setTimeout(() => {
+        window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
+      }, 800);
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Gateway Operational Failure');
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickPay = () => handlePayment();
+  const handleQuickPay = async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    if (!userInfo) {
+      toast.error('Strategic Authorization Required: Please login for Quick Pay.');
+      navigate('/login');
+      return;
+    }
+    
+    const quickFormData = {
+      ...formData,
+      specificRequirement: formData.specificRequirement || 'Quick Pay via Direct Dashboard Access',
+      contactNumber: formData.contactNumber || userInfo.mobile || userInfo.phone || 'N/A',
+    };
+
+    setLoading(true);
+    try {
+      const { data } = await api.post('/job-consulting/submit', quickFormData);
+      if (!data.success) throw new Error(data.message);
+      toast.success('Redirecting to secure payment gateway...', { duration: 3000 });
+      setTimeout(() => {
+        window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
+      }, 800);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to initiate payment.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
   <>
@@ -197,7 +180,7 @@ const JobConsultingPage = () => {
                 <span className="px-4 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-white/20 mb-8 inline-block">Elite Tier Authorized</span>
                 <h3 className="text-4xl font-black mb-6 italic tracking-tighter uppercase">Elite Consultation</h3>
                 <div className="flex items-baseline gap-4 mb-10">
-                <span className="text-6xl font-black text-white">₹{formData.domain === 'Banking' ? '2,500' : '1,500'}</span>
+                <span className="text-6xl font-black text-white">₹2,500</span>
                   <span className="text-white/50 font-bold uppercase tracking-widest text-sm">/ Mission</span>
                 </div>
                 <ul className="space-y-4 mb-12">
@@ -222,7 +205,7 @@ const JobConsultingPage = () => {
                     onClick={() => document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' })}
                     className="btn-primary w-full !bg-white !text-primary hover:!bg-slate-100 !rounded-2xl !py-4 shadow-xl"
                    >
-                     Select Domain & Pay <ArrowRight size={18} />
+                     Book Now & Pay <ArrowRight size={18} />
                    </button>
                 </div>
               </div>
@@ -242,22 +225,6 @@ const JobConsultingPage = () => {
 
           <div className="bg-white dark:bg-dark-card p-10 md:p-16 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
-            
-            <AnimatePresence>
-              {paymentSuccess && (
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="absolute inset-0 z-50 bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm flex items-center justify-center p-8 text-center">
-                  <div className="space-y-6">
-                    <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
-                      <CheckCircle2 className="text-green-500" size={40} />
-                    </div>
-                    <h3 className="text-3xl font-black uppercase tracking-tighter italic">Mission <span className="text-primary italic">Confirmed</span></h3>
-                    <p className="text-slate-500 font-medium">Your consulting session for <strong>{formData.domain}</strong> has been secured. Our expert strategist will reach you within 24-48 hours.</p>
-                    <button onClick={() => setPaymentSuccess(false)} className="px-8 py-3 bg-primary text-white font-black rounded-xl uppercase tracking-widest text-[10px] shadow-lg">Acknowledged</button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handlePayment} loading={loading} />
           </div>
         </div>
@@ -302,20 +269,6 @@ const ConsultingForm = ({ formData, setFormData, handlePayment, loading }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Target Domain *</label>
-            <select 
-                value={formData.domain}
-                onChange={(e) => setFormData({...formData, domain: e.target.value})}
-                className="form-input !rounded-2xl"
-            >
-                <option value="General">General Consultation (₹1,500)</option>
-                <option value="IT / Software">IT / Software (₹1,500)</option>
-                <option value="Banking">Banking & Finance (₹2,500)</option>
-                <option value="Core Engineering">Core Engineering (₹1,500)</option>
-                <option value="Non-IT">Non-IT / Others (₹1,500)</option>
-            </select>
-        </div>
-        <div className="space-y-2">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Experience Level</label>
             <select 
                 value={formData.experience}
@@ -329,20 +282,8 @@ const ConsultingForm = ({ formData, setFormData, handlePayment, loading }) => {
                 <option>10+ Years</option>
             </select>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Email Node *</label>
-            <input 
-                type="email" required placeholder="name@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="form-input !rounded-2xl"
-            />
-        </div>
-        <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Contact Number *</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Contact Number</label>
             <input 
                 type="tel" required placeholder="+91 XXXXX XXXXX"
                 value={formData.contactNumber}
@@ -377,7 +318,7 @@ const ConsultingForm = ({ formData, setFormData, handlePayment, loading }) => {
         disabled={loading}
         className="btn-primary w-full !py-6 !rounded-3xl !text-sm group shadow-xl shadow-primary/20"
       >
-        {loading ? 'Saving & Redirecting...' : <>Confirm & Pay ₹{formData.domain === 'Banking' ? '2,500' : '1,500'} <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
+        {loading ? 'Saving & Redirecting...' : <>Confirm & Pay ₹2,500 <ArrowRight className="group-hover:translate-x-1 transition-transform" /></>}
       </button>
       
       <p className="text-[10px] text-center text-slate-400 font-bold uppercase leading-relaxed px-4">

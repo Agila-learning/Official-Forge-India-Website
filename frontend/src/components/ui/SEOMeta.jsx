@@ -9,8 +9,8 @@ import { Helmet } from 'react-helmet-async';
  *     title="Job Consultancy in Chennai | Forge India Connect"
  *     description="Top job placement agency in Chennai & Krishnagiri..."
  *     keywords="job consultancy chennai, banking jobs, IT placement"
- *     canonical="https://forgeindiaconnect.com/jobs"
- *     image="https://forgeindiaconnect.com/og-default.jpg"
+ *     canonical="https://www.forgeindiaconnect.com/jobs"
+ *     image="https://www.forgeindiaconnect.com/og-default.jpg"
  *   />
  */
 const SEOMeta = ({
@@ -18,11 +18,11 @@ const SEOMeta = ({
   description = 'Forge India Connect (FIC) is a leading job consultancy and business services platform in Chennai, Krishnagiri & Bangalore. We offer job placement, digital marketing, web development, insurance, and home services across South India.',
   keywords = 'job consultancy chennai, banking job placement, IT jobs south india, HR consultancy freshers, job placement krishnagiri, digital marketing services, website development chennai, business services india, forge india connect',
   canonical,
-  image = 'https://forgeindiaconnect.com/og-default.jpg',
+  image = 'https://www.forgeindiaconnect.com/og-default.jpg',
   type = 'website',
   noIndex = false,
 }) => {
-  const siteUrl = 'https://forgeindiaconnect.com';
+  const siteUrl = 'https://www.forgeindiaconnect.com';
   const fullCanonical = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   return (
