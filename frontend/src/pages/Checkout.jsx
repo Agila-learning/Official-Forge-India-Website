@@ -24,14 +24,18 @@ const Checkout = () => {
     
     const [domain, setDomain] = useState('Banking');
     const [contactDetails, setContactDetails] = useState({ email: '', contactNumber: '' });
+    const [shippingAddress, setShippingAddress] = useState({ address: '', city: '', postalCode: '', country: 'India' });
     
-    // Determine Pricing based on Domain Selection
-    const baseTotal = domain === 'Banking' ? 2500 : 1500;
+    const isPhysicalFlow = cartItems && cartItems.length > 0;
+    const cartTotal = isPhysicalFlow ? cartItems.reduce((acc, item) => acc + item.price * item.qty, 0) : 0;
+    
+    // Determine Pricing
+    const baseTotal = isPhysicalFlow ? cartTotal : (domain === 'Banking' ? 2500 : 1500);
     
     const [addMembership, setAddMembership] = useState(false);
     const membershipPrice = 999;
     const paymentMethod = 'Razorpay'; // Only Razorpay now
-    const isDigitalOnly = true;
+    const isDigitalOnly = !isPhysicalFlow;
 
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -52,6 +56,13 @@ const Checkout = () => {
     }, [navigate]);
 
     const handlePayment = async () => {
+        if (isPhysicalFlow) {
+            if (!shippingAddress.address || !shippingAddress.city || !shippingAddress.postalCode) {
+                toast.error('Please complete shipping address details');
+                return;
+            }
+        }
+
         if (!contactDetails.email || !contactDetails.contactNumber) {
             toast.error('Please provide Email and Contact Number');
             return;
@@ -67,17 +78,18 @@ const Checkout = () => {
         try {
             // 1. Create Pending Order on Backend
             const orderData = {
-                orderItems: [{
+                orderItems: isPhysicalFlow ? cartItems : [{
                     name: `FIC ${domain} Consulting`,
                     qty: 1,
                     price: baseTotal,
+                    image: '/logo.jpg',
                     isService: true
                 }],
-                shippingAddress: { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' },
+                shippingAddress: isPhysicalFlow ? shippingAddress : { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' },
                 paymentMethod: `Razorpay`,
                 totalPrice,
-                fulfillmentType: 'Instant Activation',
-                instructions: `Domain: ${domain}`
+                fulfillmentType: isPhysicalFlow ? 'Delivery Partner' : 'Instant Activation',
+                instructions: isPhysicalFlow ? 'Handle with care' : `Domain: ${domain}`
             };
 
             const { data: finalOrder } = await api.post('/orders', orderData);
@@ -257,27 +269,67 @@ const Checkout = () => {
                                 className="bg-white dark:bg-dark-card rounded-[2.5rem] p-8 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl"
                             >
                                 <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Consulting Details</h2>
+                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">{isPhysicalFlow ? "Logistics & Address" : "Consulting Details"}</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Domain Expertise</label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                            {['Banking', 'IT', 'Non-IT'].map((d) => (
-                                                <button 
-                                                    key={d}
-                                                    onClick={() => setDomain(d)}
-                                                    className={`p-6 rounded-2xl border-2 text-left transition-all group ${domain === d ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10' : 'border-gray-100 dark:border-gray-800'}`}
-                                                >
-                                                    <Building2 size={20} className={domain === d ? 'text-blue-600' : 'text-gray-400'} />
-                                                    <p className="font-black text-xs uppercase mt-4">{d}</p>
-                                                    <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Consulting</p>
-                                                </button>
-                                            ))}
+                                {isPhysicalFlow ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Secure Address</label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                                <input 
+                                                    type="text"
+                                                    value={shippingAddress.address}
+                                                    onChange={(e) => setShippingAddress({...shippingAddress, address: e.target.value})}
+                                                    placeholder="Full Address"
+                                                    className="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:ring-2 focus:ring-blue-600/10 font-bold text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">City / Hub</label>
+                                            <input 
+                                                type="text"
+                                                value={shippingAddress.city}
+                                                onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})}
+                                                placeholder="City"
+                                                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:ring-2 focus:ring-blue-600/10 font-bold text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Protocol (Pincode)</label>
+                                            <input 
+                                                type="text"
+                                                value={shippingAddress.postalCode}
+                                                onChange={(e) => setShippingAddress({...shippingAddress, postalCode: e.target.value})}
+                                                placeholder="Pincode"
+                                                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:ring-2 focus:ring-blue-600/10 font-bold text-sm"
+                                            />
                                         </div>
                                     </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Domain Expertise</label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                {['Banking', 'IT', 'Non-IT'].map((d) => (
+                                                    <button 
+                                                        key={d}
+                                                        onClick={() => setDomain(d)}
+                                                        className={`p-6 rounded-2xl border-2 text-left transition-all group ${domain === d ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10' : 'border-gray-100 dark:border-gray-800'}`}
+                                                    >
+                                                        <Building2 size={20} className={domain === d ? 'text-blue-600' : 'text-gray-400'} />
+                                                        <p className="font-black text-xs uppercase mt-4">{d}</p>
+                                                        <p className="text-[9px] text-gray-500 font-bold uppercase mt-1">Consulting</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 border-t border-gray-100 dark:border-gray-800 pt-8">
                                     <div>
                                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Email Address</label>
                                         <div className="relative">
@@ -319,15 +371,27 @@ const Checkout = () => {
                                 </div>
                                 <div className="p-8 space-y-6">
                                     <div className="max-h-[240px] overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-                                        <div className="flex gap-4">
-                                            <div className="w-14 h-14 rounded-xl overflow-hidden bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
-                                                <Building2 size={24} />
+                                        {isPhysicalFlow ? cartItems.map((item, index) => (
+                                            <div key={index} className="flex gap-4">
+                                                <div className="w-14 h-14 rounded-xl overflow-hidden border border-gray-100 flex-shrink-0">
+                                                    <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h5 className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate leading-tight">{item.name}</h5>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Qty: {item.qty} • ₹{item.price}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h5 className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate leading-tight">FIC {domain} Consulting</h5>
-                                                <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Domain Access • ₹{baseTotal}</p>
+                                        )) : (
+                                            <div className="flex gap-4">
+                                                <div className="w-14 h-14 rounded-xl overflow-hidden bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
+                                                    <Building2 size={24} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h5 className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate leading-tight">FIC {domain} Consulting</h5>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Domain Access • ₹{baseTotal}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-4 pt-6 border-t border-gray-50 dark:border-gray-800">
