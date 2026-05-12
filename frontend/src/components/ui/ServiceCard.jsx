@@ -26,6 +26,8 @@ const ServiceCard = ({ product, onBook }) => {
                 <img 
                     src={product.image || '/logo.jpg'} 
                     alt={product.name} 
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
@@ -91,7 +93,7 @@ const ServiceCard = ({ product, onBook }) => {
                         <div className="flex -space-x-2">
                             {[1, 2].map(i => (
                                 <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-dark-card bg-gray-200 overflow-hidden">
-                                    <img src={`https://i.pravatar.cc/100?u=${product._id}${i}`} alt="user" />
+                                    <img src={`https://i.pravatar.cc/100?u=${product._id}${i}`} alt="user" loading="lazy" decoding="async" />
                                 </div>
                             ))}
                             <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-dark-bg border-2 border-white dark:border-dark-card flex items-center justify-center text-[8px] font-black text-gray-400">+</div>

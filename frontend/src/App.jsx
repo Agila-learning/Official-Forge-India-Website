@@ -1,64 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { AnimatePresence } from 'framer-motion';
+
+// Layout components (Keep synchronous for critical UI)
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import AdminDashboard from './pages/AdminDashboard';
-import VendorDashboard from './pages/VendorDashboard';
-import HRDashboard from './pages/HRDashboard';
-import DeliveryDashboard from './pages/DeliveryDashboard';
-import CandidateDashboard from './pages/CandidateDashboard';
-import TrainerDashboard from './pages/TrainerDashboard';
-// import ServicePage from './pages/ServicePage'; // Redundant - using ServicesPage instead
-import Clientele from './pages/Clientele';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsAndConditions from './pages/TermsAndConditions';
-import FAQ from './pages/FAQ';
-import AboutUs from './pages/AboutUs';
-import ExploreJobs from './pages/ExploreJobs';
-import ExploreShop from './pages/ExploreShop';
-import Testimonials from './pages/Testimonials';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Profile from './pages/Profile';
-import Antigraviity from './pages/Antigraviity';
-import Wishlist from './pages/Wishlist';
-import JobPortal from './pages/JobPortal/JobPortal';
-import HomeServices from './pages/HomeServices/HomeServices';
-import EmployerDashboard from './pages/JobPortal/EmployerDashboard';
-import ServiceWizard from './components/ui/ServiceWizard';
-import ContactPage from './pages/ContactPage';
-import ServicesPage from './pages/ServicesPage';
-import JobConsultingPage from './pages/JobConsultingPage';
-import AgentDashboard from './pages/AgentDashboard';
-import ServiceProviderDashboard from './pages/ServiceProviderDashboard';
-import YetToLaunch from './pages/YetToLaunch';
-import Notifications from './pages/Notifications';
-
 import SmoothScroll from './components/layout/SmoothScroll';
-import CustomCursor from './components/ui/CustomCursor';
-import LoadingScreen from './components/ui/LoadingScreen';
 import ScrollToTop from './components/ui/ScrollToTop';
 import ScrollToTopOnRoute from './components/ui/ScrollToTopOnRoute';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+import LoadingScreen from './components/ui/LoadingScreen';
+
+// UI components (Keep synchronous for critical UI)
+import GlobalCTABar from './components/ui/GlobalCTABar';
 import CookieConsent from './components/ui/CookieConsent';
 import ChatWidget from './components/ui/ChatWidget';
 import FICQuippy from './components/ui/FICQuippy';
-import RefundPolicy from './pages/RefundPolicy';
-import ServiceDetails from './pages/ServiceDetails';
 import LocationPermissionModal from './components/ui/LocationPermissionModal';
-import TrackMission from './pages/TrackMission';
-import ProtectedRoute from './components/layout/ProtectedRoute';
-import GlobalCTABar from './components/ui/GlobalCTABar';
-import { NotificationProvider } from './context/NotificationContext';
-import NotFound from './pages/NotFound';
-import TrainingPlacementPage from './pages/TrainingPlacementPage';
+import CustomCursor from './components/ui/CustomCursor';
 
-import { AnimatePresence } from 'framer-motion';
+// Lazy loaded pages
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const VendorDashboard = lazy(() => import('./pages/VendorDashboard'));
+const HRDashboard = lazy(() => import('./pages/HRDashboard'));
+const DeliveryDashboard = lazy(() => import('./pages/DeliveryDashboard'));
+const CandidateDashboard = lazy(() => import('./pages/CandidateDashboard'));
+const TrainerDashboard = lazy(() => import('./pages/TrainerDashboard'));
+const Clientele = lazy(() => import('./pages/Clientele'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const AboutUs = lazy(() => import('./pages/AboutUs'));
+const ExploreJobs = lazy(() => import('./pages/ExploreJobs'));
+const ExploreShop = lazy(() => import('./pages/ExploreShop'));
+const Testimonials = lazy(() => import('./pages/Testimonials'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Antigraviity = lazy(() => import('./pages/Antigraviity'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const JobPortal = lazy(() => import('./pages/JobPortal/JobPortal'));
+const HomeServices = lazy(() => import('./pages/HomeServices/HomeServices'));
+const EmployerDashboard = lazy(() => import('./pages/JobPortal/EmployerDashboard'));
+const ServiceWizard = lazy(() => import('./components/ui/ServiceWizard'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const JobConsultingPage = lazy(() => import('./pages/JobConsultingPage'));
+const AgentDashboard = lazy(() => import('./pages/AgentDashboard'));
+const ServiceProviderDashboard = lazy(() => import('./pages/ServiceProviderDashboard'));
+const YetToLaunch = lazy(() => import('./pages/YetToLaunch'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const ServiceDetails = lazy(() => import('./pages/ServiceDetails'));
+const TrackMission = lazy(() => import('./pages/TrackMission'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const TrainingPlacementPage = lazy(() => import('./pages/TrainingPlacementPage'));
+
+// Context
+import { NotificationProvider } from './context/NotificationContext';
+
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 const ContentWrapper = ({ loading }) => {
   const location = useLocation();
@@ -119,61 +130,63 @@ const ContentWrapper = ({ loading }) => {
       )}
 
       <main className={`flex-grow ${!shouldHide ? (location.pathname === '/' ? 'pt-0' : 'pt-16') : ''}`}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/services/:id" element={<ServiceDetails />} />
-          <Route path="/clientele" element={<Clientele />} />
-          <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/vendor" element={<ProtectedRoute allowedRoles={['Vendor', 'Admin']}><VendorDashboard /></ProtectedRoute>} />
-          <Route path="/hr" element={<ProtectedRoute allowedRoles={['HR', 'Admin']}><HRDashboard /></ProtectedRoute>} />
-          <Route path="/delivery" element={<ProtectedRoute allowedRoles={['Delivery Partner', 'Admin']}><DeliveryDashboard /></ProtectedRoute>} />
-          <Route path="/candidate/dashboard" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin']}><CandidateDashboard /></ProtectedRoute>} />
-          <Route path="/trainer-dashboard" element={<ProtectedRoute allowedRoles={['Trainer', 'Admin']}><TrainerDashboard /></ProtectedRoute>} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsAndConditions />} />
-          <Route path="/explore-jobs" element={<ExploreJobs />} />
-          <Route path="/jobs" element={<JobPortal />} />
-          <Route path="/employer" element={<EmployerDashboard />} />
-          <Route path="/employer/post-job" element={<EmployerDashboard />} />
-          <Route path="/home-services" element={<HomeServices />} />
-          <Route path="/home-services/booking/:serviceId" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ServiceWizard /></ProtectedRoute>} />
-          <Route path="/explore-shop" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ExploreShop /></ProtectedRoute>} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/antigraviity" element={<Antigraviity />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/track-mission/:id" element={<TrackMission />} />
-          <Route path="/track-mission" element={<TrackMission />} />
-          <Route path="/job-consulting" element={<JobConsultingPage />} />
-          <Route path="/training-placement" element={<TrainingPlacementPage />} />
-          <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
-          <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
-          <Route path="/products/:id" element={<ProductRedirect />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/yet-to-launch" element={<YetToLaunch />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/rentals/pg" element={<ServicesPage />} />
-          <Route path="/rentals/villas" element={<ServicesPage />} />
-          <Route path="/rentals/hotels" element={<ServicesPage />} />
-          <Route path="/rides/bike" element={<ServicesPage />} />
-          <Route path="/rides/taxi" element={<ServicesPage />} />
-          <Route path="/rides/delivery" element={<ServicesPage />} />
-          <Route path="/rentals/*" element={<Navigate to="/services/category/stay" replace />} />
-          <Route path="/rides/*" element={<Navigate to="/services/category/bike-taxi" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:id" element={<ServiceDetails />} />
+            <Route path="/clientele" element={<Clientele />} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/vendor" element={<ProtectedRoute allowedRoles={['Vendor', 'Admin']}><VendorDashboard /></ProtectedRoute>} />
+            <Route path="/hr" element={<ProtectedRoute allowedRoles={['HR', 'Admin']}><HRDashboard /></ProtectedRoute>} />
+            <Route path="/delivery" element={<ProtectedRoute allowedRoles={['Delivery Partner', 'Admin']}><DeliveryDashboard /></ProtectedRoute>} />
+            <Route path="/candidate/dashboard" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin']}><CandidateDashboard /></ProtectedRoute>} />
+            <Route path="/trainer-dashboard" element={<ProtectedRoute allowedRoles={['Trainer', 'Admin']}><TrainerDashboard /></ProtectedRoute>} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/explore-jobs" element={<ExploreJobs />} />
+            <Route path="/jobs" element={<JobPortal />} />
+            <Route path="/employer" element={<EmployerDashboard />} />
+            <Route path="/employer/post-job" element={<EmployerDashboard />} />
+            <Route path="/home-services" element={<HomeServices />} />
+            <Route path="/home-services/booking/:serviceId" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ServiceWizard /></ProtectedRoute>} />
+            <Route path="/explore-shop" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ExploreShop /></ProtectedRoute>} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/antigraviity" element={<Antigraviity />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/track-mission/:id" element={<TrackMission />} />
+            <Route path="/track-mission" element={<TrackMission />} />
+            <Route path="/job-consulting" element={<JobConsultingPage />} />
+            <Route path="/training-placement" element={<TrainingPlacementPage />} />
+            <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
+            <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
+            <Route path="/products/:id" element={<ProductRedirect />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/yet-to-launch" element={<YetToLaunch />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/rentals/pg" element={<ServicesPage />} />
+            <Route path="/rentals/villas" element={<ServicesPage />} />
+            <Route path="/rentals/hotels" element={<ServicesPage />} />
+            <Route path="/rides/bike" element={<ServicesPage />} />
+            <Route path="/rides/taxi" element={<ServicesPage />} />
+            <Route path="/rides/delivery" element={<ServicesPage />} />
+            <Route path="/rentals/*" element={<Navigate to="/services/category/stay" replace />} />
+            <Route path="/rides/*" element={<Navigate to="/services/category/bike-taxi" replace />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </main>
       
       {/* Global Branded Watermark */}
@@ -181,6 +194,8 @@ const ContentWrapper = ({ loading }) => {
         <img 
           src="/logo.svg" 
           alt="Connect Watermark" 
+          loading="lazy"
+          decoding="async"
           className="w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] object-contain opacity-[0.03] grayscale dark:invert transition-opacity duration-1000"
           onError={(e) => {
             e.target.onerror = null;

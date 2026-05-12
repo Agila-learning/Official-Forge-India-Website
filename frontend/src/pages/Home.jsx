@@ -1,24 +1,29 @@
+import React, { lazy, Suspense } from 'react';
 import MarketplaceHero from '../components/sections/MarketplaceHero';
-import MarketplaceCategories from '../components/sections/MarketplaceCategories';
-import FICRoadmap from '../components/sections/FICRoadmap';
-import About from '../components/sections/About';
-import Services from '../components/sections/Services';
-import Features from '../components/sections/Features';
-import Industries from '../components/sections/Industries';
-import Events from '../components/sections/Events';
-import Testimonials from '../components/sections/Testimonials';
-import CTA from '../components/sections/CTA';
-import Contact from '../components/sections/Contact';
-import LocationMap from '../components/sections/LocationMap';
-import RideServices from '../components/sections/RideServices';
-import RentalServices from '../components/sections/RentalServices';
 import SEOMeta from '../components/ui/SEOMeta';
-import LogoMarquee from '../components/ui/LogoMarquee';
-import PipelineProcess from '../components/sections/PipelineProcess';
-import ServiceCoverage from '../components/sections/ServiceCoverage';
-import PlacedCandidates from '../components/sections/PlacedCandidates';
 import WelcomeModal from '../components/ui/WelcomeModal';
 import GSAPReveal from '../components/ui/GSAPReveal';
+
+// Below the fold components - Lazy Loaded
+const MarketplaceCategories = lazy(() => import('../components/sections/MarketplaceCategories'));
+const FICRoadmap = lazy(() => import('../components/sections/FICRoadmap'));
+const About = lazy(() => import('../components/sections/About'));
+const Services = lazy(() => import('../components/sections/Services'));
+const Features = lazy(() => import('../components/sections/Features'));
+const Industries = lazy(() => import('../components/sections/Industries'));
+const Events = lazy(() => import('../components/sections/Events'));
+const Testimonials = lazy(() => import('../components/sections/Testimonials'));
+const CTA = lazy(() => import('../components/sections/CTA'));
+const Contact = lazy(() => import('../components/sections/Contact'));
+const LocationMap = lazy(() => import('../components/sections/LocationMap'));
+const RideServices = lazy(() => import('../components/sections/RideServices'));
+const RentalServices = lazy(() => import('../components/sections/RentalServices'));
+const LogoMarquee = lazy(() => import('../components/ui/LogoMarquee'));
+const PipelineProcess = lazy(() => import('../components/sections/PipelineProcess'));
+const ServiceCoverage = lazy(() => import('../components/sections/ServiceCoverage'));
+const PlacedCandidates = lazy(() => import('../components/sections/PlacedCandidates'));
+
+const SectionPlaceholder = () => <div className="min-h-[300px] flex items-center justify-center bg-gray-50/50 animate-pulse rounded-3xl m-4" />;
 
 const Home = () => {
   return (
@@ -33,68 +38,70 @@ const Home = () => {
         <MarketplaceHero />
         <WelcomeModal />
         
-        <GSAPReveal direction="up" delay={0.1}>
-          <MarketplaceCategories />
-        </GSAPReveal>
-
-        <FICRoadmap />
-
-        <GSAPReveal direction="right">
-          <About />
-        </GSAPReveal>
-
-        <GSAPReveal>
-          <PipelineProcess />
-        </GSAPReveal>
-
-        <GSAPReveal direction="up">
-          <Services />
-        </GSAPReveal>
-
-        <GSAPReveal direction="right">
-          <RideServices />
-        </GSAPReveal>
-
-        <GSAPReveal direction="left">
-          <RentalServices />
-        </GSAPReveal>
-
-        <LogoMarquee />
-
-        <GSAPReveal direction="left">
-          <Features />
-        </GSAPReveal>
-
-        <GSAPReveal direction="right">
-          <Industries />
-        </GSAPReveal>
-
-        <GSAPReveal>
-          <Events />
-        </GSAPReveal>
-
-        <div id="placed">
-          <GSAPReveal direction="up">
-            <PlacedCandidates />
+        <Suspense fallback={<SectionPlaceholder />}>
+          <GSAPReveal direction="up" delay={0.1}>
+            <MarketplaceCategories />
           </GSAPReveal>
-        </div>
 
-        <div id="testimonials">
+          <FICRoadmap />
+
+          <GSAPReveal direction="right">
+            <About />
+          </GSAPReveal>
+
           <GSAPReveal>
-            <Testimonials />
+            <PipelineProcess />
           </GSAPReveal>
-        </div>
 
-        <GSAPReveal>
-          <CTA />
-        </GSAPReveal>
+          <GSAPReveal direction="up">
+            <Services />
+          </GSAPReveal>
 
-        <div id="contact">
-          <Contact />
-        </div>
-        
-        <ServiceCoverage />
-        <LocationMap />
+          <GSAPReveal direction="right">
+            <RideServices />
+          </GSAPReveal>
+
+          <GSAPReveal direction="left">
+            <RentalServices />
+          </GSAPReveal>
+
+          <LogoMarquee />
+
+          <GSAPReveal direction="left">
+            <Features />
+          </GSAPReveal>
+
+          <GSAPReveal direction="right">
+            <Industries />
+          </GSAPReveal>
+
+          <GSAPReveal>
+            <Events />
+          </GSAPReveal>
+
+          <div id="placed">
+            <GSAPReveal direction="up">
+              <PlacedCandidates />
+            </GSAPReveal>
+          </div>
+
+          <div id="testimonials">
+            <GSAPReveal>
+              <Testimonials />
+            </GSAPReveal>
+          </div>
+
+          <GSAPReveal>
+            <CTA />
+          </GSAPReveal>
+
+          <div id="contact">
+            <Contact />
+          </div>
+          
+          <ServiceCoverage />
+          <LocationMap />
+        </Suspense>
       </div>
     </>
   );

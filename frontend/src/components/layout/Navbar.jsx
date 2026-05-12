@@ -186,7 +186,8 @@ const Navbar = () => {
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                 <motion.img 
                   src="/logo.svg" 
-                  alt="FIC Logo" 
+                  alt="Forge India Connect Official Logo" 
+                  decoding="async"
                   className="w-[90%] h-[90%] object-contain rounded-lg"
                   onError={(e) => {
                     e.target.onerror = null;

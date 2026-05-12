@@ -86,7 +86,13 @@ const Events = () => {
               <SwiperSlide key={event.id} className="h-auto">
                 <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col group cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:shadow-primary/10 transition-all duration-300">
                   <div className="h-56 overflow-hidden relative">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img 
+                      src={event.image} 
+                      alt={event.title} 
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
                     <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                       <span className="bg-secondary text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">

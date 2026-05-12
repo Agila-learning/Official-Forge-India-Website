@@ -64,7 +64,9 @@ const LogoMarquee = () => {
             <div key={index} className="flex items-center justify-center mx-24 md:mx-32 hover:scale-125 transition-transform duration-500 group shrink-0">
               <img 
                 src={logo.url} 
-                alt={logo.name} 
+                alt={`${logo.name} Partner Logo`} 
+                loading="lazy"
+                decoding="async"
                 className="h-24 md:h-32 w-auto object-contain drop-shadow-2xl" 
                 onError={(e) => { e.target.style.display = 'none'; }}
               />

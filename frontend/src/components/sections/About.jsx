@@ -136,7 +136,9 @@ const About = () => {
 
               <img
                 src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-                alt="Business Meeting at Forge India Connect"
+                alt="Business Strategy Meeting at Forge India Connect Office"
+                loading="lazy"
+                decoding="async"
                 className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-[2s]"
               />
 

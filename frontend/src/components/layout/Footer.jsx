@@ -83,7 +83,13 @@ const Footer = () => {
           <div className="lg:col-span-4 space-y-8">
             <Link to="/" className="inline-flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1 group-hover:rotate-12 transition-transform shadow-2xl">
-                <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain rounded-lg" />
+                <img 
+                  src="/logo.jpg" 
+                  alt="Forge India Connect Footer Logo" 
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-contain rounded-lg" 
+                />
               </div>
               <div className="flex flex-col text-left">
                 <span className="text-white font-black leading-none text-xl tracking-tighter uppercase flex flex-col">
