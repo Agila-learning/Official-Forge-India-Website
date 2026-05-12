@@ -25,11 +25,18 @@ const registerUser = async (req, res) => {
   let paymentStatus = 'Unpaid';
   let registrationFee = 0;
   let shopCode = undefined;
+  let hrCode = undefined;
 
   if (['Vendor', 'Seller', 'Service Provider', 'Rental Provider'].includes(assignedRole)) {
       const year = new Date().getFullYear();
       const random = Math.floor(10000 + Math.random() * 90000);
       shopCode = `FIC-SHOP-${year}-${random}`;
+  }
+
+  if (assignedRole === 'HR') {
+      const year = new Date().getFullYear();
+      const random = Math.floor(1000 + Math.random() * 9000);
+      hrCode = `FIC-HR-${year}-${random}`;
   }
 
   if (assignedRole === 'Candidate' && req.body.candidateType === 'Premium') {
@@ -79,6 +86,7 @@ const registerUser = async (req, res) => {
       paymentStatus,
       registrationFee,
       shopCode,
+      hrCode,
       address,
       city,
       pincode,
@@ -105,6 +113,7 @@ const registerUser = async (req, res) => {
         role: user.role,
         approvalStatus: user.approvalStatus,
         shopCode: user.shopCode,
+        hrCode: user.hrCode,
         membershipId: user.membershipId,
         token: generateToken(user._id),
       });

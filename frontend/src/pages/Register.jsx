@@ -63,6 +63,7 @@ const Register = () => {
   const [showShopCodeModal, setShowShopCodeModal] = useState(false);
   const [generatedShopCode, setGeneratedShopCode] = useState('');
   const [generatedMembershipId, setGeneratedMembershipId] = useState('');
+  const [generatedHrCode, setGeneratedHrCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -193,6 +194,9 @@ const Register = () => {
       if (data.approvalStatus === 'Pending') {
          if (data.shopCode) {
             setGeneratedShopCode(data.shopCode);
+            setShowShopCodeModal(true);
+         } else if (data.hrCode) {
+            setGeneratedHrCode(data.hrCode);
             setShowShopCodeModal(true);
          } else {
             setShowPendingApproval(true);
@@ -613,15 +617,15 @@ const Register = () => {
                   <ShoppingBag size={40} />
                </div>
                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-2">Registration Success!</h3>
-               <p className="text-slate-500 font-medium mb-8">Your account is created and pending admin verification. Here is your unique Shop Code:</p>
+               <p className="text-slate-500 font-medium mb-8">Your account is created and pending admin verification. Here is your unique identifier code:</p>
                
                <div className="p-8 bg-slate-50 dark:bg-dark-bg rounded-[2rem] mb-10 border-2 border-dashed border-primary/30 relative group overflow-hidden">
                   <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2 relative z-10">
-                    {generatedMembershipId ? 'Premium Membership ID' : 'Official Shop Identifier'}
+                    {generatedMembershipId ? 'Premium Membership ID' : generatedHrCode ? 'HR Registration Code' : 'Official Shop Identifier'}
                   </p>
                   <p className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter relative z-10">
-                    {generatedMembershipId || generatedShopCode}
+                    {generatedMembershipId || generatedHrCode || generatedShopCode}
                   </p>
                </div>
 

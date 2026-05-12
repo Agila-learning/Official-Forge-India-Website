@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -30,6 +30,14 @@ const Profile = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [cancelStep, setCancelStep] = useState(1);
   const [cancelLoading, setCancelLoading] = useState(false);
+
+  // Review Modal State
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewingItem, setReviewingItem] = useState(null); // { productId, productName }
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
   
   const userInfoStr = localStorage.getItem('userInfo');
   const [profileData, setProfileData] = useState(userInfoStr ? JSON.parse(userInfoStr) : {});
@@ -74,8 +82,8 @@ const Profile = () => {
     if (status === 'Cancelled' || status === 'Refund Processing' || status === 'Refunded') {
         return (
           <div className="flex items-center gap-2 mt-4 text-red-500 font-black uppercase text-xs tracking-widest">
-              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center text-red-500">
-                  X
+              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center text-red-500 font-black text-xs">
+                  ✕
               </div>
               {status}
           </div>
@@ -122,6 +130,46 @@ const Profile = () => {
       toast.error(err.response?.data?.message || 'Cancellation failed');
     } finally {
       setCancelLoading(false);
+    }
+  };
+
+  const handleOpenReview = (order) => {
+    const item = order.orderItems?.[0];
+    setReviewingItem({
+      productId: item?.product || null,
+      productName: item?.name || 'Service',
+      orderId: order._id
+    });
+    setReviewRating(5);
+    setReviewComment('');
+    setIsReviewModalOpen(true);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewComment.trim()) {
+      toast.error('Please write a comment before submitting.');
+      return;
+    }
+    setReviewSubmitting(true);
+    try {
+      await api.post('/reviews', {
+        product: reviewingItem.productId,
+        rating: reviewRating,
+        comment: reviewComment,
+        orderId: reviewingItem.orderId,
+        productName: reviewingItem.productName
+      });
+      toast.success('Review submitted! Thank you.');
+      setIsReviewModalOpen(false);
+      setReviewComment('');
+      setReviewRating(5);
+      // Refresh reviews list
+      const res = await api.get('/reviews/myreviews');
+      setReviews(res.data || []);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setReviewSubmitting(false);
     }
   };
 
@@ -304,7 +352,12 @@ const Profile = () => {
                            </div>
                            <div className="flex flex-wrap items-center gap-4">
                                {order.status === 'Delivered' && (
-                                   <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
+                                   <button
+                                     onClick={() => handleOpenReview(order)}
+                                     className="text-[10px] font-black uppercase tracking-widest text-yellow-500 hover:underline flex items-center gap-1"
+                                   >
+                                     <Star size={12} fill="currentColor" /> Leave Review
+                                   </button>
                                )}
                                {order.status !== 'Delivered' && order.status !== 'Completed' && order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded' && (
                                    <button 
@@ -410,7 +463,12 @@ const Profile = () => {
                            </div>
                            <div className="flex flex-wrap items-center gap-4">
                                {(order.status === 'Completed' || order.status === 'Delivered') ? (
-                                   <button onClick={() => window.location.href=`/explore-shop`} className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Leave Review</button>
+                                   <button
+                                     onClick={() => handleOpenReview(order)}
+                                     className="text-[10px] font-black uppercase tracking-widest text-yellow-500 hover:underline flex items-center gap-1"
+                                   >
+                                     <Star size={12} fill="currentColor" /> Leave Review
+                                   </button>
                                ) : (order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded') ? (
                                    <button 
                                      onClick={() => {
@@ -1048,11 +1106,88 @@ const Profile = () => {
         )}
       </AnimatePresence>
 
-      <InvoiceModal 
-        isOpen={isInvoiceOpen} 
-        onClose={() => setIsInvoiceOpen(false)} 
-        order={selectedOrder} 
+      <InvoiceModal
+        isOpen={isInvoiceOpen}
+        onClose={() => setIsInvoiceOpen(false)}
+        order={selectedOrder}
       />
+
+      {/* ── Inline Review Modal ── */}
+      <AnimatePresence>
+        {isReviewModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[3000] bg-dark-bg/90 backdrop-blur-xl flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+              className="bg-white dark:bg-dark-card w-full max-w-md rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-3xl relative"
+            >
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
+                    Rate Your <span className="text-yellow-500">Experience</span>
+                  </h3>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 truncate max-w-[240px]">{reviewingItem?.productName}</p>
+                </div>
+                <button onClick={() => setIsReviewModalOpen(false)} className="p-3 hover:bg-gray-50 dark:hover:bg-dark-bg rounded-xl transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Star Rating */}
+              <div className="mb-8">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Your Rating</p>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      onMouseEnter={() => setReviewHover(star)}
+                      onMouseLeave={() => setReviewHover(0)}
+                      className="transition-transform hover:scale-110 active:scale-95"
+                    >
+                      <Star
+                        size={36}
+                        className={`transition-colors ${
+                          star <= (reviewHover || reviewRating)
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-200 dark:text-gray-700'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs font-bold text-gray-400 mt-2">
+                  {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][reviewHover || reviewRating]}
+                </p>
+              </div>
+
+              {/* Comment */}
+              <div className="mb-8">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Your Comment</p>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your honest experience..."
+                  rows={4}
+                  className="w-full p-5 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-yellow-400/20 font-medium text-sm resize-none"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                onClick={handleSubmitReview}
+                disabled={reviewSubmitting}
+                className="w-full py-5 bg-yellow-400 text-gray-900 font-black rounded-2xl text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-yellow-400/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {reviewSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Star size={16} fill="currentColor" />}
+                {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

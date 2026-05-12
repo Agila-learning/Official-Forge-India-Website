@@ -26,6 +26,7 @@ const userSchema = mongoose.Schema(
     // Onboarding Request Metadata
     businessName: { type: String },
     shopCode: { type: String, unique: true, sparse: true },
+    hrCode: { type: String, unique: true, sparse: true },
     gstNumber: { type: String },
     profileDocuments: [{ 
       url: { type: String },
