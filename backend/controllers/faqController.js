@@ -1,4 +1,6 @@
 const FAQ = require('../models/FAQ');
+const User = require('../models/User');
+const { createNotification } = require('./notificationController');
 
 const getFAQs = async (req, res) => {
   try {
@@ -15,6 +17,20 @@ const createFAQ = async (req, res) => {
       question: req.body.question,
       answer: req.body.answer
     });
+
+    // Notify Admins
+    const io = req.app.get('io');
+    const admins = await User.find({ role: 'Admin' });
+    for (const admin of admins) {
+        await createNotification(io, {
+            user: admin._id,
+            title: 'Knowledge Base Updated',
+            message: `Strategic Update: A new FAQ entry has been added by ${req.user?.firstName || 'an administrator'}.`,
+            type: 'faq',
+            link: '/admin/faqs'
+        });
+    }
+
     res.status(201).json(faq);
   } catch (error) {
     res.status(400).json({ message: error.message });

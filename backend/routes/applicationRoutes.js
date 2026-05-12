@@ -3,6 +3,7 @@ const router = express.Router();
 const Application = require('../models/Application');
 const User = require('../models/User');
 const { protect, hr } = require('../middleware/authMiddleware');
+const { createNotification } = require('../controllers/notificationController');
 
 // @desc   Get all applications (HR/Admin view)
 // @route  GET /api/applications
@@ -78,6 +79,20 @@ router.post('/apply', async (req, res) => {
     });
 
     const saved = await application.save();
+
+    // Notify Admins
+    const io = req.app.get('io');
+    const admins = await User.find({ role: 'Admin' });
+    for (const admin of admins) {
+        await createNotification(io, {
+            user: admin._id,
+            title: 'New Job Application',
+            message: `Strategic Alert: ${fullName} has applied for the ${jobRole} position in ${domain}.`,
+            type: 'application',
+            link: '/admin/applications'
+        });
+    }
+
     res.status(201).json({ message: 'Application submitted successfully!', data: saved });
   } catch (error) {
     console.error('Job Application Error:', error);

@@ -141,7 +141,22 @@ const TrainingManager = () => {
                                     </div>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button className="p-2 text-gray-400 hover:text-primary"><Edit size={16} /></button>
-                                        <button className="p-2 text-gray-400 hover:text-red-500"><Trash2 size={16} /></button>
+                                        <button 
+                                            onClick={async () => {
+                                                if (window.confirm('Strategic Deletion: Are you sure you want to remove this course?')) {
+                                                    try {
+                                                        await api.delete(`/training/courses/${course._id}`);
+                                                        toast.success('Course decommissioned successfully.');
+                                                        fetchData();
+                                                    } catch (err) {
+                                                        toast.error('Failed to delete course');
+                                                    }
+                                                }
+                                            }}
+                                            className="p-2 text-gray-400 hover:text-red-500"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 </div>
                                 <h4 className="text-lg font-black uppercase tracking-tight mb-2">{course.title}</h4>

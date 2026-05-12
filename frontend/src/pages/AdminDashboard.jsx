@@ -369,6 +369,7 @@ const AdminDashboard = () => {
     { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
     { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
     { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
+    { id: 'candidates', icon: UserPlus, label: 'Placed Candidates' },
     { id: 'testimonials', icon: Star, label: 'Testimonials' },
     { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
     { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
@@ -1165,58 +1166,7 @@ const AdminDashboard = () => {
             </div>
         )}
 
-        {activeTab === 'faqs' && (
-            <div className="space-y-12">
-                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-2xl font-black">{editingItem.faqs ? 'Edit FAQ Entry' : 'Create New FAQ'}</h3>
-                        {editingItem.faqs && (
-                            <button onClick={() => cancelEdit('faqs')} className="text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors">
-                                Cancel Edit
-                            </button>
-                        )}
-                    </div>
-                    <form key={editingItem.faqs ? editingItem.faqs._id : 'new'} onSubmit={(e) => handleSubmit(e, 'faqs')} className="grid grid-cols-1 gap-8">
-                        <div>
-                            <label className="block text-sm font-bold mb-2 uppercase">Question</label>
-                            <input name="question" defaultValue={editingItem.faqs?.question || ''} required type="text" placeholder="e.g., What services does Forge India Connect provide?" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold mb-2 uppercase">Answer</label>
-                            <textarea name="answer" defaultValue={editingItem.faqs?.answer || ''} required rows="5" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none leading-relaxed" placeholder="Detailed answer..."></textarea>
-                        </div>
-                        <button type="submit" className="py-5 bg-primary text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all">
-                            {editingItem.faqs ? 'Save FAQ Modifications' : 'Publish FAQ'}
-                        </button>
-                    </form>
-                </div>
 
-                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
-                    <h3 className="text-2xl font-black mb-8">Current FAQs</h3>
-                    <div className="space-y-4">
-                        {data.faqs.map(faq => (
-                            <div key={faq._id} className="p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h4 className="font-black text-lg group-hover:text-primary transition-colors flex-1 pr-4 leading-tight">{faq.question}</h4>
-                                    <div className="flex gap-2 shrink-0">
-                                        <button onClick={() => {
-                                            setEditingItem(prev => ({...prev, faqs: faq}));
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Edit">
-                                            <Edit size={18} />
-                                        </button>
-                                        <button onClick={() => handleDelete('faqs', faq._id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Delete">
-                                            <AlertCircle size={18} />
-                                        </button>
-                                    </div>
-                                </div>
-                                <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{faq.answer}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        )}
 
         {activeTab === 'candidates' && (
             <div className="space-y-12">

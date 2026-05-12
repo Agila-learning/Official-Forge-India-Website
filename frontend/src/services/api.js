@@ -4,8 +4,7 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Socket.io configuration
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 
-  (window.location.hostname === 'localhost' ? 'http://localhost:5001' : window.location.origin);
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
 export const SOCKET_PATH = '/api/fic-socket/';
 
