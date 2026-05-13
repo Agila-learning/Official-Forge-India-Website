@@ -3068,6 +3068,7 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </div>
+        )}
         {activeTab === 'settlements' && (
             <div className="space-y-10">
                 <div className="flex justify-between items-end">
