@@ -40,6 +40,7 @@ const jobConsultingRoutes = require('./routes/jobConsultingRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
 const rideRoutes = require('./routes/rideRoutes');
+const settlementRoutes = require('./routes/settlementRoutes');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -175,6 +176,7 @@ app.use('/api/job-consulting', jobConsultingRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/rides', rideRoutes);
+app.use('/api/settlements', settlementRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();

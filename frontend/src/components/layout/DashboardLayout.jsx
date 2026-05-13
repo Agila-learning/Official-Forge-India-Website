@@ -132,25 +132,35 @@ const DashboardLayout = ({
                     { id: 'media', icon: Image, label: 'Media Manager' },
                     { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
                     { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
+                    { id: 'settlements', icon: CreditCard, label: 'Financial Settlements' },
                     { id: 'messages', icon: Send, label: 'Messages' },
                     { id: 'profile', icon: User, label: 'My Profile' }
                 ].filter(tab => !isSubAdmin || !subAdminRestricted.includes(tab.id));
 
             case 'Vendor':
             case 'Seller':
+            case 'Stay Provider':
+            case 'Ride Provider':
             case 'Service Provider':
+                const isStay = role === 'Stay Provider';
+                const isRide = role === 'Ride Provider';
                 return [
-                    { id: 'overview',      icon: LayoutDashboard, label: 'Overview' },
-                    { id: 'orders',        icon: ShoppingBag, label: 'Orders & Bookings' },
-                    { id: 'inventory',     icon: Package, label: 'Service Listings' },
-                    { id: 'rentals',       icon: Building2, label: 'Managed Properties' },
-                    { id: 'rides',         icon: Truck, label: 'Ride Operations' },
-                    { id: 'customers',     icon: Users, label: 'Customers' },
-                    { id: 'subscription',  icon: Shield, label: 'Subscription & Billing' },
-                    { id: 'alerts',        icon: Bell, label: 'Alerts' },
-                    { id: 'insights',      icon: Target, label: 'Reports & Insights' },
-                    { id: 'tickets',       icon: LifeBuoy, label: 'Support' },
-                    { id: 'profile',       icon: User, label: 'Profile & Settings' },
+                    { id: 'overview',      icon: LayoutDashboard, label: 'Dashboard' },
+                    ...(isStay ? [
+                        { id: 'pg',            icon: Building2, label: 'PG / Hostels' },
+                        { id: 'hotels',        icon: Building2, label: 'Hotels' },
+                    ] : []),
+                    ...(isRide ? [
+                        { id: 'car',           icon: Truck, label: 'Car / Taxi' },
+                        { id: 'bike',          icon: Truck, label: 'Bike Rides' },
+                    ] : []),
+                    { id: 'orders',        icon: ShoppingBag, label: 'Bookings' },
+                    { id: 'inventory',     icon: Package, label: 'Inventory' },
+                    { id: 'availability',  icon: Calendar, label: 'Availability' },
+                    { id: 'pricing',       icon: CreditCard, label: 'Pricing' },
+                    { id: 'reviews',       icon: Star, label: 'Reviews' },
+                    { id: 'payouts',       icon: CreditCard, label: 'Payouts' },
+                    { id: 'profile',       icon: User, label: 'Profile' },
                 ];
 
             case 'HR':
@@ -214,33 +224,33 @@ const DashboardLayout = ({
     const tabs = getSidebarTabs();
 
     return (
-        <div className="min-h-screen bg-white dark:bg-dark-bg flex flex-col md:flex-row font-inter antialiased">
+        <div className="min-h-screen bg-[#0A0B0D] text-white flex flex-col md:flex-row font-inter antialiased overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-secondary/10 rounded-full blur-[120px]"></div>
+            </div>
     
             
             {/* Mobile Header */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-white/90 dark:bg-dark-card/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-6 z-[200]">
+            <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-[#0F1115]/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 z-[200]">
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-white dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-105 transition-transform p-1">
+                    <div className="w-10 h-10 bg-white border border-white/10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-105 transition-transform p-1">
                         <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{role} Hub</span>
-                        <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-white">FIC <span className="text-yellow-500">CON</span></span>
+                        <span className="text-sm font-black uppercase tracking-tighter text-white">FIC <span className="text-yellow-500">CON</span></span>
                     </div>
                 </Link>
                 <div className="flex items-center gap-2">
-                    {role === 'Candidate' && (
-                        <Link to="/cart" className="w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center relative">
-                            <ShoppingBag size={20} />
-                        </Link>
-                    )}
                     <button 
                         onClick={() => { setIsNotificationOpen(!isNotificationOpen); setIsSidebarOpen(false); }}
-                        className="w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center relative"
+                        className="w-10 h-10 bg-white/5 text-gray-400 rounded-xl flex items-center justify-center relative border border-white/5"
                     >
                         <Bell size={20} />
                         {notifications.filter(n => !n.isRead).length > 0 && (
-                            <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-dark-card"></span>
+                            <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full border-2 border-[#0F1115]"></span>
                         )}
                     </button>
                     <button onClick={() => setIsSidebarOpen(true)} className="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center shadow-xl shadow-primary/20 ml-1">
@@ -250,31 +260,31 @@ const DashboardLayout = ({
             </div>
 
             {/* Desktop Sidebar */}
-            <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-80'} fixed md:sticky top-0 left-0 bg-white dark:bg-dark-card border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
+            <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-72'} fixed md:sticky top-0 left-0 bg-[#0F1115] border-r border-white/5 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
                 <div className="p-8 mb-4 relative">
                     <button 
                         onClick={() => setIsSidebarOpen(false)}
-                        className="md:hidden absolute top-8 right-6 w-10 h-10 bg-gray-50 dark:bg-dark-bg text-gray-400 rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800"
+                        className="md:hidden absolute top-8 right-6 w-10 h-10 bg-white/5 text-gray-400 rounded-xl flex items-center justify-center border border-white/5"
                     >
                         <X size={20} />
                     </button>
                     <Link to="/" className="flex items-center gap-4 group">
-                        <div className="p-1 bg-white dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl shadow-lg shrink-0 w-12 h-12 overflow-hidden group-hover:scale-105 transition-transform">
+                        <div className="p-1 bg-white border border-white/10 rounded-2xl shadow-lg shrink-0 w-12 h-12 overflow-hidden group-hover:scale-105 transition-transform">
                             <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
                         </div>
                         {!isCollapsed && (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <h2 className="text-xl font-black uppercase tracking-tighter leading-none text-gray-900 dark:text-white flex flex-col">
-                                    <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
-                                    <span className="text-yellow-500 mt-1">CONNECT</span>
+                                <h2 className="text-xl font-black uppercase tracking-tighter leading-none text-white flex flex-col">
+                                    <span className="text-blue-400">FORGE INDIA</span>
+                                    <span className="text-yellow-500 mt-1 text-sm tracking-[0.2em]">CONNECT</span>
                                 </h2>
-                                <p className="text-[8px] font-black uppercase tracking-[0.3em] text-gray-400 mt-2">{role} CONSOLE</p>
+                                <p className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60 mt-2">{role} PARTNER</p>
                             </motion.div>
                         )}
                     </Link>
                 </div>
                 
-                <nav className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+                <nav className="flex-1 space-y-1 overflow-y-auto px-4 custom-scrollbar">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
@@ -286,29 +296,29 @@ const DashboardLayout = ({
                                 }
                                 setIsSidebarOpen(false); 
                             }}
-                            className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'} py-4 rounded-2xl transition-all font-bold text-sm ${activeTab === tab.id ? theme.active : `text-gray-500 ${theme.hover}`}`}
+                            className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-4'} py-3.5 rounded-xl transition-all font-bold text-sm group ${activeTab === tab.id ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
                             title={isCollapsed ? tab.label : ''}
                         >
-                            <tab.icon className={isCollapsed ? '' : 'mr-4'} size={20} />
+                            <tab.icon className={`${isCollapsed ? '' : 'mr-4'} ${activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-primary'} transition-colors`} size={20} />
                             {!isCollapsed && tab.label}
                         </button>
                     ))}
                 </nav>
 
-                <div className="pt-6 border-t border-gray-100 dark:border-gray-800 space-y-2 px-4 pb-6">
+                <div className="pt-6 border-t border-white/5 space-y-2 px-4 pb-6">
                     <Link 
                         to="/"
-                        className={`w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-500 hover:text-primary rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
+                        className={`w-full py-4 bg-white/5 text-gray-400 hover:text-primary rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
                     >
                         <Zap size={isCollapsed ? 20 : 18} className={isCollapsed ? '' : 'mr-3'} />
-                        {!isCollapsed && 'Visit Landing'}
+                        {!isCollapsed && 'Landing Hub'}
                     </Link>
                     <button 
                         onClick={handleLogout} 
-                        className={`w-full py-4 bg-red-50 dark:bg-red-900/10 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
+                        className={`w-full py-4 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}
                     >
                         <LogOut size={isCollapsed ? 20 : 18} className={isCollapsed ? '' : 'mr-3'} />
-                        {!isCollapsed && 'Logout Signal'}
+                        {!isCollapsed && 'Secure Exit'}
                     </button>
                 </div>
             </aside>

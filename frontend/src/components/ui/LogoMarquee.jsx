@@ -31,49 +31,56 @@ const LogoMarquee = () => {
     const marquee = marqueeRef.current;
     if (!marquee) return;
 
-    // Faster and smoother marquee
     const totalWidth = marquee.scrollWidth;
     
     gsap.set(marquee, { x: 0 });
     gsap.to(marquee, {
       x: -totalWidth / 2,
-      duration: 25, // Slightly faster
+      duration: 35,
       ease: 'none',
       repeat: -1,
     });
   }, [logos]);
 
   return (
-    <div className="py-12 bg-white dark:bg-dark-bg overflow-hidden border-y border-gray-100 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 mb-10 text-center">
-        <h3 className="text-xs font-black uppercase tracking-[0.8em] text-primary/60 mb-2">Strategic Partners</h3>
-        <h2 className="text-3xl font-black uppercase tracking-tighter">TRUSTED BY GLOBAL <span className="text-primary italic">GIANTS</span></h2>
-      </div>
-      
+    <div className="py-20 bg-dark-bg overflow-hidden relative border-y border-white/5">
       {/* Background Cinematic Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="bg-circle absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full"></div>
-        <div className="bg-circle absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-primary/10 blur-[150px] rounded-full"></div>
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:40px_40px]"></div>
+        <div className="bg-circle absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-primary/5 blur-[120px] rounded-full animate-mesh"></div>
+        <div className="bg-circle absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] bg-secondary/5 blur-[120px] rounded-full animate-mesh"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 mb-16 text-center relative z-10">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-white/30 mb-4">Strategic Global Network</h3>
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white">
+          TRUSTED BY <span className="text-primary italic">ENTERPRISE LEADERS</span>
+        </h2>
       </div>
       
-      <div className="relative w-full overflow-hidden flex hover:opacity-100 transition-all duration-700">
-        <div ref={marqueeRef} className="flex whitespace-nowrap items-center">
-          {/* Double the array for seamless infinity loop */}
+      <div className="relative w-full overflow-hidden flex mask-horizontal">
+        <div ref={marqueeRef} className="flex whitespace-nowrap items-center py-4">
           {[...logos, ...logos].map((logo, index) => (
-            <div key={index} className="flex items-center justify-center mx-24 md:mx-32 hover:scale-125 transition-transform duration-500 group shrink-0">
-              <img 
-                src={logo.url} 
-                alt={`${logo.name} Partner Logo`} 
-                loading="lazy"
-                decoding="async"
-                className="h-24 md:h-32 w-auto object-contain drop-shadow-2xl" 
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
+            <div key={index} className="flex items-center justify-center mx-16 md:mx-20 group shrink-0">
+              <div className="glass-card p-8 md:p-12 hover:border-primary/40 transition-all duration-500 hover:scale-110">
+                <img 
+                  src={logo.url} 
+                  alt={`${logo.name} Partner`} 
+                  loading="lazy"
+                  className="h-12 md:h-16 w-auto object-contain grayscale opacity-30 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" 
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .mask-horizontal {
+          mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+          -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+        }
+      `}} />
     </div>
   );
 };

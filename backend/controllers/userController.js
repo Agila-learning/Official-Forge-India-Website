@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
+const { createContact, createFundAccount } = require('../utils/razorpay');
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
   key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret'
@@ -284,5 +286,57 @@ const verifyMembershipVaultPayment = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault, verifyMembershipVaultPayment };
+const updateBankDetails = async (req, res) => {
+  const { accountNumber, ifscCode, bankName, holderName, panNumber } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.bankDetails = { accountNumber, ifscCode, bankName, holderName };
+    if (panNumber) user.panNumber = panNumber;
+    user.kycStatus = 'Pending'; // Mark as pending for admin review or auto-verify
+
+    // 1. Create/Update Razorpay Contact
+    if (!user.razorpayContactId) {
+        try {
+            const contact = await createContact(user);
+            user.razorpayContactId = contact.id;
+        } catch (err) {
+            console.error('Contact Creation failed, proceeding anyway:', err.message);
+        }
+    }
+
+    // 2. Create/Update Razorpay Fund Account
+    if (user.razorpayContactId) {
+        try {
+            const fundAccount = await createFundAccount(user.razorpayContactId, user.bankDetails);
+            user.razorpayFundAccountId = fundAccount.id;
+            user.kycStatus = 'Verified'; // Auto-verify if fund account created successfully
+        } catch (err) {
+            console.error('Fund Account Creation failed:', err.message);
+        }
+    }
+
+    const updatedUser = await user.save();
+    res.json({ message: 'Bank details synchronized successfully', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { 
+  getUsers, 
+  updateUserApproval, 
+  getUserProfile, 
+  toggleFavorite, 
+  getUserFavorites, 
+  updateUserProfile, 
+  deleteUser, 
+  subscribeNewsletter, 
+  createSubAdmin, 
+  purchaseMembershipVault, 
+  verifyMembershipVaultPayment,
+  updateBankDetails
+};
 

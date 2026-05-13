@@ -5,7 +5,7 @@ import {
     MessageSquare, Star, Link as LinkIcon, MapPin, Image, 
     MessageCircle as ReviewIcon, LogOut, ShieldCheck, Mail, Phone, 
     Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, Upload, UserPlus, ClipboardList, XCircle, CheckCircle2,
-    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck
+    Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck, ChevronRight, Globe, Target, ArrowRight
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 
 const AdminDashboard = () => {
-  const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [] });
+  const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [] });
   const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
   const [locationRequests, setLocationRequests] = useState([]);
   const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
@@ -137,7 +137,8 @@ const AdminDashboard = () => {
                 api.get('/location-requests').catch(() => ({ data: [] })),
                 api.get('/tickets').catch(() => ({ data: [] })),
                 api.get('/inquiries').catch(() => ({ data: [] })),
-                api.get('/contacts').catch(() => ({ data: [] }))
+                api.get('/contacts').catch(() => ({ data: [] })),
+                api.get('/settlements/pending').catch(() => ({ data: [] }))
             ]);
             
             setData(prev => ({ 
@@ -152,7 +153,8 @@ const AdminDashboard = () => {
                 testimonials: testimonialsRes.data || [],
                 tickets: ticketsRes.data || (Array.isArray(ticketsRes) ? ticketsRes : []),
                 inquiries: inquiriesRes.data || [],
-                contacts: contactsRes.data || []
+                contacts: contactsRes.data || [],
+                settlements: settlementsRes?.data || []
             }));
             setReviews(reviewsRes.data || []);
             setOrders(ordersRes.data || []);
@@ -353,6 +355,20 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleApprovePayout = async (settlementId) => {
+    if (!window.confirm('Strategically authorize this payout to vendor?')) return;
+    try {
+      await api.post(`/settlements/approve/${settlementId}`);
+      toast.success('Payout triggered successfully via Razorpay');
+      setData(prev => ({
+          ...prev,
+          settlements: prev.settlements.map(s => s._id === settlementId ? { ...s, status: 'Settled' } : s)
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Payout failure');
+    }
+  };
+
   const subAdminRestrictedTabs = ['locations', 'users'];
   
   const sidebarTabs = [
@@ -377,6 +393,7 @@ const AdminDashboard = () => {
     { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
     { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
     { id: 'contacts', icon: Mail, label: 'Contact Queries' },
+    { id: 'settlements', icon: CreditCard, label: 'Marketplace Treasury' },
     { id: 'messages', icon: Send, label: 'Messages' },
     { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
     { id: 'profile', icon: Users, label: 'My Profile' }
@@ -1284,6 +1301,8 @@ const AdminDashboard = () => {
                                 <option value="Customer">User / Customer</option>
                                 <option value="Vendor">Vendor / Seller</option>
                                 <option value="HR">HR Partner</option>
+                                <option value="Stay Provider">Stay Provider (Hotels/PG)</option>
+                                <option value="Ride Provider">Ride Provider (Bike/Taxi)</option>
                                 <option value="Delivery Partner">Logistics Support</option>
                                 <option value="Sub-Admin">Sub Admin</option>
                                 <option value="Division Admin">Division Admin</option>
@@ -3047,6 +3066,108 @@ const AdminDashboard = () => {
                             <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No direct queries logged</p>
                         </div>
                     )}
+                </div>
+            </div>
+        {activeTab === 'settlements' && (
+            <div className="space-y-10">
+                <div className="flex justify-between items-end">
+                    <div>
+                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-2">Central Bank</p>
+                        <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Marketplace <span className="text-primary">Treasury</span></h2>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="glass-card px-8 py-4 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-4">
+                            <TrendingUp className="text-primary" size={24} />
+                            <div>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">In Escrow</p>
+                                <p className="text-2xl font-black">₹{data.settlements?.reduce((acc, s) => acc + (s.status === 'Pending' ? s.amount : 0), 0).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden">
+                    <div className="flex justify-between items-center mb-10">
+                        <h3 className="text-xl font-black uppercase tracking-tight">Pending <span className="text-primary italic">Payouts</span></h3>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 text-[10px] font-black uppercase text-gray-400 tracking-widest italic">
+                            Authorization Required
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="border-b border-gray-50 dark:border-gray-800 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    <th className="pb-6">Vendor Identity</th>
+                                    <th className="pb-6">Order Reference</th>
+                                    <th className="pb-6 text-right">Revenue</th>
+                                    <th className="pb-6 text-right text-red-400">Commission</th>
+                                    <th className="pb-6 text-right text-green-500">Net Settlement</th>
+                                    <th className="pb-6 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                {data.settlements?.map(s => (
+                                    <tr key={s._id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+                                        <td className="py-6">
+                                            <p className="font-black text-gray-900 dark:text-white uppercase text-xs">{s.vendor?.businessName || `${s.vendor?.firstName} ${s.vendor?.lastName}`}</p>
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">ID: {s.vendor?._id?.slice(-8).toUpperCase()}</p>
+                                        </td>
+                                        <td className="py-6">
+                                            <p className="font-bold text-gray-500 uppercase text-xs">#{s.order?._id?.slice(-6).toUpperCase()}</p>
+                                            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">{new Date(s.createdAt).toLocaleDateString()}</p>
+                                        </td>
+                                        <td className="py-6 text-right font-bold text-gray-400">₹{s.totalRevenue?.toLocaleString()}</td>
+                                        <td className="py-6 text-right font-bold text-red-400">-₹{s.commission?.toLocaleString()}</td>
+                                        <td className="py-6 text-right">
+                                            <p className="text-lg font-black text-green-500 leading-none">₹{s.amount?.toLocaleString()}</p>
+                                        </td>
+                                        <td className="py-6 text-center">
+                                            {s.status === 'Pending' ? (
+                                                <button 
+                                                    onClick={() => handleApprovePayout(s._id)}
+                                                    className="px-6 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                                                >
+                                                    Authorize Payout
+                                                </button>
+                                            ) : (
+                                                <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${s.status === 'Settled' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                                    {s.status}
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {(data.settlements?.length === 0) && (
+                            <div className="py-24 text-center">
+                                <div className="w-20 h-20 bg-gray-50 dark:bg-dark-bg rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-gray-200">
+                                    <CreditCard size={32} />
+                                </div>
+                                <p className="text-xs font-black text-gray-400 uppercase tracking-[0.3em] italic">No pending settlements in current cycle</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 bg-indigo-500/5">
+                        <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2"><Target size={16} /> Compliance Notes</h4>
+                        <ul className="space-y-3">
+                            {['Authorization triggers immediate IMPS/NEFT transfer via Razorpay X.', 'Payouts are irreversible once triggered.', 'Commission (10%) is automatically retained in platform account.', 'Taxes and gateway fees are pre-deducted from settlement amount.'].map((note, idx) => (
+                                <li key={idx} className="flex gap-3 text-xs text-gray-500 font-bold italic">
+                                    <span className="text-indigo-400">•</span> {note}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 bg-green-500/5">
+                        <h4 className="text-[10px] font-black text-green-500 uppercase tracking-[0.2em] mb-6 flex items-center gap-2"><Zap size={16} /> Financial Health</h4>
+                        <p className="text-sm font-bold text-gray-500 italic leading-relaxed">
+                            Marketplace treasury is currently optimized. All platform commissions are accurately tracked and escrow funds are synchronized with Razorpay balances.
+                        </p>
+                    </div>
                 </div>
             </div>
         )}

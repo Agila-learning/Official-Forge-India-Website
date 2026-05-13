@@ -349,142 +349,165 @@ const CandidateDashboard = () => {
         <div className="space-y-12">
             <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
-                <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 md:space-y-12">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+                    
+                    {/* --- 🚁 MISSION CONTROL HEADER --- */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-tighter uppercase italic leading-none font-poppins">
-                            STRATEGIC <span className="text-primary italic font-black">PROGRESS</span>
+                            <motion.div 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary font-black text-[10px] uppercase tracking-[0.3em] mb-6 border border-primary/20 shadow-sm"
+                            >
+                              <Zap size={14} className="animate-pulse" /> Strategic Intelligence Hub
+                            </motion.div>
+                            <h1 className="text-5xl md:text-8xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-[0.85] italic font-poppins">
+                              CAREER <br/><span className="text-primary italic">DEPLOYMENT.</span>
                             </h1>
-                            <p className="text-gray-500 font-black uppercase text-[10px] tracking-[0.4em] ml-1">Job Seeker Command Center</p>
                         </div>
-                        <div className="flex items-center gap-3 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 px-6 py-3 rounded-2xl shadow-sm">
-                            <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">System Live & Connected</span>
+                        <div className="flex flex-col items-end gap-4">
+                            <div className="flex items-center gap-3 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 px-6 py-4 rounded-[2rem] shadow-xl">
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pipeline Status: Operational</span>
+                            </div>
                         </div>
                     </div>
 
                     <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
 
-                    {/* MEMBERSHIP VAULT BALANCE CARD */}
-                    {vault && vault.balance > 0 ? (
-                      <div className="p-6 md:p-8 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden mb-4">
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
-                        <div className="relative z-10 flex flex-col md:flex-row justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Wallet size={18} className="text-white/80" />
-                              <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.3em]">Membership Vault</p>
+                    {/* --- 💎 PREMIUM ECOSYSTEM FEED --- */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      <div className="lg:col-span-2 space-y-8">
+                        {/* Membership Vault Card (Revamped) */}
+                        {vault && vault.balance > 0 ? (
+                          <div className="p-10 bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-[3.5rem] text-white shadow-3xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 rounded-full blur-[100px] -mr-40 -mt-40 transition-transform group-hover:scale-125" />
+                            <div className="relative z-10">
+                              <div className="flex items-center justify-between mb-10">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 backdrop-blur-md">
+                                    <Wallet size={28} className="text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50 mb-1">Strategic Reserve</p>
+                                    <h3 className="text-4xl font-black tracking-tighter italic">₹{vault.balance?.toLocaleString()}</h3>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <span className="px-4 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-full shadow-xl shadow-primary/20 border border-white/10">
+                                    {vault.planTier} Elite
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="p-6 bg-white/5 rounded-3xl border border-white/5 backdrop-blur-sm">
+                                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-2">Monthly Optimization</p>
+                                  <p className="text-xl font-black text-green-400">+₹{vault.savingsThisMonth?.toLocaleString() || 0}</p>
+                                </div>
+                                <div className="p-6 bg-white/5 rounded-3xl border border-white/5 backdrop-blur-sm">
+                                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-2">Operational Window</p>
+                                  <p className="text-xl font-black text-white/80">{vault.cycleEndDate ? new Date(vault.cycleEndDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '∞'}</p>
+                                </div>
+                              </div>
                             </div>
-                            <h3 className="text-3xl font-black mb-1">₹{vault.balance?.toLocaleString()}</h3>
-                            <p className="text-white/60 text-xs font-bold">Available Balance · {vault.planTier}</p>
                           </div>
-                          <div className="flex flex-col items-start md:items-end gap-2">
-                            <div className="px-4 py-2 bg-white/20 rounded-2xl border border-white/20">
-                              <p className="text-[9px] font-black uppercase tracking-widest text-white/70 mb-0.5">Saved This Month</p>
-                              <p className="text-xl font-black text-yellow-300">₹{vault.savingsThisMonth?.toLocaleString() || 0}</p>
+                        ) : (
+                          <motion.div
+                            whileHover={{ y: -5 }}
+                            onClick={() => setShowMembershipPopup(true)}
+                            className="cursor-pointer p-10 bg-white dark:bg-dark-card border border-dashed border-primary/30 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-8 group transition-all"
+                          >
+                            <div className="flex items-center gap-8">
+                              <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center shrink-0 border border-primary/10">
+                                <Sparkles size={40} className="text-primary" />
+                              </div>
+                              <div className="text-left">
+                                <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight italic">Initialize <span className="text-primary italic">Membership</span> Vault</h4>
+                                <p className="text-sm text-gray-400 font-medium mt-2">Unlock unlimited career protocols and premium ecosystem credits.</p>
+                              </div>
                             </div>
-                            {vault.cycleEndDate && (
-                              <p className="text-[9px] font-black text-white/50 uppercase tracking-widest">Cycle ends {new Date(vault.cycleEndDate).toLocaleDateString()}</p>
+                            <button className="px-10 py-5 bg-primary text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-primary/20 group-hover:scale-105 transition-all">Activate Now</button>
+                          </motion.div>
+                        )}
+
+                        {/* Recent Activity / Applications Feed */}
+                        <div className="bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 p-10 shadow-xl overflow-hidden">
+                          <div className="flex items-center justify-between mb-10">
+                            <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tight italic">Deployment <span className="text-primary">Pipeline</span></h3>
+                            <button onClick={() => setActiveTab('applications')} className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">View Full History <ChevronRight size={14} /></button>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            {myApplications.length > 0 ? myApplications.slice(0, 3).map(app => {
+                                const cfg = statusConfig[app.status] || statusConfig.Pending;
+                                const Icon = cfg.icon;
+                                return (
+                                <div key={app._id} className="flex items-center justify-between p-6 rounded-3xl bg-gray-50/50 dark:bg-dark-bg/50 border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all group">
+                                    <div className="flex items-center gap-6">
+                                      <div className="w-12 h-12 bg-white dark:bg-dark-card rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform"><Briefcase size={22} className="text-primary" /></div>
+                                      <div className="text-left">
+                                          <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">{app.jobRole}</p>
+                                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 italic">Logged {new Date(app.createdAt).toLocaleDateString()}</p>
+                                      </div>
+                                    </div>
+                                    <span className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border ${cfg.color}`}>
+                                      <Icon size={12} /> {app.status}
+                                    </span>
+                                </div>
+                                );
+                            }) : (
+                              <div className="py-12 text-center">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.3em]">No active deployments detected</p>
+                              </div>
                             )}
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      <div
-                        onClick={() => setShowMembershipPopup(true)}
-                        className="cursor-pointer p-5 md:p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-dashed border-indigo-200 dark:border-indigo-800/40 rounded-[2rem] flex items-center justify-between gap-4 hover:border-indigo-400 transition-all group mb-4"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center shrink-0">
-                            <Wallet size={22} className="text-indigo-600" />
-                          </div>
-                          <div>
-                            <p className="font-black text-indigo-700 dark:text-indigo-300 text-sm">Unlock Your Membership Vault</p>
-                            <p className="text-[10px] font-bold text-indigo-400">Users saved up to ₹1,00,000 on services this year</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/20 group-hover:bg-indigo-700 transition-all shrink-0">
-                          <Sparkles size={12} /> Get Vault
-                        </div>
-                      </div>
-                    )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div className="p-6 md:p-8 bg-gradient-to-br from-gray-900 to-slate-800 rounded-[2rem] md:rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
-                            <div className="relative z-10">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2">Marketplace Integration</p>
-                                <h4 className="text-xl md:text-2xl font-black italic tracking-tighter mb-4 uppercase">Direct <span className="text-primary italic">Shopping</span> Access</h4>
-                                <p className="text-xs text-gray-400 font-bold mb-8 leading-relaxed">
-                                    As a verified Candidate, you have priority access to our curated service catalog. Browse now for professional kits and tools.
-                                </p>
+                      <div className="space-y-8">
+                        {/* Marketplace Quick Access */}
+                        <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-125 transition-transform" />
+                            <div className="relative z-10 text-left">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary mb-4">Priority Access</p>
+                                <h4 className="text-2xl font-black italic tracking-tighter mb-6 uppercase leading-none">Strategic <br/><span className="text-primary italic">Shopping</span></h4>
                                 <button 
                                     onClick={() => navigate('/explore-shop')}
-                                    className="bg-primary hover:bg-blue-600 text-white font-black py-3 px-6 md:py-4 md:px-8 rounded-2xl text-[10px] uppercase tracking-widest transition-all flex items-center gap-3 shadow-xl shadow-primary/20"
+                                    className="w-full bg-white text-black font-black py-5 rounded-2xl text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 shadow-xl hover:-translate-y-1"
                                 >
-                                    Shop Now <ShoppingCart size={16} />
+                                    Open Store <ShoppingCart size={16} />
                                 </button>
                             </div>
-                            <ShoppingCart size={120} className="absolute -bottom-10 -right-10 text-white/5 group-hover:scale-110 transition-transform" />
                         </div>
 
-                        <div className="p-6 md:p-8 bg-white dark:bg-dark-card rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-center">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Identity Hub</p>
-                            <h4 className="text-lg md:text-xl font-black text-gray-900 dark:text-white mb-4 uppercase italic tracking-tighter">Profile <span className="text-primary italic">Synchronization</span></h4>
-                            <p className="text-xs text-gray-500 font-medium mb-6">Ensure your contact details and master resume are up-to-date for automated job matching.</p>
-                            <button onClick={() => setActiveTab('profile')} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
-                                Verify Identity Assets <ChevronRight size={14} />
-                            </button>
-                        </div>
-                    </div>
-
-                    {!resumeUrl ? (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-[2rem] p-6 flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-4">
-                        <AlertCircle className="text-yellow-500" size={24} />
-                        <div>
-                            <p className="font-black text-yellow-800 dark:text-yellow-200">No resume uploaded</p>
-                            <p className="text-sm text-yellow-600 dark:text-yellow-400">Upload your resume to apply for jobs with one click</p>
-                        </div>
-                        </div>
-                        <button onClick={() => setActiveTab('profile')} className="px-6 py-3 bg-yellow-500 text-white rounded-2xl font-black text-sm hover:bg-yellow-600 transition-colors">
-                        Upload Now
-                        </button>
-                    </div>
-                    ) : (
-                    <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-[2rem] p-6 flex items-center gap-4 mb-8">
-                        <CheckCircle2 className="text-green-500" size={24} />
-                        <div>
-                        <p className="font-black text-green-700 dark:text-green-300">Resume Ready</p>
-                        <p className="text-sm text-green-600 dark:text-green-400">Your resume will be auto-attached when you apply</p>
-                        </div>
-                    </div>
-                    )}
-
-                    {myApplications.length > 0 && (
-                    <div className="bg-white dark:bg-dark-card rounded-[2rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
-                        <h3 className="font-black text-lg mb-6 text-gray-900 dark:text-white">Recent Applications</h3>
-                        <div className="space-y-4">
-                        {myApplications.slice(0, 3).map(app => {
-                            const cfg = statusConfig[app.status] || statusConfig.Pending;
-                            const Icon = cfg.icon;
-                            return (
-                            <div key={app._id} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800">
-                                <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center"><Briefcase size={18} className="text-primary" /></div>
-                                <div>
-                                    <p className="font-black text-sm text-gray-900 dark:text-white">{app.jobRole}</p>
-                                    <p className="text-xs text-gray-400">{new Date(app.createdAt).toLocaleDateString()}</p>
+                        {/* Resume Sync Status */}
+                        <div className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-center text-left">
+                            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4">Identity Synchronization</p>
+                            {!resumeUrl ? (
+                              <div className="space-y-6">
+                                <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500">
+                                  <AlertCircle size={24} />
                                 </div>
+                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase italic tracking-tighter leading-tight">Resume <span className="text-red-500 italic">Offline.</span></h4>
+                                <button onClick={() => setActiveTab('profile')} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
+                                    Upload Assets <ChevronRight size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="space-y-6">
+                                <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 shadow-lg shadow-green-500/10">
+                                  <CheckCircle2 size={24} />
                                 </div>
-                                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${cfg.color}`}>
-                                <Icon size={10} /> {app.status}
-                                </span>
-                            </div>
-                            );
-                        })}
+                                <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase italic tracking-tighter leading-tight">Assets <span className="text-green-500 italic">Verified.</span></h4>
+                                <button onClick={() => setActiveTab('profile')} className="text-primary font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:translate-x-2 transition-transform">
+                                    Manage Records <ChevronRight size={14} />
+                                </button>
+                              </div>
+                            )}
                         </div>
+                      </div>
                     </div>
-                    )}
                 </motion.div>
                 )}
 

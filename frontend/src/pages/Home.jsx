@@ -1,10 +1,12 @@
 import React, { lazy, Suspense } from 'react';
-import MarketplaceHero from '../components/sections/MarketplaceHero';
+import Hero from '../components/sections/Hero';
 import SEOMeta from '../components/ui/SEOMeta';
 import WelcomeModal from '../components/ui/WelcomeModal';
 import GSAPReveal from '../components/ui/GSAPReveal';
 
 // Below the fold components - Lazy Loaded
+const MetricsSection = lazy(() => import('../components/sections/MetricsSection'));
+const ResumeAnalyzer = lazy(() => import('../components/ui/ResumeAnalyzer'));
 const MarketplaceCategories = lazy(() => import('../components/sections/MarketplaceCategories'));
 const DeliveryBanner = lazy(() => import('../components/sections/DeliveryBanner'));
 const FICRoadmap = lazy(() => import('../components/sections/FICRoadmap'));
@@ -24,27 +26,40 @@ const PipelineProcess = lazy(() => import('../components/sections/PipelineProces
 const ServiceCoverage = lazy(() => import('../components/sections/ServiceCoverage'));
 const PlacedCandidates = lazy(() => import('../components/sections/PlacedCandidates'));
 
-const SectionPlaceholder = () => <div className="min-h-[300px] flex items-center justify-center bg-gray-50/50 animate-pulse rounded-3xl m-4" />;
+const SectionPlaceholder = () => <div className="min-h-[400px] flex items-center justify-center bg-dark-bg/50 backdrop-blur-xl animate-pulse rounded-[3rem] m-6 border border-white/5" />;
 
 const Home = () => {
   return (
     <>
       <SEOMeta
-        title="Forge India Connect | Pincode-Based Multi-Service Marketplace"
-        description="FIC is India's first pincode-verified marketplace for Jobs, IT Solutions, Home Services, and Products. Unlock unlimited access with FIC Membership."
-        keywords="Pincode Marketplace, Home Services India, IT Solutions Marketplace, Job Portal India, FIC Membership, Forge India Connect"
+        title="Forge India Connect | Premium Multi-Service Technology & Career Ecosystem"
+        description="Transforming careers and businesses through innovation. Pincode-verified Jobs, IT Solutions, and Premium Services. India's futuristic technology ecosystem."
+        keywords="Futuristic Technology Ecosystem, AI Job Consulting, Enterprise IT Solutions, Career Transformation India, FIC Premium Marketplace"
         canonical="/"
       />
-      <div className="pt-16">
-        <MarketplaceHero />
+      
+      <main className="bg-dark-bg">
+        <Hero />
         <WelcomeModal />
         
         <Suspense fallback={<SectionPlaceholder />}>
-          <GSAPReveal direction="up" delay={0.1}>
+          <GSAPReveal direction="up" delay={0.2}>
+            <MetricsSection />
+          </GSAPReveal>
+
+          <GSAPReveal direction="right">
+            <LogoMarquee />
+          </GSAPReveal>
+
+          <GSAPReveal direction="up">
             <MarketplaceCategories />
           </GSAPReveal>
 
           <DeliveryBanner />
+
+          <GSAPReveal direction="left">
+            <ResumeAnalyzer />
+          </GSAPReveal>
 
           <FICRoadmap />
 
@@ -67,8 +82,6 @@ const Home = () => {
           <GSAPReveal direction="left">
             <RentalServices />
           </GSAPReveal>
-
-          <LogoMarquee />
 
           <GSAPReveal direction="left">
             <Features />
@@ -105,7 +118,7 @@ const Home = () => {
           <ServiceCoverage />
           <LocationMap />
         </Suspense>
-      </div>
+      </main>
     </>
   );
 };

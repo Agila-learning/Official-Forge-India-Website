@@ -12,33 +12,45 @@ export default {
         display: ['Poppins', 'sans-serif'],
       },
       colors: {
-        primary: '#312e81',   // Deep Indigo
-        secondary: '#0d9488', // Teal
-        accent: '#f59e0b',    // Amber
+        primary: {
+          DEFAULT: '#2563eb', // Futuristic Blue
+          glow: '#3b82f6',
+          dark: '#1e40af'
+        },
+        secondary: {
+          DEFAULT: '#f97316', // Radiant Orange
+          glow: '#fb923c',
+          dark: '#c2410c'
+        },
         dark: {
-          bg: '#020617',      // Slate 950
+          bg: '#030712',      // Deep Space Black
+          card: '#0f172a',    // Slate 900
           text: '#f8fafc',
-          card: '#0f172a'     // Slate 900
+          accent: '#1e293b'
         }
       },
       keyframes: {
-        textShimmer: {
-          to: { backgroundPosition: '200% center' },
+        mesh: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
         },
         float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%':       { transform: 'translateY(-12px)' },
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-20px) rotate(2deg)' },
         },
-        pulseRing: {
-          '0%':   { transform: 'scale(.95)', boxShadow: '0 0 0 0 rgba(49,46,129,.4)' },
-          '70%':  { transform: 'scale(1)',   boxShadow: '0 0 0 16px rgba(49,46,129,0)' },
-          '100%': { transform: 'scale(.95)', boxShadow: '0 0 0 0 rgba(49,46,129,0)' },
+        glow: {
+          '0%, 100%': { opacity: 0.5, filter: 'blur(20px)' },
+          '50%': { opacity: 1, filter: 'blur(40px)' },
         },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        }
       },
       animation: {
-        'text-shimmer': 'textShimmer 4s linear infinite',
-        'float':        'float 6s ease-in-out infinite',
-        'pulse-ring':   'pulseRing 2.5s ease infinite',
+        'mesh': 'mesh 15s ease infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'glow-pulse': 'glow 4s ease-in-out infinite',
+        'shimmer': 'shimmer 2s infinite',
       },
     },
   },

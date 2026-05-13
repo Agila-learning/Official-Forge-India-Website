@@ -61,6 +61,9 @@ const ServiceDetails = lazy(() => import('./pages/ServiceDetails'));
 const TrackMission = lazy(() => import('./pages/TrackMission'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const TrainingPlacementPage = lazy(() => import('./pages/TrainingPlacementPage'));
+const AtomyProducts = lazy(() => import('./pages/AtomyProducts'));
+const StayPartnerDashboard = lazy(() => import('./pages/StayPartnerDashboard'));
+const RidePartnerDashboard = lazy(() => import('./pages/RidePartnerDashboard'));
 
 // Context
 import { NotificationProvider } from './context/NotificationContext';
@@ -76,9 +79,15 @@ const ContentWrapper = ({ loading }) => {
   const [showInactivityPopup, setShowInactivityPopup] = useState(false);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
   
-  const hideNavPaths = ['/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', '/employer', '/track-mission', '/service-provider'];
+  const hideNavPaths = [
+    '/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', 
+    '/employer', '/track-mission', '/service-provider', '/stay-partner', '/ride-partner'
+  ];
   const isDashboard = hideNavPaths.some(path => location.pathname.startsWith(path));
-  const dashboardRoles = ['Admin', 'Sub-Admin', 'Vendor', 'HR', 'Delivery Partner', 'Candidate', 'Employer'];
+  const dashboardRoles = [
+    'Admin', 'Sub-Admin', 'Vendor', 'HR', 'Delivery Partner', 
+    'Candidate', 'Employer', 'Stay Provider', 'Ride Provider'
+  ];
   const shouldHide = isDashboard;
   
   // Log navigation visibility (after shouldHide is defined)
@@ -146,6 +155,8 @@ const ContentWrapper = ({ loading }) => {
             <Route path="/vendor" element={<ProtectedRoute allowedRoles={['Vendor', 'Admin']}><VendorDashboard /></ProtectedRoute>} />
             <Route path="/hr" element={<ProtectedRoute allowedRoles={['HR', 'Admin']}><HRDashboard /></ProtectedRoute>} />
             <Route path="/delivery" element={<ProtectedRoute allowedRoles={['Delivery Partner', 'Admin']}><DeliveryDashboard /></ProtectedRoute>} />
+            <Route path="/stay-partner" element={<ProtectedRoute allowedRoles={['Stay Provider', 'Admin']}><StayPartnerDashboard /></ProtectedRoute>} />
+            <Route path="/ride-partner" element={<ProtectedRoute allowedRoles={['Ride Provider', 'Admin']}><RidePartnerDashboard /></ProtectedRoute>} />
             <Route path="/candidate/dashboard" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin']}><CandidateDashboard /></ProtectedRoute>} />
             <Route path="/trainer-dashboard" element={<ProtectedRoute allowedRoles={['Trainer', 'Admin']}><TrainerDashboard /></ProtectedRoute>} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -176,6 +187,7 @@ const ContentWrapper = ({ loading }) => {
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/yet-to-launch" element={<YetToLaunch />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/atomy" element={<AtomyProducts />} />
             <Route path="/rentals/pg" element={<ServicesPage />} />
             <Route path="/rentals/villas" element={<ServicesPage />} />
             <Route path="/rentals/hotels" element={<ServicesPage />} />

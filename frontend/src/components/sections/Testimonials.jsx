@@ -1,42 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Quote, Star, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Quote, Star, CheckCircle2, MessageSquare, Zap } from 'lucide-react';
 import api from '../../services/api';
 
 const TestimonialCard = ({ rev, idx }) => (
     <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: idx * 0.1 }}
-        className="bg-white dark:bg-dark-card rounded-[2.5rem] p-10 flex flex-col shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative group h-full"
+        className="glass-card p-10 flex flex-col relative group h-full cursor-pointer"
     >
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
         
-        <div className="flex gap-1 mb-6">
-            {[...Array(5)].map((_, i) => (
-                <Star key={i} size={16} className={i < (rev.rating || 5) ? "fill-amber-400 text-amber-400" : "text-slate-200 dark:text-slate-700"} />
-            ))}
+        <div className="flex justify-between items-start mb-8">
+            <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className={i < (rev.rating || 5) ? "fill-secondary text-secondary" : "text-white/10"} />
+                ))}
+            </div>
+            <Zap size={16} className="text-primary animate-pulse" />
         </div>
 
-        <div className="relative mb-8">
-            <Quote className="text-primary/10 absolute -top-4 -left-4" size={64} />
-            <p className="text-lg font-bold text-slate-800 dark:text-slate-200 leading-relaxed italic relative z-10">
+        <div className="relative mb-8 flex-1">
+            <Quote className="text-white/5 absolute -top-8 -left-8" size={80} />
+            <p className="text-base font-medium text-white/70 leading-relaxed italic relative z-10">
                 "{rev.content || rev.comment}"
             </p>
         </div>
 
-        <div className="flex items-center gap-4 pt-8 border-t border-slate-50 dark:border-slate-800 mt-auto">
-            <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-black text-lg shadow-lg shadow-primary/20 shrink-0">
+        <div className="flex items-center gap-4 pt-8 border-t border-white/5 mt-auto">
+            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-primary shadow-inner shrink-0 group-hover:bg-primary group-hover:text-white transition-all duration-500">
                 {rev.name?.charAt(0)}
             </div>
             <div>
-                <h4 className="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                <h4 className="font-black text-white text-sm flex items-center gap-2 uppercase tracking-tight">
                     {rev.name}
-                    <CheckCircle2 size={14} className="text-blue-500" />
+                    <CheckCircle2 size={14} className="text-secondary" />
                 </h4>
-                <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">
-                    {rev.role || rev.user?.role || 'Verified Member'}
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 italic mt-1">
+                    {rev.role || rev.user?.role || 'Verified Partner'}
                 </p>
             </div>
         </div>
@@ -68,23 +71,35 @@ const Testimonials = () => {
     }, []);
 
     const mockFallbacks = [
-        { name: "Ravi Kumar", comment: "FIC's job consulting changed my career. I secured a lead position at a top-tier tech firm in Chennai within 3 weeks.", rating: 5, role: 'Software Lead' },
-        { name: "Deepa S.", comment: "The home service professionals from FIC are punctual and highly skilled. Best platform in Krishnagiri.", rating: 5, role: 'Premium Member' },
-        { name: "Arjun Reddy", comment: "As a vendor, my reach expanded 3x after joining the FIC marketplace. The dashboard is intuitive and powerful.", rating: 5, role: 'Verified Vendor' },
-        { name: "Meera Nair", comment: "The digital marketing services helped my local boutique reach customers across Bangalore. Truly exceptional.", rating: 4, role: 'Business Owner' },
-        { name: "Vikram Singh", comment: "Secure payments and verified candidate profiles make FIC the best recruitment partner for our HR team.", rating: 5, role: 'HR Manager' },
-        { name: "Anjali G.", comment: "The IT solutions provided for our hospital management were seamless and cutting-edge. Highly recommend.", rating: 5, role: 'Enterprise Client' }
+        { name: "Vikram Malhotra", comment: "The AI ATS analysis gave me the edge I needed. Secured an Associate VP role at a global fintech hub within 2 weeks of optimization.", rating: 5, role: 'Associate VP' },
+        { name: "Sanya Gupta", comment: "Atomy's Absolute Skincare line via FIC is revolutionary. Premium quality paired with seamless local delivery. A wellness game-changer.", rating: 5, role: 'Elite Member' },
+        { name: "Anand R.", comment: "Our enterprise IT infrastructure was completely overhauled by FIC. Scalability increased by 300% with zero downtime transitions.", rating: 5, role: 'CTO, TechCorp' },
+        { name: "Priya Das", comment: "The bike taxi and PG booking ecosystem in Chennai is incredibly smooth. FIC is my daily essential for urban living.", rating: 5, role: 'Tech Consultant' },
+        { name: "Karthik S.", comment: "As a vendor, the real-time analytics dashboard provided by FIC is world-class. My business throughput doubled in 6 months.", rating: 5, role: 'Verified Merchant' },
+        { name: "Elena V.", comment: "The recruitment pipeline through FIC's Skill Academy is the most efficient I've seen in India. Top-tier candidates every time.", rating: 5, role: 'HR Director' }
     ];
 
     const displayReviews = reviews.length > 0 ? reviews : mockFallbacks;
 
     return (
-        <section id="testimonials" className="py-24 bg-slate-50 dark:bg-dark-bg relative overflow-hidden border-t border-slate-100 dark:border-slate-800">
-            <div className="container-xl relative z-10">
-                <div className="section-header">
-                    <span className="section-eyebrow">Trust Signals</span>
-                    <h2 className="section-title">What the community says</h2>
-                    <p className="section-subtitle">Real stories from real members who have grown with the Forge India Connect ecosystem.</p>
+        <section id="testimonials" className="py-32 bg-dark-bg relative overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
+            
+            <div className="container-xl px-6 relative z-10">
+                <div className="max-w-3xl mb-20">
+                    <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/10 text-secondary font-black text-[10px] uppercase tracking-[0.3em] mb-6 border border-secondary/20"
+                    >
+                        Community Trust Signals
+                    </motion.div>
+                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none mb-8">
+                        Real Impact. <span className="text-primary italic">Global</span> Stories.
+                    </h2>
+                    <p className="text-lg text-white/40 font-medium">
+                        Verified experiences from our multi-service ecosystem of partners, candidates, and clients.
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -93,17 +108,20 @@ const Testimonials = () => {
                     ))}
                 </div>
 
-                <div className="mt-16 text-center">
-                    <div className="inline-flex items-center gap-6 px-8 py-4 bg-white dark:bg-dark-card rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl">
-                        <div className="flex -space-x-3">
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-dark-card bg-slate-200 overflow-hidden">
-                                    <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
-                                </div>
-                            ))}
-                        </div>
-                        <p className="text-sm font-bold text-slate-600 dark:text-slate-400">
-                            Join <span className="text-primary font-black">5,000+</span> success stories
+                <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-10">
+                    <div className="flex -space-x-4">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="w-14 h-14 rounded-full border-4 border-dark-bg bg-white/10 overflow-hidden ring-2 ring-primary/20">
+                                <img src={`https://i.pravatar.cc/100?img=${i+20}`} alt="User" />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-center md:text-left">
+                        <p className="text-xl font-black text-white uppercase tracking-tight mb-1">
+                            Joined by <span className="text-primary italic">5,000+</span> Success Stories
+                        </p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
+                            Growing every minute across the ecosystem
                         </p>
                     </div>
                 </div>

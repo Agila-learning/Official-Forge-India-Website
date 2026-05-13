@@ -108,31 +108,60 @@ const DeliveryDashboard = () => {
                             exit={{ opacity: 0, y: -20 }}
                             className="space-y-12"
                         >
-                            <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
-                                        <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Live Shipments</h3>
-                                        <div className="space-y-4">
+                                <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                                    <div className="lg:col-span-2 glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-orange-500/10 transition-colors" />
+                                        <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter italic">Fleet <span className="text-orange-500 italic">Deployments</span></h3>
+                                        <div className="space-y-4 relative z-10">
                                             {activeOrders.slice(0, 5).map(order => (
-                                                <div key={order._id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
-                                                    <div>
-                                                        <p className="font-bold text-sm uppercase">Order #{order._id.slice(-6)}</p>
-                                                        <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">Location: {order.shippingAddress?.city || 'N/A'}</p>
+                                                <div key={order._id} className="flex items-center justify-between p-6 bg-white/50 dark:bg-dark-bg/50 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-orange-500/30 transition-all group/item">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 group-hover/item:scale-110 transition-transform">
+                                                            <Package size={20} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-black text-sm uppercase tracking-tight">Mission #{order._id.slice(-6)}</p>
+                                                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{order.shippingAddress?.city || 'Zone-Alpha'}</p>
+                                                        </div>
                                                     </div>
-                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-100 text-orange-600`}>
-                                                        {order.status || 'Assigned'}
-                                                    </span>
+                                                    <div className="text-right">
+                                                        <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                                                            {order.status || 'Active'}
+                                                        </span>
+                                                        <p className="text-[8px] font-black text-gray-400 uppercase mt-2">{new Date(order.createdAt).toLocaleTimeString()}</p>
+                                                    </div>
                                                 </div>
                                             ))}
-                                            {activeOrders.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active deployments</p>}
+                                            {activeOrders.length === 0 && (
+                                                <div className="py-20 text-center">
+                                                    <div className="w-20 h-20 bg-gray-100 dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                                        <Navigation size={32} />
+                                                    </div>
+                                                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest italic">All units idle. Waiting for deployment signals.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center flex flex-col justify-center items-center">
-                                        <div className="w-24 h-24 bg-orange-100 dark:bg-orange-900/10 rounded-full flex items-center justify-center text-orange-500 mb-6">
-                                            <Package size={48} />
+                                    <div className="space-y-10">
+                                        <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-white relative overflow-hidden group">
+                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
+                                            <div className="relative z-10">
+                                                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8 backdrop-blur-md group-hover:rotate-12 transition-transform">
+                                                    <TrendingUp size={32} />
+                                                </div>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80 mb-2">Cycle Earnings</p>
+                                                <h3 className="text-5xl font-black tracking-tighter italic mb-4">₹{stats.earnings}</h3>
+                                                <div className="h-1 w-20 bg-white/30 rounded-full" />
+                                            </div>
                                         </div>
-                                        <h3 className="text-3xl font-black uppercase tracking-tighter mb-2">Fleet Ready</h3>
-                                        <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Precision Delivery Excellence</p>
+                                        <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl flex flex-col justify-center items-center text-center group">
+                                            <div className="w-24 h-24 bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] flex items-center justify-center text-orange-500 mb-8 border border-gray-100 dark:border-gray-800 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                                <ShieldCheck size={48} className="drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]" />
+                                            </div>
+                                            <h3 className="text-3xl font-black uppercase tracking-tighter italic mb-2">Fleet <span className="text-orange-500">Ready</span></h3>
+                                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Authorized Logistics Node</p>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>

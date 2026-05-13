@@ -128,71 +128,66 @@ const Navbar = () => {
 
   const services = [
     { name: 'IT Solutions', path: '/services/it-solutions', icon: <Cpu size={20} /> },
-    { name: 'Software Development', path: '/services/software-development', icon: <Code size={20} /> },
-    { name: 'Web Development', path: '/services/website-development', icon: <Zap size={20} /> },
     { name: 'App Development', path: '/services/app-development', icon: <Smartphone size={20} /> },
-    { name: 'AI & ML Solutions', path: '/services/ai-ml-solutions', icon: <Rocket size={20} /> },
-    { name: 'UI/UX Design', path: '/services/ui-ux-design', icon: <Layout size={20} /> },
+    { name: 'Web Development', path: '/services/website-development', icon: <Zap size={20} /> },
+    { name: 'Skill Academy', path: '/training-placement', icon: <GraduationCap size={20} /> },
     { name: 'Digital Marketing', path: '/services/digital-marketing', icon: <Globe size={20} /> },
-    { name: 'Job Consulting', path: '/services/job-consulting', icon: <Briefcase size={20} /> },
-    { name: 'Insurance Services', path: '/services/insurance-services', icon: <Shield size={20} /> },
+    { name: 'Business Consulting', path: '/services/business-consulting', icon: <Building2 size={20} /> },
   ];
 
   const homeServicesOptions = [
-    { name: 'Deep Cleaning', desc: 'Home & Office', path: '/home-services?category=cleaning', icon: <Sparkles size={20} /> },
-    { name: 'Plumbing', desc: 'Expert Fixes', path: '/home-services?category=plumbing', icon: <Droplets size={20} /> },
-    { name: 'Electrician', desc: 'Safe & Secure', path: '/home-services?category=electrician', icon: <Zap size={20} /> },
-    { name: 'Painting', desc: 'Wall & Texture', path: '/home-services?category=painting', icon: <Paintbrush size={20} /> },
-    { name: 'All Services', desc: 'Explore everything', path: '/home-services', icon: <Wrench size={20} /> }
+    { 
+      name: 'Ride Services', 
+      isNested: true,
+      items: [
+        { name: 'Bike Taxi', path: '/rides/bike', icon: <Zap size={16} /> },
+        { name: 'Car Taxi', path: '/rides/taxi', icon: <Zap size={16} /> },
+        { name: 'Express Delivery', path: '/rides/delivery', icon: <Truck size={16} /> },
+      ],
+      icon: <MapPin size={20} />
+    },
+    { 
+      name: 'Stay Bookings', 
+      isNested: true,
+      items: [
+        { name: 'Hotels', path: '/rentals/hotels', icon: <Building2 size={16} /> },
+        { name: 'PG & Rooms', path: '/rentals/pg', icon: <Building2 size={16} /> },
+        { name: 'Luxury Villas', path: '/rentals/villas', icon: <Building2 size={16} /> },
+      ],
+      icon: <Building2 size={20} />
+    },
+    { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={20} /> },
+    { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={20} /> },
   ];
 
-  const exploreOptions = [
-    { name: 'Job Hub', desc: 'Careers & Recruitment', path: '/explore-jobs', icon: <Briefcase size={20} /> },
-    { name: 'Industrial Shop', desc: 'Direct Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> },
-    { name: 'Join as Agent', desc: 'Partner with FIC', path: '/yet-to-launch', icon: <Network size={20} /> }
+  const ecosystemOptions = [
+    { name: 'Atomy Products', desc: 'Premium Korean Wellness', path: '/atomy', icon: <ShoppingBag size={20} /> },
+    { name: 'Career AI Scan', desc: 'ATS Resume Analyzer', path: '/', icon: <Rocket size={20} /> },
+    { name: 'Job Hub', desc: 'Enterprise Recruitment', path: '/jobs', icon: <Briefcase size={20} /> },
+    { name: 'Global Shop', desc: 'Industrial Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> },
   ];
 
   const getNavLinks = () => {
-    if (!isLoggedIn) {
-      return [
-        { name: 'Home', path: '/' },
-        { name: 'About Us', path: '/about' },
-        { name: 'Explore', isDropdown: true, items: exploreOptions },
-        { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
-        { name: 'Services', isDropdown: true, items: services },
-        { name: 'Skill Academy', path: '/training-placement' },
-        { name: 'FAQs', path: '/faq' },
-      ];
-    }
-    switch (userInfo.role) {
-      case 'Customer':
-      case 'Candidate':
-        return [
-          { name: 'Explore', isDropdown: true, items: exploreOptions },
-          { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
-          { name: 'Services', isDropdown: true, items: services },
-          { name: 'Skill Academy', path: '/training-placement' },
-          { name: 'My Activity', onClick: handleDashboardClick },
-          { name: 'Wishlist', path: '/wishlist' },
-        ];
-      default:
-        return [
-          { name: 'Home', path: '/' },
-          { name: 'Explore', isDropdown: true, items: exploreOptions },
-          { name: 'Dashboard', onClick: handleDashboardClick },
-        ];
-    }
+    return [
+      { name: 'Home', path: '/' },
+      { name: 'About Us', path: '/about' },
+      { name: 'Explore', isDropdown: true, items: ecosystemOptions },
+      { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
+      { name: 'Services', isDropdown: true, items: services },
+      { name: 'Skill Academy', path: '/training-placement' },
+      { name: 'FAQs', path: '/faq' },
+    ];
   };
 
   const navLinks = getNavLinks();
 
   return (
-    <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-6 bg-transparent'}`}>
-      <div className="max-w-full mx-auto px-4 md:px-12 xl:px-20">
+    <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-5 bg-transparent'}`}>
+      <div className="max-w-[1920px] mx-auto px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-16">
         <div className="flex justify-between items-center">
           
-          <Link to="/" className="flex items-center gap-3 md:gap-4 group relative shrink-0 h-12">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-white dark:bg-dark-card rounded-xl md:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+          <Link to="/" className="flex items-center gap-2 xl:gap-4 group relative shrink-0 h-12">
+            <div className="w-10 h-10 xl:w-12 xl:h-12 bg-white dark:bg-dark-card rounded-xl xl:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                 <motion.img 
                   src="/logo.svg" 
                   alt="Forge India Connect Official Logo" 
@@ -207,41 +202,71 @@ const Navbar = () => {
                 />
             </div>
             <div className="flex flex-col justify-center h-full overflow-hidden">
-                <span className="text-base md:text-xl font-black tracking-tighter block leading-none uppercase truncate">
+                <span className="text-sm xl:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
                     <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
                 </span>
-                <div className="mt-1 scale-75 md:scale-100 origin-left flex justify-start">
+                <div className="mt-1 scale-[0.6] xl:scale-100 origin-left flex justify-start">
                    <AnimatedConnectText key={location.pathname} />
                 </div>
             </div>
           </Link>
 
-          <div className="hidden xl:flex flex-1 justify-center items-center gap-8 mx-8">
+          <div className="hidden xl:flex flex-1 justify-center items-center gap-2 2xl:gap-6 mx-2 2xl:mx-8 min-w-0">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
                   <div className="relative group py-4 flex items-center h-full">
-                    <button className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95">
+                    <button className="flex items-center gap-1 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
                       {link.name} 
                       <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                     </button>
-                    <div className={`absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 ${link.items.length > 6 ? 'w-[600px]' : 'w-72'} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left`}>
-                      <div className={`grid ${link.items.length > 6 ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
+                    <div className={`absolute top-[80%] left-1/2 -translate-x-1/2 mt-4 ${link.items.length > 5 ? 'w-[600px]' : 'w-72'} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left`}>
+                      <div className={`grid ${link.items.length > 5 ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
                         {link.items.map((item) => (
-                          <Link 
-                            key={item.name} 
-                            to={item.path} 
-                            className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all group/item border border-transparent hover:border-gray-100 dark:hover:border-gray-800 shadow-sm hover:shadow-md"
-                          >
-                            <div className="w-10 h-10 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
-                              {item.icon}
+                          item.isNested ? (
+                            <div key={item.name} className="relative group/nested">
+                              <div className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all cursor-pointer border border-transparent hover:border-gray-100 dark:hover:border-gray-800 shadow-sm hover:shadow-md">
+                                <div className="w-10 h-10 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover/nested:bg-primary group-hover/nested:text-white transition-all">
+                                  {item.icon}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight">{item.name}</p>
+                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Explore Options</p>
+                                </div>
+                                <ChevronRight size={14} className="text-gray-300 group-hover/nested:translate-x-1 transition-transform" />
+                              </div>
+                              {/* Nested Dropdown */}
+                              <div className="absolute left-full top-0 ml-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-4 opacity-0 invisible group-hover/nested:opacity-100 group-hover/nested:visible transition-all duration-300 border border-gray-100 dark:border-gray-800 translate-x-2 group-hover/nested:translate-x-0">
+                                {item.items.map(sub => (
+                                  <Link 
+                                    key={sub.name} 
+                                    to={sub.path} 
+                                    className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all group/subitem"
+                                  >
+                                    <div className="w-8 h-8 bg-primary/5 text-primary rounded-xl flex items-center justify-center group-hover/subitem:bg-primary group-hover/subitem:text-white transition-all">
+                                      {sub.icon}
+                                    </div>
+                                    <span className="font-black text-gray-700 dark:text-gray-300 text-[10px] uppercase tracking-tight">{sub.name}</span>
+                                  </Link>
+                                ))}
+                              </div>
                             </div>
-                            <div>
-                                <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight">{item.name}</p>
-                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 group-hover/item:text-primary/70 transition-colors">{item.desc || 'Explore Service'}</p>
-                            </div>
-                          </Link>
+                          ) : (
+                            <Link 
+                              key={item.name} 
+                              to={item.path} 
+                              className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all group/item border border-transparent hover:border-gray-100 dark:hover:border-gray-800 shadow-sm hover:shadow-md"
+                            >
+                              <div className="w-10 h-10 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
+                                {item.icon}
+                              </div>
+                              <div>
+                                  <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight">{item.name}</p>
+                                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 group-hover/item:text-primary/70 transition-colors">{item.desc || 'Explore Service'}</p>
+                              </div>
+                            </Link>
+                          )
                         ))}
                       </div>
                     </div>
@@ -251,7 +276,7 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                   >
                     {link.name}
                     <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
@@ -261,17 +286,17 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="hidden xl:flex items-center gap-3 2xl:gap-4 shrink-0 h-12">
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-4 shrink-0 h-12">
             <button 
               onClick={() => setShowModal(true)}
-              className="flex items-center h-full gap-3 px-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm group/loc"
+              className="flex items-center h-full gap-2 px-3 2xl:px-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm group/loc shrink-0"
             >
-              <div className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center group-hover/loc:scale-110 transition-transform">
-                <MapPin size={16} />
+              <div className="w-7 h-7 2xl:w-8 2xl:h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center group-hover/loc:scale-110 transition-transform">
+                <MapPin size={14} />
               </div>
               <div className="text-left flex flex-col justify-center leading-none">
-                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Service Area</p>
-                 <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[80px] uppercase">
+                 <p className="text-[7px] 2xl:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Service Area</p>
+                 <p className="text-[9px] 2xl:text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[60px] 2xl:max-w-[80px] uppercase">
                     {appLocation?.city || 'Select Area'}
                  </p>
               </div>
@@ -282,10 +307,10 @@ const Navbar = () => {
             </div>
             
             {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
-              <Link to="/cart" className="relative flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart">
-                <ShoppingCart size={20} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+              <Link to="/cart" className="relative flex items-center justify-center w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
+                <ShoppingCart size={18} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
                 {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 2xl:w-5 2xl:h-5 bg-primary text-white text-[9px] 2xl:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
                     {cartItems.length}
                   </span>
                 )}
@@ -295,11 +320,11 @@ const Navbar = () => {
             <div className="relative group/notif h-full">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="flex items-center justify-center w-12 h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-secondary transition-all shadow-sm"
+                className="flex items-center justify-center w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-secondary transition-all shadow-sm shrink-0"
               >
-                <Bell size={20} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
+                <Bell size={18} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 2xl:w-5 2xl:h-5 bg-secondary text-white text-[9px] 2xl:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
                     {unreadCount}
                   </span>
                 )}
@@ -397,11 +422,11 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-4 h-full">
-                <Link to="/login" className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-colors">Login</Link>
+              <div className="flex items-center gap-2 2xl:gap-4 h-full shrink-0">
+                <Link to="/login" className="text-[9px] 2xl:text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-colors shrink-0">Login</Link>
                 <Link 
                   to="/contact" 
-                  className="flex items-center h-full px-6 bg-primary text-white rounded-full font-black text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap"
+                  className="flex items-center h-full px-4 2xl:px-6 bg-primary text-white rounded-full font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap shrink-0"
                 >
                   Hire Through FIC
                 </Link>
@@ -492,20 +517,49 @@ const Navbar = () => {
                         </p>
                         <div className="grid grid-cols-1 gap-3">
                           {link.items.map(item => (
-                            <Link 
-                              key={item.name} 
-                              to={item.path} 
-                              onClick={() => setIsOpen(false)}
-                              className="flex items-center gap-4 p-4 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 active:scale-[0.98] transition-all shadow-sm"
-                            >
-                              <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-inner shrink-0">
-                                 {React.cloneElement(item.icon, { size: 18 })}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                 <p className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-tight">{item.name}</p>
-                                 <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{item.desc || 'Explore'}</p>
-                              </div>
-                            </Link>
+                            <React.Fragment key={item.name}>
+                              {item.isNested ? (
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50">
+                                    <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
+                                      {item.icon}
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-tight">{item.name}</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 gap-2 pl-6">
+                                    {item.items.map(sub => (
+                                      <Link 
+                                        key={sub.name} 
+                                        to={sub.path} 
+                                        onClick={() => setIsOpen(false)}
+                                        className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5"
+                                      >
+                                        <div className="w-8 h-8 bg-primary/5 text-primary rounded-lg flex items-center justify-center">
+                                          {React.cloneElement(sub.icon, { size: 14 })}
+                                        </div>
+                                        <span className="font-black text-gray-700 dark:text-gray-300 text-[10px] uppercase tracking-tight">{sub.name}</span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <Link 
+                                  to={item.path} 
+                                  onClick={() => setIsOpen(false)}
+                                  className="flex items-center gap-4 p-4 bg-white dark:bg-dark-card/40 rounded-[1.5rem] border border-gray-100 dark:border-gray-800/50 active:scale-[0.98] transition-all shadow-sm"
+                                >
+                                  <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shadow-inner shrink-0">
+                                    {React.cloneElement(item.icon, { size: 18 })}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-black text-gray-900 dark:text-white text-xs uppercase tracking-tight">{item.name}</p>
+                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5 truncate">{item.desc || 'Explore'}</p>
+                                  </div>
+                                </Link>
+                              )}
+                            </React.Fragment>
                           ))}
                         </div>
                       </div>

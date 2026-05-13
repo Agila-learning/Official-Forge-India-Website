@@ -110,6 +110,14 @@ const userSchema = mongoose.Schema(
       bankName: { type: String },
       holderName: { type: String }
     },
+    razorpayContactId: { type: String }, // For Settlements
+    razorpayFundAccountId: { type: String }, // For Settlements
+    panNumber: { type: String },
+    kycStatus: { 
+      type: String, 
+      enum: ['Not Started', 'Pending', 'Verified', 'Rejected'], 
+      default: 'Not Started' 
+    },
     walletBalance: { type: Number, default: 0 },
     currentLiveLocation: {
       lat: { type: Number },

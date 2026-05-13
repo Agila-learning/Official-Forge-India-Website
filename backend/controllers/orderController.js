@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { createNotification } = require('./notificationController');
+const { initializeSettlement } = require('./settlementController');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -234,6 +235,7 @@ const updateOrderToPaid = async (req, res) => {
       update_time: req.body.update_time,
       email_address: req.body.email_address,
     };
+    order.status = 'Paid';
 
     const updatedOrder = await order.save();
     
@@ -264,6 +266,13 @@ const updateOrderToDelivered = async (req, res) => {
     order.status = 'Completed';
 
     const updatedOrder = await order.save();
+    
+    // Trigger Financial Settlement Engine
+    try {
+        await initializeSettlement(updatedOrder._id);
+    } catch (err) {
+        console.error('Settlement Initialization Failed:', err);
+    }
 
     const io = req.app.get('io');
     await createNotification(io, {
@@ -369,11 +378,21 @@ const updateOrderStatus = async (req, res) => {
     }
 
     order.status = req.body.status || order.status;
-    if (order.status === 'Delivered') {
+    if (order.status === 'Delivered' || order.status === 'Completed') {
       order.isDelivered = true;
       order.deliveredAt = Date.now();
+      order.status = 'Completed';
     }
     const updatedOrder = await order.save();
+
+    // Trigger Financial Settlement Engine if completed
+    if (updatedOrder.status === 'Completed') {
+        try {
+            await initializeSettlement(updatedOrder._id);
+        } catch (err) {
+            console.error('Settlement Initialization Failed:', err);
+        }
+    }
 
     // Notify User about Status Change
     const io = req.app.get('io');

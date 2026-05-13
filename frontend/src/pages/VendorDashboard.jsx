@@ -14,6 +14,7 @@ import NoDataFound from '../components/ui/NoDataFound';
 import HomeServiceCMS from '../components/admin/HomeServiceCMS';
 
 const VendorDashboard = () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isAdding, setIsAdding] = useState(false);
@@ -47,6 +48,16 @@ const VendorDashboard = () => {
       lastName: userInfo?.lastName || '',
       mobile: userInfo?.mobile || ''
     });
+
+    const [bankData, setBankData] = useState({
+        accountNumber: userInfo.bankDetails?.accountNumber || '',
+        ifscCode: userInfo.bankDetails?.ifscCode || '',
+        bankName: userInfo.bankDetails?.bankName || '',
+        holderName: userInfo.bankDetails?.holderName || '',
+        panNumber: userInfo.panNumber || ''
+    });
+    const [settlements, setSettlements] = useState([]);
+    const [isSavingBank, setIsSavingBank] = useState(false);
 
     const handleSaveSettings = async () => {
         try {
@@ -126,6 +137,15 @@ const VendorDashboard = () => {
         try {
             await fetchGlobalNotifications();
         } catch (err) { console.error('Failed to load notifications'); }
+    };
+
+    const fetchSettlements = async () => {
+        try {
+            const { data } = await api.get('/settlements/vendor');
+            setSettlements(data);
+        } catch (err) {
+            console.error('Failed to fetch settlements');
+        }
     };
 
     const fetchOrders = async (currentProducts) => {
@@ -219,6 +239,10 @@ const VendorDashboard = () => {
             });
         }
     }, [products, orders, filterRange]);
+
+    useEffect(() => {
+        if (view === 'payouts') fetchSettlements();
+    }, [view]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -333,36 +357,50 @@ const VendorDashboard = () => {
                             </div>
                             <RoleDashboardProfile user={userInfo} stats={dashboardStats} />
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
-                                    <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Recent Orders</h3>
-                                    <div className="space-y-4">
+                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-primary/10 transition-colors" />
+                                    <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter italic">Recent <span className="text-primary italic">Operations</span></h3>
+                                    <div className="space-y-4 relative z-10">
                                         {orders.slice(0, 5).map(order => (
-                                            <div key={order._id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
-                                                <div>
-                                                    <p className="font-bold text-sm">Ref: #{order._id.slice(-6).toUpperCase()}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-1">₹{order.totalPrice} • {order.status}</p>
-                                                </div>
-                                                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500"><TrendingUp size={18} /></div>
-                                            </div>
-                                        ))}
-                                        {orders.length === 0 && <p className="text-gray-400 font-bold pt-10 text-center italic">No active orders</p>}
-                                    </div>
-                                </div>
-                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
-                                    <h3 className="text-2xl font-black mb-8 uppercase tracking-tighter">Inventory Status</h3>
-                                    <div className="space-y-4">
-                                        {products.slice(0, 5).map(prod => (
-                                            <div key={prod._id} className="flex items-center justify-between p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
+                                            <div key={order._id} className="flex items-center justify-between p-6 bg-white/50 dark:bg-dark-bg/50 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all group/item">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-dark-card p-1 border border-gray-100 dark:border-gray-800">
-                                                        <img src={prod.image} className="w-full h-full object-cover rounded-lg" alt="" />
+                                                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover/item:scale-110 transition-transform">
+                                                        <Package size={20} />
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-sm uppercase truncate w-32">{prod.name}</p>
-                                                        <p className="text-[10px] font-black text-gray-400 uppercase">Stock: {prod.countInStock || 0} • Value: ₹{(prod.price * (prod.countInStock || 0)).toLocaleString()}</p>
+                                                        <p className="font-black text-sm uppercase tracking-tight">Order #{order._id.slice(-6).toUpperCase()}</p>
+                                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">₹{order.totalPrice.toLocaleString()} • {order.status}</p>
                                                     </div>
                                                 </div>
-                                                <div className={`px-3 py-1 rounded-full text-[8px] font-black uppercase ${prod.isService ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
+                                                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 shadow-inner"><TrendingUp size={18} /></div>
+                                            </div>
+                                        ))}
+                                        {orders.length === 0 && (
+                                            <div className="py-20 text-center">
+                                                <div className="w-20 h-20 bg-gray-100 dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                                    <Package size={32} />
+                                                </div>
+                                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest italic">No active orders in the current cycle.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-secondary/10 transition-colors" />
+                                    <h3 className="text-3xl font-black mb-8 uppercase tracking-tighter italic">Inventory <span className="text-secondary italic">Status</span></h3>
+                                    <div className="space-y-4 relative z-10">
+                                        {products.slice(0, 5).map(prod => (
+                                            <div key={prod._id} className="flex items-center justify-between p-6 bg-white/50 dark:bg-dark-bg/50 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-secondary/30 transition-all group/item">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-14 h-14 rounded-2xl bg-white dark:bg-dark-card p-1 border border-gray-100 dark:border-gray-800 shadow-sm group-hover/item:scale-105 transition-transform overflow-hidden">
+                                                        <img src={prod.image} className="w-full h-full object-cover rounded-xl" alt="" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-black text-sm uppercase truncate w-32 tracking-tight">{prod.name}</p>
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Stock: {prod.countInStock || 0} • Value: ₹{(prod.price * (prod.countInStock || 0)).toLocaleString()}</p>
+                                                    </div>
+                                                </div>
+                                                <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${prod.isService ? 'bg-orange-500/10 text-orange-600 border border-orange-500/20' : 'bg-blue-500/10 text-blue-600 border border-blue-500/20'}`}>
                                                     {prod.isService ? 'Service' : 'Product'}
                                                 </div>
                                             </div>
@@ -897,6 +935,161 @@ const VendorDashboard = () => {
                         </motion.div>
                     )}
 
+                    {/* FINANCIALS & PAYOUTS TAB */}
+                    {view === 'payouts' && (
+                        <motion.div key="payouts" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Financial Treasury</p>
+                                    <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Wallet <span className="text-primary italic">& Settlements</span></h2>
+                                </div>
+                                <div className="glass-card px-10 py-6 rounded-3xl border border-primary/20 bg-primary/5 flex items-center gap-6">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                        <TrendingUp size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Available for Payout</p>
+                                        <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">₹{userInfo.walletBalance?.toLocaleString() || '0'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                                {/* Bank Details Form */}
+                                <div className="lg:col-span-1 space-y-8">
+                                    <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                                        <h3 className="text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2">
+                                            <CreditCard size={18} className="text-primary" /> Bank Onboarding
+                                        </h3>
+                                        <div className="space-y-5">
+                                            <div className="space-y-1.5">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Holder Name</label>
+                                                <input 
+                                                    value={bankData.holderName} 
+                                                    onChange={e => setBankData({...bankData, holderName: e.target.value})} 
+                                                    placeholder="As per bank records"
+                                                    className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Number</label>
+                                                <input 
+                                                    value={bankData.accountNumber} 
+                                                    onChange={e => setBankData({...bankData, accountNumber: e.target.value})} 
+                                                    placeholder="000000000000"
+                                                    className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">IFSC Code</label>
+                                                    <input 
+                                                        value={bankData.ifscCode} 
+                                                        onChange={e => setBankData({...bankData, ifscCode: e.target.value.toUpperCase()})} 
+                                                        placeholder="SBIN0000000"
+                                                        className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">PAN Number</label>
+                                                    <input 
+                                                        value={bankData.panNumber} 
+                                                        onChange={e => setBankData({...bankData, panNumber: e.target.value.toUpperCase()})} 
+                                                        placeholder="ABCDE1234F"
+                                                        className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Bank Name</label>
+                                                <input 
+                                                    value={bankData.bankName} 
+                                                    onChange={e => setBankData({...bankData, bankName: e.target.value})} 
+                                                    placeholder="State Bank of India"
+                                                    className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                                                />
+                                            </div>
+                                            
+                                            <div className={`p-4 rounded-2xl flex items-center gap-3 ${userInfo.kycStatus === 'Verified' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-yellow-50 text-yellow-600 border border-yellow-100'}`}>
+                                                <ShieldCheck size={16} />
+                                                <p className="text-[9px] font-black uppercase tracking-widest">KYC STATUS: {userInfo.kycStatus || 'NOT VERIFIED'}</p>
+                                            </div>
+
+                                            <button 
+                                                disabled={isSavingBank}
+                                                onClick={async () => {
+                                                    setIsSavingBank(true);
+                                                    try {
+                                                        const { data } = await api.put('/users/bank-details', bankData);
+                                                        localStorage.setItem('userInfo', JSON.stringify(data.user));
+                                                        toast.success('Financial Identity Synchronized');
+                                                        window.location.reload();
+                                                    } catch (err) {
+                                                        toast.error('Onboarding failed. Verify IFSC/PAN.');
+                                                    } finally {
+                                                        setIsSavingBank(false);
+                                                    }
+                                                }}
+                                                className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+                                            >
+                                                {isSavingBank ? 'Encrypting Data...' : 'Update Bank Records'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Settlement History */}
+                                <div className="lg:col-span-2 space-y-8">
+                                    <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+                                        <div className="flex justify-between items-center mb-10">
+                                            <h3 className="text-xl font-black uppercase tracking-tighter">Settlement <span className="text-primary italic">Archive</span></h3>
+                                            <button className="px-4 py-2 bg-gray-50 dark:bg-dark-bg rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-primary transition-all">Download Report</button>
+                                        </div>
+                                        
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left">
+                                                <thead>
+                                                    <tr className="border-b border-gray-50 dark:border-gray-800">
+                                                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Ref</th>
+                                                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Revenue</th>
+                                                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Commission</th>
+                                                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Settled</th>
+                                                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                                                    {settlements.map(s => (
+                                                        <tr key={s._id} className="group hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
+                                                            <td className="py-6 pr-4">
+                                                                <p className="text-xs font-black text-gray-900 dark:text-white uppercase">#{s.order?._id?.slice(-6)}</p>
+                                                                <p className="text-[9px] font-bold text-gray-400 uppercase">{new Date(s.createdAt).toLocaleDateString()}</p>
+                                                            </td>
+                                                            <td className="py-6 text-xs font-bold text-gray-500">₹{s.totalRevenue?.toLocaleString()}</td>
+                                                            <td className="py-6 text-xs font-bold text-red-400">-₹{s.commission?.toLocaleString()}</td>
+                                                            <td className="py-6 text-sm font-black text-green-500">₹{s.amount?.toLocaleString()}</td>
+                                                            <td className="py-6">
+                                                                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${s.status === 'Settled' ? 'bg-green-100 text-green-600' : s.status === 'Failed' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-600'}`}>
+                                                                    {s.status}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            {settlements.length === 0 && (
+                                                <div className="py-20 text-center">
+                                                    <div className="w-16 h-16 bg-gray-50 dark:bg-dark-bg rounded-3xl flex items-center justify-center mx-auto mb-4 opacity-40">
+                                                        <CreditCard size={24} className="text-gray-400" />
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">No financial movements detected.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    )}
+
                     {/* INSIGHTS & REPORTS TAB */}
                     {view === 'insights' && (
                         <motion.div key="insights" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
@@ -908,7 +1101,7 @@ const VendorDashboard = () => {
                                 {[
                                     { label: 'Total Revenue', value: `₹${salesReport.totalRevenue.toLocaleString()}`, sub: 'All time', icon: TrendingUp, color: 'primary' },
                                     { label: 'Total Orders', value: salesReport.totalOrders, sub: 'All time', icon: ShoppingBag, color: 'indigo' },
-                                    { label: 'Delivery Rate', value: `${salesReport.successRate}%`, sub: 'Success', icon: CheckCircle2, color: 'green' },
+                                    { label: 'Delivery Rate', value: `${salesReport.successRate || 0}%`, sub: 'Success', icon: CheckCircle2, color: 'green' },
                                     { label: 'Active Listings', value: products.length, sub: 'Published', icon: Package, color: 'orange' },
                                 ].map(s => (
                                     <div key={s.label} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">

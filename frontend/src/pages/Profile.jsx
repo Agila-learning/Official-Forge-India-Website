@@ -251,6 +251,7 @@ const Profile = () => {
           <nav className="bg-white dark:bg-dark-card p-4 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg space-y-2">
             {[
               { label: 'Order History', icon: Package, count: productOrders.length, show: profileData?.role === 'Customer' },
+              { label: 'Stay & Ride', icon: Compass, count: 'NEW', show: profileData?.role === 'Customer' },
               { label: 'Service Bookings', icon: Clock, count: serviceBookings.length, show: profileData?.role === 'Customer' },
               { label: 'Membership', icon: Zap, count: 'PRO', show: profileData?.role === 'Customer' },
               { label: 'My Favorites', icon: Heart, count: favorites.length, show: profileData?.role === 'Customer' },
@@ -386,6 +387,81 @@ const Profile = () => {
                     ))}
                   </div>
                 )}
+              </motion.section>
+            )}
+
+            {activeTab === 'Stay & Ride' && (
+              <motion.section 
+                key="stay-ride"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-12"
+              >
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                   <div>
+                      <h3 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic leading-none">
+                         Explore <span className="text-primary">Ecosystem.</span>
+                      </h3>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mt-4 italic">High-End Domestic & Transit Operations</p>
+                   </div>
+                   <div className="flex bg-white dark:bg-dark-card p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl">
+                      <button className="px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Explore</button>
+                      <button onClick={() => navigate('/stay-partner')} className="px-6 py-2.5 text-gray-400 hover:text-primary rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Host Property</button>
+                   </div>
+                </div>
+
+                {/* --- CATEGORY SELECTOR (Image Inspired) --- */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  {[
+                    { id: 'hotels', label: 'Hotels', icon: Building, desc: 'Luxury Stays' },
+                    { id: 'pg', label: 'PG / Hostels', icon: Home, desc: 'Verified Paying Guests' },
+                    { id: 'homestays', label: 'Homestays', icon: Heart, desc: 'Cozy Spaces' },
+                    { id: 'apartments', label: 'Apartments', icon: Shield, desc: 'Service Living' },
+                    { id: 'rides', label: 'Ride Services', icon: Car, desc: 'Cab & Bike Taxi' }
+                  ].map((cat) => (
+                    <div key={cat.id} className="p-6 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg hover:border-primary/40 transition-all cursor-pointer group text-left">
+                       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+                          <cat.icon size={20} />
+                       </div>
+                       <h5 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1">{cat.label}</h5>
+                       <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest italic">{cat.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* --- FEATURED LISTINGS --- */}
+                <div className="bg-white dark:bg-dark-card p-8 md:p-12 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden">
+                   <div className="flex items-center justify-between mb-10">
+                      <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Verified <span className="text-primary italic">Accommodations</span></h4>
+                      <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">View All Map <ChevronRight size={14} /></button>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {[
+                        { name: 'Ocean View Premium', type: 'Hotel', loc: 'Goa, India', price: '₹3,500', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800' },
+                        { name: 'Elite PG Bangalore', type: 'PG', loc: 'HSR Layout', price: '₹12,000', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800' }
+                      ].map((item, i) => (
+                        <div key={i} className="group bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-primary/30 transition-all">
+                           <div className="h-64 relative overflow-hidden">
+                              <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="" />
+                              <div className="absolute top-6 left-6 px-4 py-2 bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/20">
+                                 {item.type}
+                              </div>
+                              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+                                 <div className="p-3 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl border border-white/20">
+                                    <p className="text-[10px] font-black text-gray-900 dark:text-white">{item.name}</p>
+                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1 mt-1"><MapPin size={10} /> {item.loc}</p>
+                                 </div>
+                                 <div className="p-3 bg-primary text-white rounded-2xl shadow-xl font-black text-sm">
+                                    {item.price}
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                      ))}
+                   </div>
+                </div>
               </motion.section>
             )}
 

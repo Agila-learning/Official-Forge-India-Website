@@ -74,6 +74,7 @@ const orderSchema = mongoose.Schema(
         type: String,
         enum: [
           'Order Confirmed', 
+          'Paid',
           'Packed', 
           'Ready for Pickup', 
           'Picked Up', 
@@ -81,12 +82,24 @@ const orderSchema = mongoose.Schema(
           'In Transit', 
           'Out for Delivery', 
           'Delivered', 
-          'Cancelled',
           'Completed',
+          'Cancelled',
           'Rescheduled',
-          'Refund Processing'
+          'Refund Processing',
+          'Refunded',
+          'Settlement Pending',
+          'Settled'
         ],
         default: 'Order Confirmed'
+    },
+    settlementStatus: {
+      type: String,
+      enum: ['None', 'Pending', 'Approved', 'Processing', 'Settled', 'Failed', 'On Hold'],
+      default: 'None'
+    },
+    commissionApplied: {
+      type: Number,
+      default: 0
     },
     rescheduledAt: {
       type: Date
