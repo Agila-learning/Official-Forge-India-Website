@@ -5,7 +5,7 @@ import {
     Sparkles, Search, MapPin, Star, Filter, CheckCircle2,
     Home, Briefcase, Settings, Heart
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation as useRouterLocation } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import MembershipCard from '../../components/ui/MembershipCard';
@@ -14,8 +14,9 @@ import { useLocation } from '../../context/LocationContext';
 const detailedCategories = [
     { id: 'cleaning', title: 'Deep Cleaning', icon: Sparkles, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
     { id: 'maintenance', title: 'Maintenance', icon: Wrench, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-    { id: 'painting', title: 'Surface Art', icon: Paintbrush, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-    { id: 'plumbing', title: 'Plumbing', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-500/10' }
+    { id: 'painting', title: 'Painting', icon: Paintbrush, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { id: 'plumbing', title: 'Plumbing', icon: Droplets, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { id: 'electrician', title: 'Electrician', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-500/10' }
 ];
 
 const HomeServices = () => {
@@ -26,6 +27,18 @@ const HomeServices = () => {
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const routerLocation = useRouterLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(routerLocation.search);
+        const categoryQuery = params.get('category');
+        if (categoryQuery) {
+            const matchedCategory = detailedCategories.find(c => c.id === categoryQuery);
+            if (matchedCategory) {
+                setActiveCategory(matchedCategory.title);
+            }
+        }
+    }, [routerLocation.search]);
 
     useEffect(() => {
         const fetchServices = async () => {

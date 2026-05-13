@@ -6,6 +6,7 @@ import GSAPReveal from '../components/ui/GSAPReveal';
 
 // Below the fold components - Lazy Loaded
 const MarketplaceCategories = lazy(() => import('../components/sections/MarketplaceCategories'));
+const DeliveryBanner = lazy(() => import('../components/sections/DeliveryBanner'));
 const FICRoadmap = lazy(() => import('../components/sections/FICRoadmap'));
 const About = lazy(() => import('../components/sections/About'));
 const Services = lazy(() => import('../components/sections/Services'));
@@ -42,6 +43,8 @@ const Home = () => {
           <GSAPReveal direction="up" delay={0.1}>
             <MarketplaceCategories />
           </GSAPReveal>
+
+          <DeliveryBanner />
 
           <FICRoadmap />
 

@@ -2928,60 +2928,44 @@ const AdminDashboard = () => {
           );
         })()}
 
+
+
         {activeTab === 'inquiries' && (
             <div className="space-y-8">
                 <div className="flex justify-between items-center">
                     <div>
                         <h2 className="text-3xl font-black uppercase tracking-tighter">Service <span className="text-primary italic">Inquiries</span></h2>
-                        <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">{data.inquiries?.length || 0} active consultations</p>
+                        <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">{(data?.inquiries || []).length} active consultations</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {data.inquiries?.map(inq => (
-                        <div key={inq._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all shadow-sm">
+                    {(data?.inquiries || []).length > 0 ? (data?.inquiries || []).map(inq => (
+                        <div key={inq._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 transition-all shadow-sm hover:border-primary/30">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600">
-                                        <Briefcase size={22} />
-                                    </div>
+                                    <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black">{inq.user?.firstName?.[0] || 'G'}</div>
                                     <div>
-                                        <h3 className="font-black text-gray-900 dark:text-white uppercase tracking-tight">{inq.serviceType}</h3>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{inq.user?.firstName} {inq.user?.lastName}</p>
+                                        <h3 className="font-black text-gray-900 uppercase tracking-tight">{inq.serviceType}</h3>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{inq.user ? `${inq.user.firstName} ${inq.user.lastName}` : (inq.guestName || 'Guest')}</p>
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                    inq.status === 'Resolved' ? 'bg-green-100 text-green-600' : 
-                                    inq.status === 'In Progress' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-700'
-                                }`}>{inq.status}</span>
+                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${inq.status === 'Resolved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-700'}`}>{inq.status}</span>
                             </div>
-
                             <div className="space-y-4 mb-8">
-                                <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
-                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Requirement</p>
-                                    <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{inq.specificRequirement}</p>
-                                </div>
-                                <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
-                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Detailed Message</p>
-                                    <p className="text-xs text-gray-500 italic leading-relaxed">"{inq.message}"</p>
-                                </div>
-                                <div className="flex items-center gap-3 text-xs font-bold text-gray-500">
-                                    <Phone size={14} className="text-primary" /> {inq.contactNumber}
-                                    <span className="mx-2">•</span>
-                                    <Mail size={14} className="text-primary" /> {inq.user?.email}
-                                </div>
+                                <p className="text-[10px] font-black uppercase text-gray-400">{inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : 'N/A'}</p>
+                                <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{inq.specificRequirement || inq.message || '—'}</p>
                             </div>
-
                             <div className="flex gap-3">
                                 <select 
                                     value={inq.status}
                                     onChange={async (e) => {
                                         try {
                                             await api.put(`/inquiries/${inq._id}/status`, { status: e.target.value });
-                                            toast.success('Status synchronized');
+                                            toast.success('Status updated');
                                             setData(prev => ({
                                                 ...prev,
-                                                inquiries: prev.inquiries.map(i => i._id === inq._id ? { ...i, status: e.target.value } : i)
+                                                inquiries: (prev.inquiries || []).map(i => i._id === inq._id ? { ...i, status: e.target.value } : i)
                                             }));
                                         } catch { toast.error('Update failed'); }
                                     }}
@@ -2992,16 +2976,13 @@ const AdminDashboard = () => {
                                     <option value="Resolved">Resolved</option>
                                     <option value="Cancelled">Cancelled</option>
                                 </select>
-                                <button onClick={() => handleDelete('inquiries', inq._id)} className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
-                                    <Trash2 size={18} />
-                                </button>
+                                <button onClick={() => handleDelete('inquiries', inq._id)} className="px-5 py-3 bg-red-50 text-red-500 rounded-2xl text-[10px] font-black uppercase">Delete</button>
                             </div>
                         </div>
-                    ))}
-                    {(data.inquiries?.length === 0) && (
+                    )) : (
                         <div className="col-span-full py-24 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
                             <ClipboardList className="mx-auto text-gray-200 mb-4" size={48} />
-                            <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No active service inquiries</p>
+                            <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No service inquiries found</p>
                         </div>
                     )}
                 </div>

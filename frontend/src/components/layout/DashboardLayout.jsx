@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import LiveActivityToast from '../ui/LiveActivityToast';
+import RoleGuide from '../ui/RoleGuide';
 
 const DashboardLayout = ({ 
     children, 
@@ -463,6 +464,7 @@ const DashboardLayout = ({
             </AnimatePresence>
 
             {role === 'Customer' && <LiveActivityToast />}
+            <RoleGuide />
         </div>
     );
 };

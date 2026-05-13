@@ -138,9 +138,16 @@ const Navbar = () => {
     { name: 'Insurance Services', path: '/services/insurance-services', icon: <Shield size={20} /> },
   ];
 
+  const homeServicesOptions = [
+    { name: 'Deep Cleaning', desc: 'Home & Office', path: '/home-services?category=cleaning', icon: <Sparkles size={20} /> },
+    { name: 'Plumbing', desc: 'Expert Fixes', path: '/home-services?category=plumbing', icon: <Droplets size={20} /> },
+    { name: 'Electrician', desc: 'Safe & Secure', path: '/home-services?category=electrician', icon: <Zap size={20} /> },
+    { name: 'Painting', desc: 'Wall & Texture', path: '/home-services?category=painting', icon: <Sparkles size={20} /> },
+    { name: 'All Services', desc: 'Explore everything', path: '/home-services', icon: <Wrench size={20} /> }
+  ];
+
   const exploreOptions = [
     { name: 'Job Hub', desc: 'Careers & Recruitment', path: '/explore-jobs', icon: <Briefcase size={20} /> },
-    { name: 'Home Services', desc: 'Book verified experts', path: '/home-services', icon: <Wrench size={20} /> },
     { name: 'Industrial Shop', desc: 'Direct Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> },
     { name: 'Join as Agent', desc: 'Partner with FIC', path: '/yet-to-launch', icon: <Network size={20} /> }
   ];
@@ -151,6 +158,7 @@ const Navbar = () => {
         { name: 'Home', path: '/' },
         { name: 'About Us', path: '/about' },
         { name: 'Explore', isDropdown: true, items: exploreOptions },
+        { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
         { name: 'Services', isDropdown: true, items: services },
         { name: 'Skill Academy', path: '/training-placement' },
         { name: 'FAQs', path: '/faq' },
@@ -161,6 +169,7 @@ const Navbar = () => {
       case 'Candidate':
         return [
           { name: 'Explore', isDropdown: true, items: exploreOptions },
+          { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
           { name: 'Services', isDropdown: true, items: services },
           { name: 'Skill Academy', path: '/training-placement' },
           { name: 'My Activity', onClick: handleDashboardClick },
