@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, ChevronDown, ChevronRight, Briefcase, Globe, Cpu, Smartphone, 
   Zap, ShoppingBag, User, LogOut, LayoutDashboard, ShoppingCart, 
-  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network
+  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -142,7 +142,7 @@ const Navbar = () => {
     { name: 'Deep Cleaning', desc: 'Home & Office', path: '/home-services?category=cleaning', icon: <Sparkles size={20} /> },
     { name: 'Plumbing', desc: 'Expert Fixes', path: '/home-services?category=plumbing', icon: <Droplets size={20} /> },
     { name: 'Electrician', desc: 'Safe & Secure', path: '/home-services?category=electrician', icon: <Zap size={20} /> },
-    { name: 'Painting', desc: 'Wall & Texture', path: '/home-services?category=painting', icon: <Sparkles size={20} /> },
+    { name: 'Painting', desc: 'Wall & Texture', path: '/home-services?category=painting', icon: <Paintbrush size={20} /> },
     { name: 'All Services', desc: 'Explore everything', path: '/home-services', icon: <Wrench size={20} /> }
   ];
 
