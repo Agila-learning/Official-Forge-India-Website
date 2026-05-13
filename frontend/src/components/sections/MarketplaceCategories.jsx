@@ -15,7 +15,7 @@ const categories = [
         count: '240+ Services',
         color: 'from-blue-500 to-indigo-600',
         tags: ['Web Dev', 'Mobile App', 'AI Solutions'],
-        path: '/services'
+        path: '/services/category/it-solutions'
     },
     { 
         id: 'home', 
@@ -42,7 +42,7 @@ const categories = [
         count: '45+ Verticals',
         color: 'from-amber-500 to-orange-600',
         tags: ['GST', 'Insurance', 'Licensing'],
-        path: '/services'
+        path: '/services/category/business-consulting'
     },
     { 
         id: 'shopping', 
@@ -60,7 +60,16 @@ const categories = [
         count: '15+ Programs',
         color: 'from-cyan-500 to-blue-600',
         tags: ['Full Stack', 'UI/UX', 'Marketing'],
-        path: '/services'
+        path: '/training-placement'
+    },
+    { 
+        id: 'job-consulting', 
+        label: 'Job Consulting', 
+        icon: Briefcase, 
+        count: 'Elite Protocol',
+        color: 'from-indigo-400 to-blue-500',
+        tags: ['Resume Review', 'Mock Interview', 'Salary Negotiation'],
+        path: '/job-consulting'
     }
 ];
 

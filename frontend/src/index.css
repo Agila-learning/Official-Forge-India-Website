@@ -453,6 +453,37 @@
   .animate-cursor-blink { opacity: 1; }
 }
 
+/* ============================================================
+   CLAYMORPHY & CUSTOM ANIMATIONS
+   ============================================================ */
+.clay-text {
+  @apply inline-block font-black;
+  text-shadow: 
+    0.02em 0.02em 0.02em rgba(0,0,0,0.2),
+    -0.02em -0.02em 0.02em rgba(255,255,255,0.1);
+  letter-spacing: -0.02em;
+}
+
+@keyframes clayPulse {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.02); filter: brightness(1.2); }
+}
+
+@keyframes clayColorShift {
+  0% { color: #60a5fa; }
+  33% { color: #34d399; }
+  66% { color: #fbbf24; }
+  100% { color: #60a5fa; }
+}
+
+.clay-animate-color {
+  animation: clayColorShift 8s infinite linear;
+}
+
+.clay-animate-pulse {
+  animation: clayPulse 4s infinite ease-in-out;
+}
+
 
 /* ============================================================
    SHIMMER LOADING SKELETON

@@ -65,7 +65,7 @@ const DeliveryBanner = () => {
                             <motion.button 
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/services/delivery')}
+                                onClick={() => navigate('/rides/delivery')}
                                 className="group relative bg-white text-black px-12 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-sm shadow-2xl shadow-white/10 flex items-center gap-4 overflow-hidden"
                             >
                                 <span className="relative z-10">Deploy Logistics</span>

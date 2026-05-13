@@ -11,7 +11,7 @@ const Hero = () => {
     const navigate = useNavigate();
     const { setShowModal } = useLocation();
     const [typedText, setTypedText] = useState('');
-    const fullText = "Empowering Careers. Building Futures. Delivering Solutions.";
+    const fullText = "Empowering Connections. Building Futures. Delivering Solutions.";
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const heroRef = useRef(null);
 
@@ -130,7 +130,8 @@ const Hero = () => {
 
                         <div className="space-y-4">
                             <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter">
-                                {typedText}<span className="animate-cursor-blink border-r-4 border-primary ml-1">&nbsp;</span>
+                                <span className="clay-text clay-animate-color clay-animate-pulse">{typedText}</span>
+                                <span className="animate-cursor-blink border-r-4 border-primary ml-1">&nbsp;</span>
                             </h1>
                             <p className="text-lg md:text-2xl text-white/50 font-medium max-w-2xl leading-relaxed">
                                 A Multi-Service <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Technology & Career Ecosystem</span> transforming businesses and careers through <span className="text-white italic">innovation</span>.
@@ -165,7 +166,16 @@ const Hero = () => {
                                         maxLength={6}
                                     />
                                 </div>
-                                <button className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/30">
+                                <button 
+                                    onClick={() => {
+                                        if (!pincodePlaceholder.includes(':')) {
+                                            toast.success(`Mission Sector Verified: ${pincodePlaceholder.split(' ').pop()}`);
+                                        } else {
+                                            toast.success('Sector Verification Successful');
+                                        }
+                                    }}
+                                    className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/30"
+                                >
                                     VERIFY
                                 </button>
                             </div>

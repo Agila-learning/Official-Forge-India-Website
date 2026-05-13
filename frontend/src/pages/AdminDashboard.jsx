@@ -111,7 +111,7 @@ const AdminDashboard = () => {
       const { data: uploadData } = await api.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const fullUrl = uploadData.startsWith('/') ? `http://localhost:5000${uploadData}` : uploadData;
+      const fullUrl = uploadData.startsWith('/') ? `${api.defaults.baseURL}${uploadData}` : uploadData;
       setUploadStatus({ loading: false, url: fullUrl, error: '' });
     } catch (error) {
       setUploadStatus({ loading: false, url: '', error: 'Failed to upload image' });

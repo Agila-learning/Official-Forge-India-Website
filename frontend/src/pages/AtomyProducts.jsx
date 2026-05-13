@@ -13,7 +13,7 @@ const products = [
     category: "Health Supplement",
     price: 7500,
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=800&auto=format&fit=crop",
     desc: "Korean functional food developed by the Korean Atomic Energy Research Institute (KAERI).",
     highlights: ["Immune System Support", "Energy Boost", "Patented Formula"]
   },
@@ -23,7 +23,7 @@ const products = [
     category: "Beauty & Skincare",
     price: 12000,
     rating: 5.0,
-    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=800&auto=format&fit=crop",
     desc: "Premium skincare line using advanced nanotechnology and fermentation science.",
     highlights: ["Anti-Aging", "CellActive Tech", "Intense Hydration"]
   },
@@ -33,7 +33,7 @@ const products = [
     category: "Personal Care",
     price: 450,
     rating: 4.8,
-    image: "https://images.unsplash.com/photo-1559594864-188b417d293f?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1563453392212-326f5e854473?q=80&w=800&auto=format&fit=crop",
     desc: "Propolis extract toothpaste for effective plaque removal and dental health.",
     highlights: ["Propolis Infused", "Plaque Removal", "Fresh Breath"]
   },
@@ -43,7 +43,7 @@ const products = [
     category: "Health & Wellness",
     price: 1800,
     rating: 4.7,
-    image: "https://images.unsplash.com/photo-1611080626919-7cf5a9caab5b?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1471864190281-ad5fe9bb0720?q=80&w=800&auto=format&fit=crop",
     desc: "Vitamin-enriched enzyme formula to support digestion and metabolic health.",
     highlights: ["Digestive Support", "Vitamin B1", "Natural Ingredients"]
   }

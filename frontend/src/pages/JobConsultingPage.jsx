@@ -130,7 +130,7 @@ const JobConsultingPage = () => {
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">Elite Career Intelligence Protocol</span>
           </motion.div>
           
-          <h1 className="text-6xl md:text-9xl font-black text-white leading-[0.85] tracking-tighter mb-10 uppercase italic">
+          <h1 className="text-6xl md:text-9xl font-black text-white leading-[0.85] tracking-tighter mb-10 uppercase">
             Command Your <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-emerald-400">Trajectory.</span>
           </h1>
@@ -174,7 +174,7 @@ const JobConsultingPage = () => {
       <div className="container-xl">
         <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20">
           <div className="max-w-2xl text-left">
-            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 italic">Sector <span className="text-primary">Intelligence</span></h2>
+            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6">Sector <span className="text-primary">Intelligence</span></h2>
             <p className="text-white/40 font-medium">Deep-node access to India's most prestigious corporate theaters.</p>
           </div>
           <div className="h-px flex-1 bg-white/5 mb-4 hidden md:block" />
@@ -191,7 +191,7 @@ const JobConsultingPage = () => {
                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
                     <Building2 size={28} />
                  </div>
-                 <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">{sector.name}</h3>
+                 <h3 className="text-2xl font-black uppercase tracking-tight text-white">{sector.name}</h3>
                </div>
                
                <div className="space-y-8">
@@ -226,7 +226,7 @@ const JobConsultingPage = () => {
           <div className="lg:col-span-5 space-y-12">
             <div className="glass-card p-12 rounded-[4rem] bg-gradient-to-br from-primary/20 via-slate-900 to-black border-primary/30 shadow-[0_0_100px_rgba(37,99,235,0.2)]">
               <span className="px-4 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-10 inline-block">Tier 1 Authorization</span>
-              <h3 className="text-4xl font-black text-white mb-8 uppercase italic tracking-tighter">Elite Consultation</h3>
+              <h3 className="text-4xl font-black text-white mb-8 uppercase tracking-tighter">Elite Consultation</h3>
               
               <div className="flex items-baseline gap-4 mb-12">
                 <span className="text-7xl font-black text-white tracking-tighter">₹2,500</span>
@@ -259,7 +259,7 @@ const JobConsultingPage = () => {
             </div>
 
             <div className="p-10 bg-white/5 rounded-[3rem] border border-white/5 backdrop-blur-xl">
-              <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tighter italic">Strategic Assurance</h4>
+              <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tighter">Strategic Assurance</h4>
               <p className="text-sm text-white/40 font-medium leading-relaxed">
                 Consultations are conducted by industry veterans with over 15+ years of tactical experience in enterprise recruitment.
               </p>
@@ -271,7 +271,7 @@ const JobConsultingPage = () => {
             <div className="glass-card p-12 md:p-16 rounded-[4rem] border border-white/10 bg-white/5 backdrop-blur-2xl relative">
               <div className="absolute top-0 left-12 w-24 h-1 bg-primary" />
               <div className="mb-12">
-                <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 italic">Initiate Mission</h3>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">Initiate Mission</h3>
                 <p className="text-white/30 font-bold uppercase text-[10px] tracking-widest">Define your tactical parameters below.</p>
               </div>
               <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handlePayment} loading={loading} />

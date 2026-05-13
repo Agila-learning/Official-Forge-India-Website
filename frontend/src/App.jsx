@@ -188,6 +188,7 @@ const ContentWrapper = ({ loading }) => {
             <Route path="/yet-to-launch" element={<YetToLaunch />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/atomy" element={<AtomyProducts />} />
+            <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
             <Route path="/rentals/pg" element={<ServicesPage />} />
             <Route path="/rentals/villas" element={<ServicesPage />} />
             <Route path="/rentals/hotels" element={<ServicesPage />} />
