@@ -22,11 +22,11 @@ const footerLinks = [
   {
     title: 'Core Services',
     links: [
-      { name: 'Job Consulting', path: '/services/job-consulting' },
-      { name: 'IT Solutions', path: '/services/it-solutions' },
-      { name: 'Digital Marketing', path: '/services/digital-marketing' },
-      { name: 'Insurance Services', path: '/services/insurance-services' },
-      { name: 'Web & App Dev', path: '/services/website-development' },
+      { name: 'Job Consulting', path: '/job-consulting' },
+      { name: 'IT Solutions', path: '/services/category/it-solutions' },
+      { name: 'Digital Marketing', path: '/services/category/digital-marketing' },
+      { name: 'Insurance Services', path: '/services/category/insurance-services' },
+      { name: 'Web & App Dev', path: '/services/category/website-development' },
     ]
   },
   {

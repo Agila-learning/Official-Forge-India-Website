@@ -211,12 +211,12 @@ const Navbar = () => {
             </div>
           </Link>
 
-          <div className="hidden xl:flex flex-1 justify-center items-center gap-2 2xl:gap-6 mx-2 2xl:mx-8 min-w-0">
+          <div className="hidden xl:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-2 2xl:mx-10 min-w-0">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isDropdown ? (
                   <div className="relative group py-4 flex items-center h-full">
-                    <button className="flex items-center gap-1 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
+                    <button className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[11px] 2xl:text-[13px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
                       {link.name} 
                       <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
@@ -276,7 +276,7 @@ const Navbar = () => {
                     to={link.path || '#'} 
                     onClick={link.onClick}
                     state={link.state}
-                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[11px] 2xl:text-[13px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                   >
                     {link.name}
                     <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>

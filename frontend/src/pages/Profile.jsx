@@ -805,7 +805,7 @@ const Profile = () => {
                             <button
                               onClick={() => {
                                 addToCart({ _id: `membership-${plan.tier.toLowerCase()}`, name: `FIC ${plan.tier} Membership`, price: parseInt(plan.price.replace(/[^0-9]/g, '')), isService: true, qty: 1 });
-                                toast.success(`${plan.tier} Membership added to cart!`);
+                                toast.success(`${plan.tier} Membership added! Redirecting...`); setTimeout(() => window.location.href = "/checkout", 1500);
                               }}
                               className={`w-full py-4 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 ${isPremiumView ? "bg-white text-blue-700 hover:bg-yellow-400 hover:text-dark-bg" : "bg-primary text-white hover:bg-blue-700"}`}
                             >
@@ -902,7 +902,7 @@ const Profile = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <button className="w-full sm:w-auto px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">Renew Early</button>
+                                <button onClick={() => { addToCart({ _id: `membership-${membershipData.planTier.toLowerCase()}`, name: `FIC ${membershipData.planTier} Membership Renewal`, price: membershipData.planValue, isService: true, qty: 1 }); toast.success("Renewal added! Redirecting..."); setTimeout(() => window.location.href = "/checkout", 1500); }} className="w-full sm:w-auto px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">Renew Early</button>
                             </div>
                         </div>
                     </div>

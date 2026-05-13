@@ -112,139 +112,193 @@ const JobConsultingPage = () => {
       description="Professional recruitment consulting, resume review, and interview preparation. Accelerate your career mission with FIC."
     />
     
-    {/* Hero Section */}
-    <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-br from-indigo-950 via-primary to-indigo-800">
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-      <div className="container-xl relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}>
-            <span className="badge-primary mb-6 !bg-white/20 !text-white">Strategic Career Advancement</span>
-            <h1 className="text-5xl md:text-7xl font-black mb-8 leading-[1.1] tracking-tighter italic text-white">
-              COMMAND YOUR <br />
-              <span className="text-white/80">CAREER TRAJECTORY</span>
-            </h1>
-            <p className="text-lg text-white/70 mb-12 font-medium max-w-xl">
-              From elite resume re-engineering to strategic salary negotiation, our specialists deploy 
-              advanced tactics to secure your position in the global tech theater.
-            </p>
-            <div className="flex flex-wrap gap-6">
-              <button 
-                onClick={() => document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' })}
-                className="px-10 py-5 bg-white text-primary font-black rounded-3xl shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-xs"
-              >
-                Initiate Consultation <ArrowRight size={18} />
-              </button>
-              <a href="tel:+916369406416" className="inline-flex items-center gap-3 px-10 py-5 bg-white/10 border-2 border-white/20 text-white font-black rounded-3xl hover:bg-white/20 transition-all uppercase tracking-widest text-xs">
-                Speak to Expert <Phone size={18} />
-              </a>
-            </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative">
-             <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white/20">
-                <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80" alt="Career Strategy" className="w-full h-full object-cover aspect-square" />
-             </div>
-             <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-          </motion.div>
-        </div>
-      </div>
-    </section>
+    {/* --- 🛡️ HERO: THE COMMAND CENTER --- */}
+    <section className="relative pt-40 pb-24 overflow-hidden bg-[#0a0a0b]">
+      {/* Cinematic Background Elements */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[150px] -mr-96 -mt-96" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] -ml-64 -mb-64" />
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
 
-    {/* Sectors */}
-    <section className="section-padding bg-slate-50 dark:bg-dark-bg/50">
-      <div className="container-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {sectors.map((sector, i) => (
-            <div key={i} className="glass-card p-10 rounded-[2.5rem] border border-white dark:border-slate-800 shadow-xl bg-white dark:bg-dark-card">
-               <h3 className="text-xl font-black mb-4 uppercase tracking-tighter italic text-primary">{sector.name}</h3>
-               <div className="flex flex-wrap gap-2 mb-6">
-                 {sector.roles.map(r => <span key={r} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold uppercase rounded-lg">{r}</span>)}
-               </div>
-               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Elite Partners</p>
-               <div className="flex flex-wrap gap-3">
-                 {sector.companies.map(c => <span key={c} className="text-slate-500 font-bold">{c}</span>)}
-               </div>
+      <div className="container-xl relative z-10 px-6">
+        <div className="max-w-5xl mx-auto text-center mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-6 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-xl mb-8"
+          >
+            <ShieldCheck size={14} className="text-emerald-400" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60">Elite Career Intelligence Protocol</span>
+          </motion.div>
+          
+          <h1 className="text-6xl md:text-9xl font-black text-white leading-[0.85] tracking-tighter mb-10 uppercase italic">
+            Command Your <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-emerald-400">Trajectory.</span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-white/40 font-medium max-w-3xl mx-auto leading-relaxed mb-12">
+            Deploy advanced career re-engineering. From elite resume synthesis to strategic theater preparation, we ensure your absolute market dominance.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-6">
+            <button 
+              onClick={() => document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' })}
+              className="px-12 py-6 bg-primary text-white font-black rounded-[2rem] shadow-2xl shadow-primary/40 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center gap-3"
+            >
+              Initiate Mission <ArrowRight size={18} />
+            </button>
+            <a href="tel:+916369406416" className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-[2rem] hover:bg-white/10 transition-all uppercase tracking-widest text-xs flex items-center gap-3">
+              Direct Uplink <Phone size={18} />
+            </a>
+          </div>
+        </div>
+
+        {/* --- STATS OVERLAY --- */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-y border-white/5">
+          {[
+            { v: '1500+', l: 'Missions Success' },
+            { v: '₹45L+', l: 'Highest Package' },
+            { v: '98%', l: 'Placement Rate' },
+            { v: '24/7', l: 'Tactical Support' }
+          ].map((s, i) => (
+            <div key={i} className="text-center">
+              <p className="text-4xl font-black text-white mb-1">{s.v}</p>
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{s.l}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    {/* Pricing / Booking Section */}
-    <section id="consulting-form-section" className="section-padding overflow-hidden">
+    {/* --- 🧬 SECTOR INTELLIGENCE --- */}
+    <section className="py-32 bg-[#0a0a0b] px-6">
       <div className="container-xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-          <div className="space-y-12">
-            <div className="glass-card p-10 md:p-12 rounded-[3rem] bg-slate-900 text-white border-none shadow-3xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32" />
-              <div className="relative z-10">
-                <span className="px-4 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-white/20 mb-8 inline-block">Elite Tier Authorized</span>
-                <h3 className="text-4xl font-black mb-6 italic tracking-tighter uppercase">Elite Consultation</h3>
-                <div className="flex items-baseline gap-4 mb-10">
-                <span className="text-6xl font-black text-white">₹2,500</span>
-                  <span className="text-white/50 font-bold uppercase tracking-widest text-sm">/ Mission</span>
-                </div>
-                <ul className="space-y-4 mb-12">
-                  {[
-                    'One-on-One Strategic Strategy Session',
-                    'A.I. Optimized Resume Re-engineering',
-                    'Direct Referral to Top Tech Vendors',
-                    'Priority Mock Interview Simulation',
-                    'Strategic Salary Negotiation Guidance'
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-4 text-white/80 font-medium">
-                      <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white shrink-0">
-                        <Check size={12} />
-                      </div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                
-                <div className="space-y-3">
-                   <button 
-                    onClick={() => document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' })}
-                    className="btn-primary w-full !bg-white !text-primary hover:!bg-slate-100 !rounded-2xl !py-4 shadow-xl"
-                   >
-                     Book Now & Pay <ArrowRight size={18} />
-                   </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl">
-              <h4 className="text-lg font-black text-slate-900 dark:text-white mb-6 uppercase tracking-tighter">Direct Payment Access</h4>
-              <p className="text-sm text-slate-500 mb-6 font-medium">Already discussed with us? Use our quick payment protocol for immediate slot reservation.</p>
-              <button 
-                onClick={handleQuickPay}
-                className="inline-flex items-center justify-center gap-3 w-full py-5 bg-indigo-900 text-white font-black rounded-3xl shadow-2xl hover:bg-indigo-950 transition-all uppercase tracking-widest text-xs"
-              >
-                Quick Pay & Initiate Protocol <ArrowRight size={16} />
-              </button>
-            </div>
+        <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-20">
+          <div className="max-w-2xl text-left">
+            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter mb-6 italic">Sector <span className="text-primary">Intelligence</span></h2>
+            <p className="text-white/40 font-medium">Deep-node access to India's most prestigious corporate theaters.</p>
           </div>
+          <div className="h-px flex-1 bg-white/5 mb-4 hidden md:block" />
+        </div>
 
-          <div className="bg-white dark:bg-dark-card p-10 md:p-16 rounded-[3.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
-            <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handlePayment} loading={loading} />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {sectors.map((sector, i) => (
+            <motion.div 
+              key={i} 
+              whileHover={{ y: -10 }}
+              className="glass-card p-12 rounded-[3rem] border border-white/5 bg-gradient-to-br from-white/5 to-transparent group"
+            >
+               <div className="flex items-center gap-4 mb-8">
+                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                    <Building2 size={28} />
+                 </div>
+                 <h3 className="text-2xl font-black uppercase tracking-tight text-white italic">{sector.name}</h3>
+               </div>
+               
+               <div className="space-y-8">
+                 <div>
+                   <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">Core Deployment Roles</p>
+                   <div className="flex flex-wrap gap-2">
+                     {sector.roles.map(r => <span key={r} className="px-4 py-2 bg-white/5 text-white/60 text-[10px] font-black uppercase rounded-xl border border-white/5">{r}</span>)}
+                   </div>
+                 </div>
+                 
+                 <div>
+                   <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Tactical Partners</p>
+                   <div className="flex flex-wrap gap-x-6 gap-y-3">
+                     {sector.companies.map(c => <span key={c} className="text-white/40 font-black text-sm uppercase tracking-tight">{c}</span>)}
+                   </div>
+                 </div>
+               </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
 
-    <section className="section-padding bg-primary overflow-hidden relative">
-      <div className="container-xl text-center relative z-10">
-        <h2 className="text-white text-4xl md:text-5xl mb-4 italic tracking-tighter">Need Immediate Assistance?</h2>
-        <div className="flex flex-wrap justify-center gap-6 mt-10">
+    {/* --- 💎 THE ELITE PROTOCOL --- */}
+    <section id="consulting-form-section" className="py-32 bg-[#0a0a0b] relative overflow-hidden px-6">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="container-xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+          
+          {/* Left: Pricing & Perks */}
+          <div className="lg:col-span-5 space-y-12">
+            <div className="glass-card p-12 rounded-[4rem] bg-gradient-to-br from-primary/20 via-slate-900 to-black border-primary/30 shadow-[0_0_100px_rgba(37,99,235,0.2)]">
+              <span className="px-4 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-10 inline-block">Tier 1 Authorization</span>
+              <h3 className="text-4xl font-black text-white mb-8 uppercase italic tracking-tighter">Elite Consultation</h3>
+              
+              <div className="flex items-baseline gap-4 mb-12">
+                <span className="text-7xl font-black text-white tracking-tighter">₹2,500</span>
+                <span className="text-white/40 font-black uppercase tracking-widest text-xs">/ Consultation</span>
+              </div>
+
+              <div className="space-y-6 mb-12">
+                {[
+                  'Elite Resume Synthesis & Re-engineering',
+                  'Strategic Theatre (Interview) Simulation',
+                  'Direct Pipeline to Lead Tech Vendors',
+                  'High-Level Salary Negotiation Tactics',
+                  'Post-Deployment Support Protocol'
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-5 text-white/70 font-medium">
+                    <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 shrink-0">
+                      <Check size={14} />
+                    </div>
+                    <span className="text-sm font-bold uppercase tracking-tight">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                onClick={handleQuickPay}
+                className="w-full py-6 bg-white text-black font-black rounded-[2rem] text-xs uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-2xl active:scale-95"
+              >
+                Instant Quick Pay <ArrowRight size={18} />
+              </button>
+            </div>
+
+            <div className="p-10 bg-white/5 rounded-[3rem] border border-white/5 backdrop-blur-xl">
+              <h4 className="text-xl font-black text-white mb-4 uppercase tracking-tighter italic">Strategic Assurance</h4>
+              <p className="text-sm text-white/40 font-medium leading-relaxed">
+                Consultations are conducted by industry veterans with over 15+ years of tactical experience in enterprise recruitment.
+              </p>
+            </div>
+          </div>
+
+          {/* Right: The Form */}
+          <div className="lg:col-span-7">
+            <div className="glass-card p-12 md:p-16 rounded-[4rem] border border-white/10 bg-white/5 backdrop-blur-2xl relative">
+              <div className="absolute top-0 left-12 w-24 h-1 bg-primary" />
+              <div className="mb-12">
+                <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 italic">Initiate Mission</h3>
+                <p className="text-white/30 font-bold uppercase text-[10px] tracking-widest">Define your tactical parameters below.</p>
+              </div>
+              <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handlePayment} loading={loading} />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    {/* --- 📞 COMMAND CENTER --- */}
+    <section className="py-32 bg-primary relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80')] opacity-20 mix-blend-overlay" />
+      <div className="container-xl relative z-10 text-center px-6">
+        <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter italic mb-12">Need Direct <br /> Support?</h2>
+        <div className="flex flex-wrap justify-center gap-8">
           <a href="https://wa.me/916369406416" target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-4 px-12 py-6 bg-white text-primary font-black rounded-3xl shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-xs">
-            WhatsApp Command Center
+            className="px-16 py-8 bg-white text-primary font-black rounded-[2.5rem] shadow-[0_20px_50px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.2em] text-xs flex items-center gap-4">
+            WhatsApp Command Center <ArrowRight size={20} />
           </a>
-          <Link to="/register" className="inline-flex items-center gap-4 px-12 py-6 bg-white/10 backdrop-blur-md border-2 border-white/40 text-white font-black rounded-3xl hover:bg-white/20 transition-all uppercase tracking-widest text-xs">
-            Register Free
+          <Link to="/register" className="px-16 py-8 bg-black text-white font-black rounded-[2.5rem] hover:bg-slate-900 transition-all uppercase tracking-[0.2em] text-xs border border-white/10">
+            Secure Enrollment
           </Link>
         </div>
       </div>
     </section>
+
   </>
   );
 };

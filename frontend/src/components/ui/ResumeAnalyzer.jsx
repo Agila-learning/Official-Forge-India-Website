@@ -5,6 +5,7 @@ import {
     Zap, Target, LineChart, ShieldCheck, ArrowRight,
     Search, Download, BrainCircuit
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ResumeAnalyzer = () => {
     const [analyzing, setAnalyzing] = useState(false);
@@ -27,7 +28,29 @@ const ResumeAnalyzer = () => {
                 ]
             });
             setAnalyzing(false);
+            toast.success('AI Analysis Completed');
         }, 3000);
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleAnalyze();
+        }
+    };
+
+    const handleDownloadReport = () => {
+        if (!result) return;
+        const reportContent = `FORGE INDIA CONNECT - ATS ANALYZER REPORT\nScore: ${result.score}%\nStatus: ${result.status}\nMatches: ${result.matches.join(', ')}\nGaps: ${result.gaps.join(', ')}`;
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ATS_Report_FIC.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Report Downloaded');
     };
 
     return (
@@ -60,11 +83,19 @@ const ResumeAnalyzer = () => {
                         className="glass-card p-12 space-y-10"
                     >
                         <div 
-                            className={`border-2 border-dashed rounded-[2.5rem] p-16 text-center transition-all ${dragActive ? 'border-secondary bg-secondary/5 scale-[0.98]' : 'border-white/10 bg-white/5'}`}
+                            className={`border-2 border-dashed rounded-[2.5rem] p-16 text-center transition-all cursor-pointer ${dragActive ? 'border-secondary bg-secondary/5 scale-[0.98]' : 'border-white/10 bg-white/5 hover:border-secondary/40'}`}
                             onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                             onDragLeave={() => setDragActive(false)}
                             onDrop={(e) => { e.preventDefault(); setDragActive(false); handleAnalyze(); }}
+                            onClick={() => document.getElementById('resume-upload-input').click()}
                         >
+                            <input 
+                                type="file" 
+                                id="resume-upload-input" 
+                                className="hidden" 
+                                accept=".pdf,.doc,.docx"
+                                onChange={handleFileChange}
+                            />
                             <div className="w-20 h-20 bg-secondary/10 rounded-3xl flex items-center justify-center text-secondary mx-auto mb-8 animate-bounce">
                                 <Upload size={32} />
                             </div>
@@ -72,7 +103,7 @@ const ResumeAnalyzer = () => {
                             <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-10">PDF or DOCX (Max 10MB)</p>
                             
                             <button 
-                                onClick={handleAnalyze}
+                                onClick={(e) => { e.stopPropagation(); handleAnalyze(); }}
                                 disabled={analyzing}
                                 className="px-10 py-5 bg-secondary text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-secondary/20 disabled:opacity-50"
                             >
@@ -161,7 +192,10 @@ const ResumeAnalyzer = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <button className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3">
+                                        <button 
+                                            onClick={handleDownloadReport}
+                                            className="w-full py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3"
+                                        >
                                             Full Report <Download size={16} />
                                         </button>
                                     </div>

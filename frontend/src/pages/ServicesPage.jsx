@@ -5,7 +5,7 @@ import {
   Zap, Clock, Heart, ArrowRight, Home, 
   Hotel, Bus, Utensils, ShoppingBag, Ticket,
   CheckCircle2, ChevronRight, Filter, Plus, ArrowUpRight,
-  ChevronLeft, ArrowRightIcon
+  ChevronLeft, ArrowRightIcon, Cpu, Smartphone, Building2, Briefcase
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -23,6 +23,11 @@ const categories = [
   { id: 'food', label: 'Food', icon: Utensils, color: 'text-rose-500', bg: 'bg-rose-500/10' },
   { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
   { id: 'entertainment', label: 'Entertainment', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  { id: 'it-solutions', label: 'IT Solutions', icon: Cpu, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  { id: 'app-development', label: 'App Development', icon: Smartphone, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+  { id: 'website-development', label: 'Web Development', icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+  { id: 'business-consulting', label: 'Business Consulting', icon: Building2, color: 'text-indigo-400', bg: 'bg-indigo-400/10' },
+  { id: 'job-consulting', label: 'Job Consulting', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-400/10' },
 ];
 
 const HorizontalCarousel = ({ title, items, onBook }) => {
@@ -135,7 +140,13 @@ const ServicesPage = () => {
   };
 
   const handleBookNow = (service) => {
-    const isHighValue = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(service.id || service._id);
+    const isHighValue = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing', 'business-consulting', 'job-consulting'].includes(service.id || service._id || service.category?.toLowerCase().replace(/\s+/g, '-'));
+    
+    if (service.category?.toLowerCase() === 'job consulting' || service.id === 'job-consulting') {
+        navigate('/job-consulting');
+        return;
+    }
+
     setSelectedService(service);
     if (isHighValue) {
         setShowInquiryForm(true);

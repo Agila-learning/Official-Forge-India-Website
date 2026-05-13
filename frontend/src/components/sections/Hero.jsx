@@ -5,9 +5,11 @@ import {
     ArrowRight, MapPin, Zap, ShieldCheck, Briefcase, 
     Smartphone, Code, GraduationCap, Users, Star, Truck
 } from 'lucide-react';
+import { useLocation } from '../../context/LocationContext';
 
 const Hero = () => {
     const navigate = useNavigate();
+    const { setShowModal } = useLocation();
     const [typedText, setTypedText] = useState('');
     const fullText = "Empowering Careers. Building Futures. Delivering Solutions.";
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -142,7 +144,7 @@ const Hero = () => {
                             <Link to="/jobs" className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
                                 Apply for Jobs
                             </Link>
-                            <button onClick={() => window.dispatchEvent(new CustomEvent('open-location-modal'))} className="px-10 py-5 bg-transparent border border-primary/30 text-primary font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-primary/5 transition-all flex items-center gap-2">
+                            <button onClick={() => setShowModal(true)} className="px-10 py-5 bg-transparent border border-primary/30 text-primary font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-primary/5 transition-all flex items-center gap-2">
                                 <MapPin size={16} /> Global Map View
                             </button>
                         </div>
