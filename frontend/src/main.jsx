@@ -7,13 +7,13 @@ import { LocationProvider } from './context/LocationContext.jsx'
 import { WishlistProvider } from './context/WishlistContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <LocationProvider>
-      <WishlistProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </WishlistProvider>
-    </LocationProvider>
-  </React.StrictMode>,
+ <React.StrictMode>
+ <LocationProvider>
+ <WishlistProvider>
+ <CartProvider>
+ <App />
+ </CartProvider>
+ </WishlistProvider>
+ </LocationProvider>
+ </React.StrictMode>,
 )

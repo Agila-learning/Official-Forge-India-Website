@@ -29,98 +29,98 @@ const PlacedCandidates = lazy(() => import('../components/sections/PlacedCandida
 const SectionPlaceholder = () => <div className="min-h-[400px] flex items-center justify-center bg-dark-bg/50 backdrop-blur-xl animate-pulse rounded-[3rem] m-6 border border-white/5" />;
 
 const Home = () => {
-  return (
-    <>
-      <SEOMeta
-        title="Forge India Connect | Premium Multi-Service Technology & Career Ecosystem"
-        description="Transforming careers and businesses through innovation. Pincode-verified Jobs, IT Solutions, and Premium Services. India's futuristic technology ecosystem."
-        keywords="Futuristic Technology Ecosystem, AI Job Consulting, Enterprise IT Solutions, Career Transformation India, FIC Premium Marketplace"
-        canonical="/"
-      />
-      
-      <main className="bg-dark-bg">
-        <Hero />
-        <WelcomeModal />
-        
-        <Suspense fallback={<SectionPlaceholder />}>
-          <GSAPReveal direction="up" delay={0.2}>
-            <MetricsSection />
-          </GSAPReveal>
+ return (
+ <>
+ <SEOMeta
+ title="Forge India Connect | Premium Multi-Service Technology & Career Ecosystem"
+ description="Transforming careers and businesses through innovation. Pincode-verified Jobs, IT Solutions, and Premium Services. India's futuristic technology ecosystem."
+ keywords="Futuristic Technology Ecosystem, AI Job Consulting, Enterprise IT Solutions, Career Transformation India, FIC Premium Marketplace"
+ canonical="/"
+ />
+ 
+ <main className="bg-dark-bg">
+ <Hero />
+ <WelcomeModal />
+ 
+ <Suspense fallback={<SectionPlaceholder />}>
+ <GSAPReveal direction="up" delay={0.2}>
+ <MetricsSection />
+ </GSAPReveal>
 
-          <GSAPReveal direction="right">
-            <LogoMarquee />
-          </GSAPReveal>
+ <GSAPReveal direction="right">
+ <LogoMarquee />
+ </GSAPReveal>
 
-          <GSAPReveal direction="up">
-            <MarketplaceCategories />
-          </GSAPReveal>
+ <GSAPReveal direction="up">
+ <MarketplaceCategories />
+ </GSAPReveal>
 
-          <DeliveryBanner />
+ <DeliveryBanner />
 
-          <GSAPReveal direction="left">
-            <ResumeAnalyzer />
-          </GSAPReveal>
+ <GSAPReveal direction="left">
+ <ResumeAnalyzer />
+ </GSAPReveal>
 
-          <FICRoadmap />
+ <FICRoadmap />
 
-          <GSAPReveal direction="right">
-            <About />
-          </GSAPReveal>
+ <GSAPReveal direction="right">
+ <About />
+ </GSAPReveal>
 
-          <GSAPReveal>
-            <PipelineProcess />
-          </GSAPReveal>
+ <GSAPReveal>
+ <PipelineProcess />
+ </GSAPReveal>
 
-          <GSAPReveal direction="up">
-            <Services />
-          </GSAPReveal>
+ <GSAPReveal direction="up">
+ <Services />
+ </GSAPReveal>
 
-          <GSAPReveal direction="right">
-            <RideServices />
-          </GSAPReveal>
+ <GSAPReveal direction="right">
+ <RideServices />
+ </GSAPReveal>
 
-          <GSAPReveal direction="left">
-            <RentalServices />
-          </GSAPReveal>
+ <GSAPReveal direction="left">
+ <RentalServices />
+ </GSAPReveal>
 
-          <GSAPReveal direction="left">
-            <Features />
-          </GSAPReveal>
+ <GSAPReveal direction="left">
+ <Features />
+ </GSAPReveal>
 
-          <GSAPReveal direction="right">
-            <Industries />
-          </GSAPReveal>
+ <GSAPReveal direction="right">
+ <Industries />
+ </GSAPReveal>
 
-          <GSAPReveal>
-            <Events />
-          </GSAPReveal>
+ <GSAPReveal>
+ <Events />
+ </GSAPReveal>
 
-          <div id="placed">
-            <GSAPReveal direction="up">
-              <PlacedCandidates />
-            </GSAPReveal>
-          </div>
+ <div id="placed">
+ <GSAPReveal direction="up">
+ <PlacedCandidates />
+ </GSAPReveal>
+ </div>
 
-          <div id="testimonials">
-            <GSAPReveal>
-              <Testimonials />
-            </GSAPReveal>
-          </div>
+ <div id="testimonials">
+ <GSAPReveal>
+ <Testimonials />
+ </GSAPReveal>
+ </div>
 
-          <GSAPReveal>
-            <CTA />
-          </GSAPReveal>
+ <GSAPReveal>
+ <CTA />
+ </GSAPReveal>
 
-          <div id="contact">
-            <Contact />
-          </div>
-          
-          <ServiceCoverage />
-          <LocationMap />
-        </Suspense>
-      </main>
-    </>
-  );
+ <div id="contact">
+ <Contact />
+ </div>
+ 
+ <ServiceCoverage />
+ <LocationMap />
+ </Suspense>
+ </main>
+ </>
+ );
 };
 
 export default Home;

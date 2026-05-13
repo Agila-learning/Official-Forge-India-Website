@@ -9,49 +9,49 @@ export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.ori
 export const SOCKET_PATH = '/api/fic-socket/';
 
 const api = axios.create({
-  baseURL: API_URL,
+ baseURL: API_URL,
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+ const token = localStorage.getItem('token');
+ if (token) {
+ config.headers.Authorization = `Bearer ${token}`;
+ }
+ return config;
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      const isAuthRoute = error.config && error.config.url && (error.config.url.includes('/auth/login') || error.config.url.includes('/auth/verify-otp'));
-      if (!isAuthRoute) {
-        localStorage.removeItem('userInfo');
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  }
+ (response) => response,
+ (error) => {
+ if (error.response && error.response.status === 401) {
+ const isAuthRoute = error.config && error.config.url && (error.config.url.includes('/auth/login') || error.config.url.includes('/auth/verify-otp'));
+ if (!isAuthRoute) {
+ localStorage.removeItem('userInfo');
+ localStorage.removeItem('token');
+ window.location.href = '/login';
+ }
+ }
+ return Promise.reject(error);
+ }
 );
 
 export const authService = {
-  login: (email, password) => api.post('/auth/login', { email, password }),
-  register: (userData) => api.post('/auth/register', userData),
+ login: (email, password) => api.post('/auth/login', { email, password }),
+ register: (userData) => api.post('/auth/register', userData),
 };
 
 export const userService = {
-  getUsers: (keyword = '') => api.get(`/users?keyword=${keyword}`),
+ getUsers: (keyword = '') => api.get(`/users?keyword=${keyword}`),
 };
 
 export const eventService = {
-  getEvents: () => api.get('/events'),
-  createEvent: (eventData) => api.post('/events', eventData),
+ getEvents: () => api.get('/events'),
+ createEvent: (eventData) => api.post('/events', eventData),
 };
 
 export const contactService = {
-  createContact: (contactData) => api.post('/contacts', contactData),
-  getContacts: () => api.get('/contacts'),
+ createContact: (contactData) => api.post('/contacts', contactData),
+ getContacts: () => api.get('/contacts'),
 };
 
 export default api;
