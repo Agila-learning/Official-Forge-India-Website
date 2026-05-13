@@ -127,12 +127,12 @@ const Navbar = () => {
   }, []);
 
   const services = [
-    { name: 'IT Solutions', path: '/services/it-solutions', icon: <Cpu size={20} /> },
-    { name: 'App Development', path: '/services/app-development', icon: <Smartphone size={20} /> },
-    { name: 'Web Development', path: '/services/website-development', icon: <Zap size={20} /> },
+    { name: 'IT Solutions', path: '/services/category/it-solutions', icon: <Cpu size={20} /> },
+    { name: 'App Development', path: '/services/category/app-development', icon: <Smartphone size={20} /> },
+    { name: 'Web Development', path: '/services/category/website-development', icon: <Zap size={20} /> },
     { name: 'Skill Academy', path: '/training-placement', icon: <GraduationCap size={20} /> },
-    { name: 'Digital Marketing', path: '/services/digital-marketing', icon: <Globe size={20} /> },
-    { name: 'Business Consulting', path: '/services/business-consulting', icon: <Building2 size={20} /> },
+    { name: 'Job Consulting', path: '/job-consulting', icon: <Briefcase size={20} /> },
+    { name: 'Business Consulting', path: '/services/category/business-consulting', icon: <Building2 size={20} /> },
   ];
 
   const homeServicesOptions = [

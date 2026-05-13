@@ -258,9 +258,12 @@ const HomeServices = () => {
                             Join the Forge Membership to unlock unlimited on-call service requests, priority scheduling, and 24/7 strategic support for your residence.
                         </p>
                         <div className="flex flex-wrap justify-center gap-6">
-                            <button className="px-12 py-6 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-2xl">Activate Now</button>
-                            <button className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">View Protocols</button>
+                            <button className="px-12 py-6 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-2xl">Join Premium</button>
+                            <button className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">Standard Booking</button>
                         </div>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-8">
+                            *Standard bookings are available to all verified accounts. Membership is optional for elite benefits.
+                        </p>
                     </div>
                 </div>
             </section>

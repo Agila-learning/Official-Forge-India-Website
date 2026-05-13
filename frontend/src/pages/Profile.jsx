@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';

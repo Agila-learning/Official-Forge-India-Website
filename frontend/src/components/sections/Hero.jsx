@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ArrowRight, MapPin, Zap, ShieldCheck, Briefcase, 
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 const Hero = () => {
+    const navigate = useNavigate();
     const [typedText, setTypedText] = useState('');
     const fullText = "Empowering Careers. Building Futures. Delivering Solutions.";
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -97,7 +98,7 @@ const Hero = () => {
                                 {typedText}<span className="animate-cursor-blink border-r-4 border-primary ml-1">&nbsp;</span>
                             </h1>
                             <p className="text-lg md:text-2xl text-white/50 font-medium max-w-2xl leading-relaxed">
-                                A Multi-Service Technology & Career Ecosystem transforming businesses and careers through <span className="text-white italic">innovation</span>.
+                                A Multi-Service <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Technology & Career Ecosystem</span> transforming businesses and careers through <span className="text-white italic">innovation</span>.
                             </p>
                         </div>
 
@@ -108,9 +109,9 @@ const Hero = () => {
                             <Link to="/jobs" className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
                                 Apply for Jobs
                             </Link>
-                            <Link to="/contact" className="px-10 py-5 bg-transparent border border-primary/30 text-primary font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-primary/5 transition-all">
-                                Book Consultation
-                            </Link>
+                            <button onClick={() => window.dispatchEvent(new CustomEvent('open-location-modal'))} className="px-10 py-5 bg-transparent border border-primary/30 text-primary font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-primary/5 transition-all flex items-center gap-2">
+                                <MapPin size={16} /> Global Map View
+                            </button>
                         </div>
 
                         {/* Animated Counters */}
@@ -142,9 +143,9 @@ const Hero = () => {
                         {/* Floating Cards Container */}
                         <div className="relative space-y-6">
                             {[
-                                { icon: Code, title: 'App Development', desc: 'Enterprise Solutions', color: 'text-blue-400' },
-                                { icon: Smartphone, title: 'Web Development', desc: 'Digital Transformation', color: 'text-cyan-400' },
-                                { icon: GraduationCap, title: 'Skill Academy', desc: 'Career Roadmap', color: 'text-orange-400' }
+                                { icon: Code, title: 'App Development', desc: 'Enterprise Solutions', color: 'text-blue-400', path: '/services/category/app-development' },
+                                { icon: Smartphone, title: 'Web Development', desc: 'Digital Transformation', color: 'text-cyan-400', path: '/services/category/website-development' },
+                                { icon: GraduationCap, title: 'Skill Academy', desc: 'Career Roadmap', color: 'text-orange-400', path: '/training-placement' }
                             ].map((card, i) => (
                                 <motion.div
                                     key={i}
@@ -152,6 +153,7 @@ const Hero = () => {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.8 + i * 0.2 }}
                                     whileHover={{ scale: 1.05, x: -10 }}
+                                    onClick={() => navigate(card.path)}
                                     className="glass-card p-6 flex items-center gap-6 group cursor-pointer"
                                 >
                                     <div className={`w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center ${card.color} group-hover:bg-primary/20 transition-all`}>
