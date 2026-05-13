@@ -73,7 +73,7 @@ const VendorDashboard = () => {
     const { fetchNotifications: fetchGlobalNotifications } = useNotifications();
     const navigate = useNavigate();
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
 
     const fetchTickets = async () => {
         try {
@@ -1088,6 +1088,7 @@ const VendorDashboard = () => {
                                     </div>
                                 </div>
                             </div>
+                        </motion.div>
                     )}
 
                     {/* INSIGHTS & REPORTS TAB */}
