@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { LayoutDashboard, ShoppingBag, Package, Users, Star, Plus, Edit, Trash2, LogOut, FileText, CheckCircle, XCircle, Menu, X, Trash, Image, LifeBuoy, Bell, ShieldCheck, Mail, Phone, MapPin, Search, Wrench, Calendar, Clock, ChevronRight, PanelLeftClose, PanelLeftOpen, Tag, Percent, Box, Info, TrendingUp, Settings, User, Sparkles, CheckCircle2 } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, Users, Star, Plus, Edit, Trash2, LogOut, FileText, CheckCircle, XCircle, Menu, X, Trash, Image, LifeBuoy, Bell, ShieldCheck, Mail, Phone, MapPin, Search, Wrench, Calendar, Clock, ChevronRight, PanelLeftClose, PanelLeftOpen, Tag, Percent, Box, Info, TrendingUp, Settings, User, Sparkles, CheckCircle2, CreditCard } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
