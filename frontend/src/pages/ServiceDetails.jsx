@@ -95,6 +95,14 @@ const staticServices = {
     image: '/images/carousel_hero_3_1774517521046.png',
     included: ['User Interface (UI) Design', 'User Experience (UX) Research', 'Interactive Prototyping'],
     excluded: ['Stock Asset Fees']
+  },
+  'business-consulting': {
+    name: 'Business Consulting',
+    description: 'Strategic advisory and operational scaling strategies for startups and established enterprises.',
+    price: null,
+    image: '/images/real_it_solutions_1774517558506.png',
+    included: ['Market Analysis & Strategy', 'Operational Efficiency Audit', 'Financial Planning & Forecasting', 'Brand Positioning & Growth'],
+    excluded: ['Implementation Capital', 'Third-party Software Licenses']
   }
 };
 

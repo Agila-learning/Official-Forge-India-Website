@@ -13,6 +13,9 @@ const Hero = () => {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const heroRef = useRef(null);
 
+    const [pincodePlaceholder, setPincodePlaceholder] = useState('');
+    const pincodes = ["635109", "600001", "560001", "635115", "635001"];
+
     useEffect(() => {
         let i = 0;
         const interval = setInterval(() => {
@@ -21,6 +24,36 @@ const Hero = () => {
             if (i > fullText.length) clearInterval(interval);
         }, 100);
         return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        let pincodeIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
+        
+        const type = () => {
+            const currentPincode = pincodes[pincodeIdx];
+            if (isDeleting) {
+                setPincodePlaceholder(`Type Pincode: ${currentPincode.substring(0, charIdx - 1)}`);
+                charIdx--;
+            } else {
+                setPincodePlaceholder(`Type Pincode: ${currentPincode.substring(0, charIdx + 1)}`);
+                charIdx++;
+            }
+
+            if (!isDeleting && charIdx === currentPincode.length) {
+                setTimeout(() => { isDeleting = true; }, 2000);
+            } else if (isDeleting && charIdx === 0) {
+                isDeleting = false;
+                pincodeIdx = (pincodeIdx + 1) % pincodes.length;
+            }
+
+            const speed = isDeleting ? 100 : 200;
+            setTimeout(type, speed);
+        };
+
+        const timeoutId = setTimeout(type, 1000);
+        return () => clearTimeout(timeoutId);
     }, []);
 
     const handleMouseMove = (e) => {
@@ -112,6 +145,28 @@ const Hero = () => {
                             <button onClick={() => window.dispatchEvent(new CustomEvent('open-location-modal'))} className="px-10 py-5 bg-transparent border border-primary/30 text-primary font-black rounded-[1.25rem] text-xs uppercase tracking-[0.2em] hover:bg-primary/5 transition-all flex items-center gap-2">
                                 <MapPin size={16} /> Global Map View
                             </button>
+                        </div>
+
+                        {/* Location Search Bar with Pincode Animation */}
+                        <div className="max-w-xl relative group mt-8">
+                            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="relative glass-card p-3 rounded-[2rem] border border-white/10 flex items-center gap-4 backdrop-blur-xl">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <MapPin size={20} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-0.5">Deployment Area</p>
+                                    <input 
+                                        type="text" 
+                                        placeholder={pincodePlaceholder}
+                                        className="bg-transparent w-full text-white font-black uppercase tracking-tighter outline-none placeholder:text-white/20 text-lg"
+                                        maxLength={6}
+                                    />
+                                </div>
+                                <button className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/30">
+                                    VERIFY
+                                </button>
+                            </div>
                         </div>
 
                         {/* Animated Counters */}

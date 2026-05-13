@@ -13,7 +13,7 @@ const products = [
     category: "Health Supplement",
     price: 7500,
     rating: 4.9,
-    image: "https://images.unsplash.com/photo-1584017945366-b97b099b1fe7?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=800&auto=format&fit=crop",
     desc: "Korean functional food developed by the Korean Atomic Energy Research Institute (KAERI).",
     highlights: ["Immune System Support", "Energy Boost", "Patented Formula"]
   },
@@ -43,7 +43,7 @@ const products = [
     category: "Health & Wellness",
     price: 1800,
     rating: 4.7,
-    image: "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1611080626919-7cf5a9caab5b?q=80&w=800&auto=format&fit=crop",
     desc: "Vitamin-enriched enzyme formula to support digestion and metabolic health.",
     highlights: ["Digestive Support", "Vitamin B1", "Natural Ingredients"]
   }
