@@ -461,6 +461,15 @@ const VendorDashboard = () => {
  <textarea name="description" defaultValue={editingProduct?.description} rows="3" className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none resize-none"></textarea>
  </div>
 
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{isServiceDefault ? 'Service Warranty' : 'Product Warranty'}</label>
+ <input name="warranty" defaultValue={editingProduct?.warranty || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 1 Year Warranty, 30 Days Guarantee" />
+ </div>
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Estimated Delivery / Fulfillment Time</label>
+ <input name="estimatedDeliveryTime" defaultValue={editingProduct?.estimatedDeliveryTime || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 3-5 Business Days" />
+ </div>
+
  {/* Dynamic Rental/Ride Fields */}
  {(categories.find(c => c._id === selectedCategory)?.name === 'Rentals' || editingProduct?.propertyType !== 'None') && (
  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-primary/5 rounded-[2.5rem] border border-primary/10">
