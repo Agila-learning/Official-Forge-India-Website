@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Socket.io configuration
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://api.forgeindiaconnect.com';
 
 export const SOCKET_PATH = '/api/fic-socket/';
 
