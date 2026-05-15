@@ -135,29 +135,33 @@ const Navbar = () => {
  { name: 'Business Consulting', path: '/services/category/business-consulting', icon: <Building2 size={20} /> },
  ];
 
+ const hotelOptions = [
+ { name: 'Hotels', path: '/services/landing/hotels', icon: <Building2 size={20} />, desc: 'Premium stays & hospitality' },
+ { name: 'PG & Hostels', path: '/services/landing/pg', icon: <Building2 size={20} />, desc: 'Affordable room rentals' },
+ { name: 'Luxury Villas', path: '/services/landing/villas', icon: <Building2 size={20} />, desc: 'Premium villa getaways' },
+ ];
+
+ const rideOptions = [
+ { name: 'Bike Taxi', path: '/services/landing/bike-taxi', icon: <Zap size={20} />, desc: 'Quick 2-wheeler rides' },
+ { name: 'Car Taxi', path: '/services/landing/car-taxi', icon: <Zap size={20} />, desc: 'Comfortable cab service' },
+ { name: 'Express Delivery', path: '/services/landing/delivery', icon: <Truck size={20} />, desc: 'Fast parcel delivery' },
+ ];
+
  const homeServicesOptions = [
  { 
  name: 'Ride Services', 
  isNested: true,
- items: [
- { name: 'Bike Taxi', path: '/rides/bike', icon: <Zap size={16} /> },
- { name: 'Car Taxi', path: '/rides/taxi', icon: <Zap size={16} /> },
- { name: 'Express Delivery', path: '/rides/delivery', icon: <Truck size={16} /> },
- ],
+ items: rideOptions,
  icon: <MapPin size={20} />
  },
  { 
  name: 'Stay Bookings', 
  isNested: true,
- items: [
- { name: 'Hotels', path: '/rentals/hotels', icon: <Building2 size={16} /> },
- { name: 'PG & Rooms', path: '/rentals/pg', icon: <Building2 size={16} /> },
- { name: 'Luxury Villas', path: '/rentals/villas', icon: <Building2 size={16} /> },
- ],
+ items: hotelOptions,
  icon: <Building2 size={20} />
  },
- { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={20} /> },
- { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={20} /> },
+ { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={20} />, desc: 'Professional cleaning service' },
+ { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={20} />, desc: 'Fix anything at home' },
  ];
 
  const ecosystemOptions = [
@@ -172,9 +176,8 @@ const Navbar = () => {
  { name: 'Home', path: '/' },
  { name: 'About Us', path: '/about' },
  { name: 'Explore', isDropdown: true, items: ecosystemOptions },
- { name: 'Home Services', isDropdown: true, items: homeServicesOptions },
- { name: 'Services', isDropdown: true, items: services },
- { name: 'Skill Academy', path: '/training-placement' },
+ { name: 'Daily Needs & Rides', isDropdown: true, items: homeServicesOptions },
+ { name: 'Business Solutions', isDropdown: true, items: services },
  { name: 'FAQs', path: '/faq' },
  ];
  };
@@ -183,7 +186,7 @@ const Navbar = () => {
 
  return (
  <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-5 bg-transparent'}`}>
- <div className="max-w-[1920px] mx-auto px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-16">
+ <div className="max-w-[1440px] mx-auto px-4 sm:px-5 md:px-8 lg:px-10 xl:px-14">
  <div className="flex justify-between items-center">
  
  <Link to="/" className="flex items-center gap-2 lg:gap-4 group relative shrink-0 h-12">

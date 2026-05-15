@@ -64,6 +64,8 @@ const TrainingPlacementPage = lazy(() => import('./pages/TrainingPlacementPage')
 const AtomyProducts = lazy(() => import('./pages/AtomyProducts'));
 const StayPartnerDashboard = lazy(() => import('./pages/StayPartnerDashboard'));
 const RidePartnerDashboard = lazy(() => import('./pages/RidePartnerDashboard'));
+const ServiceLanding = lazy(() => import('./pages/ServiceLanding'));
+const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
 
 // Context
 import { NotificationProvider } from './context/NotificationContext';
@@ -188,15 +190,20 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/yet-to-launch" element={<YetToLaunch />} />
  <Route path="/notifications" element={<Notifications />} />
  <Route path="/atomy" element={<AtomyProducts />} />
+ <Route path="/services/landing/:slug" element={<ServiceLanding />} />
+ <Route path="/services/category/it-solutions" element={<ServiceLandingPage />} />
+ <Route path="/services/category/app-development" element={<ServiceLandingPage />} />
+ <Route path="/services/category/website-development" element={<ServiceLandingPage />} />
+ <Route path="/services/category/digital-marketing" element={<ServiceLandingPage />} />
  <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
- <Route path="/rentals/pg" element={<ServicesPage />} />
- <Route path="/rentals/villas" element={<ServicesPage />} />
- <Route path="/rentals/hotels" element={<ServicesPage />} />
- <Route path="/rides/bike" element={<ServicesPage />} />
- <Route path="/rides/taxi" element={<ServicesPage />} />
- <Route path="/rides/delivery" element={<ServicesPage />} />
- <Route path="/rentals/*" element={<Navigate to="/services/category/stay" replace />} />
- <Route path="/rides/*" element={<Navigate to="/services/category/bike-taxi" replace />} />
+ <Route path="/rentals/pg" element={<Navigate to="/services/landing/pg" replace />} />
+ <Route path="/rentals/villas" element={<Navigate to="/services/landing/villas" replace />} />
+ <Route path="/rentals/hotels" element={<Navigate to="/services/landing/hotels" replace />} />
+ <Route path="/rides/bike" element={<Navigate to="/services/landing/bike-taxi" replace />} />
+ <Route path="/rides/taxi" element={<Navigate to="/services/landing/car-taxi" replace />} />
+ <Route path="/rides/delivery" element={<Navigate to="/services/landing/delivery" replace />} />
+ <Route path="/rentals/*" element={<Navigate to="/services/landing/hotels" replace />} />
+ <Route path="/rides/*" element={<Navigate to="/services/landing/bike-taxi" replace />} />
  <Route path="*" element={<NotFound />} />
  </Routes>
  </Suspense>

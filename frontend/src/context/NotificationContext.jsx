@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
  const socket = io(SOCKET_URL, {
  withCredentials: true,
  path: SOCKET_PATH,
- transports: ['polling', 'websocket'],
+ transports: ['polling'],
  reconnection: true,
  reconnectionAttempts: 5,
  reconnectionDelay: 5000,

@@ -224,7 +224,7 @@ const DashboardLayout = ({
  const tabs = getSidebarTabs();
 
  return (
- <div className="min-h-screen bg-[#0A0B0D] text-white flex flex-col md:flex-row font-inter antialiased overflow-hidden">
+ <div className="min-h-screen bg-gray-100 dark:bg-[#0A0B0D] text-gray-900 dark:text-white flex flex-col md:flex-row font-inter antialiased overflow-hidden">
  {/* Background Decorative Elements */}
  <div className="fixed inset-0 overflow-hidden pointer-events-none">
  <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
@@ -233,7 +233,7 @@ const DashboardLayout = ({
  
  
  {/* Mobile Header */}
- <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-[#0F1115]/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 z-[200]">
+ <div className="md:hidden fixed top-0 left-0 right-0 h-20 bg-white/95 dark:bg-[#0F1115]/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/5 flex items-center justify-between px-6 z-[200]">
  <Link to="/" className="flex items-center gap-3 group">
  <div className="w-10 h-10 bg-white border border-white/10 rounded-xl flex items-center justify-center overflow-hidden shadow-lg group-hover:scale-105 transition-transform p-1">
  <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
@@ -260,7 +260,7 @@ const DashboardLayout = ({
  </div>
 
  {/* Desktop Sidebar */}
- <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-72'} fixed md:sticky top-0 left-0 bg-[#0F1115] border-r border-white/5 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
+ <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-72'} fixed md:sticky top-0 left-0 bg-white dark:bg-[#0F1115] border-r border-gray-200 dark:border-white/5 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
  <div className="p-8 mb-4 relative">
  <button 
  onClick={() => setIsSidebarOpen(false)}
