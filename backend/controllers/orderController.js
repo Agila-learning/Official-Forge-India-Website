@@ -52,7 +52,12 @@ const addOrderItems = async (req, res) => {
         // If not found in Product DB or not a valid ObjectId, trust frontend price (for services/memberships)
         // In a real prod env, you'd validate services against a Service model here.
         calculatedTotalPrice += (item.price || 0) * (item.qty || 1);
-        return item;
+        
+        const processedItem = { ...item };
+        if (processedItem.product && !mongoose.Types.ObjectId.isValid(processedItem.product)) {
+            delete processedItem.product;
+        }
+        return processedItem;
       });
 
       // Handle delivery charges

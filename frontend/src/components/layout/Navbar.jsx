@@ -186,8 +186,8 @@ const Navbar = () => {
  <div className="max-w-[1920px] mx-auto px-4 md:px-6 lg:px-8 xl:px-10 2xl:px-16">
  <div className="flex justify-between items-center">
  
- <Link to="/" className="flex items-center gap-2 xl:gap-4 group relative shrink-0 h-12">
- <div className="w-10 h-10 xl:w-12 xl:h-12 bg-white dark:bg-dark-card rounded-xl xl:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+ <Link to="/" className="flex items-center gap-2 lg:gap-4 group relative shrink-0 h-12">
+ <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white dark:bg-dark-card rounded-xl lg:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
  <motion.img 
  src="/logo.svg" 
  alt="Forge India Connect Official Logo" 
@@ -202,16 +202,16 @@ const Navbar = () => {
  />
  </div>
  <div className="flex flex-col justify-center h-full overflow-hidden">
- <span className="text-sm xl:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
+ <span className="text-sm lg:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
  <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
  </span>
- <div className="mt-1 scale-[0.6] xl:scale-100 origin-left flex justify-start">
+ <div className="mt-1 scale-[0.6] lg:scale-100 origin-left flex justify-start">
  <AnimatedConnectText key={location.pathname} />
  </div>
  </div>
  </Link>
 
- <div className="hidden xl:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-2 2xl:mx-10 min-w-0">
+ <div className="hidden lg:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-2 2xl:mx-10 min-w-0">
  {navLinks.map((link) => (
  <React.Fragment key={link.name}>
  {link.isDropdown ? (
@@ -286,7 +286,7 @@ const Navbar = () => {
  ))}
  </div>
 
- <div className="hidden xl:flex items-center gap-2 2xl:gap-4 shrink-0 h-12">
+ <div className="hidden lg:flex items-center gap-2 2xl:gap-4 shrink-0 h-12">
  <button 
  onClick={() => setShowModal(true)}
  className="flex items-center h-full gap-2 px-3 2xl:px-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm group/loc shrink-0"
@@ -434,7 +434,7 @@ const Navbar = () => {
  )}
  </div>
 
- <div className="xl:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
+ <div className="lg:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
  <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
  <ShoppingCart size={18} />
  {cartItems.length > 0 && (

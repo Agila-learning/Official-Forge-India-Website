@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass, Building, Home, Car, BookOpen, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
 import InvoiceModal from '../components/ui/InvoiceModal';
 import toast from 'react-hot-toast';
 import WebUsageGuide from '../components/ui/WebUsageGuide';
-import { BookOpen } from 'lucide-react';
 import MembershipCard from '../components/ui/MembershipCard';
 
 const Profile = () => {
@@ -41,19 +40,22 @@ const Profile = () => {
  
  const userInfoStr = localStorage.getItem('userInfo');
  const [profileData, setProfileData] = useState(userInfoStr ? JSON.parse(userInfoStr) : {});
+ const [myApplications, setMyApplications] = useState([]);
 
  useEffect(() => {
  const fetchUserData = async () => {
  try {
- const [ordersRes, userRes, reviewsRes] = await Promise.all([
+ const [ordersRes, userRes, reviewsRes, appsRes] = await Promise.all([
  api.get('/orders/myorders'),
  api.get('/users/profile'),
- api.get('/reviews/myreviews')
+ api.get('/reviews/myreviews'),
+ api.get('/applications/mine').catch(() => ({ data: [] }))
  ]);
  
  setOrders(ordersRes.data);
  setReviews(reviewsRes.data || []);
  setVaultDocs(userRes.data.profileDocuments || []);
+ setMyApplications(appsRes.data || []);
  // Sync live membership data from server
  if (userRes.data.membershipVault) {
  setMembershipData(userRes.data.membershipVault);
@@ -254,6 +256,7 @@ const Profile = () => {
  { label: 'Stay & Ride', icon: Compass, count: 'NEW', show: profileData?.role === 'Customer' },
  { label: 'Service Bookings', icon: Clock, count: serviceBookings.length, show: profileData?.role === 'Customer' },
  { label: 'Membership', icon: Zap, count: 'PRO', show: profileData?.role === 'Customer' },
+ { label: 'Job Applications', icon: Briefcase, count: myApplications.length, show: profileData?.role === 'Customer' },
  { label: 'My Favorites', icon: Heart, count: favorites.length, show: profileData?.role === 'Customer' },
  { label: 'Review History', icon: History, count: reviews.length, show: profileData?.role === 'Customer' },
  { label: 'Security Vault', icon: Lock, count: null, show: profileData?.role === 'Customer' },
@@ -567,6 +570,60 @@ const Profile = () => {
  Manifest & Invoice <ChevronRight size={14} />
  </button>
  </div>
+ </div>
+ </motion.div>
+ ))}
+ </div>
+ )}
+ </motion.section>
+ )}
+ 
+ {activeTab === 'Job Applications' && (
+ <motion.section 
+ key="job-applications"
+ initial={{ opacity: 0, x: 20 }}
+ animate={{ opacity: 1, x: 0 }}
+ exit={{ opacity: 0, x: -20 }}
+ >
+ <div className="flex items-center justify-between mb-8">
+ <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Job <span className="text-primary">Applications</span></h3>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{myApplications.length} Tracked</p>
+ </div>
+ {loading ? (
+ <div className="h-64 flex items-center justify-center bg-white dark:bg-dark-card rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-800">
+ <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+ </div>
+ ) : myApplications.length === 0 ? (
+ <div className="bg-white dark:bg-dark-card p-16 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center">
+ <Briefcase size={64} className="mx-auto text-gray-200 dark:text-gray-800 mb-6" />
+ <h4 className="text-xl font-bold text-gray-400 uppercase tracking-widest">No Job Applications Yet</h4>
+ <p className="text-sm text-gray-400 mt-2">Explore the Job Portal and apply for opportunities.</p>
+ <button onClick={() => window.location.href='/explore-jobs'} className="mt-6 px-8 py-3 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest">Explore Jobs</button>
+ </div>
+ ) : (
+ <div className="space-y-6">
+ {myApplications.map(app => (
+ <motion.div 
+ initial={{ opacity: 0, scale: 0.98 }}
+ animate={{ opacity: 1, scale: 1 }}
+ key={app._id} 
+ className="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg hover:shadow-2xl hover:border-primary/20 transition-all group flex flex-col md:flex-row justify-between items-center gap-6"
+ >
+ <div className="flex items-center gap-6 w-full md:w-auto">
+ <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-primary border border-blue-100 dark:border-blue-800 group-hover:scale-110 transition-transform"><Briefcase size={28} /></div>
+ <div>
+ <h4 className="text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">{app.jobRole}</h4>
+ <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Applied on {new Date(app.createdAt).toLocaleDateString()}</p>
+ </div>
+ </div>
+ <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-6">
+ <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+ app.status === 'Hired' ? 'bg-green-50 text-green-600 border-green-100' : 
+ app.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-100' : 
+ 'bg-yellow-50 text-yellow-600 border-yellow-100'
+ }`}>
+ {app.status}
+ </span>
  </div>
  </motion.div>
  ))}

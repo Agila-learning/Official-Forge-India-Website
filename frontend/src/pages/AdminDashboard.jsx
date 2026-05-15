@@ -122,7 +122,7 @@ const AdminDashboard = () => {
  const fetchData = async () => {
  setLoadStatus({ loading: true, error: '' });
  try {
- const [eventsRes, jobsRes, productsRes, faqsRes, candidatesRes, usersRes, locationsRes, reviewsRes, ordersRes, appsRes, testimonialsRes, locationRequestsRes, ticketsRes, inquiriesRes, contactsRes] = await Promise.all([
+ const [eventsRes, jobsRes, productsRes, faqsRes, candidatesRes, usersRes, locationsRes, reviewsRes, ordersRes, appsRes, testimonialsRes, locationRequestsRes, ticketsRes, inquiriesRes, contactsRes, settlementsRes] = await Promise.all([
  api.get('/events').catch(() => ({ data: [] })),
  api.get('/jobs').catch(() => ({ data: [] })),
  api.get('/products').catch(() => ({ data: [] })),

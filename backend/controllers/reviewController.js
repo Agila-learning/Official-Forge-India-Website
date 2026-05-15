@@ -93,9 +93,25 @@ const getMyReviews = async (req, res) => {
     }
 };
 
+// @desc    Get all reviews (Admin)
+// @route   GET /api/reviews
+// @access  Private/Admin
+const getAllReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({})
+            .populate('user', 'firstName lastName')
+            .populate('product', 'name')
+            .sort({ createdAt: -1 });
+        res.json(reviews);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching all reviews' });
+    }
+};
+
 module.exports = {
     createReview,
     getProductReviews,
     getPublicReviews,
-    getMyReviews
+    getMyReviews,
+    getAllReviews
 };

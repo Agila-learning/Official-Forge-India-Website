@@ -41,6 +41,7 @@ const trainingRoutes = require('./routes/trainingRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const settlementRoutes = require('./routes/settlementRoutes');
+const serviceRegistrationRoutes = require('./routes/serviceRegistrationRoutes');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -167,6 +168,7 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/location-requests', locationRequestRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/inquiries', inquiryRoutes);
+app.use('/api/service-registrations', serviceRegistrationRoutes);
 app.use('/api/home-ui-config', homeUIConfigRoutes);
 app.use('/api/home-categories', homeCategoryRoutes);
 app.use('/api/workflow-steps', workflowStepRoutes);

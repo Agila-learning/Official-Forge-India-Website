@@ -131,7 +131,6 @@ const Hero = () => {
  <div className="space-y-4">
  <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter">
  <span className="clay-text clay-animate-color clay-animate-pulse">{typedText}</span>
- <span className="animate-cursor-blink border-r-4 border-primary ml-1">&nbsp;</span>
  </h1>
  <p className="text-lg md:text-2xl text-white/50 font-medium max-w-2xl leading-relaxed">
  A Multi-Service <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Technology & Career Ecosystem</span> transforming businesses and careers through <span className="text-white">innovation</span>.
