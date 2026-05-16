@@ -98,6 +98,7 @@ const serviceConfig = {
     accentColor: 'text-purple-600',
     accentBg: 'bg-purple-600',
     tag: 'RIDES',
+    serviceType: 'Bike Taxi',
     features: [
       { icon: <Shield size={20} />, title: 'Verified Riders', desc: 'Background-checked, licensed bikers' },
       { icon: <Clock size={20} />, title: 'Arrive in 5 Mins', desc: 'Nearest rider dispatched instantly' },
@@ -124,6 +125,7 @@ const serviceConfig = {
     accentColor: 'text-sky-600',
     accentBg: 'bg-sky-600',
     tag: 'RIDES',
+    serviceType: 'Car Taxi',
     features: [
       { icon: <Shield size={20} />, title: 'Trained Drivers', desc: 'Professionally trained and verified' },
       { icon: <Star size={20} />, title: 'AC Vehicles', desc: 'Clean, air-conditioned cars' },
@@ -151,6 +153,7 @@ const serviceConfig = {
     accentColor: 'text-rose-600',
     accentBg: 'bg-rose-600',
     tag: 'DELIVERY',
+    serviceType: 'Express Delivery',
     features: [
       { icon: <Shield size={20} />, title: 'Insured Parcels', desc: 'All packages fully insured in transit' },
       { icon: <Clock size={20} />, title: 'Same-Day Delivery', desc: 'Order before 2 PM for same-day' },
@@ -178,6 +181,7 @@ const serviceConfig = {
     accentColor: 'text-amber-600',
     accentBg: 'bg-amber-600',
     tag: 'STAYS',
+    serviceType: 'Rental',
     features: [
       { icon: <Shield size={20} />, title: '3-Tier Security', desc: 'Biometric access & 24/7 CCTV' },
       { icon: <Zap size={20} />, title: 'High-Speed Wi-Fi', desc: 'Dedicated 100 Mbps fiber line' },
@@ -253,6 +257,7 @@ const ServiceLanding = () => {
         const payload = {
           serviceSlug: slug,
           serviceName: config.title,
+          serviceType: config.serviceType || 'General',
           name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : name,
           email: userInfo ? userInfo.email : email,
           phone: userInfo ? userInfo.mobile : phone,

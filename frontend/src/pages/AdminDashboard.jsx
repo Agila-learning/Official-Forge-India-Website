@@ -184,8 +184,11 @@ const AdminDashboard = () => {
       // Compute stats
       const rev = (results.orders || []).reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
       const hiredCount = (results.applications || []).filter(app => app.status === 'Hired').length;
-      const serviceBookingsCount = (results.orders || []).filter(order => 
-        order.orderItems?.some(item => item.isService)
+      const rideBookingsCount = (results.orders || []).filter(order => 
+        ['Bike Taxi', 'Car Taxi'].includes(order.serviceType)
+      ).length;
+      const logisticsOrdersCount = (results.orders || []).filter(order => 
+        ['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(order.serviceType)
       ).length;
 
       setDashboardStats({
@@ -193,7 +196,8 @@ const AdminDashboard = () => {
         revenue: (rev / 1000).toFixed(1) + 'k',
         activeSessions: 142,
         hiredCount,
-        serviceBookings: serviceBookingsCount
+        rideBookings: rideBookingsCount,
+        logisticsOrders: logisticsOrdersCount
       });
 
       gsap.from('.glass-card', {
@@ -386,14 +390,32 @@ const AdminDashboard = () => {
  }
  };
 
- const subAdminRestrictedTabs = ['locations', 'users'];
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      await api.put(`/orders/${orderId}/status`, { status: newStatus });
+      setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+      toast.success(`Operational Status: ${newStatus}`);
+    } catch (err) {
+      toast.error('Tactical failure during status update');
+    }
+  };
+
+  const statusOptions = {
+    Taxi: ['Searching Driver', 'Driver Assigned', 'Driver Arriving', 'Ride Started', 'Reached Destination', 'Completed', 'Cancelled'],
+    Logistics: ['Order Confirmed', 'Packing Started', 'Picked Up', 'In Transit', 'Reached Hub', 'Out for Delivery', 'Delivered', 'Completed', 'Cancelled'],
+    General: ['Order Confirmed', 'Packed', 'Ready for Pickup', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered', 'Completed', 'Cancelled']
+  };
+
+  const subAdminRestrictedTabs = ['locations', 'users'];
  
  const sidebarTabs = [
  { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
  { id: 'users', icon: Users, label: 'Users & Partners' },
  { id: 'vendors', icon: Store, label: 'Vendor Management' },
- { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
- { id: 'events', icon: Calendar, label: 'Events' },
+  { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
+  { id: 'logistics', icon: Package, label: 'Logistics Hub' },
+  { id: 'fleet', icon: Navigation, label: 'Live Fleet Monitor' },
+  { id: 'events', icon: Calendar, label: 'Events' },
  { id: 'atomy', icon: Package, label: 'Product Catalog' },
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
@@ -562,6 +584,98 @@ const AdminDashboard = () => {
  <p className="text-gray-500 dark:text-gray-400 mt-1 text-base">Official Forge India Connect Administrative Suite.</p>
  </header>
  )}
+
+  {activeTab === 'logistics' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-3xl font-black mb-1 text-primary">Logistics Hub</h3>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Managing {orders.filter(o => ['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(o.serviceType)).length} active missions</p>
+          </div>
+        </div>
+        <div className="mobile-table-scroll">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                {['Shipment ID', 'Customer', 'Service', 'Weight', 'Hub', 'Status', 'Action'].map(h => (
+                  <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+              {orders.filter(o => ['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(o.serviceType)).map(order => (
+                <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+                  <td className="py-5 pr-4">
+                    <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <p className="font-bold text-sm">{order.user?.firstName} {order.user?.lastName}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">{order.serviceType}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <p className="font-black text-sm">{order.logisticsMetadata?.deliveryPriority || 'Standard'}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <p className="font-bold text-sm">{order.logisticsMetadata?.weight || 'N/A'}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <p className="font-bold text-sm text-primary">{order.logisticsMetadata?.currentHub || 'Pending'}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600 animate-pulse'}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <button 
+                      onClick={() => setSelectedDetailItem({...order, type: 'Orders'})}
+                      className="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 hover:text-primary transition-all"
+                    >
+                      <Target size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {activeTab === 'fleet' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden h-[700px] relative">
+        <div className="absolute top-10 left-10 z-20 glass-premium p-6 rounded-[2rem] border border-white/20">
+           <h3 className="text-xl font-black uppercase tracking-tighter mb-1">Live <span className="text-primary">Fleet</span> Monitor</h3>
+           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Real-time Deployment across India</p>
+           <div className="space-y-4">
+              <div className="flex items-center justify-between gap-8">
+                 <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Active Partners</span>
+                 <span className="text-sm font-black text-green-500">{deliveryPartners.filter(p => p.isOnline).length}</span>
+              </div>
+              <div className="flex items-center justify-between gap-8">
+                 <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Occupied</span>
+                 <span className="text-sm font-black text-orange-500">12</span>
+              </div>
+           </div>
+        </div>
+        
+        <div className="absolute inset-0 z-0">
+          <MissionMap />
+        </div>
+
+        <div className="absolute bottom-10 right-10 z-20 flex gap-3">
+           {['Taxi', 'Delivery', 'Logistics'].map(type => (
+              <button key={type} className="px-6 py-3 bg-white/90 dark:bg-dark-card/90 backdrop-blur-xl rounded-2xl text-[9px] font-black uppercase tracking-widest border border-white/20 shadow-xl hover:scale-105 transition-all">
+                {type}
+              </button>
+           ))}
+        </div>
+      </div>
+    </div>
+  )}
 
  {activeTab === 'events' && (
  <div className="space-y-12">
@@ -3682,7 +3796,7 @@ const AdminDashboard = () => {
   </div>
   </div>
 
-  <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-xl">
+  <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-xl mb-8">
   <div className="flex items-center gap-3 mb-6">
   <Target className="text-primary" size={20} />
   <h4 className="text-lg font-black uppercase tracking-tight">Mission Parameters</h4>
@@ -3694,20 +3808,44 @@ const AdminDashboard = () => {
   <span className="text-sm font-bold text-primary">{val}</span>
   </div>
   ))}
-  {selectedDetailItem.message && (
-  <div className="mt-4 pt-4 border-t border-white/10">
-  <p className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-2">Message/Special Instructions</p>
-  <p className="text-sm font-medium italic">"{selectedDetailItem.message}"</p>
-  </div>
+  {selectedDetailItem.logisticsMetadata && (
+    <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-4">
+      <div>
+        <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1">Payload Weight</p>
+        <p className="text-xs font-black">{selectedDetailItem.logisticsMetadata.weight}</p>
+      </div>
+      <div>
+        <p className="text-[9px] font-black uppercase text-white/40 tracking-widest mb-1">Insurance</p>
+        <p className="text-xs font-black text-green-400">{selectedDetailItem.logisticsMetadata.insuranceStatus}</p>
+      </div>
+    </div>
   )}
-  {selectedDetailItem.shippingAddress && (
-  <div className="mt-4 pt-4 border-t border-white/10">
-  <p className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-2">Target Location</p>
-  <p className="text-sm font-medium">{selectedDetailItem.shippingAddress.address}, {selectedDetailItem.shippingAddress.city}</p>
   </div>
+  </div>
+
+  {/* STATUS MANAGEMENT HUB */}
+  {selectedDetailItem.type === 'Orders' && (
+    <div className="p-8 bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800">
+      <div className="flex items-center gap-3 mb-6">
+        <Activity className="text-primary" size={20} />
+        <h4 className="text-lg font-black uppercase tracking-tight">Operational Control</h4>
+      </div>
+      <div className="grid grid-cols-1 gap-4">
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Transition Mission Status</p>
+        <div className="flex flex-wrap gap-2">
+          {statusOptions[selectedDetailItem.serviceType?.includes('Taxi') ? 'Taxi' : (selectedDetailItem.serviceType?.includes('Delivery') || selectedDetailItem.serviceType?.includes('Packers') ? 'Logistics' : 'General')]?.map(status => (
+            <button 
+              key={status}
+              onClick={() => handleUpdateStatus(selectedDetailItem._id, status)}
+              className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${selectedDetailItem.status === status ? 'bg-primary text-white shadow-lg' : 'bg-white dark:bg-dark-card text-gray-500 border border-gray-100 dark:border-gray-800 hover:border-primary'}`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   )}
-  </div>
-  </div>
 
   <button 
   onClick={() => setSelectedDetailItem(null)}

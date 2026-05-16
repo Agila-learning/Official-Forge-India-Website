@@ -138,6 +138,12 @@ const userSchema = mongoose.Schema(
       max: { type: Number },
       unit: { type: String, default: 'Month' }
     },
+    driverStats: {
+      totalRides: { type: Number, default: 0 },
+      totalDeliveries: { type: Number, default: 0 },
+      averageRating: { type: Number, default: 5.0 },
+      earningsTotal: { type: Number, default: 0 }
+    },
 
     // ─── Sub-Admin Configuration ─────────────────────────────────────
     isSubAdmin: { type: Boolean, default: false },

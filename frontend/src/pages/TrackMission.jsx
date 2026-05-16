@@ -9,6 +9,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import MissionMap from '../components/ui/MissionMap';
+import RideTrackingDashboard from '../components/ui/RideTrackingDashboard';
+import LogisticsTrackingDashboard from '../components/ui/LogisticsTrackingDashboard';
 
 const TrackMission = () => {
  const { id } = useParams();
@@ -118,6 +120,14 @@ const TrackMission = () => {
 
  const currentStageIndex = stages.findIndex(s => s.id === order.status);
  const displayIndex = currentStageIndex === -1 ? (order.isDelivered || order.status === 'Completed' ? 4 : 0) : currentStageIndex;
+
+ if (order.serviceType === 'Bike Taxi' || order.serviceType === 'Car Taxi') {
+ return <RideTrackingDashboard order={order} onBack={() => navigate(-1)} />;
+ }
+
+ if (['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(order.serviceType)) {
+ return <LogisticsTrackingDashboard order={order} onBack={() => navigate(-1)} />;
+ }
 
  return (
  <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16 overflow-x-hidden">

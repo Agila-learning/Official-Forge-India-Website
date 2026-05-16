@@ -55,8 +55,21 @@ const serviceRegistrationSchema = new mongoose.Schema({
   // CRM Status
   status: {
     type: String,
-    enum: ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Won', 'Lost'],
+    enum: [
+      'New', 'Contacted', 'Qualified', 'Proposal Sent', 'Won', 'Lost',
+      'Searching Driver', 'Driver Assigned', 'Order Confirmed',
+      'Packing Started', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered'
+    ],
     default: 'New',
+  },
+  serviceType: {
+    type: String,
+    enum: ['Bike Taxi', 'Car Taxi', 'Parcel Delivery', 'Express Delivery', 'Packers & Movers', 'Rental', 'General'],
+    default: 'General'
+  },
+  logisticsData: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
   },
   adminNotes: {
     type: String,

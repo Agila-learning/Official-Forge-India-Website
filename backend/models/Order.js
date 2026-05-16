@@ -73,13 +73,20 @@ const orderSchema = mongoose.Schema(
     status: {
         type: String,
         enum: [
+          'Searching Driver',
+          'Driver Assigned',
+          'Driver Arriving',
+          'Ride Started',
+          'Reached Destination',
           'Order Confirmed', 
           'Paid',
           'Packed', 
+          'Packing Started',
           'Ready for Pickup', 
           'Picked Up', 
           'Partner Assigned', 
           'In Transit', 
+          'Reached Hub',
           'Out for Delivery', 
           'Delivered', 
           'Completed',
@@ -88,9 +95,38 @@ const orderSchema = mongoose.Schema(
           'Refund Processing',
           'Refunded',
           'Settlement Pending',
-          'Settled'
+          'Settled',
+          'Survey Scheduled',
+          'Packing Team Assigned',
+          'Loading Completed',
+          'Moving In Transit',
+          'Unloading Started'
         ],
         default: 'Order Confirmed'
+    },
+    serviceType: {
+      type: String,
+      enum: ['Bike Taxi', 'Car Taxi', 'Parcel Delivery', 'Express Delivery', 'Packers & Movers', 'Rental', 'General'],
+      default: 'General'
+    },
+    rideMetadata: {
+      otp: { type: String },
+      driverRating: { type: Number },
+      vehicleNumber: { type: String },
+      vehicleModel: { type: String },
+      estimatedArrival: { type: Date }
+    },
+    logisticsMetadata: {
+      weight: { type: String },
+      inventory: [{ name: String, qty: Number }],
+      insuranceStatus: { type: String, enum: ['Active', 'None'], default: 'None' },
+      deliveryPriority: { type: String, enum: ['Standard', 'Express', 'Critical'], default: 'Standard' },
+      currentHub: { type: String }
+    },
+    liveTracking: {
+      currentLat: { type: Number },
+      currentLng: { type: Number },
+      lastUpdate: { type: Date }
     },
     settlementStatus: {
       type: String,
