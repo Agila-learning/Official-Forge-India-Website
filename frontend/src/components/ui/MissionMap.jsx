@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
+import { Truck } from 'lucide-react';
 
 const containerStyle = {
  width: '100%',

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   MapPin, Phone, Mail, CheckCircle2, Star, Users, 
-  ArrowRight, Building2, Zap, Truck, Home, Clock, Shield, Loader2, User
+  ArrowRight, Building2, Zap, Truck, Home, Clock, Shield, Loader2, User, ShieldCheck
 } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
