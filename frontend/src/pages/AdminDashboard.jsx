@@ -515,6 +515,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  </div>
+ </div>
  )}
 
  {activeTab !== 'overview' && activeTab !== 'messages' && (
