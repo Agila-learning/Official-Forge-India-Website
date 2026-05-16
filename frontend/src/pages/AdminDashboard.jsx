@@ -1882,8 +1882,8 @@ const AdminDashboard = () => {
  <div className="space-y-8">
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
  <div className="mb-8">
- <h3 className="text-3xl font-black mb-1">All Customer Orders</h3>
- <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.length} total orders</p>
+ <h3 className="text-3xl font-black mb-1">Product Orders</h3>
+ <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.filter(o => !o.orderItems?.some(i => i.isService)).length} product orders</p>
  </div>
  <div className="mobile-table-scroll">
  <table className="w-full text-left">
@@ -1895,7 +1895,7 @@ const AdminDashboard = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
- {orders.map(order => (
+ {orders.filter(o => !o.orderItems?.some(i => i.isService)).map(order => (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
@@ -1957,8 +1957,101 @@ const AdminDashboard = () => {
  </td>
  </tr>
  ))}
- {orders.length === 0 && (
- <tr><td colSpan={8} className="py-20 text-center text-gray-500 dark:text-gray-400 font-bold">No orders yet</td></tr>
+ {orders.filter(o => !o.orderItems?.some(i => i.isService)).length === 0 && (
+ <tr><td colSpan={10} className="py-20 text-center text-gray-500 dark:text-gray-400 font-bold">No product orders yet</td></tr>
+ )}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+ )}
+
+ {/* SERVICE BOOKINGS TAB */}
+ {activeTab === 'bookings' && (
+ <div className="space-y-8">
+ <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+ <div className="mb-8">
+ <h3 className="text-3xl font-black mb-1">Service Bookings</h3>
+ <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.filter(o => o.orderItems?.some(i => i.isService)).length} total bookings</p>
+ </div>
+ <div className="mobile-table-scroll">
+ <table className="w-full text-left">
+ <thead>
+ <tr className="border-b border-gray-100 dark:border-gray-800">
+ {['Booking ID', 'Customer', 'Service', 'Total', 'Paid', 'Status', 'Provider', 'Reason', 'Date', 'Action'].map(h => (
+ <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
+ ))}
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+ {orders.filter(o => o.orderItems?.some(i => i.isService)).map(order => (
+ <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+ <td className="py-5 pr-4">
+ <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
+ </td>
+ <td className="py-5 pr-4">
+ <p className="font-bold text-sm">{order.user?.firstName} {order.user?.lastName}</p>
+ <p className="text-[10px] text-gray-500 dark:text-gray-400">{order.user?.email}</p>
+ </td>
+ <td className="py-5 pr-4">
+ <p className="font-bold text-sm">{order.orderItems?.[0]?.name}</p>
+ </td>
+ <td className="py-5 pr-4">
+ <p className="font-black text-primary">₹{order.totalPrice?.toLocaleString()}</p>
+ </td>
+ <td className="py-5 pr-4">
+ <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isPaid ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+ {order.isPaid ? 'Paid' : 'Pending'}
+ </span>
+ </td>
+ <td className="py-5 pr-4">
+ <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isDelivered ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700'}`}>
+ {order.isDelivered ? 'Completed' : 'In Progress'}
+ </span>
+ </td>
+ <td className="py-5 pr-4">
+ <select 
+ value={order.deliveryPartner?._id || order.deliveryPartner || ''}
+ onChange={(e) => handleAssignPartner(order._id, e.target.value)}
+ className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase outline-none border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg cursor-pointer shadow-sm text-primary"
+ >
+ <option value="">Assign Provider</option>
+ {data.users.filter(u => ['Ride Provider', 'Stay Provider', 'Service Provider', 'Delivery Partner'].includes(u.role)).map(p => (
+ <option key={p._id} value={p._id}>{p.firstName} {p.lastName} ({p.role})</option>
+ ))}
+ </select>
+ </td>
+ <td className="py-5 pr-4">
+ {order.cancellationReason ? (
+ <p className="text-[10px] font-bold text-red-500 max-w-[150px] line-clamp-2" title={order.cancellationReason}>
+ {order.cancellationReason}
+ </p>
+ ) : (
+ <p className="text-[10px] text-gray-400">N/A</p>
+ )}
+ </td>
+ <td className="py-5 pr-4">
+ <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>
+ </td>
+ <td className="py-5">
+ {!order.isDelivered && (
+ <button onClick={async () => {
+ await api.put(`/orders/${order._id}/deliver`, {});
+ toast.success('Booking marked as completed');
+ const res = await api.get('/orders');
+ setOrders(res.data);
+ }} className="px-4 py-2 bg-green-100 text-green-600 font-black text-[10px] uppercase rounded-xl hover:bg-green-500 hover:text-white transition-all">
+ Mark Done
+ </button>
+ )}
+ </td>
+ </tr>
+ ))}
+ {orders.filter(o => o.orderItems?.some(i => i.isService)).length === 0 && (
+ <tr>
+ <td colSpan="10" className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No service bookings found</td>
+ </tr>
  )}
  </tbody>
  </table>

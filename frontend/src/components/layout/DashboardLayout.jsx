@@ -116,6 +116,7 @@ const DashboardLayout = ({
  { id: 'users', icon: Users, label: 'Users & Partners' },
  { id: 'vendors', icon: Store, label: 'Vendor Management' },
  { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
+ { id: 'bookings', icon: Calendar, label: 'Service Bookings' },
  { id: 'events', icon: Calendar, label: 'Events' },
  { id: 'atomy', icon: Package, label: 'Product Catalog' },
  { id: 'services', icon: Wrench, label: 'Services' },
@@ -138,7 +139,6 @@ const DashboardLayout = ({
  ].filter(tab => !isSubAdmin || !subAdminRestricted.includes(tab.id));
 
  case 'Vendor':
- case 'Seller':
  case 'Stay Provider':
  case 'Ride Provider':
  case 'Service Provider':
@@ -161,6 +161,13 @@ const DashboardLayout = ({
  { id: 'reviews', icon: Star, label: 'Reviews' },
  { id: 'payouts', icon: CreditCard, label: 'Payouts' },
  { id: 'profile', icon: User, label: 'Profile' },
+ ];
+
+ case 'Seller':
+ return [
+ { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
+ { id: 'inventory', icon: Package, label: 'My Products' },
+ { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' }
  ];
 
  case 'HR':
@@ -197,15 +204,14 @@ const DashboardLayout = ({
  ];
 
  case 'Trainer':
- return [
- { id: 'overview', icon: LayoutDashboard, label: 'Control Center' },
- { id: 'batches', icon: BookOpen, label: 'My Batches' },
- { id: 'students', icon: Users, label: 'Candidates' },
- { id: 'chat', icon: MessageCircle, label: 'Communication' },
- { id: 'materials', icon: Share2, label: 'Course Content' },
- { id: 'assignments', icon: ClipboardList, label: 'Assessments' },
- { id: 'profile', icon: User, label: 'My Profile' },
- ];
+  return [
+  { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
+  { id: 'batches', icon: BookOpen, label: 'My Batches' },
+  { id: 'lectures', icon: Video, label: 'Lectures' },
+  { id: 'upload', icon: Upload, label: 'Upload Content' },
+  { id: 'students', icon: Users, label: 'Students' },
+  { id: 'settings', icon: Settings, label: 'Settings' }
+  ];
 
  case 'Employer':
  return [

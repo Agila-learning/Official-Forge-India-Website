@@ -18,6 +18,8 @@ const { protect, admin } = require('../middleware/authMiddleware');
 router.route('/activity').get(getOrderActivity);
 router.route('/').post(protect, addOrderItems).get(protect, getOrders);
 router.route('/myorders').get(protect, getMyOrders);
+router.route('/partner/me').get(protect, require('../controllers/orderController').getPartnerOrders);
+router.route('/vendor/me').get(protect, require('../controllers/orderController').getVendorOrders);
 router.route('/:id').get(protect, getOrderById);
 router.route('/:id/pay').put(protect, updateOrderToPaid);
 router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);

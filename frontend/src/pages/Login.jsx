@@ -45,8 +45,8 @@ const Login = () => {
  const roleMap = {
  'Admin': '/admin/dashboard',
  'Vendor': '/vendor',
- 'Seller': '/vendor',
- 'Service Provider': '/vendor',
+ 'Seller': '/seller-dashboard',
+ 'Service Provider': '/service-provider',
  'HR': '/hr',
  'Delivery Partner': '/delivery',
  'Candidate': '/candidate/dashboard',

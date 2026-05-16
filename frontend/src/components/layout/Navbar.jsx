@@ -73,7 +73,7 @@ const Navbar = () => {
  const userInfoStr = localStorage.getItem('userInfo');
  const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
  const isLoggedIn = !!userInfo;
- const isPartner = isLoggedIn && ['Vendor', 'HR', 'Delivery Partner', 'Admin', 'Candidate', 'Trainer'].includes(userInfo.role);
+ const isPartner = isLoggedIn && ['Vendor', 'Seller', 'Service Provider', 'Stay Provider', 'Ride Provider', 'HR', 'Delivery Partner', 'Admin', 'Candidate', 'Trainer'].includes(userInfo.role);
 
  const handleDashboardClick = (e) => {
  if (e) e.preventDefault();
@@ -86,9 +86,19 @@ const Navbar = () => {
  navigate('/admin/dashboard'); 
  break;
  case 'Vendor': 
- case 'Seller':
- case 'Service Provider':
  navigate('/vendor'); 
+ break;
+ case 'Seller':
+ navigate('/seller-dashboard');
+ break;
+ case 'Service Provider':
+ navigate('/service-provider');
+ break;
+ case 'Stay Provider':
+ navigate('/stay-partner');
+ break;
+ case 'Ride Provider':
+ navigate('/ride-partner');
  break;
  case 'HR': 
  navigate('/hr'); 
@@ -166,7 +176,7 @@ const Navbar = () => {
 
  const ecosystemOptions = [
  { name: 'Atomy Products', desc: 'Premium Korean Wellness', path: '/atomy', icon: <ShoppingBag size={20} /> },
- { name: 'Career AI Scan', desc: 'ATS Resume Analyzer', path: '/', icon: <Rocket size={20} /> },
+ { name: 'Career AI Scan', desc: 'ATS Resume Analyzer', path: '/candidate/dashboard', icon: <Rocket size={20} /> },
  { name: 'Job Hub', desc: 'Enterprise Recruitment', path: '/jobs', icon: <Briefcase size={20} /> },
  { name: 'Global Shop', desc: 'Industrial Procurement', path: '/explore-shop', icon: <ShoppingBag size={20} /> },
  ];

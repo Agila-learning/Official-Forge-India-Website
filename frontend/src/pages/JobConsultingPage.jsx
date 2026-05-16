@@ -83,11 +83,17 @@ const JobConsultingPage = () => {
  navigate('/login');
  return;
  }
+
+ if (!formData.contactNumber || !formData.specificRequirement) {
+   toast.error('Please complete the mission parameters below before Quick Pay.');
+   document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' });
+   return;
+ }
  
  const quickFormData = {
  ...formData,
- specificRequirement: formData.specificRequirement || 'Quick Pay via Direct Dashboard Access',
- contactNumber: formData.contactNumber || userInfo.mobile || userInfo.phone || 'N/A',
+ specificRequirement: formData.specificRequirement,
+ contactNumber: formData.contactNumber,
  };
 
  setLoading(true);

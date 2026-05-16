@@ -184,17 +184,48 @@ const ServiceLanding = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const payload = {
-        serviceSlug: config.serviceSlug,
-        name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : name,
-        email: userInfo?.email || email,
-        phone: userInfo?.phone || phone,
-        message: Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join(' | '),
-        ...formData,
-      };
-      await api.post('/service-registrations', payload);
-      setSubmitted(true);
-      toast.success('Request submitted! We will contact you shortly.', { duration: 5000 });
+      if (userInfo) {
+        // Authenticated user -> Create a formal Order
+        const payload = {
+          orderItems: [{
+            name: `${config.title} Booking`,
+            qty: 1,
+            image: "https://images.unsplash.com/photo-1542314831-c6a4d27ece50?w=500", // Generic placeholder
+            price: 0, // Price to be assigned by admin/provider
+            isService: true,
+            selectedConfig: formData
+          }],
+          shippingAddress: {
+            address: formData.pickup || formData.city || 'TBD',
+            city: formData.city || formData.drop || 'TBD',
+            postalCode: '000000',
+            country: 'India'
+          },
+          paymentMethod: 'Pay on Delivery',
+          totalPrice: 0,
+          instructions: Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join(' | '),
+          fulfillmentType: config.serviceSlug === 'hotels' || config.serviceSlug === 'villas' || config.serviceSlug === 'pg-hostels' ? 'Digital Fulfillment' : 'Technician Visit'
+        };
+        const { data } = await api.post('/orders', payload, {
+          headers: { Authorization: `Bearer ${userInfo.token}` }
+        });
+        
+        toast.success(`Booking Confirmed! Order ID: ${data._id.slice(-6)}`, { duration: 5000 });
+        navigate(`/track-mission/${data._id}`);
+      } else {
+        // Guest user -> Save as lead
+        const payload = {
+          serviceSlug: config.serviceSlug,
+          name: name,
+          email: email,
+          phone: phone,
+          message: Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join(' | '),
+          ...formData,
+        };
+        await api.post('/service-registrations', payload);
+        setSubmitted(true);
+        toast.success('Request submitted! We will contact you shortly.', { duration: 5000 });
+      }
     } catch (err) {
       toast.error('Failed to submit. Please try again.');
     } finally {

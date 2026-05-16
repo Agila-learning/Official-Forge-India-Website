@@ -5,6 +5,8 @@ import {
  ArrowRight, Sparkles, Zap, Leaf 
 } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
+import { useCart } from '../context/CartContext';
+import toast from 'react-hot-toast';
 
 const products = [
  {
@@ -52,6 +54,19 @@ const products = [
 const AtomyProducts = () => {
  const [selectedCategory, setSelectedCategory] = useState('All');
  const categories = ['All', 'Health Supplement', 'Beauty & Skincare', 'Personal Care', 'Health & Wellness'];
+ const { addToCart } = useCart();
+
+ const handleAddToCart = (product) => {
+   addToCart({
+     _id: `atomy-${product.id}`,
+     name: product.name,
+     price: product.price,
+     image: product.image,
+     shopCode: 'FIC-ATOMY',
+     category: product.category
+   });
+   toast.success(`${product.name} added to payload`);
+ };
 
  const filteredProducts = selectedCategory === 'All' 
  ? products 
@@ -149,7 +164,10 @@ const AtomyProducts = () => {
  <span className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-1">M.R.P</span>
  <span className="text-2xl font-black text-white">₹{product.price.toLocaleString()}</span>
  </div>
- <button className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-primary/20">
+ <button 
+   onClick={() => handleAddToCart(product)}
+   className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center hover:scale-110 transition-all shadow-lg shadow-primary/20"
+ >
  <ShoppingBag size={20} />
  </button>
  </div>

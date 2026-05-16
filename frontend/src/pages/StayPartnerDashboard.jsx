@@ -16,10 +16,11 @@ const StayPartnerDashboard = () => {
  const [activeTab, setActiveTab] = useState('overview');
  const [loading, setLoading] = useState(true);
  const [properties, setProperties] = useState([]);
+ const [bookings, setBookings] = useState([]);
  const [stats, setStats] = useState({
  occupancy: '85%',
- revenue: '₹1.2L',
- activeBookings: 12,
+ revenue: '₹0',
+ activeBookings: 0,
  rating: 4.8
  });
 
@@ -34,11 +35,22 @@ const StayPartnerDashboard = () => {
 
  const fetchData = async () => {
  try {
- // Simulated data for now, would fetch from /stay/my-properties
+ const orderRes = await api.get('/orders/partner/me');
+ setBookings(orderRes.data);
+
+ // Simulated data for properties
  setProperties([
  { id: '1', name: 'Ocean View Hotel', type: 'Hotel', rooms: 20, available: 5, price: '₹2,500', status: 'Live', location: 'Goa, India' },
  { id: '2', name: 'Green Valley PG', type: 'PG', rooms: 15, available: 2, price: '₹8,000', status: 'Live', location: 'Bangalore, India' },
  ]);
+
+ setStats({
+   occupancy: '85%',
+   revenue: '₹' + orderRes.data.filter(o => o.isDelivered).reduce((acc, o) => acc + o.totalPrice, 0).toLocaleString(),
+   activeBookings: orderRes.data.length,
+   rating: 4.8
+ });
+
  setLoading(false);
  } catch (err) {
  toast.error('Failed to sync with stay network');
@@ -164,20 +176,30 @@ const StayPartnerDashboard = () => {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
  <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
  <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-8">Recent Check-ins</h4>
- <div className="space-y-6">
- {[1, 2, 3].map(i => (
- <div key={i} className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group hover:border-blue-500/20 transition-all">
- <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800 font-black text-primary uppercase">SJ</div>
- <div>
- <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">Sam J.</p>
- <p className="text-[10px] font-bold text-gray-400 uppercase">Premium Suite · Check-out 28 May</p>
- </div>
- </div>
- <button className="px-6 py-2 bg-blue-600 text-white font-black text-[9px] uppercase tracking-widest rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all">Manage</button>
- </div>
- ))}
- </div>
+  <div className="space-y-6">
+  {bookings.map(booking => (
+  <div key={booking._id} className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group hover:border-blue-500/20 transition-all">
+  <div className="flex items-center gap-4">
+  <div className="w-12 h-12 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800 font-black text-primary uppercase">
+    {booking.user?.firstName?.[0]}{booking.user?.lastName?.[0]}
+  </div>
+  <div>
+  <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">{booking.user?.firstName} {booking.user?.lastName}</p>
+  <p className="text-[10px] font-bold text-gray-400 uppercase">{booking.orderItems?.[0]?.name} · #{booking._id.slice(-6).toUpperCase()}</p>
+  </div>
+  </div>
+  <div className="text-right flex flex-col items-end">
+    <p className="text-sm font-black text-blue-600">₹{booking.totalPrice?.toLocaleString()}</p>
+    <p className={`text-[8px] font-black uppercase mt-1 ${booking.isDelivered ? 'text-green-500' : 'text-blue-500'}`}>
+      {booking.isDelivered ? 'Completed' : 'Active'}
+    </p>
+  </div>
+  </div>
+  ))}
+  {bookings.length === 0 && (
+    <div className="py-20 text-center text-gray-500 font-bold uppercase tracking-widest text-xs">No active bookings found</div>
+  )}
+  </div>
  </div>
  
  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[3rem] p-10 md:p-14 text-white relative overflow-hidden shadow-2xl">

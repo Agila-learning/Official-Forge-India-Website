@@ -32,6 +32,7 @@ const HRDashboard = lazy(() => import('./pages/HRDashboard'));
 const DeliveryDashboard = lazy(() => import('./pages/DeliveryDashboard'));
 const CandidateDashboard = lazy(() => import('./pages/CandidateDashboard'));
 const TrainerDashboard = lazy(() => import('./pages/TrainerDashboard'));
+const SellerDashboard = lazy(() => import('./pages/SellerDashboard'));
 const Clientele = lazy(() => import('./pages/Clientele'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
@@ -83,12 +84,12 @@ const ContentWrapper = ({ loading }) => {
  
  const hideNavPaths = [
  '/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', 
- '/employer', '/track-mission', '/service-provider', '/stay-partner', '/ride-partner'
+ '/employer', '/track-mission', '/service-provider', '/stay-partner', '/ride-partner', '/seller-dashboard'
  ];
  const isDashboard = hideNavPaths.some(path => location.pathname.startsWith(path));
  const dashboardRoles = [
  'Admin', 'Sub-Admin', 'Vendor', 'HR', 'Delivery Partner', 
- 'Candidate', 'Employer', 'Stay Provider', 'Ride Provider'
+ 'Candidate', 'Employer', 'Stay Provider', 'Ride Provider', 'Seller'
  ];
  const shouldHide = isDashboard;
  
@@ -161,6 +162,7 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/ride-partner" element={<ProtectedRoute allowedRoles={['Ride Provider', 'Admin']}><RidePartnerDashboard /></ProtectedRoute>} />
  <Route path="/candidate/dashboard" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin']}><CandidateDashboard /></ProtectedRoute>} />
  <Route path="/trainer-dashboard" element={<ProtectedRoute allowedRoles={['Trainer', 'Admin']}><TrainerDashboard /></ProtectedRoute>} />
+ <Route path="/seller-dashboard" element={<ProtectedRoute allowedRoles={['Seller', 'Admin']}><SellerDashboard /></ProtectedRoute>} />
  <Route path="/privacy" element={<PrivacyPolicy />} />
  <Route path="/terms" element={<TermsAndConditions />} />
  <Route path="/explore-jobs" element={<ExploreJobs />} />

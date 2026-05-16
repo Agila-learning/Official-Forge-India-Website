@@ -145,6 +145,17 @@ const deleteLecture = asyncHandler(async (req, res) => {
   }
 });
 
+const generateCertificate = asyncHandler(async (req, res) => {
+  const { candidateId, batchId } = req.body;
+  // Dummy implementation for now - just returns success
+  // In production this would generate a PDF and email it
+  if (!candidateId || !batchId) {
+    res.status(400);
+    throw new Error('Candidate ID and Batch ID are required');
+  }
+  res.status(200).json({ message: 'Certificate generated successfully', status: 'success' });
+});
+
 module.exports = {
   getCourses,
   createCourse,
@@ -162,5 +173,6 @@ module.exports = {
   sendMessage,
   getLecturesByBatch,
   createLecture,
-  deleteLecture
+  deleteLecture,
+  generateCertificate
 };

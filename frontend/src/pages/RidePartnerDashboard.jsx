@@ -16,9 +16,10 @@ const RidePartnerDashboard = () => {
  const [activeTab, setActiveTab] = useState('overview');
  const [loading, setLoading] = useState(true);
  const [vehicles, setVehicles] = useState([]);
+ const [missions, setMissions] = useState([]);
  const [stats, setStats] = useState({
- trips: 154,
- earnings: '₹45,000',
+ trips: 0,
+ earnings: '₹0',
  rating: 4.9,
  onlineHours: '128h'
  });
@@ -31,11 +32,22 @@ const RidePartnerDashboard = () => {
 
  const fetchData = async () => {
  try {
- // Simulated data
+ const orderRes = await api.get('/orders/partner/me');
+ setMissions(orderRes.data);
+
+ // Simulated data for vehicles
  setVehicles([
  { id: '1', name: 'Tesla Model 3', type: 'Car', plate: 'KA-01-FIC-1', status: 'Online', battery: '85%' },
  { id: '2', name: 'Ather 450X', type: 'Bike', plate: 'KA-01-FIC-2', status: 'Charging', battery: '42%' },
  ]);
+
+ setStats({
+   trips: orderRes.data.length,
+   earnings: '₹' + orderRes.data.filter(o => o.isDelivered).reduce((acc, o) => acc + o.totalPrice, 0).toLocaleString(),
+   rating: 4.9,
+   onlineHours: '128h'
+ });
+
  setLoading(false);
  } catch (err) {
  toast.error('Failed to sync with ride network');
@@ -163,23 +175,28 @@ const RidePartnerDashboard = () => {
  <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
  <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-8">Active Mission Pipeline</h4>
  <div className="space-y-6">
- {[1, 2, 3].map(i => (
- <div key={i} className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group hover:border-orange-500/20 transition-all">
+ {missions.map(mission => (
+ <div key={mission._id} className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group hover:border-orange-500/20 transition-all">
  <div className="flex items-center gap-4 text-left">
  <div className="w-12 h-12 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center border border-gray-100 dark:border-gray-800 font-black text-orange-500 uppercase">
  <MapPin size={20} />
  </div>
  <div>
- <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">Mission #{8273 + i}</p>
- <p className="text-[10px] font-bold text-gray-400 uppercase">Sector 7 → Airport Terminal 1</p>
+ <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">{mission.orderItems?.[0]?.name}</p>
+ <p className="text-[10px] font-bold text-gray-400 uppercase">#{mission._id.slice(-6).toUpperCase()} • {new Date(mission.createdAt).toLocaleDateString()}</p>
  </div>
  </div>
  <div className="text-right">
- <p className="text-sm font-black text-orange-500 tracking-tighter">₹450.00</p>
- <p className="text-[8px] font-black text-gray-400 uppercase">In Progress</p>
+ <p className="text-sm font-black text-orange-500 tracking-tighter">₹{mission.totalPrice?.toLocaleString()}</p>
+ <p className={`text-[8px] font-black uppercase mt-1 ${mission.isDelivered ? 'text-green-500' : 'text-orange-500'}`}>
+   {mission.isDelivered ? 'Completed' : 'Active'}
+ </p>
  </div>
  </div>
  ))}
+ {missions.length === 0 && (
+   <div className="py-20 text-center text-gray-500 font-bold uppercase tracking-widest text-xs">No active missions assigned</div>
+ )}
  </div>
  </div>
  

@@ -18,6 +18,7 @@ const TrackMission = () => {
  const [showReviewModal, setShowReviewModal] = useState(false);
  const [rating, setRating] = useState(5);
  const [comment, setComment] = useState('');
+ const [searchInput, setSearchInput] = useState('');
 
  const stages = [
  { id: 'Order Confirmed', label: 'Confirmed', icon: <CheckCircle />, desc: 'Mission authorized' },
@@ -39,10 +40,22 @@ const TrackMission = () => {
  setLoading(false);
  }
  };
- fetchOrder();
- const interval = setInterval(fetchOrder, 30000); // Poll every 30s
- return () => clearInterval(interval);
+ 
+ if (id) {
+   fetchOrder();
+   const interval = setInterval(fetchOrder, 30000); // Poll every 30s
+   return () => clearInterval(interval);
+ } else {
+   setLoading(false);
+ }
  }, [id]);
+
+ const handleSearch = (e) => {
+   e.preventDefault();
+   if (searchInput.trim()) {
+     navigate(`/track-mission/${searchInput.trim()}`);
+   }
+ };
 
  const handleReviewSubmit = async () => {
  try {
@@ -68,8 +81,34 @@ const TrackMission = () => {
  </div>
  );
 
+ if (!id) return (
+ <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg px-6 pt-20">
+   <div className="w-full max-w-xl bg-white dark:bg-dark-card rounded-[3rem] p-12 border border-gray-100 dark:border-gray-800 shadow-2xl text-center">
+     <div className="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto mb-8">
+       <MapPin size={40} />
+     </div>
+     <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-4">Track <span className="text-primary">Mission</span></h2>
+     <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mb-10">Enter your Order ID or Mission Sequence to sync live status</p>
+     
+     <form onSubmit={handleSearch} className="flex gap-4">
+       <input 
+         type="text" 
+         value={searchInput}
+         onChange={(e) => setSearchInput(e.target.value)}
+         placeholder="e.g. 64a8f9b..." 
+         className="flex-1 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl px-6 py-4 outline-none focus:border-primary text-sm font-bold dark:text-white"
+         required
+       />
+       <button type="submit" className="bg-primary text-white px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+         Sync
+       </button>
+     </form>
+   </div>
+ </div>
+ );
+
  if (!order) return (
- <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-dark-bg p-8 text-center">
+ <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-dark-bg p-8 text-center pt-20">
  <HelpCircle size={64} className="text-gray-300 mb-6" />
  <h2 className="text-2xl font-black uppercase tracking-tighter">Mission Absent</h2>
  <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-2">Check your credentials or return to hub.</p>

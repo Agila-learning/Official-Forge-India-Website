@@ -18,6 +18,7 @@ router.get('/my-training', protect, getMyTraining);
 // Trainer Routes
 router.get('/trainer/batches', protect, getTrainerBatches);
 router.get('/trainer/candidates', protect, require('../controllers/trainingController').getTrainerCandidates);
+router.post('/trainer/certificates', protect, require('../controllers/trainingController').generateCertificate);
 
 // Admin Routes (for batches)
 router.get('/batches', protect, admin, require('../controllers/trainingController').getBatches);

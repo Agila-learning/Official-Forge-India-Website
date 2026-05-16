@@ -324,6 +324,60 @@ const ServiceLandingPage = () => {
         </div>
       </section>
 
+      {/* ── How It Works ────────────────────────────────────────── */}
+      <section className="container-xl px-6 mt-32 relative z-20">
+        <h2 className="text-3xl md:text-5xl font-black text-center text-white uppercase tracking-tighter mb-16">
+          Mission <span className="text-primary">Protocol</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-white/5 -translate-y-1/2 z-0" />
+          
+          {[
+            { step: '01', title: 'Tactical Analysis', desc: 'We analyze your requirements and blueprint the optimal technical architecture.' },
+            { step: '02', title: 'Agile Deployment', desc: 'Our elite engineering teams build and deploy in rapid, iterative cycles.' },
+            { step: '03', title: 'Mission Success', desc: 'Seamless handover, training, and 24/7 post-deployment operational support.' }
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.2 }}
+              className="glass-card p-10 text-center relative z-10 hover:-translate-y-2 transition-transform"
+            >
+              <div className="w-16 h-16 bg-dark-bg border-4 border-primary rounded-full flex items-center justify-center text-xl font-black text-white mx-auto mb-6 shadow-[0_0_30px_rgba(37,99,235,0.3)]">
+                {item.step}
+              </div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-4">{item.title}</h3>
+              <p className="text-white/40 font-medium leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Testimonials ────────────────────────────────────────── */}
+      <section className="container-xl px-6 mt-32 mb-10">
+        <div className="bg-gradient-to-br from-primary/10 to-dark-bg p-12 md:p-20 rounded-[4rem] border border-white/5 relative overflow-hidden">
+          <div className="absolute -top-24 -right-24 text-[200px] text-white/5 font-serif leading-none">"</div>
+          <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-12 relative z-10">
+            Field <span className="text-primary">Intelligence</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+            {[
+              { quote: "FIC deployed our entire cloud infrastructure 3 weeks ahead of schedule. Their engineering precision is unmatched in the region.", author: "Director of Operations", company: "Global Tech Solutions" },
+              { quote: "The performance marketing campaigns engineered by FIC increased our conversion rates by 400% within the first operational quarter.", author: "Chief Marketing Officer", company: "Retail Innovators Inc." }
+            ].map((t, i) => (
+              <div key={i} className="bg-white/5 p-10 rounded-[3rem] border border-white/10">
+                <p className="text-lg text-white/80 font-medium leading-relaxed italic mb-8">"{t.quote}"</p>
+                <div>
+                  <p className="text-sm font-black text-white uppercase tracking-tight">{t.author}</p>
+                  <p className="text-[10px] font-bold text-primary uppercase tracking-widest">{t.company}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Registration Modal ───────────────────────────────────── */}
       <RegistrationModal
         isOpen={showModal}
