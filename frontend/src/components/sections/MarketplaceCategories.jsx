@@ -183,10 +183,9 @@ const MarketplaceCategories = () => {
  <div className="flex -space-x-2">
  {[1, 2, 3].map(i => (
  <div key={i} className="w-6 h-6 rounded-full border-2 border-white dark:border-dark-card bg-slate-200 overflow-hidden">
- <img src={`https://i.pravatar.cc/100?u=${cat.id}${i}`} alt="user" className="w-full h-full object-cover" />
+ <img src={`https://i.pravatar.cc/100?u=${category.id}${i}`} alt="user" className="w-full h-full object-cover" />
  </div>
  ))}
- </div>
  </div>
  </div>
  </motion.div>
