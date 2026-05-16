@@ -71,6 +71,7 @@ const serviceRegistrationSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  strict: false,
 });
 
 module.exports = mongoose.model('ServiceRegistration', serviceRegistrationSchema);

@@ -145,17 +145,17 @@ const Navbar = () => {
  { name: 'Business Consulting', path: '/services/category/business-consulting', icon: <Building2 size={20} /> },
  ];
 
- const hotelOptions = [
- { name: 'Hotels', path: '/services/landing/hotels', icon: <Building2 size={20} />, desc: 'Premium stays & hospitality' },
- { name: 'PG & Hostels', path: '/services/landing/pg', icon: <Building2 size={20} />, desc: 'Affordable room rentals' },
- { name: 'Luxury Villas', path: '/services/landing/villas', icon: <Building2 size={20} />, desc: 'Premium villa getaways' },
- ];
+  const hotelOptions = [
+    { name: 'Hotels', path: '/services/landing/hotels', icon: <Building2 size={20} />, desc: 'Premium stays & hospitality' },
+    { name: 'PG & Hostels', path: '/services/landing/pg', icon: <Building2 size={20} />, desc: 'Affordable room rentals' },
+    { name: 'Luxury Villas', path: '/services/landing/villas', icon: <Building2 size={20} />, desc: 'Premium villa getaways' },
+  ];
 
- const rideOptions = [
- { name: 'Bike Taxi', path: '/services/landing/bike-taxi', icon: <Zap size={20} />, desc: 'Quick 2-wheeler rides' },
- { name: 'Car Taxi', path: '/services/landing/car-taxi', icon: <Zap size={20} />, desc: 'Comfortable cab service' },
- { name: 'Express Delivery', path: '/services/landing/delivery', icon: <Truck size={20} />, desc: 'Fast parcel delivery' },
- ];
+  const rideOptions = [
+    { name: 'Bike Taxi', path: '/services/landing/bike-taxi', icon: <Zap size={20} />, desc: 'Quick 2-wheeler rides' },
+    { name: 'Car Taxi', path: '/services/landing/car-taxi', icon: <Zap size={20} />, desc: 'Comfortable cab service' },
+    { name: 'Express Delivery', path: '/services/landing/delivery', icon: <Truck size={20} />, desc: 'Fast parcel delivery' },
+  ];
 
  const homeServicesOptions = [
  { 

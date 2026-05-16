@@ -34,6 +34,7 @@ const AdminDashboard = () => {
  const [managedPricingRules, setManagedPricingRules] = useState([]);
  const [showProductForm, setShowProductForm] = useState(false);
  const [showServiceForm, setShowServiceForm] = useState(false);
+ const [searchQuery, setSearchQuery] = useState('');
 
  useEffect(() => {
  if (editingItem.products) {
@@ -67,15 +68,12 @@ const AdminDashboard = () => {
 
  const [dashboardStats, setDashboardStats] = useState({});
  const [uploadStatus, setUploadStatus] = useState({ loading: false, url: '', error: '' });
- const [userSearch, setUserSearch] = useState('');
  const [reviews, setReviews] = useState([]);
  const [orders, setOrders] = useState([]);
  const [deliveryPartners, setDeliveryPartners] = useState([]);
  const [editingReview, setEditingReview] = useState(null);
  const [vendorFilter, setVendorFilter] = useState('all');
  const [payoutLogs, setPayoutLogs] = useState([]);
- const [orderSearch, setOrderSearch] = useState('');
- const [bookingSearch, setBookingSearch] = useState('');
  const [locations, setLocations] = useState([]);
  const [selectedVendorForAsset, setSelectedVendorForAsset] = useState(null);
 
@@ -86,7 +84,6 @@ const AdminDashboard = () => {
  const [chatMessages, setChatMessages] = useState([]);
  const [newMessage, setNewMessage] = useState('');
  const [chatLoading, setChatLoading] = useState(false);
- const [contactSearch, setContactSearch] = useState('');
  const [chatRoleFilter, setChatRoleFilter] = useState('All');
  const [isAdminEditing, setIsAdminEditing] = useState(false);
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -226,8 +223,9 @@ const AdminDashboard = () => {
  // Auto-assign category for specialized tabs if creating new
  if (!editingItem.products) {
  if (activeTab === 'rides') payload.category = 'Rides';
- if (activeTab === 'stays' && !payload.category) payload.category = 'Stays';
- if (activeTab === 'rentals' && !payload.propertyType) payload.propertyType = 'Apartment'; // Default
+ if (activeTab === 'stays') payload.category = 'Stays';
+ if (activeTab === 'rentals') payload.category = 'Rentals';
+ if (activeTab === 'atomy') payload.category = 'Atomy';
  }
 
  // For services: auto-derive category name from selected categoryRef
@@ -242,14 +240,20 @@ const AdminDashboard = () => {
  }
  
  if (endpoint === 'products') {
- payload.price = Number(payload.price) || 0;
- if (payload.discountPrice) payload.discountPrice = Number(payload.discountPrice);
- if (payload.countInStock) payload.countInStock = Number(payload.countInStock);
- if (payload.tags) payload.tags = payload.tags.split(',').map(tag => tag.trim()).filter(Boolean);
- if (payload.highlights) payload.highlights = payload.highlights.split(',').map(h => h.trim()).filter(Boolean);
- if (payload.whatsIncluded) payload.whatsIncluded = payload.whatsIncluded.split(',').map(h => h.trim()).filter(Boolean);
- if (payload.whatsExcluded) payload.whatsExcluded = payload.whatsExcluded.split(',').map(h => h.trim()).filter(Boolean);
- if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim()).filter(Boolean);
+  payload.price = Number(payload.price) || 0;
+  if (payload.discountPrice) payload.discountPrice = Number(payload.discountPrice);
+  if (payload.countInStock) payload.countInStock = Number(payload.countInStock);
+  
+  if (payload.sqft) payload.sqft = Number(payload.sqft);
+  if (payload.bhk) payload.bhk = Number(payload.bhk);
+  if (payload.teamSize) payload.teamSize = Number(payload.teamSize);
+  if (payload.perKmRate) payload.perKmRate = Number(payload.perKmRate);
+
+  if (payload.tags) payload.tags = payload.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+  if (payload.highlights) payload.highlights = payload.highlights.split(',').map(h => h.trim()).filter(Boolean);
+  if (payload.whatsIncluded) payload.whatsIncluded = payload.whatsIncluded.split(',').map(h => h.trim()).filter(Boolean);
+  if (payload.whatsExcluded) payload.whatsExcluded = payload.whatsExcluded.split(',').map(h => h.trim()).filter(Boolean);
+  if (payload.safetyMeasures) payload.safetyMeasures = payload.safetyMeasures.split(',').map(s => s.trim()).filter(Boolean);
 
  // Provide default image for services if none given
  if (!payload.image || payload.image.trim() === '') {
@@ -391,12 +395,12 @@ const AdminDashboard = () => {
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
  { id: 'rides', icon: Truck, label: 'Rides' },
- { id: 'stays', icon: Home, label: 'Hotels & PG' },
+{ id: 'stays', icon: Home, label: 'Hotels & PG' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
  { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
- { id: 'candidates', icon: UserPlus, label: 'Placed Candidates' },
+ { id: 'candidates', icon: UserPlus, label: 'Placed Candidates & Stories' },
  { id: 'testimonials', icon: Star, label: 'Testimonials' },
  { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
  { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
@@ -408,7 +412,7 @@ const AdminDashboard = () => {
  { id: 'messages', icon: Send, label: 'Messages' },
  { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
  { id: 'profile', icon: Users, label: 'My Profile' }
- ].filter(tab => !isSubAdmin || !subAdminRestrictedTabs.includes(tab.id));
+].filter(tab => !isSubAdmin || !subAdminRestrictedTabs.includes(tab.id));
 
  return (
  <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} stats={dashboardStats}>
@@ -420,12 +424,39 @@ const AdminDashboard = () => {
  exit={{ opacity: 0, y: -20 }}
  transition={{ duration: 0.4, ease: "easeOut" }}
  >
+ { /* GLOBAL SEARCH COMMAND CENTER */ }
+ <div className="mb-8 mt-4">
+ <div className="glass-card p-4 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl bg-gradient-to-r from-white to-gray-50 dark:from-dark-card dark:to-dark-bg flex items-center gap-4">
+ <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shrink-0">
+ <Search size={24} />
+ </div>
+ <div className="flex-1 relative">
+ <input 
+ type="text" 
+ value={searchQuery}
+ onChange={(e) => setSearchQuery(e.target.value)}
+ placeholder={`Search across ${activeTab.replace('-', ' ')} protocol...`}
+ className="w-full bg-transparent border-none outline-none font-black text-lg uppercase tracking-tighter placeholder:text-gray-300"
+ />
+ </div>
+ {searchQuery && (
+ <button onClick={() => setSearchQuery('')} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
+ <XCircle size={20} />
+ </button>
+ )}
+ <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-dark-bg rounded-xl">
+ <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Filter:</span>
+ <span className="text-[10px] font-black text-primary uppercase tracking-widest">{activeTab}</span>
+ </div>
+ </div>
+ </div>
+
  {activeTab === 'overview' && (
  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 mt-12">
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl min-h-[400px]">
  <h3 className="text-2xl font-black mb-8">Recent <span className="text-primary">Activity</span></h3>
  <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
- {orders.slice(0, 20).map(order => (
+ {orders.filter(order => !searchQuery || order._id.toLowerCase().includes(searchQuery.toLowerCase()) || (order.user?.firstName || '').toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 20).map(order => (
  <div key={order._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary"><ShoppingBag size={20} /></div>
@@ -464,7 +495,7 @@ const AdminDashboard = () => {
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
  <h3 className="text-2xl font-black mb-6">Recent Job Applications</h3>
  <div className="space-y-4">
- {data.applications?.slice(0, 5).map(app => (
+ {data.applications?.filter(a => !searchQuery || a.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) || a.jobRole?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5).map(app => (
  <div key={app._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600"><ClipboardList size={20} /></div>
@@ -648,7 +679,7 @@ const AdminDashboard = () => {
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Active Job Openings</h3>
  <div className="space-y-4">
- {data.jobs.map(job => (
+ {data.jobs.filter(j => !searchQuery || j.title?.toLowerCase().includes(searchQuery.toLowerCase()) || j.companyName?.toLowerCase().includes(searchQuery.toLowerCase())).map(job => (
  <div key={job._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group">
  <div>
  <h4 className="font-black text-lg group-hover:text-primary transition-colors">{job.title}</h4>
@@ -743,6 +774,44 @@ const AdminDashboard = () => {
  <input name="image" defaultValue={editingItem.products?.image || ''} required type="text" placeholder="http://..." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-primary/5 rounded-[2rem] border border-primary/10">
+ {['rentals', 'stays'].includes(activeTab) && (
+ <>
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Property Type</label>
+ <select name="propertyType" defaultValue={editingItem.products?.propertyType || 'Apartment'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ {['Apartment', 'Individual House', 'PG', 'Hotel', 'Room', 'Villa', 'Office Space'].map(t => <option key={t} value={t}>{t}</option>)}
+ </select>
+ </div>
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">BHK / Type</label>
+ <input name="bhkType" defaultValue={editingItem.products?.bhkType || ''} type="text" placeholder="2BHK / Studio" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+ </div>
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Area (Sq.ft)</label>
+ <input name="sqft" defaultValue={editingItem.products?.sqft || ''} type="number" placeholder="1200" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+ </div>
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Furnishing</label>
+ <select name="furnishingStatus" defaultValue={editingItem.products?.furnishingStatus || 'Unfurnished'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="Unfurnished">Unfurnished</option>
+ <option value="Semi-Furnished">Semi-Furnished</option>
+ <option value="Furnished">Furnished</option>
+ </select>
+ </div>
+ </>
+ )}
+ {activeTab === 'rides' && (
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Vehicle Type</label>
+ <select name="vehicleType" defaultValue={editingItem.products?.vehicleType || 'Car'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ {['Auto', 'Car', 'Bike', 'Truck'].map(t => <option key={t} value={t}>{t}</option>)}
+ </select>
+ </div>
+ )}
+ <div>
+ <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Specific Location / Area</label>
+ <input name="location" defaultValue={editingItem.products?.location || ''} type="text" placeholder="Krishnagiri / NH44" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+ </div>
  <div>
  <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-primary">Fulfillment Type</label>
  <select name="fulfillmentType" defaultValue={editingItem.products?.fulfillmentType || 'Direct Shopping'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
@@ -811,7 +880,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides').map(product => (
+ {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(product => (
  <div key={product._id} className="group p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 flex items-center justify-between gap-4">
  <div className="flex items-center gap-5 min-w-0">
  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shrink-0">
@@ -969,89 +1038,67 @@ const AdminDashboard = () => {
  </div>
  </div>
  
- <div className="md:col-span-2 space-y-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
- <p className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><Sparkles size={14} /> Property-Based Configuration</p>
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
- <div>
- <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Property Type</label>
- <select name="propertyType" defaultValue={editingItem.products?.propertyType || 'None'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
- <option value="None">None</option>
- <option value="Apartment">Apartment</option>
- <option value="Individual House">Individual House</option>
- </select>
- </div>
- <div>
- <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Furnishing</label>
- <select name="furnishingStatus" defaultValue={editingItem.products?.furnishingStatus || 'None'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
- <option value="None">None</option>
- <option value="Furnished">Furnished</option>
- <option value="Unfurnished">Unfurnished</option>
- </select>
- </div>
- <div>
- <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">BHK Type</label>
- <input name="bhkType" defaultValue={editingItem.products?.bhkType || ''} placeholder="e.g. 2BHK" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold" />
- </div>
- <div>
- <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Area (Sqft)</label>
- <input name="sqft" type="number" defaultValue={editingItem.products?.sqft || 0} placeholder="e.g. 1200" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold" />
- </div>
- </div>
- </div>
+  {/* Conditional Property Fields */}
+  {['rentals', 'stays'].includes(activeTab) && (
+  <div className="md:col-span-2 space-y-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
+  <p className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><Sparkles size={14} /> Property-Based Configuration</p>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Property Type</label>
+  <select name="propertyType" defaultValue={editingItem.products?.propertyType || 'Apartment'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
+  {['Apartment', 'Individual House', 'PG', 'Hotel', 'Room', 'Villa', 'Office Space'].map(t => <option key={t} value={t}>{t}</option>)}
+  </select>
+  </div>
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Furnishing</label>
+  <select name="furnishingStatus" defaultValue={editingItem.products?.furnishingStatus || 'Unfurnished'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
+  <option value="Unfurnished">Unfurnished</option>
+  <option value="Semi-Furnished">Semi-Furnished</option>
+  <option value="Furnished">Furnished</option>
+  </select>
+  </div>
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">BHK Type</label>
+  <input name="bhkType" defaultValue={editingItem.products?.bhkType || ''} placeholder="e.g. 2BHK" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold" />
+  </div>
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Area (Sqft)</label>
+  <input name="sqft" type="number" defaultValue={editingItem.products?.sqft || 0} placeholder="e.g. 1200" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold" />
+  </div>
+  </div>
+  </div>
+  )}
 
- <div className="md:col-span-2 space-y-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
- <div className="flex justify-between items-center mb-4">
- <label className="text-[10px] font-black text-purple-600 uppercase tracking-[0.2em] ml-1">Dynamic Pricing Rules</label>
- <button type="button" onClick={() => setManagedPricingRules([...managedPricingRules, { key: '', value: '' }])} className="px-4 py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-700 transition-colors flex items-center gap-2"><Plus size={14} /> Add Rule</button>
- </div>
- <div className="space-y-3">
- {managedPricingRules.map((rule, idx) => (
- <div key={idx} className="flex gap-4 items-center">
- <input type="text" placeholder="Rule Name (e.g. Base Price)" value={rule.key} onChange={(e) => {
- const newRules = [...managedPricingRules];
- newRules[idx].key = e.target.value;
- setManagedPricingRules(newRules);
- }} className="flex-1 px-4 py-3 rounded-xl border border-purple-100 dark:border-purple-800 bg-white dark:bg-dark-bg text-xs font-bold outline-none" />
- <input type="text" placeholder="Value (e.g. 500)" value={rule.value} onChange={(e) => {
- const newRules = [...managedPricingRules];
- newRules[idx].value = e.target.value;
- setManagedPricingRules(newRules);
- }} className="w-32 px-4 py-3 rounded-xl border border-purple-100 dark:border-purple-800 bg-white dark:bg-dark-bg text-xs font-bold outline-none" />
- <button type="button" onClick={() => {
- const newRules = managedPricingRules.filter((_, i) => i !== idx);
- setManagedPricingRules(newRules);
- }} className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"><Trash2 size={16} /></button>
- </div>
- ))}
- {managedPricingRules.length === 0 && <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest text-center py-4">No specific pricing rules added.</p>}
- </div>
- </div>
- <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4 p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[2rem] border border-purple-100 dark:border-purple-800/30">
- <h4 className="md:col-span-4 text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-2 flex items-center gap-2">
- <Image size={14} /> 360° Visual Assets (Optional)
- </h4>
- <div>
- <label className="block text-[9px] font-black mb-2 uppercase tracking-widest text-gray-400">Front View URL</label>
- <input name="viewImages_front" defaultValue={editingItem.products?.viewImages?.front || ''} type="text" placeholder="https://..." className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs" />
- </div>
- <div>
- <label className="block text-[9px] font-black mb-2 uppercase tracking-widest text-gray-400">Back View URL</label>
- <input name="viewImages_back" defaultValue={editingItem.products?.viewImages?.back || ''} type="text" placeholder="https://..." className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs" />
- </div>
- <div>
- <label className="block text-[9px] font-black mb-2 uppercase tracking-widest text-gray-400">Top View URL</label>
- <input name="viewImages_top" defaultValue={editingItem.products?.viewImages?.top || ''} type="text" placeholder="https://..." className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs" />
- </div>
- <div>
- <label className="block text-[9px] font-black mb-2 uppercase tracking-widest text-gray-400">Bottom View URL</label>
- <input name="viewImages_bottom" defaultValue={editingItem.products?.viewImages?.bottom || ''} type="text" placeholder="https://..." className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs" />
- </div>
- </div>
+  {/* Ride Specific Fields */}
+  {activeTab === 'rides' && (
+  <div className="md:col-span-2 space-y-4 p-8 bg-blue-50 dark:bg-blue-900/10 rounded-[2rem] border border-blue-100 dark:border-blue-800/30">
+  <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><Truck size={14} /> Ride Asset Configuration</p>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Vehicle Type</label>
+  <select name="vehicleType" defaultValue={editingItem.products?.vehicleType || 'Bike'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
+  {['Auto', 'Car', 'Bike', 'Truck'].map(t => <option key={t} value={t}>{t}</option>)}
+  </select>
+  </div>
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Rate per KM (₹)</label>
+  <input name="perKmRate" type="number" defaultValue={editingItem.products?.perKmRate || 12} placeholder="e.g. 12" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold" />
+  </div>
+  <div>
+  <label className="block text-[9px] font-black mb-1 uppercase tracking-widest text-gray-400 ml-1">Online Status</label>
+  <select name="isOnline" defaultValue={editingItem.products?.isOnline || 'false'} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none text-xs font-bold">
+  <option value="true">Online / Active</option>
+  <option value="false">Offline / Maintenance</option>
+  </select>
+  </div>
+  </div>
+  </div>
+  )}
 
- <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-green-50 dark:bg-green-900/10 rounded-[2rem] border border-green-100 dark:border-green-800/30">
- <h4 className="md:col-span-3 text-[10px] font-black uppercase tracking-[0.2em] text-green-600 mb-2 flex items-center gap-2">
- <Users size={14} /> Service Logistics & Safety
- </h4>
+   <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-green-50 dark:bg-green-900/10 rounded-[2rem] border border-green-100 dark:border-green-800/30">
+   <h4 className="md:col-span-3 text-[10px] font-black uppercase tracking-[0.2em] text-green-600 mb-2 flex items-center gap-2">
+   <Users size={14} /> Service Logistics & Safety
+   </h4>
  <div>
  <label className="block text-sm font-bold mb-2 uppercase text-gray-500">Team Size</label>
  <input name="teamSize" type="number" defaultValue={editingItem.products?.teamSize || 1} placeholder="1" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold" />
@@ -1096,7 +1143,7 @@ const AdminDashboard = () => {
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 text-purple-600 uppercase tracking-tighter">Live Service Portfolio</h3>
  <div className="space-y-4">
- {data.products.filter(p => p.isService && p.category !== 'Rides' && p.serviceType !== 'Ride').map(service => (
+ {data.products.filter(p => p.isService && p.category !== 'Rides' && p.serviceType !== 'Ride' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(service => (
  <div key={service._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group border-l-4 border-l-purple-500">
  <div className="flex items-center gap-4">
  <div className="w-16 h-16 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
@@ -1137,7 +1184,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => p.propertyType && p.propertyType !== 'None').map(prop => (
+ {data.products.filter(p => p.propertyType && p.propertyType !== 'None' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(prop => (
  <div key={prop._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={prop.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -1160,7 +1207,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => p.propertyType && p.propertyType !== 'None').length === 0 && (
+ {data.products.filter(p => p.propertyType && p.propertyType !== 'None' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No property assets detected in the global registry.</p>
@@ -1183,7 +1230,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => p.category === 'Rides' || p.serviceType === 'Ride').map(ride => (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(ride => (
  <div key={ride._id} className="glass-card p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group border-b-4 border-b-primary">
  <div className="flex items-center gap-6 mb-8">
  <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary border border-primary/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
@@ -1213,7 +1260,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => p.category === 'Rides' || p.serviceType === 'Ride').length === 0 && (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Truck size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No fleet assets registered in the global operations map.</p>
@@ -1236,7 +1283,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays').map(stay => (
+ {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(stay => (
  <div key={stay._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={stay.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -1293,7 +1340,7 @@ const AdminDashboard = () => {
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
- <h3 className="text-2xl font-black">{editingItem.candidates ? 'Edit Success Story' : 'Add Success Story'}</h3>
+ <h3 className="text-2xl font-black uppercase tracking-tighter">Placed Candidate <span className="text-primary">& Success Story</span></h3>
  {editingItem.candidates && (
  <button onClick={() => cancelEdit('candidates')} className="text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors">
  Cancel Edit
@@ -1334,9 +1381,9 @@ const AdminDashboard = () => {
  </div>
 
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
- <h3 className="text-2xl font-black mb-8">Success Stories Registry</h3>
+ <h3 className="text-2xl font-black uppercase tracking-tighter mb-8">Strategic <span className="text-primary">Placement Registry</span></h3>
  <div className="space-y-4">
- {data.candidates?.map(candidate => (
+ {data.candidates?.filter(c => !searchQuery || c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || c.company?.toLowerCase().includes(searchQuery.toLowerCase())).map(candidate => (
  <div key={candidate._id} className="p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group flex items-start gap-4">
  <img src={candidate.image} alt={candidate.name} className="w-16 h-16 rounded-xl object-cover shrink-0 bg-gray-100" />
  <div className="flex-1 min-w-0">
@@ -1368,16 +1415,6 @@ const AdminDashboard = () => {
  <div>
  <h3 className="text-3xl font-black mb-1">Users & Partners</h3>
  <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Total Registered: {data.users.length}</p>
- </div>
- <div className="relative w-full md:w-80">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" size={18} />
- <input 
- type="text" 
- placeholder="Search by name or email..." 
- value={userSearch}
- onChange={(e) => setUserSearch(e.target.value)}
- className="w-full pl-12 pr-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm focus:ring-2 focus:ring-primary/20 transition-all"
- />
  </div>
  </div>
 
@@ -1484,7 +1521,7 @@ const AdminDashboard = () => {
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
  {/* PENDING REQUESTS FIRST */}
- {data.users.filter(u => u.approvalStatus === 'Pending').map(user => (
+ {data.users.filter(u => u.approvalStatus === 'Pending' && (!searchQuery || (u.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase())))).map(user => (
  <tr key={user._id} className="bg-yellow-50/50 dark:bg-yellow-900/10 border-l-4 border-yellow-400 animate-pulse">
  <td className="py-6 px-4">
  <div className="flex items-center gap-4">
@@ -1534,11 +1571,8 @@ const AdminDashboard = () => {
  </td>
  </tr>
  ))}
- {/* REST OF THE USERS */}
- {data.users.filter(u => u.approvalStatus !== 'Pending').filter(u => 
- `${u.firstName} ${u.lastName}`.toLowerCase().includes(userSearch.toLowerCase()) ||
- (u.email || '').toLowerCase().includes(userSearch.toLowerCase())
- ).map(user => (
+ {/* APPROVED USERS */}
+ {data.users.filter(u => u.approvalStatus === 'Approved' && (!searchQuery || (`${u.firstName} ${u.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) || (u.email || '').toLowerCase().includes(searchQuery.toLowerCase())))).map(user => (
  <tr key={user._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-6">
  <div className="flex items-center gap-4">
@@ -1991,22 +2025,12 @@ const AdminDashboard = () => {
       <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">
         {orders.filter(o => 
           !o.orderItems?.some(i => i.isService) &&
-          (o._id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-           o.user?.firstName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-           o.user?.lastName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-           o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()))
+          (o._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()))
         ).length} product orders
       </p>
-    </div>
-    <div className="relative w-full md:w-96">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-      <input 
-        type="text" 
-        placeholder="Search Order ID, Name, Email..." 
-        value={orderSearch}
-        onChange={(e) => setOrderSearch(e.target.value)}
-        className="w-full pl-12 pr-6 py-3 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:border-primary transition-all font-bold text-sm"
-      />
     </div>
   </div>
  <div className="mobile-table-scroll">
@@ -2021,10 +2045,10 @@ const AdminDashboard = () => {
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
   {orders.filter(o => 
     !o.orderItems?.some(i => i.isService) &&
-    (o._id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-     o.user?.firstName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-     o.user?.lastName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
-     o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()))
+    (o._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()))
   ).map(order => (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
@@ -2107,23 +2131,13 @@ const AdminDashboard = () => {
       <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">
         {orders.filter(o => 
           o.orderItems?.some(i => i.isService) &&
-          (o._id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-           o.user?.firstName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-           o.user?.lastName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-           o.user?.email?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-           o.orderItems?.[0]?.name?.toLowerCase().includes(bookingSearch.toLowerCase()))
+          (o._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           o.orderItems?.[0]?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
         ).length} total bookings
       </p>
-    </div>
-    <div className="relative w-full md:w-96">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-      <input 
-        type="text" 
-        placeholder="Search Booking ID, Name, Service..." 
-        value={bookingSearch}
-        onChange={(e) => setBookingSearch(e.target.value)}
-        className="w-full pl-12 pr-6 py-3 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:border-primary transition-all font-bold text-sm"
-      />
     </div>
   </div>
  <div className="mobile-table-scroll">
@@ -2138,11 +2152,11 @@ const AdminDashboard = () => {
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
   {orders.filter(o => 
     o.orderItems?.some(i => i.isService) &&
-    (o._id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-     o.user?.firstName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-     o.user?.lastName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-     o.user?.email?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
-     o.orderItems?.[0]?.name?.toLowerCase().includes(bookingSearch.toLowerCase()))
+    (o._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     o.orderItems?.[0]?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
   ).map(order => (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
@@ -2235,7 +2249,7 @@ const AdminDashboard = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
- {data.applications?.map(app => (
+ {data.applications?.filter(a => !searchQuery || a.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) || a.jobRole?.toLowerCase().includes(searchQuery.toLowerCase())).map(app => (
  <tr key={app._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-bold text-sm">{app.fullName}</p>
@@ -2427,7 +2441,13 @@ const AdminDashboard = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
- {data.inquiries?.map(inquiry => (
+ {data.inquiries?.filter(inquiry => {
+  if (!searchQuery) return true;
+  const q = searchQuery.toLowerCase();
+  const name = inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : (inquiry.guestName || '');
+  const email = inquiry.user ? inquiry.user.email : (inquiry.guestEmail || '');
+  return (name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || (inquiry.serviceName || '').toLowerCase().includes(q));
+  }).map(inquiry => (
  <tr key={inquiry._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-bold text-sm">
@@ -3281,7 +3301,7 @@ const AdminDashboard = () => {
  </div>
 
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
- {data.contacts?.map(contact => (
+ {data.contacts?.filter(c => !searchQuery || c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || c.email?.toLowerCase().includes(searchQuery.toLowerCase()) || c.message?.toLowerCase().includes(searchQuery.toLowerCase())).map(contact => (
  <div key={contact._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:border-secondary/30 transition-all shadow-sm">
  <div className="flex justify-between items-start mb-6">
  <div className="flex items-center gap-4">

@@ -267,7 +267,7 @@ const DashboardLayout = ({
  </div>
 
  {/* Desktop Sidebar */}
- <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-72'} fixed md:sticky top-0 left-0 bg-white dark:bg-[#0F1115] border-r border-gray-200 dark:border-white/5 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
+ <aside className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isCollapsed ? 'md:w-24' : 'md:w-72'} fixed top-0 left-0 bg-white dark:bg-[#0F1115] border-r border-gray-200 dark:border-white/5 flex flex-col h-screen z-[210] transition-all duration-500 ease-in-out`}>
  <div className="p-8 mb-4 relative">
  <button 
  onClick={() => setIsSidebarOpen(false)}
@@ -281,9 +281,9 @@ const DashboardLayout = ({
  </div>
  {!isCollapsed && (
  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
- <h2 className="text-xl font-black uppercase tracking-tighter leading-none text-white flex flex-col">
- <span className="text-blue-400">FORGE INDIA</span>
- <span className="text-yellow-500 mt-1 text-sm tracking-[0.2em]">CONNECT</span>
+ <h2 className="text-xl font-black uppercase tracking-tighter leading-none dark:text-white flex flex-col">
+ <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
+ <span className="text-yellow-600 dark:text-yellow-500 mt-1 text-sm tracking-[0.2em]">CONNECT</span>
  </h2>
  <p className="text-[8px] font-black uppercase tracking-[0.3em] text-primary/60 mt-2">{role} PARTNER</p>
  </motion.div>
@@ -303,12 +303,16 @@ const DashboardLayout = ({
  }
  setIsSidebarOpen(false); 
  }}
- className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-4'} py-3.5 rounded-xl transition-all font-bold text-sm group ${activeTab === tab.id ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
- title={isCollapsed ? tab.label : ''}
- >
- <tab.icon className={`${isCollapsed ? '' : 'mr-4'} ${activeTab === tab.id ? 'text-white' : 'text-gray-500 group-hover:text-primary'} transition-colors`} size={20} />
- {!isCollapsed && tab.label}
- </button>
+           className={`w-full flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-5'} py-4 rounded-2xl transition-all font-black text-[11px] uppercase tracking-widest group ${
+            activeTab === tab.id 
+              ? theme.active 
+              : 'text-slate-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+          }`}
+          title={isCollapsed ? tab.label : ''}
+        >
+          <tab.icon className={`${isCollapsed ? '' : 'mr-4'} ${activeTab === tab.id ? 'text-white' : 'text-slate-400 dark:text-gray-500 group-hover:text-primary'} transition-colors`} size={20} />
+          {!isCollapsed && <span>{tab.label}</span>}
+        </button>
  ))}
  </nav>
 
@@ -330,8 +334,8 @@ const DashboardLayout = ({
  </div>
  </aside>
 
- {/* Main Content Area */}
- <main className="flex-1 min-h-screen overflow-y-auto bg-gray-50/30 dark:bg-dark-bg/30 mt-20 md:mt-0 relative">
+  {/* Main Content Area */}
+  <main className={`flex-1 min-h-screen overflow-y-auto bg-gray-50/30 dark:bg-dark-bg/30 mt-20 md:mt-0 relative ${isCollapsed ? 'md:ml-24' : 'md:ml-72'} transition-all duration-500`}>
  {/* Desktop Header */}
  <header className="hidden md:flex bg-white/80 dark:bg-dark-card/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-10 py-8 justify-between items-center sticky top-0 z-[100]">
  <div className="flex items-center gap-4">

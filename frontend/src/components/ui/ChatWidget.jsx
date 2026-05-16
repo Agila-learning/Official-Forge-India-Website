@@ -98,7 +98,7 @@ const ChatWidget = () => {
  const isProd = window.location.hostname !== 'localhost';
  socket = io(SOCKET_URL, { 
  auth: { token },
- transports: ['polling'],
+ transports: ['websocket', 'polling'],
  path: SOCKET_PATH
  });
 

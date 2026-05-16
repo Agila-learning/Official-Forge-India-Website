@@ -34,15 +34,16 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/api/fic-socket': {
+        target: 'http://localhost:5001',
+        ws: true,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/fic-socket/, '/api/fic-socket')
+      },
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false,
-      },
-      '/api/fic-socket': {
-        target: 'http://localhost:5001',
-        ws: true,
-        changeOrigin: true
       }
     }
   }

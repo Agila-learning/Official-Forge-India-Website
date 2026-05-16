@@ -32,7 +32,7 @@ const Register = () => {
  refundPolicy: '',
  resumeUrl: '',
  domainInterest: 'IT',
- candidateType: 'Premium', // Standard (Free) or Premium (Paid 1500)
+ candidateType: 'Standard', // Standard (Free) or Premium (Paid 1500)
  subscriptionLevel: 'Free', // Free (Default), Basic, Premium, Elite
  referredByAgentName: '',
  agentMobile: '',
@@ -88,15 +88,11 @@ const Register = () => {
  const handlePayment = async () => {
  setIsProcessing(true);
  try {
- // Step 1: Create a temporary registration intent or just trigger Razorpay for 1500
- // We'll use a generic payment endpoint or just initialize it with the amount
- // But the best way is to have the backend create the order first.
- 
- // Let's create a temporary order for "Premium Registration"
  const { data } = await api.post('/auth/create-registration-payment', { 
  email: formData.email, 
  name: `${formData.firstName} ${formData.lastName}`,
- mobile: formData.mobile
+ mobile: formData.mobile,
+ domainInterest: formData.domainInterest
  });
  
  const options = {
@@ -399,34 +395,43 @@ const Register = () => {
 
  {formData.role === 'Candidate' && (
  <motion.div key="cand" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
- <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mission Protocol</label>
- <div className="flex p-1 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800">
- {['Premium'].map(t => (
- <button key={t} type="button" className="flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white dark:bg-dark-card text-primary shadow-sm">
- Elite Consultation (₹2.5k)
- </button>
- ))}
- </div>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Domain</label>
- <select 
- required 
- value={formData.domainInterest} 
- onChange={e => setFormData({...formData, domainInterest: e.target.value})} 
- className="form-input !rounded-2xl py-4 appearance-none cursor-pointer dark:bg-dark-bg dark:text-white"
- >
- <option value="IT" className="text-slate-900 bg-white">IT / Software</option>
- <option value="Banking" className="text-slate-900 bg-white">Banking & Finance</option>
- <option value="Manufacturing" className="text-slate-900 bg-white">Manufacturing</option>
- <option value="Other" className="text-slate-900 bg-white">Other Verticals</option>
- </select>
- </div>
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Master Resume (PDF)</label>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mission Protocol</label>
+  <div className="flex p-1 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800 gap-1">
+  <button 
+  type="button" 
+  onClick={() => setFormData({...formData, candidateType: 'Standard'})}
+  className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.candidateType === 'Standard' ? 'bg-white dark:bg-dark-card text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+  >
+  Standard (Free)
+  </button>
+  <button 
+  type="button" 
+  onClick={() => setFormData({...formData, candidateType: 'Premium'})}
+  className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.candidateType === 'Premium' ? 'bg-white dark:bg-dark-card text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+  >
+  Elite (₹{formData.domainInterest === 'Banking' ? '2.5k' : '1.5k'})
+  </button>
+  </div>
+  </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Target Domain</label>
+  <select 
+  required 
+  value={formData.domainInterest} 
+  onChange={e => setFormData({...formData, domainInterest: e.target.value})} 
+  className="form-input !rounded-2xl py-4 appearance-none cursor-pointer dark:bg-dark-bg dark:text-white"
+  >
+  <option value="IT" className="text-slate-900 bg-white">IT / Software</option>
+  <option value="Banking" className="text-slate-900 bg-white">Banking & Finance</option>
+  <option value="Manufacturing" className="text-slate-900 bg-white">Manufacturing</option>
+  <option value="Other" className="text-slate-900 bg-white">Other Verticals</option>
+  </select>
+  </div>
+  </div>
+  <div className="space-y-2">
+  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Master Resume (PDF)</label>
  <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
  <div className="flex items-center gap-3">
  <FileText size={20} className={formData.resumeUrl ? "text-green-500" : "text-slate-300"} />

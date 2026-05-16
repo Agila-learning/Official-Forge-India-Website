@@ -82,8 +82,8 @@ app.get('/api/socket-health', (req, res) => {
 
 // Debug middleware for socket paths
 app.use((req, res, next) => {
-  if (req.url.startsWith('/api/socket.io')) {
-    console.log(`[Socket.io Request] ${req.method} ${req.url}`);
+  if (req.url.startsWith('/api/fic-socket')) {
+    console.log(`[Strategic Socket Signal] ${req.method} ${req.url}`);
   }
   next();
 });

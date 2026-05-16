@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
- Search, MapPin, Calendar, Star, ShieldCheck, 
- Zap, Clock, Heart, ArrowRight, Home, 
- Hotel, Bus, Utensils, ShoppingBag, Ticket,
- CheckCircle2, ChevronRight, Filter, Plus, ArrowUpRight,
- ChevronLeft, ArrowRightIcon, Cpu, Smartphone, Building2, Briefcase
+  Search, MapPin, Calendar, Star, ShieldCheck, 
+  Zap, Clock, Heart, ArrowRight, Home, 
+  Hotel, Bus, Utensils, ShoppingBag, Ticket,
+  CheckCircle2, ChevronRight, Filter, Plus, ArrowUpRight,
+  ChevronLeft, ArrowRightIcon, Cpu, Smartphone, Building2, Briefcase, Truck
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';

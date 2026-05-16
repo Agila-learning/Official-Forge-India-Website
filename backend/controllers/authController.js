@@ -39,24 +39,36 @@ const registerUser = async (req, res) => {
       hrCode = `FIC-HR-${year}-${random}`;
   }
 
-  if (assignedRole === 'Candidate' && req.body.candidateType === 'Premium') {
-      const { razorpay_payment_id } = req.body;
-      if (!razorpay_payment_id) {
-          return res.status(400).json({ message: 'Premium registration requires payment verification.' });
-      }
-      isMember = true;
-      paymentStatus = 'Paid';
-      registrationFee = 2500;
-      const year = new Date().getFullYear();
-      const random = Math.floor(1000 + Math.random() * 9000);
-      membershipId = `FIC-PREM-${year}-${random}`;
-      
-      // Send Confirmation Email
-      const { sendRegistrationConfirmationEmail } = require('../utils/emailService');
-      try {
-          await sendRegistrationConfirmationEmail(email, `${firstName} ${lastName}`, membershipId);
-      } catch (err) {
-          console.error('Registration Email Error:', err);
+  if (assignedRole === 'Candidate') {
+      const candidateType = req.body.candidateType || 'Standard';
+      if (candidateType === 'Premium') {
+          const { razorpay_payment_id, domainInterest } = req.body;
+          if (!razorpay_payment_id) {
+              return res.status(400).json({ message: 'Premium registration requires payment verification.' });
+          }
+          isMember = true;
+          paymentStatus = 'Paid';
+          
+          // Dynamic Fee Logic: Banking = 2500, Others = 1500
+          registrationFee = (domainInterest === 'Banking') ? 2500 : 1500;
+          
+          const year = new Date().getFullYear();
+          const random = Math.floor(1000 + Math.random() * 9000);
+          membershipId = `FIC-PREM-${year}-${random}`;
+          
+          // Send Confirmation Email
+          const { sendRegistrationConfirmationEmail } = require('../utils/emailService');
+          try {
+              await sendRegistrationConfirmationEmail(email, `${firstName} ${lastName}`, membershipId);
+          } catch (err) {
+              console.error('Registration Email Error:', err);
+          }
+      } else {
+          // Standard Free Tier
+          isMember = false;
+          paymentStatus = 'Unpaid';
+          registrationFee = 0;
+          membershipId = null;
       }
   }
 
@@ -314,14 +326,16 @@ const createRegistrationPayment = async (req, res) => {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
+    const amount = (req.body.domainInterest === 'Banking') ? 2500 : 1500;
     const options = {
-      amount: 2500 * 100, // 2500 INR in paise
+      amount: amount * 100, // in paise
       currency: "INR",
       receipt: `reg_${Date.now()}`,
       notes: {
         email,
         name,
-        type: 'PremiumRegistration'
+        type: 'PremiumRegistration',
+        domain: req.body.domainInterest
       }
     };
 

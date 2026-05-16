@@ -34,6 +34,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '50+', l: 'Partner Hotels' }, { v: '4.8★', l: 'Avg Rating' }, { v: '₹999+', l: 'Starting From' }],
     serviceSlug: 'hotels',
+    heroImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
   },
   'pg': {
     title: 'PG & Hostel Rentals',
@@ -59,6 +60,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '200+', l: 'PG Listings' }, { v: '₹3K+', l: 'Starting Monthly' }, { v: '2 Cities', l: 'Coverage' }],
     serviceSlug: 'pg-hostels',
+    heroImage: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
   },
   'villas': {
     title: 'Luxury Villa Stays',
@@ -84,6 +86,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '15+', l: 'Premium Villas' }, { v: '₹15K+', l: 'Per Night' }, { v: '5★', l: 'Experiences' }],
     serviceSlug: 'villas',
+    heroImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
   },
   'bike-taxi': {
     title: 'Bike Taxi Service',
@@ -108,6 +111,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '100+', l: 'Riders' }, { v: '₹30+', l: 'Starting Fare' }, { v: '< 5 Min', l: 'Pickup Time' }],
     serviceSlug: 'bike-taxi',
+    heroImage: 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?w=800',
   },
   'car-taxi': {
     title: 'Car Taxi Service',
@@ -133,6 +137,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '50+', l: 'Cabs' }, { v: '₹80+', l: 'Starting Fare' }, { v: 'City & Outstation', l: 'Coverage' }],
     serviceSlug: 'car-taxi',
+    heroImage: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800',
   },
   'delivery': {
     title: 'Express Delivery',
@@ -158,6 +163,7 @@ const serviceConfig = {
     ],
     stats: [{ v: '500+', l: 'Daily Deliveries' }, { v: '₹50+', l: 'Starting Rate' }, { v: '99%', l: 'On-Time Rate' }],
     serviceSlug: 'express-delivery',
+    heroImage: 'https://images.unsplash.com/photo-1586769852044-692d6e3703a0?w=800',
   },
 };
 
@@ -190,7 +196,7 @@ const ServiceLanding = () => {
           orderItems: [{
             name: `${config.title} Booking`,
             qty: 1,
-            image: "https://images.unsplash.com/photo-1542314831-c6a4d27ece50?w=500", // Generic placeholder
+            image: config.heroImage,
             price: 0, // Price to be assigned by admin/provider
             isService: true,
             selectedConfig: formData
@@ -216,6 +222,7 @@ const ServiceLanding = () => {
         // Guest user -> Save as lead
         const payload = {
           serviceSlug: config.serviceSlug,
+          serviceName: config.title,
           name: name,
           email: email,
           phone: phone,
@@ -348,9 +355,9 @@ const ServiceLanding = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Email *</label>
                       <input
-                        type="email" value={email} onChange={e => setEmail(e.target.value)}
+                        type="email" required value={email} onChange={e => setEmail(e.target.value)}
                         placeholder="you@email.com"
                         className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-gray-900 dark:text-white outline-none focus:border-blue-400 transition-all text-sm font-medium"
                       />
