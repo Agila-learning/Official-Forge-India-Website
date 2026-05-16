@@ -98,13 +98,16 @@ const ChatWidget = () => {
  const isProd = window.location.hostname !== 'localhost';
  socket = io(SOCKET_URL, { 
  auth: { token },
- transports: ['websocket', 'polling'],
+ transports: ['polling', 'websocket'],
  path: SOCKET_PATH
  });
 
  socket.on('connect', () => {
  socket.emit('user-online', userInfo._id);
- console.log('Chat/Notification Node Online');
+ });
+
+ socket.on('connect_error', (err) => {
+ console.error('Socket connection error:', err);
  });
 
  socket.on('notification', ({ userId, notification }) => {

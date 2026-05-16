@@ -80,14 +80,6 @@ app.get('/api/socket-health', (req, res) => {
   });
 });
 
-// Debug middleware for socket paths
-app.use((req, res, next) => {
-  if (req.url.startsWith('/api/fic-socket')) {
-    console.log(`[Strategic Socket Signal] ${req.method} ${req.url}`);
-  }
-  next();
-});
-
 // Expose io to req.app
 app.set('io', io);
 app.set('trust proxy', 1); // Trust Vercel proxy for socket.io and rate limiting

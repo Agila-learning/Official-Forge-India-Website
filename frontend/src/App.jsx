@@ -1,5 +1,13 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
+
+// Dynamic Import Error Recovery
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', (event) => {
+    console.warn('Strategic Asset Failure Detected. Force Refreshing Node...');
+    window.location.reload();
+  });
+}
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParams } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AnimatePresence } from 'framer-motion';

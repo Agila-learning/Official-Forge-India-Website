@@ -20,7 +20,7 @@
       "destination": "http://3.221.160.61:5001/uploads/:path*"
     },
     {
-      "source": "/((?!api|uploads).*)",
+      "source": "/((?!api|uploads|assets).*)",
       "destination": "/index.html"
     }
   ]
