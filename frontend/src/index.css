@@ -550,3 +550,11 @@ select:focus { @apply border-primary ring-2 ring-primary/10 outline-none; }
  .no-print { display: none !important; }
  body { background: white !important; }
 }
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}

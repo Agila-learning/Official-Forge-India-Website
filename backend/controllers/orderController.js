@@ -126,6 +126,35 @@ const addOrderItems = async (req, res) => {
       });
     }
 
+    // ─── NEW: Notify relevant partners for ad-hoc services (Rides/Delivery) ───
+    const adHocServices = orderItems.filter(item => item.isService && !item.product);
+    if (adHocServices.length > 0) {
+      // Find all partners with relevant roles
+      const relevantRoles = [];
+      if (adHocServices.some(s => s.name.toLowerCase().includes('ride') || s.name.toLowerCase().includes('taxi'))) {
+        relevantRoles.push('Ride Provider');
+      }
+      if (adHocServices.some(s => s.name.toLowerCase().includes('delivery') || s.name.toLowerCase().includes('parcel'))) {
+        relevantRoles.push('Delivery Partner');
+      }
+      if (adHocServices.some(s => s.name.toLowerCase().includes('stay') || s.name.toLowerCase().includes('pg') || s.name.toLowerCase().includes('villa'))) {
+        relevantRoles.push('Stay Provider');
+      }
+
+      if (relevantRoles.length > 0) {
+        const targetPartners = await User.find({ role: { $in: relevantRoles } });
+        for (const partner of targetPartners) {
+          await createNotification(io, {
+            user: partner._id,
+            title: 'New Ad-Hoc Service Alert!',
+            message: `Strategic Broadcast: A new ${relevantRoles.join('/')} request #${createdOrder._id.toString().slice(-6).toUpperCase()} is available for fulfillment.`,
+            type: 'order',
+            link: '/delivery/dashboard' // Common entry point for service partners
+          });
+        }
+      }
+    }
+
     // Mark slots as unavailable if they are service bookings
     // AND Handle Membership Activation logic
     let membershipActivated = false;

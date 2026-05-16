@@ -160,6 +160,7 @@ const Navbar = () => {
  const homeServicesOptions = [
  { 
  name: 'Ride Services', 
+ path: '/services/rides',
  isNested: true,
  items: rideOptions,
  icon: <MapPin size={20} />

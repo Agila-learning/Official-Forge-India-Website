@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   MapPin, Phone, Mail, CheckCircle2, Star, Users, 
-  ArrowRight, Building2, Zap, Truck, Home, Clock, Shield
+  ArrowRight, Building2, Zap, Truck, Home, Clock, Shield, Loader2, User
 } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -112,6 +112,7 @@ const serviceConfig = {
     stats: [{ v: '100+', l: 'Riders' }, { v: '₹30+', l: 'Starting Fare' }, { v: '< 5 Min', l: 'Pickup Time' }],
     serviceSlug: 'bike-taxi',
     heroImage: 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?w=800',
+    bgImage: '/images/rides_bg.png'
   },
   'car-taxi': {
     title: 'Car Taxi Service',
@@ -138,6 +139,7 @@ const serviceConfig = {
     stats: [{ v: '50+', l: 'Cabs' }, { v: '₹80+', l: 'Starting Fare' }, { v: 'City & Outstation', l: 'Coverage' }],
     serviceSlug: 'car-taxi',
     heroImage: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800',
+    bgImage: '/images/rides_bg.png'
   },
   'delivery': {
     title: 'Express Delivery',
@@ -164,6 +166,34 @@ const serviceConfig = {
     stats: [{ v: '500+', l: 'Daily Deliveries' }, { v: '₹50+', l: 'Starting Rate' }, { v: '99%', l: 'On-Time Rate' }],
     serviceSlug: 'express-delivery',
     heroImage: 'https://images.unsplash.com/photo-1586769852044-692d6e3703a0?w=800',
+    bgImage: '/images/delivery_bg.png'
+  },
+  'luxury-pg': {
+    title: 'Luxury PG Stays',
+    subtitle: 'Premium Co-living Spaces',
+    description: 'Experience world-class co-living with FIC Luxury PG. Fully furnished rooms, premium amenities, high-speed Wi-Fi, and 3-tier security for a comfortable stay.',
+    icon: Home,
+    gradient: 'from-amber-500 to-orange-600',
+    lightBg: 'from-amber-50 to-orange-50',
+    accentColor: 'text-amber-600',
+    accentBg: 'bg-amber-600',
+    tag: 'STAYS',
+    features: [
+      { icon: <Shield size={20} />, title: '3-Tier Security', desc: 'Biometric access & 24/7 CCTV' },
+      { icon: <Zap size={20} />, title: 'High-Speed Wi-Fi', desc: 'Dedicated 100 Mbps fiber line' },
+      { icon: <Star size={20} />, title: 'Daily Cleaning', desc: 'Professional housekeeping included' },
+      { icon: <Clock size={20} />, title: 'All-Inclusive', desc: 'Electricity, water & maintenance' },
+    ],
+    fields: [
+      { name: 'preferred_location', label: 'Preferred Area', type: 'text', placeholder: 'e.g. Tirupur North', required: true },
+      { name: 'room_type', label: 'Room Preference', type: 'select', options: ['Single Room', 'Double Sharing', 'Triple Sharing', 'Luxury Suite'], required: true },
+      { name: 'occupancy_date', label: 'Expected Move-in', type: 'date', required: true },
+      { name: 'duration', label: 'Stay Duration', type: 'select', options: ['Monthly', '3 Months', '6 Months', 'Long Term (1 Year+)'], required: true },
+    ],
+    stats: [{ v: '10+', l: 'Properties' }, { v: '₹8,500+', l: 'Starting Rent' }, { v: '5.0', l: 'Avg Rating' }],
+    serviceSlug: 'luxury-pg',
+    heroImage: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800',
+    bgImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200'
   },
 };
 
@@ -221,13 +251,13 @@ const ServiceLanding = () => {
       } else {
         // Guest user -> Save as lead
         const payload = {
-          serviceSlug: config.serviceSlug,
+          serviceSlug: slug,
           serviceName: config.title,
-          name: name,
-          email: email,
-          phone: phone,
-          message: Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join(' | '),
-          ...formData,
+          name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : name,
+          email: userInfo ? userInfo.email : email,
+          phone: userInfo ? userInfo.mobile : phone,
+          ...formData, // Flatten the form fields for backend compatibility
+          message: formData.message || formData.notes || `Booking for ${config.title}`
         };
         await api.post('/service-registrations', payload);
         setSubmitted(true);
@@ -239,6 +269,157 @@ const ServiceLanding = () => {
       setSubmitting(false);
     }
   };
+
+  if (config.tag === 'RIDES' || config.tag === 'DELIVERY' || config.tag === 'STAYS') {
+    return (
+      <div className="min-h-screen bg-[#0f172a] pt-20 overflow-hidden flex flex-col lg:flex-row">
+        <SEOMeta 
+          title={`${config.title} | Forge India Connect`}
+          description={config.description}
+        />
+
+        {/* Sidebar Form (Image 2 style) */}
+        <div className="w-full lg:w-[450px] bg-white dark:bg-dark-card z-20 shadow-2xl overflow-y-auto custom-scrollbar flex flex-col">
+          <div className="p-8 md:p-10 flex-grow">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-8"
+            >
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">
+                Get a <span className="text-primary">{config.title.split(' ')[0]}</span>
+              </h1>
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Premium Mobility Protocol</p>
+            </motion.div>
+
+            {submitted ? (
+              <div className="text-center py-20">
+                <CheckCircle2 size={64} className="text-green-500 mx-auto mb-6" />
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase mb-4">Request Sent!</h3>
+                <p className="text-slate-500 font-medium mb-8">Dispatched to command center. A partner will contact you shortly.</p>
+                <button 
+                  onClick={() => { setSubmitted(false); setFormData({}); }}
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest"
+                >
+                  New Request
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {!userInfo && (
+                   <div className="space-y-4">
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input 
+                          type="text" required placeholder="Your Name" value={name} onChange={e => setName(e.target.value)}
+                          className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-dark-bg border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-primary/20"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input 
+                          type="tel" required placeholder="Phone Number" value={phone} onChange={e => setPhone(e.target.value)}
+                          className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-dark-bg border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-primary/20"
+                        />
+                      </div>
+                   </div>
+                )}
+
+                {config.fields.map(field => (
+                  <div key={field.name} className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                      {field.name.includes('pickup') ? <MapPin size={18} /> : field.name.includes('drop') ? <div className="w-2 h-2 bg-slate-900 dark:bg-white rounded-full mx-auto" /> : <Clock size={18} />}
+                    </div>
+                    {field.type === 'select' ? (
+                      <select
+                        required={field.required}
+                        value={formData[field.name] || ''}
+                        onChange={e => setFormData(p => ({ ...p, [field.name]: e.target.value }))}
+                        className="w-full pl-12 pr-10 py-4 bg-slate-50 dark:bg-dark-bg border-none rounded-2xl font-bold text-sm appearance-none outline-none focus:ring-2 ring-primary/20"
+                      >
+                        <option value="">{field.label}</option>
+                        {field.options.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        required={field.required}
+                        placeholder={field.label}
+                        value={formData[field.name] || ''}
+                        onChange={e => setFormData(p => ({ ...p, [field.name]: e.target.value }))}
+                        className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-dark-bg border-none rounded-2xl font-bold text-sm outline-none focus:ring-2 ring-primary/20"
+                      />
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex gap-4">
+                  <div className="flex-1 p-4 bg-slate-50 dark:bg-dark-bg rounded-2xl text-center">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Pickup</p>
+                    <p className="text-[11px] font-black uppercase">Now</p>
+                  </div>
+                  <div className="flex-1 p-4 bg-slate-50 dark:bg-dark-bg rounded-2xl text-center">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Passenge</p>
+                    <p className="text-[11px] font-black uppercase">For Me</p>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-5 bg-slate-900 dark:bg-primary text-white font-black rounded-2xl text-sm uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-60"
+                >
+                  {submitting ? <Loader2 className="animate-spin" /> : 'Search Request'}
+                </button>
+              </form>
+            )}
+          </div>
+          
+          <div className="p-8 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg/50">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-tight">Insured & Verified</p>
+                <p className="text-[9px] text-slate-400 font-bold uppercase">Safe travels with Forge India Connect</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Map Area (Image 2 style) */}
+        <div className="flex-1 relative bg-slate-200 overflow-hidden">
+          {/* Stylized Google Map Placeholder with the generated background as overlay */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-10000 hover:scale-110" 
+            style={{ backgroundImage: `url(${config.bgImage || config.heroImage})` }} 
+          />
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" />
+          
+          {/* Interactive Map Mockup */}
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124440.30154085465!2d80.1411326!3d13.0475255!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265ea4f7d333f%3A0x6d394a6544957e!2sChennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1715878000000!5m2!1sen!2sin" 
+            className="w-full h-full relative z-10 grayscale invert opacity-60"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+          ></iframe>
+
+          {/* Floating UI Elements */}
+          <div className="absolute top-8 right-8 z-20 flex flex-col gap-4">
+            <div className="glass-premium p-4 rounded-3xl text-white">
+              <p className="text-[9px] font-black uppercase tracking-widest mb-1">Nearest Partner</p>
+              <div className="flex items-center gap-3">
+                <Zap size={14} className="text-primary animate-pulse" />
+                <span className="font-black">2.4 KM · 4 MIN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-bg pt-24 pb-20">

@@ -20,7 +20,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 
 const AdminDashboard = () => {
- const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [] });
+ const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [] });
  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
  const [locationRequests, setLocationRequests] = useState([]);
  const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
@@ -35,6 +35,7 @@ const AdminDashboard = () => {
  const [showProductForm, setShowProductForm] = useState(false);
  const [showServiceForm, setShowServiceForm] = useState(false);
  const [searchQuery, setSearchQuery] = useState('');
+ const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
  useEffect(() => {
  if (editingItem.products) {
@@ -85,6 +86,7 @@ const AdminDashboard = () => {
  const [newMessage, setNewMessage] = useState('');
  const [chatLoading, setChatLoading] = useState(false);
  const [chatRoleFilter, setChatRoleFilter] = useState('All');
+ const [contactSearch, setContactSearch] = useState('');
  const [isAdminEditing, setIsAdminEditing] = useState(false);
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
  const [adminEditData, setAdminEditData] = useState({
@@ -140,6 +142,7 @@ const AdminDashboard = () => {
         inquiries: '/inquiries',
         contacts: '/contacts',
         settlements: '/settlements/pending',
+        serviceRegistrations: '/service-registrations',
         homeCategories: '/home-categories',
         homeSubCategories: '/home-categories/sub'
       };
@@ -409,6 +412,7 @@ const AdminDashboard = () => {
  { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
  { id: 'contacts', icon: Mail, label: 'Contact Queries' },
  { id: 'settlements', icon: CreditCard, label: 'Marketplace Treasury' },
+ { id: 'service-leads', icon: UserPlus, label: 'Service Leads (Guests)' },
  { id: 'messages', icon: Send, label: 'Messages' },
  { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
  { id: 'profile', icon: Users, label: 'My Profile' }
@@ -2207,16 +2211,25 @@ const AdminDashboard = () => {
  <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>
  </td>
  <td className="py-5">
- {!order.isDelivered && (
- <button onClick={async () => {
- await api.put(`/orders/${order._id}/deliver`, {});
- toast.success('Booking marked as completed');
- const res = await api.get('/orders');
- setOrders(res.data);
- }} className="px-4 py-2 bg-green-100 text-green-600 font-black text-[10px] uppercase rounded-xl hover:bg-green-500 hover:text-white transition-all">
- Mark Done
- </button>
- )}
+  <div className="flex items-center gap-2">
+  <button 
+  onClick={() => setSelectedDetailItem({ type: 'Booking', ...order })}
+  className="p-2 bg-gray-100 dark:bg-dark-bg text-gray-500 rounded-xl hover:text-primary transition-colors"
+  title="View Tactical Details"
+  >
+  <FileText size={18} />
+  </button>
+  {!order.isDelivered && (
+  <button onClick={async () => {
+  await api.put(`/orders/${order._id}/deliver`, {});
+  toast.success('Booking marked as completed');
+  const res = await api.get('/orders');
+  setOrders(res.data);
+  }} className="px-4 py-2 bg-green-100 text-green-600 font-black text-[10px] uppercase rounded-xl hover:bg-green-500 hover:text-white transition-all">
+  Mark Done
+  </button>
+  )}
+  </div>
  </td>
  </tr>
  ))}
@@ -2524,7 +2537,104 @@ const AdminDashboard = () => {
  </div>
  )}
 
- {activeTab === 'locations' && (
+  {activeTab === 'service-leads' && (
+  <div className="space-y-8">
+  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+  <div className="mb-8 flex justify-between items-center">
+  <div>
+  <h3 className="text-3xl font-black mb-1 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Guest Service Leads</h3>
+  <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{data.serviceRegistrations?.length || 0} unregistered leads from landing pages</p>
+  </div>
+  </div>
+
+  <div className="mobile-table-scroll">
+  <table className="w-full text-left">
+  <thead>
+  <tr className="border-b border-gray-100 dark:border-gray-800">
+  {['Lead', 'Service', 'Timeline/Budget', 'Contact', 'Status', 'Actions'].map(h => (
+  <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
+  ))}
+  </tr>
+  </thead>
+  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+  {data.serviceRegistrations?.filter(reg => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (reg.name.toLowerCase().includes(q) || reg.email.toLowerCase().includes(q) || (reg.serviceName || '').toLowerCase().includes(q));
+  }).map(reg => (
+  <tr key={reg._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+  <td className="py-5 pr-4">
+  <p className="font-bold text-sm">{reg.name}</p>
+  <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{reg.email}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <span className="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{reg.serviceName}</span>
+  <p className="text-[8px] text-gray-400 font-bold uppercase mt-1">Slug: {reg.serviceSlug}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <p className="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tighter">Budget: {reg.budget}</p>
+  <p className="text-[10px] text-gray-400 font-bold mt-0.5">Timeline: {reg.timeline}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{reg.phone}</p>
+  {reg.company && <p className="text-[9px] text-gray-400 uppercase mt-0.5">{reg.company}</p>}
+  </td>
+  <td className="py-5 pr-4">
+  <select 
+  value={reg.status || 'New'}
+  onChange={async (e) => {
+  try {
+  await api.put(`/service-registrations/${reg._id}`, { status: e.target.value });
+  setData(prev => ({
+  ...prev,
+  serviceRegistrations: prev.serviceRegistrations.map(i => i._id === reg._id ? { ...i, status: e.target.value } : i)
+  }));
+  toast.success('Status updated');
+  } catch { toast.error('Failed to update status'); }
+  }}
+  className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg
+  ${reg.status === 'New' || !reg.status ? 'text-blue-500' : reg.status === 'In Progress' ? 'text-orange-500' : reg.status === 'Completed' ? 'text-green-500' : reg.status === 'Cancelled' ? 'text-red-500' : 'text-gray-600'}`}
+  >
+  <option value="New">New</option>
+  <option value="In Progress">In Progress</option>
+  <option value="Completed">Completed</option>
+  <option value="Cancelled">Cancelled</option>
+  </select>
+  </td>
+  <td className="py-5">
+  <div className="flex items-center gap-2">
+  <button 
+  onClick={() => setSelectedDetailItem({ type: 'Lead', ...reg })}
+  className="p-2 bg-gray-100 dark:bg-dark-bg text-gray-500 rounded-xl hover:text-primary transition-colors"
+  title="View Lead Details"
+  >
+  <FileText size={18} />
+  </button>
+  <button 
+  onClick={async () => {
+    if (!window.confirm('Delete this lead?')) return;
+    try {
+      await api.delete(`/service-registrations/${reg._id}`);
+      setData(prev => ({ ...prev, serviceRegistrations: prev.serviceRegistrations.filter(i => i._id !== reg._id) }));
+      toast.success('Lead removed');
+    } catch { toast.error('Failed to delete'); }
+  }}
+  className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+  >
+  <Trash2 size={18} />
+  </button>
+  </div>
+  </td>
+  </tr>
+  ))}
+  </tbody>
+  </table>
+  </div>
+  </div>
+  </div>
+  )}
+
+  {activeTab === 'locations' && (
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
@@ -3536,7 +3646,80 @@ const AdminDashboard = () => {
  )}
  </motion.div>
  </AnimatePresence>
- </DashboardLayout>
+  {/* DETAIL MODAL */}
+  <AnimatePresence>
+  {selectedDetailItem && (
+  <div className="fixed inset-0 z-[99999] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+  <motion.div 
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  exit={{ scale: 0.9, opacity: 0 }}
+  className="bg-white dark:bg-dark-card w-full max-w-2xl rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-2xl overflow-y-auto max-h-[85vh]"
+  >
+  <div className="flex justify-between items-center mb-8">
+  <div>
+  <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedDetailItem.type} <span className="text-primary">Intelligence</span></h3>
+  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Ref: {selectedDetailItem._id}</p>
+  </div>
+  <button onClick={() => setSelectedDetailItem(null)} className="p-3 bg-gray-50 dark:bg-dark-bg rounded-2xl hover:text-red-500 transition-colors"><XCircle size={24} /></button>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+  <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
+  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Core Identity</p>
+  <div className="space-y-2">
+  <p className="font-black text-lg">{selectedDetailItem.name || (selectedDetailItem.user?.firstName + ' ' + selectedDetailItem.user?.lastName)}</p>
+  <p className="text-sm font-bold text-gray-600 dark:text-gray-400">{selectedDetailItem.email || selectedDetailItem.user?.email}</p>
+  <p className="text-sm font-mono text-primary">{selectedDetailItem.phone || selectedDetailItem.contactNumber}</p>
+  </div>
+  </div>
+  <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800">
+  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Operational Context</p>
+  <div className="space-y-2">
+  <p className="font-black text-lg text-primary uppercase tracking-tight">{selectedDetailItem.serviceName || selectedDetailItem.orderItems?.[0]?.name}</p>
+  <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Status: {selectedDetailItem.status || 'New'}</p>
+  </div>
+  </div>
+  </div>
+
+  <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-xl">
+  <div className="flex items-center gap-3 mb-6">
+  <Target className="text-primary" size={20} />
+  <h4 className="text-lg font-black uppercase tracking-tight">Mission Parameters</h4>
+  </div>
+  <div className="grid grid-cols-1 gap-4">
+  {Object.entries(selectedDetailItem.formData || selectedDetailItem.orderItems?.[0]?.selectedConfig || {}).map(([key, val]) => (
+  <div key={key} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0">
+  <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">{key.replace(/_/g, ' ')}</span>
+  <span className="text-sm font-bold text-primary">{val}</span>
+  </div>
+  ))}
+  {selectedDetailItem.message && (
+  <div className="mt-4 pt-4 border-t border-white/10">
+  <p className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-2">Message/Special Instructions</p>
+  <p className="text-sm font-medium italic">"{selectedDetailItem.message}"</p>
+  </div>
+  )}
+  {selectedDetailItem.shippingAddress && (
+  <div className="mt-4 pt-4 border-t border-white/10">
+  <p className="text-[10px] font-black uppercase text-white/40 tracking-widest mb-2">Target Location</p>
+  <p className="text-sm font-medium">{selectedDetailItem.shippingAddress.address}, {selectedDetailItem.shippingAddress.city}</p>
+  </div>
+  )}
+  </div>
+  </div>
+
+  <button 
+  onClick={() => setSelectedDetailItem(null)}
+  className="w-full mt-10 py-5 bg-primary text-white font-black rounded-2xl uppercase tracking-[0.3em] text-[10px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+  >
+  Acknowledge Intelligence
+  </button>
+  </motion.div>
+  </div>
+  )}
+  </AnimatePresence>
+  </DashboardLayout>
  );
 };
 

@@ -75,6 +75,7 @@ const StayPartnerDashboard = lazy(() => import('./pages/StayPartnerDashboard'));
 const RidePartnerDashboard = lazy(() => import('./pages/RidePartnerDashboard'));
 const ServiceLanding = lazy(() => import('./pages/ServiceLanding'));
 const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
+const RidesCategoryPage = lazy(() => import('./pages/RidesCategoryPage'));
 
 // Context
 import { NotificationProvider } from './context/NotificationContext';
@@ -200,7 +201,8 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/yet-to-launch" element={<YetToLaunch />} />
  <Route path="/notifications" element={<Notifications />} />
  <Route path="/atomy" element={<AtomyProducts />} />
- <Route path="/services/landing/:slug" element={<ServiceLanding />} />
+ <Route path="/services/rides" element={<Suspense fallback={<PageLoader />}><RidesCategoryPage /></Suspense>} />
+ <Route path="/services/landing/:slug" element={<Suspense fallback={<PageLoader />}><ServiceLanding /></Suspense>} />
  <Route path="/services/category/it-solutions" element={<ServiceLandingPage />} />
  <Route path="/services/category/app-development" element={<ServiceLandingPage />} />
  <Route path="/services/category/website-development" element={<ServiceLandingPage />} />
