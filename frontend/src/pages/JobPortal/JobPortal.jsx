@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, Building, ArrowRight, Search, Users, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ResumeAnalyzer from '../../components/ui/ResumeAnalyzer';
 
 const JobPortal = () => {
  const navigate = useNavigate();
@@ -30,7 +31,7 @@ const JobPortal = () => {
  </p>
  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto mb-24">
  {/* Seeker Path */}
  <motion.div 
  whileHover={{ y: -10, scale: 1.02 }}
@@ -78,6 +79,11 @@ const JobPortal = () => {
  </div>
  </div>
  </motion.div>
+ </div>
+
+ {/* ATS Screening Section */}
+ <div className="mb-24">
+   <ResumeAnalyzer />
  </div>
 
  <div className="mt-20 text-center">

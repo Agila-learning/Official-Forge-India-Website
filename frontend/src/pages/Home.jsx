@@ -57,20 +57,6 @@ const Home = () => {
 
  <DeliveryBanner />
 
- <GSAPReveal direction="left">
- <ResumeAnalyzer />
- </GSAPReveal>
-
- <FICRoadmap />
-
- <GSAPReveal direction="right">
- <About />
- </GSAPReveal>
-
- <GSAPReveal>
- <PipelineProcess />
- </GSAPReveal>
-
  <GSAPReveal direction="up">
  <Services />
  </GSAPReveal>

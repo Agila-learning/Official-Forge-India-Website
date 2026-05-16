@@ -175,19 +175,24 @@ const Profile = () => {
  }
  };
 
- const handleUpdateProfile = async (e) => {
- e.preventDefault();
- setSaving(true);
- try {
- const { data } = await api.put('/users/profile', profileData);
- localStorage.setItem('userInfo', JSON.stringify(data));
- toast.success('Profile updated successfully!');
- setSaving(false);
- } catch (err) {
- toast.error(err.response?.data?.message || 'Update failed');
- setSaving(false);
- }
- };
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const { data } = await api.put('/users/profile', profileData);
+      // Preserve existing token if it's not in the update response
+      const existingUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const updatedUserInfo = { ...existingUserInfo, ...data };
+      
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+      setProfileData(updatedUserInfo);
+      toast.success('Profile updated successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Update failed');
+    } finally {
+      setSaving(false);
+    }
+  };
 
  const handleVaultUpload = async (e) => {
  const file = e.target.files[0];

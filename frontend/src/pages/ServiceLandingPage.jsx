@@ -125,7 +125,7 @@ const RegistrationModal = ({ isOpen, onClose, serviceSlug, serviceName }) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white dark:bg-[#111827] rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 max-w-xl w-full relative overflow-hidden"
+          className="bg-white dark:bg-[#111827] rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 max-w-xl w-full relative overflow-y-auto max-h-[90vh] custom-scrollbar"
         >
           <button
             onClick={onClose}
@@ -252,7 +252,7 @@ const ServiceLandingPage = () => {
                 onClick={() => setShowModal(true)}
                 className="px-12 py-6 bg-primary text-white font-black rounded-3xl text-sm uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-4"
               >
-                Register Interest <ArrowRight size={20} />
+                Get Custom Quote <ArrowRight size={20} />
               </button>
               <a href="tel:+916369406416" className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-3xl text-sm uppercase tracking-widest hover:bg-white/10 transition-all">
                 Free Consultation
@@ -271,7 +271,7 @@ const ServiceLandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="glass-card p-10 group hover:border-primary/30 transition-all"
+              className="glass-card p-10 group hover:border-primary/30 transition-all flex flex-col h-full"
             >
               <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${data.color} flex items-center justify-center text-white mb-8 shadow-xl group-hover:scale-110 transition-all`}>
                 <f.icon size={28} />
