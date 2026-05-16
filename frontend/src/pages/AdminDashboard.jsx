@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
  LayoutDashboard, Users, ShoppingBag, Calendar, Package, 
@@ -218,9 +218,17 @@ const AdminDashboard = () => {
  const payload = Object.fromEntries(formData);
  
  // Auto-detect service vs product based on active tab
- if (activeTab === 'services') payload.isService = true;
+ if (['services', 'rides'].includes(activeTab)) payload.isService = true;
+ else if (activeTab === 'rentals' || activeTab === 'stays' || activeTab === 'atomy') payload.isService = false;
  else if (payload.isService) payload.isService = true;
  else payload.isService = false;
+
+ // Auto-assign category for specialized tabs if creating new
+ if (!editingItem.products) {
+ if (activeTab === 'rides') payload.category = 'Rides';
+ if (activeTab === 'stays' && !payload.category) payload.category = 'Stays';
+ if (activeTab === 'rentals' && !payload.propertyType) payload.propertyType = 'Apartment'; // Default
+ }
 
  // For services: auto-derive category name from selected categoryRef
  if (payload.isService === true && payload.categoryRef) {
@@ -473,6 +481,43 @@ const AdminDashboard = () => {
  )}
  {data.applications?.length > 5 && (
  <button onClick={() => setActiveTab('applications')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">View All Applications ({data.applications.length})</button>
+  )}
+  </div>
+  </div>
+
+  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-dark-card dark:to-dark-bg mt-12">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+        <ShieldCheck size={24} />
+      </div>
+      <div>
+        <h3 className="text-2xl font-black uppercase tracking-tighter">Support <span className="text-primary">Hub</span></h3>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Administrative Assistance</p>
+      </div>
+    </div>
+    <div className="space-y-4">
+      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+        Encountering technical issues or need strategic assistance with platform management? Reach out to our global ops center.
+      </p>
+      <div className="grid grid-cols-1 gap-3 pt-4">
+        <a href="mailto:ops-center@forgeindiaconnect.com?subject=Admin Technical Support" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
+          <div className="flex items-center gap-3">
+            <Mail className="text-primary" size={18} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Global Ops Center</span>
+          </div>
+          <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
+        </a>
+        <a href="mailto:it-support@forgeindiaconnect.com?subject=Dashboard Bug Report" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
+          <div className="flex items-center gap-3">
+            <Zap className="text-secondary" size={18} />
+            <span className="text-[10px] font-black uppercase tracking-widest">IT Emergency Line</span>
+          </div>
+          <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
+        </a>
+      </div>
+    </div>
+  </div>
+
  )}
  </div>
  </div>
@@ -638,7 +683,11 @@ const AdminDashboard = () => {
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
- <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">{editingItem.products ? 'Edit Product Listing' : 'Manage Product Catalog'}</h3>
+ <h3 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent uppercase tracking-tighter">
+ {editingItem.products 
+ ? `Edit ${activeTab === 'rentals' ? 'Rental Property' : activeTab === 'stays' ? 'Stay' : 'Product'}` 
+ : `Publish New ${activeTab === 'rentals' ? 'Rental Property' : activeTab === 'stays' ? 'Stay Registry' : 'Product Listing'}`}
+ </h3>
  {editingItem.products && (
  <button onClick={() => cancelEdit('products')} className="text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors">
  Cancel Edit
@@ -749,7 +798,9 @@ const AdminDashboard = () => {
  <SlotManager slots={managedSlots} setSlots={setManagedSlots} />
  </div>
  <button type="submit" className="md:col-span-2 py-5 bg-primary text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all">
- {editingItem.products ? 'Save Product Changes' : 'Publish Product Listing'}
+ {editingItem.products 
+ ? `Save ${activeTab === 'rentals' ? 'Property' : activeTab === 'stays' ? 'Stay' : 'Product'} Changes` 
+ : `Authorize ${activeTab === 'rentals' ? 'New Rental' : activeTab === 'stays' ? 'New Stay' : 'New Product'} Listing`}
  </button>
  </form>
  </div>
@@ -760,11 +811,11 @@ const AdminDashboard = () => {
  <div className="flex justify-between items-center mb-10">
  <h3 className="text-2xl font-black">Live <span className="text-primary">Inventory</span></h3>
  <div className="px-5 py-2 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 text-[10px] font-black uppercase text-gray-500 tracking-widest">
- Total Assets: {data.products.filter(p => !p.isService).length}
+ Total Assets: {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides').length}
  </div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {data.products.filter(p => !p.isService).map(product => (
+ {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides').map(product => (
  <div key={product._id} className="group p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 flex items-center justify-between gap-4">
  <div className="flex items-center gap-5 min-w-0">
  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shrink-0">
@@ -808,7 +859,11 @@ const AdminDashboard = () => {
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
- <h3 className="text-2xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent uppercase tracking-tighter">{editingItem.products ? 'Edit Service Specification' : 'Onboard New Service Offering'}</h3>
+ <h3 className="text-2xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent uppercase tracking-tighter">
+ {editingItem.products 
+ ? `Edit ${activeTab === 'rides' ? 'Ride' : 'Service'} Specification` 
+ : `Onboard New ${activeTab === 'rides' ? 'Ride Asset' : 'Service Offering'}`}
+ </h3>
  {editingItem.products && (
  <button onClick={() => cancelEdit('products')} className="text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl transition-colors">
  Cancel Edit
@@ -1035,7 +1090,9 @@ const AdminDashboard = () => {
  <textarea name="description" defaultValue={editingItem.products?.description || ''} required rows="3" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="Explain what is included in this service..."></textarea>
  </div>
  <button type="submit" className="md:col-span-2 py-5 bg-purple-600 text-white font-black rounded-2xl hover:bg-purple-700 shadow-xl shadow-purple-600/20 transition-all uppercase tracking-widest text-xs">
- {editingItem.products ? 'Update Service Parameters' : 'Authorize FIC Service Offering'}
+ {editingItem.products 
+ ? `Update ${activeTab === 'rides' ? 'Ride' : 'Service'} Parameters` 
+ : `Authorize FIC ${activeTab === 'rides' ? 'Ride' : 'Service'} Offering`}
  </button>
  </form>
  </div>
@@ -1044,7 +1101,7 @@ const AdminDashboard = () => {
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 text-purple-600 uppercase tracking-tighter">Live Service Portfolio</h3>
  <div className="space-y-4">
- {data.products.filter(p => p.isService).map(service => (
+ {data.products.filter(p => p.isService && p.category !== 'Rides' && p.serviceType !== 'Ride').map(service => (
  <div key={service._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group border-l-4 border-l-purple-500">
  <div className="flex items-center gap-4">
  <div className="w-16 h-16 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
@@ -1082,7 +1139,7 @@ const AdminDashboard = () => {
  <h2 className="text-3xl font-black uppercase tracking-tighter">Property <span className="text-primary">Portfolio Hub</span></h2>
  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage all FIC rental assets and lease agreements.</p>
  </div>
- <button onClick={() => { setEditingItem(prev => ({ ...prev, products: null })); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: null })); setShowProductForm(true); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
  <Plus size={16} /> New Property Listing
  </button>
  </header>
@@ -2256,10 +2313,22 @@ const AdminDashboard = () => {
  {activeTab === 'tickets' && (
  <div className="space-y-8">
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <div className="mb-8">
- <h3 className="text-3xl font-black mb-1 text-primary">Support Ticket Queue</h3>
- <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{data.tickets?.length || 0} active tickets from vendors & customers</p>
- </div>
+ 
+   <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div>
+      <h3 className="text-3xl font-black mb-1 text-primary">Support Ticket Queue</h3>
+      <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{data.tickets?.length || 0} active tickets from vendors & customers</p>
+    </div>
+    <a 
+      href="mailto:support-manager@forgeindiaconnect.com?subject=Strategic Support Escalation"
+      className="px-6 py-3 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-secondary/20 flex items-center gap-2"
+    >
+      <Zap size={14} /> Contact Support Manager
+    </a>
+  </div>
+
+ 
+ 
 
  <div className="grid grid-cols-1 gap-6">
  {data.tickets?.map(ticket => (

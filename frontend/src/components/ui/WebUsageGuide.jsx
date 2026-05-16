@@ -359,12 +359,12 @@ const WebUsageGuide = () => {
  <FileText size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
  <h4 className="text-xl font-black uppercase tracking-tight">Need Advanced Help?</h4>
  <p className="text-xs text-white/70 font-bold uppercase tracking-widest mt-2 mb-6">Connect with our strategic support division for specialized assistance.</p>
-  <button 
-    onClick={() => window.location.href = `mailto:${getSupportEmail()}?subject=Support Request - ${userRole} Context`}
-    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/20"
-  >
-    Contact Support <ChevronRight size={14} />
-  </button>
+ <a 
+ href={`mailto:${getSupportEmail()}?subject=Support Request - ${userRole} Context`}
+ className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/20"
+ >
+ Contact Support <ChevronRight size={14} />
+ </a>
  </div>
  <div className="flex-1 p-8 rounded-[2.5rem] bg-secondary text-dark-bg shadow-2xl shadow-secondary/20 group cursor-pointer hover:scale-[1.02] transition-all text-left">
  <Monitor size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
