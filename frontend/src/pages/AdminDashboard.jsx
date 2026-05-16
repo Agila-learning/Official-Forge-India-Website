@@ -798,6 +798,8 @@ const AdminDashboard = () => {
  </button>
  </form>
  </div>
+ </div>
+ )}
 
 {/* PRODUCT INVENTORY LIST */}
  {activeTab === 'atomy' && (
@@ -844,9 +846,6 @@ const AdminDashboard = () => {
  ))}
  </div>
  </div>
- )}
-</div>
-
  )}
  
  {(activeTab === 'services' || (showServiceForm && activeTab === 'rides')) && (
@@ -1124,10 +1123,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  )}
-  </div>
 
- )}
- 
  {activeTab === 'rentals' && (
  <div className="space-y-12">
  <header className="flex justify-between items-center">
