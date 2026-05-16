@@ -612,24 +612,32 @@ const cancelOrder = async (req, res) => {
 // @desc    Get partner orders
 // @route   GET /api/orders/partner/me
 // @access  Private/Partner
-const getPartnerOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({ deliveryPartner: req.user._id })
-    .populate('user', 'id firstName lastName email')
-    .sort({ createdAt: -1 });
-  res.json(orders);
-});
+const getPartnerOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ deliveryPartner: req.user._id })
+      .populate('user', 'id firstName lastName email')
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error fetching partner orders' });
+  }
+};
 
 // @desc    Get vendor orders
 // @route   GET /api/orders/vendor/me
 // @access  Private/Vendor
-const getVendorOrders = asyncHandler(async (req, res) => {
-  // For now, return all product orders to the Seller/Vendor
-  // In a real multi-vendor setup, this would filter by product vendor ID
-  const orders = await Order.find({ 'orderItems.isService': { $ne: true } })
-    .populate('user', 'id firstName lastName email')
-    .sort({ createdAt: -1 });
-  res.json(orders);
-});
+const getVendorOrders = async (req, res) => {
+  try {
+    // For now, return all product orders to the Seller/Vendor
+    // In a real multi-vendor setup, this would filter by product vendor ID
+    const orders = await Order.find({ 'orderItems.isService': { $ne: true } })
+      .populate('user', 'id firstName lastName email')
+      .sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error fetching vendor orders' });
+  }
+};
 
 module.exports = {
   addOrderItems,
