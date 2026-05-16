@@ -476,49 +476,42 @@ const AdminDashboard = () => {
  <button onClick={() => setActiveTab('applications')} className="px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all">Track</button>
  </div>
  ))}
- {(data.applications?.length || 0) === 0 && (
- <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No recent applications</div>
- )}
+ {(data.applications?.length || 0) === 0 && <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No recent applications</div>}
  {data.applications?.length > 5 && (
  <button onClick={() => setActiveTab('applications')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">View All Applications ({data.applications.length})</button>
-  )}
-  </div>
-  </div>
-
-  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-dark-card dark:to-dark-bg mt-12">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
-        <ShieldCheck size={24} />
-      </div>
-      <div>
-        <h3 className="text-2xl font-black uppercase tracking-tighter">Support <span className="text-primary">Hub</span></h3>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Administrative Assistance</p>
-      </div>
-    </div>
-    <div className="space-y-4">
-      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-        Encountering technical issues or need strategic assistance with platform management? Reach out to our global ops center.
-      </p>
-      <div className="grid grid-cols-1 gap-3 pt-4">
-        <a href="mailto:ops-center@forgeindiaconnect.com?subject=Admin Technical Support" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
-          <div className="flex items-center gap-3">
-            <Mail className="text-primary" size={18} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Global Ops Center</span>
-          </div>
-          <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
-        </a>
-        <a href="mailto:it-support@forgeindiaconnect.com?subject=Dashboard Bug Report" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
-          <div className="flex items-center gap-3">
-            <Zap className="text-secondary" size={18} />
-            <span className="text-[10px] font-black uppercase tracking-widest">IT Emergency Line</span>
-          </div>
-          <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
-        </a>
-      </div>
-    </div>
-  </div>
-
  )}
+ </div>
+ </div>
+
+ <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-dark-card dark:to-dark-bg mt-12">
+ <div className="flex items-center gap-3 mb-6">
+ <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+ <ShieldCheck size={24} />
+ </div>
+ <div>
+ <h3 className="text-2xl font-black uppercase tracking-tighter">Support <span className="text-primary">Hub</span></h3>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Administrative Assistance</p>
+ </div>
+ </div>
+ <div className="space-y-4">
+ <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+ Encountering technical issues or need strategic assistance with platform management? Reach out to our global ops center.
+ </p>
+ <div className="grid grid-cols-1 gap-3 pt-4">
+ <a href="mailto:ops-center@forgeindiaconnect.com?subject=Admin Technical Support" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
+ <div className="flex items-center gap-3">
+ <Mail className="text-primary" size={18} />
+ <span className="text-[10px] font-black uppercase tracking-widest">Global Ops Center</span>
+ </div>
+ <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
+ </a>
+ <a href="mailto:it-support@forgeindiaconnect.com?subject=Dashboard Bug Report" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
+ <div className="flex items-center gap-3">
+ <Zap className="text-secondary" size={18} />
+ <span className="text-[10px] font-black uppercase tracking-widest">IT Emergency Line</span>
+ </div>
+ <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
+ </a>
  </div>
  </div>
  </div>
