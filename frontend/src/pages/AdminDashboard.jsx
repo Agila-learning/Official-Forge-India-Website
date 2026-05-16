@@ -1090,6 +1090,8 @@ const AdminDashboard = () => {
  </button>
  </form>
  </div>
+ </div>
+ )}
 
  {activeTab === 'services' && (
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
