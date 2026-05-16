@@ -113,8 +113,8 @@ const ContentWrapper = ({ loading }) => {
  <ScrollToTopOnRoute />
  <ScrollToTop />
  {!shouldHide && <GlobalCTABar />}
- {userInfo && userInfo?.role !== 'Admin' && <ChatWidget />}
- {(!userInfo || userInfo?.role === 'Candidate') && <FICQuippy />}
+ {userInfo && !['Admin', 'Sub-Admin'].includes(userInfo?.role) && <ChatWidget />}
+ {(!userInfo || userInfo?.role === 'Candidate' || location.pathname === '/') && !isDashboard && <FICQuippy />}
  {(!userInfo && location.pathname === '/') && <CookieConsent />}
  <LocationPermissionModal />
  

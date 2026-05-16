@@ -197,10 +197,10 @@ const Navbar = () => {
  return (
  <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-5 bg-transparent'}`}>
  <div className="max-w-[1440px] mx-auto px-4 sm:px-5 md:px-8 lg:px-10 xl:px-14">
- <div className="flex justify-between items-center">
+ <div className="flex justify-between items-center gap-2">
  
- <Link to="/" className="flex items-center gap-2 lg:gap-4 group relative shrink-0 h-12">
- <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white dark:bg-dark-card rounded-xl lg:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+ <Link to="/" className="flex items-center gap-1.5 md:gap-4 group relative shrink-0 min-w-0 max-w-[160px] md:max-w-none">
+ <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white dark:bg-dark-card rounded-lg md:rounded-xl lg:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
  <motion.img 
  src="/logo.svg" 
  alt="Forge India Connect Official Logo" 
@@ -214,11 +214,11 @@ const Navbar = () => {
  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
  />
  </div>
- <div className="flex flex-col justify-center h-full overflow-hidden">
- <span className="text-sm lg:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
+ <div className="flex flex-col justify-center min-w-0">
+ <span className="text-[10px] md:text-sm lg:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
  <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
  </span>
- <div className="mt-1 scale-[0.6] lg:scale-100 origin-left flex justify-start">
+ <div className="mt-0.5 scale-[0.5] md:scale-[0.8] lg:scale-100 origin-left flex justify-start">
  <AnimatedConnectText key={location.pathname} />
  </div>
  </div>

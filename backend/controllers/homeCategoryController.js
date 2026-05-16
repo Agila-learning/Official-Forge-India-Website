@@ -80,10 +80,23 @@ const getSubCategoriesByCategory = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const createHomeSubCategory = asyncHandler(async (req, res) => {
   const { name, slug, categoryId, image, description, flowType, order, isActive } = req.body;
-  const subCategory = await HomeSubCategory.create({ 
-      name, slug, categoryId, image, description, flowType, order, isActive 
-  });
-  res.status(201).json(subCategory);
+  
+  // Validation for internal tracking
+  if (!name || !slug || !categoryId) {
+    res.status(400);
+    throw new Error('Name, slug, and categoryId are required fields');
+  }
+
+  try {
+    const subCategory = await HomeSubCategory.create({ 
+        name, slug, categoryId, image, description, flowType, order, isActive 
+    });
+    res.status(201).json(subCategory);
+  } catch (error) {
+    console.error('Sub-category Creation Error:', error);
+    res.status(500);
+    throw new Error(`Protocol Failure: ${error.message}`);
+  }
 });
 
 // @desc    Update a Home Sub-Category

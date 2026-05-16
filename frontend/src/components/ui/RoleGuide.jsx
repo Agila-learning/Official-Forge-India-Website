@@ -96,6 +96,16 @@ const RoleGuide = () => {
  const guideData = roleGuides[role] || roleGuides['Customer'];
  const content = guideData[lang];
 
+ const getSupportContact = () => {
+   switch(role) {
+     case 'Admin': case 'Sub-Admin': return 'ops-center@forgeindiaconnect.com';
+     case 'Vendor': case 'Seller': return 'vendor-support@forgeindiaconnect.com';
+     case 'Candidate': return 'careers@forgeindiaconnect.com';
+     case 'Delivery Partner': return 'logistics@forgeindiaconnect.com';
+     default: return 'info@forgeindiaconnect.com';
+   }
+ };
+
  return (
  <>
  {/* Floating Action Button */}
@@ -200,14 +210,12 @@ const RoleGuide = () => {
  {/* Footer */}
  <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg flex justify-between items-center">
  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Need more help?</p>
- <button 
- onClick={() => {
- window.dispatchEvent(new CustomEvent('open-chat-widget'));
- setIsOpen(false);
- }}
+ <a 
+ href={`mailto:${getSupportContact()}?subject=Support Request - ${role}`}
+ onClick={() => setIsOpen(false)}
  className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:underline">
  Contact Support
- </button>
+ </a>
  </div>
  </motion.div>
  </>

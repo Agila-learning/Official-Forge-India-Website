@@ -413,9 +413,10 @@ const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
 };
 
 const SubCategoryManager = ({ categories, onUpdate, isVendorMode }) => {
- const [items, setItems] = useState([]);
- const [newItem, setNewItem] = useState({ name: '', slug: '', categoryId: '', flowType: 'Slot-Only', description: '', order: 0 });
- const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState({ name: '', slug: '', categoryId: '', flowType: 'Slot-Only', description: '', image: '', order: 0 });
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
  const fetchSubCats = async () => {
  setLoading(true);
@@ -428,15 +429,20 @@ const SubCategoryManager = ({ categories, onUpdate, isVendorMode }) => {
 
  useEffect(() => { fetchSubCats(); }, []);
 
- const handleCreate = async () => {
- if (!newItem.categoryId) return toast.error('Select a parent category');
- try {
- await api.post('/home-categories/sub', newItem);
- toast.success('Sub-category deployed');
- fetchSubCats();
- setNewItem({ name: '', slug: '', categoryId: '', flowType: 'Slot-Only', description: '', order: 0 });
- } catch (err) { toast.error('Deployment failed'); }
- };
+  const handleCreate = async () => {
+    if (!newItem.name || !newItem.slug || !newItem.categoryId) return toast.error('Name, Slug, and Parent Category are required');
+    setSubmitting(true);
+    try {
+      await api.post('/home-categories/sub', newItem);
+      toast.success('Sub-category deployed');
+      fetchSubCats();
+      setNewItem({ name: '', slug: '', categoryId: '', flowType: 'Slot-Only', description: '', image: '', order: 0 });
+    } catch (err) { 
+      toast.error(err.response?.data?.message || 'Deployment failed'); 
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
  const handleDelete = async (id) => {
  if (!window.confirm('Decommission this sub-vertical?')) return;
@@ -450,25 +456,27 @@ const SubCategoryManager = ({ categories, onUpdate, isVendorMode }) => {
  <div className="space-y-10">
  <h2 className="text-3xl font-black uppercase tracking-tighter">Hierarchical <span className="text-primary">Sub-Verticals</span></h2>
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-8 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800">
- <input placeholder="Name" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs" />
- <input placeholder="Slug" value={newItem.slug} onChange={e => setNewItem({...newItem, slug: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs" />
- <select value={newItem.categoryId} onChange={e => setNewItem({...newItem, categoryId: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs">
- <option value="">Select Category</option>
+ <input placeholder="Name *" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
+ <input placeholder="Slug * (e.g. deep-cleaning)" value={newItem.slug} onChange={e => setNewItem({...newItem, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
+ <select value={newItem.categoryId} onChange={e => setNewItem({...newItem, categoryId: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card">
+ <option value="">Select Parent Category *</option>
  {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
  </select>
- <select value={newItem.flowType} onChange={e => setNewItem({...newItem, flowType: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs">
+ <select value={newItem.flowType} onChange={e => setNewItem({...newItem, flowType: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card">
  <option value="Slot-Only">Slot Only</option>
  <option value="BHK-Based">BHK Based</option>
  <option value="Sqft-Based">Sqft Based</option>
  <option value="Count-Based">Count Based</option>
  </select>
- <input type="number" placeholder="Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs" />
- <button 
- onClick={handleCreate} 
- disabled={isVendorMode}
- className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3 ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+ <input placeholder="Description" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
+ <input placeholder="Image URL" value={newItem.image} onChange={e => setNewItem({...newItem, image: e.target.value})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
+ <input type="number" placeholder="Display Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
+ <button
+ onClick={handleCreate}
+ disabled={isVendorMode || submitting}
+ className={`md:col-span-2 bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3 transition-all ${isVendorMode || submitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
  >
- Deploy
+ {submitting ? '⏳ Deploying...' : '🚀 Deploy Sub-Category'}
  </button>
  </div>
 

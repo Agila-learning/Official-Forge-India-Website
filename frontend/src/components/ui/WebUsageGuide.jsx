@@ -12,6 +12,28 @@ const WebUsageGuide = () => {
  const [activeAccordion, setActiveAccordion] = useState(null);
  const [completedSteps, setCompletedSteps] = useState([]);
 
+ const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+ const userRole = userInfo.role || 'Customer';
+
+ const getSupportEmail = () => {
+   switch(userRole) {
+     case 'Vendor':
+     case 'Seller':
+     case 'Stay Provider':
+     case 'Ride Provider':
+       return 'vendor-support@forgeindiaconnect.com';
+     case 'Candidate':
+       return 'careers@forgeindiaconnect.com';
+     case 'Employer':
+       return 'enterprise@forgeindiaconnect.com';
+     case 'Admin':
+     case 'Sub-Admin':
+       return 'ops-center@forgeindiaconnect.com';
+     default:
+       return 'info@forgeindiaconnect.com';
+   }
+ };
+
  const translations = {
  English: {
  title: "Web Usage Guide",
@@ -337,9 +359,12 @@ const WebUsageGuide = () => {
  <FileText size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
  <h4 className="text-xl font-black uppercase tracking-tight">Need Advanced Help?</h4>
  <p className="text-xs text-white/70 font-bold uppercase tracking-widest mt-2 mb-6">Connect with our strategic support division for specialized assistance.</p>
- <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/20">
- Contact Support <ChevronRight size={14} />
- </button>
+  <button 
+    onClick={() => window.location.href = `mailto:${getSupportEmail()}?subject=Support Request - ${userRole} Context`}
+    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-8 py-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/20"
+  >
+    Contact Support <ChevronRight size={14} />
+  </button>
  </div>
  <div className="flex-1 p-8 rounded-[2.5rem] bg-secondary text-dark-bg shadow-2xl shadow-secondary/20 group cursor-pointer hover:scale-[1.02] transition-all text-left">
  <Monitor size={32} className="mb-6 opacity-80 group-hover:scale-110 transition-transform" />
