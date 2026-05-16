@@ -83,6 +83,13 @@ const ChatWidget = () => {
  const mediaRecorder = useRef(null);
  const audioChunks = useRef([]);
 
+ // Listen for programmatic open requests (e.g. from RoleGuide)
+ useEffect(() => {
+   const handleOpen = () => setIsOpen(true);
+   window.addEventListener('open-chat-widget', handleOpen);
+   return () => window.removeEventListener('open-chat-widget', handleOpen);
+ }, []);
+
  // Initialize socket
  useEffect(() => {
  if (!userInfo?._id || !token) return;

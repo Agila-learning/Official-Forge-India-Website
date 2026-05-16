@@ -39,7 +39,24 @@ const Profile = () => {
  const [reviewSubmitting, setReviewSubmitting] = useState(false);
  
  const userInfoStr = localStorage.getItem('userInfo');
- const [profileData, setProfileData] = useState(userInfoStr ? JSON.parse(userInfoStr) : {});
+ const [profileData, setProfileData] = useState(JSON.parse(localStorage.getItem('userInfo') || '{}'));
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data } = await api.get('/users/profile');
+        const existingUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const updatedUserInfo = { ...existingUserInfo, ...data };
+        localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+        setProfileData(updatedUserInfo);
+      } catch (err) {
+        console.error('Failed to sync profile with server');
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const [managedVehicleDetails, setManagedVehicleDetails] = useState(profileData?.vehicleDetails || {});
  const [myApplications, setMyApplications] = useState([]);
 
  useEffect(() => {

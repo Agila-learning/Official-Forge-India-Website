@@ -122,6 +122,7 @@ const DashboardLayout = ({
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
  { id: 'rides', icon: Truck, label: 'Rides' },
+ { id: 'stays', icon: Building2, label: 'Hotels & PG' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },

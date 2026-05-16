@@ -9,8 +9,6 @@ const MetricsSection = lazy(() => import('../components/sections/MetricsSection'
 const ResumeAnalyzer = lazy(() => import('../components/ui/ResumeAnalyzer'));
 const MarketplaceCategories = lazy(() => import('../components/sections/MarketplaceCategories'));
 const DeliveryBanner = lazy(() => import('../components/sections/DeliveryBanner'));
-const FICRoadmap = lazy(() => import('../components/sections/FICRoadmap'));
-const About = lazy(() => import('../components/sections/About'));
 const Services = lazy(() => import('../components/sections/Services'));
 const Features = lazy(() => import('../components/sections/Features'));
 const Industries = lazy(() => import('../components/sections/Industries'));
@@ -22,7 +20,6 @@ const LocationMap = lazy(() => import('../components/sections/LocationMap'));
 const RideServices = lazy(() => import('../components/sections/RideServices'));
 const RentalServices = lazy(() => import('../components/sections/RentalServices'));
 const LogoMarquee = lazy(() => import('../components/ui/LogoMarquee'));
-const PipelineProcess = lazy(() => import('../components/sections/PipelineProcess'));
 const ServiceCoverage = lazy(() => import('../components/sections/ServiceCoverage'));
 const PlacedCandidates = lazy(() => import('../components/sections/PlacedCandidates'));
 

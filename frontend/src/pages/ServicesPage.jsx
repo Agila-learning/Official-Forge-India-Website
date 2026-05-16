@@ -28,6 +28,9 @@ const categories = [
  { id: 'website-development', label: 'Web Development', icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
  { id: 'business-consulting', label: 'Business Consulting', icon: Building2, color: 'text-indigo-400', bg: 'bg-indigo-400/10' },
  { id: 'job-consulting', label: 'Job Consulting', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-400/10' },
+ { id: 'bike-taxi', label: 'Bike Taxi', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+ { id: 'car-taxi', label: 'Car Taxi', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+ { id: 'express-delivery', label: 'Delivery', icon: Truck, color: 'text-green-500', bg: 'bg-green-500/10' },
 ];
 
 const HorizontalCarousel = ({ title, items, onBook }) => {

@@ -70,6 +70,33 @@ const categories = [
  color: 'from-indigo-400 to-blue-500',
  tags: ['Resume Review', 'Mock Interview', 'Salary Negotiation'],
  path: '/job-consulting'
+ },
+ { 
+ id: 'bike-taxi', 
+ label: 'Bike Taxi', 
+ icon: Zap, 
+ count: 'Instant Pickup',
+ color: 'from-orange-400 to-red-500',
+ tags: ['Swift', 'Economical', 'City wide'],
+ path: '/services/category/bike-taxi'
+ },
+ { 
+ id: 'car-taxi', 
+ label: 'Car Taxi', 
+ icon: Zap, 
+ count: 'Luxury & Mini',
+ color: 'from-blue-400 to-indigo-500',
+ tags: ['Safe', 'Intercity', 'Airport'],
+ path: '/services/category/car-taxi'
+ },
+ { 
+ id: 'luxury-stays', 
+ label: 'Hotels & PG', 
+ icon: Building2, 
+ count: 'Premium Stays',
+ color: 'from-violet-500 to-purple-600',
+ tags: ['Luxury', 'Budget PG', 'Verified'],
+ path: '/services/category/stay'
  }
 ];
 
@@ -111,24 +138,21 @@ const MarketplaceCategories = () => {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {categories.map((cat, idx) => (
+ {categories.map((category, idx) => (
  <motion.div
- key={cat.id}
- initial={{ opacity: 0, y: 30 }}
+ key={category.id}
+ initial={{ opacity: 0, y: 20 }}
  whileInView={{ opacity: 1, y: 0 }}
  viewport={{ once: true }}
- transition={{ delay: idx * 0.1 }}
- whileHover={{ y: -10 }}
- className="group cursor-pointer"
- onClick={() => navigate(cat.path)}
+ transition={{ delay: idx * 0.05 }}
+ onClick={() => navigate(category.path)}
+ className="group relative p-8 rounded-[2.5rem] bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all cursor-pointer overflow-hidden flex flex-col h-full"
  >
- <div className="bg-slate-50 dark:bg-dark-card rounded-[3rem] p-10 border border-slate-100 dark:border-slate-800 transition-all group-hover:border-primary/30 group-hover:shadow-2xl group-hover:shadow-primary/5 relative overflow-hidden h-full">
- {/* Decorative Gradient */}
- <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${cat.color} opacity-0 group-hover:opacity-10 rounded-full blur-3xl -mr-10 -mt-10 transition-opacity duration-500`} />
- 
+ <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 rounded-full blur-3xl -mr-10 -mt-10 transition-opacity duration-500`} />
+
  <div className="flex items-start justify-between mb-10">
- <div className={`w-16 h-16 bg-gradient-to-br ${cat.color} rounded-[1.8rem] flex items-center justify-center text-white shadow-xl group-hover:rotate-6 transition-all duration-500`}>
- <cat.icon size={28} />
+ <div className={`w-16 h-16 bg-gradient-to-br ${category.color} rounded-[1.8rem] flex items-center justify-center text-white shadow-xl group-hover:rotate-6 transition-all duration-500`}>
+ <category.icon size={28} />
  </div>
  <div className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:rotate-45">
  <ArrowUpRight size={20} />
@@ -136,13 +160,13 @@ const MarketplaceCategories = () => {
  </div>
 
  <div className="space-y-4">
- <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-tight">{cat.label}</h3>
+ <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-tight">{category.label}</h3>
  <p className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/5 inline-block px-3 py-1 rounded-full border border-primary/10">
- {cat.count}
+ {category.count}
  </p>
  
  <div className="flex flex-wrap gap-2 pt-4">
- {cat.tags.map(tag => (
+ {category.tags.map(tag => (
  <span key={tag} className="text-[9px] font-bold text-gray-400 uppercase tracking-tight px-3 py-1 bg-white dark:bg-dark-bg border border-slate-100 dark:border-slate-800 rounded-lg group-hover:border-primary/20 group-hover:text-primary transition-all">
  {tag}
  </span>

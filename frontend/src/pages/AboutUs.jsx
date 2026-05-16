@@ -287,7 +287,7 @@ const AboutUs = () => {
           </div>
         </section>
 
-        {/* ── Credentials Strip ── */}
+        {/* ── Divisions Grid ── */}
         <section className="py-16 px-6 bg-slate-50 dark:bg-dark-bg border-y border-slate-100 dark:border-slate-800">
           <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
             {[

@@ -103,7 +103,7 @@ const RoleGuide = () => {
  whileHover={{ scale: 1.1 }}
  whileTap={{ scale: 0.9 }}
  onClick={() => setIsOpen(true)}
- className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-full shadow-2xl flex items-center justify-center text-white z-[999] hover:shadow-indigo-500/50 transition-shadow"
+ className="fixed bottom-10 left-10 w-14 h-14 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-full shadow-2xl flex items-center justify-center text-white z-[999] hover:shadow-indigo-500/50 transition-shadow"
  >
  <HelpCircle size={28} />
  </motion.button>
@@ -124,7 +124,7 @@ const RoleGuide = () => {
  initial={{ opacity: 0, y: 50, scale: 0.9 }}
  animate={{ opacity: 1, y: 0, scale: 1 }}
  exit={{ opacity: 0, y: 50, scale: 0.9 }}
- className="fixed bottom-24 right-6 w-[380px] max-w-[calc(100vw-3rem)] bg-white dark:bg-dark-card rounded-[2rem] shadow-3xl z-[1001] overflow-hidden border border-gray-100 dark:border-gray-800"
+ className="fixed bottom-28 left-10 w-[380px] max-w-[calc(100vw-3rem)] bg-white dark:bg-dark-card rounded-[2rem] shadow-3xl z-[1001] overflow-hidden border border-gray-100 dark:border-gray-800"
  >
  {/* Header */}
  <div className="p-6 bg-gradient-to-br from-indigo-600 to-violet-600 text-white relative">
@@ -200,7 +200,12 @@ const RoleGuide = () => {
  {/* Footer */}
  <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg flex justify-between items-center">
  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Need more help?</p>
- <button className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:underline">
+ <button 
+ onClick={() => {
+ window.dispatchEvent(new CustomEvent('open-chat-widget'));
+ setIsOpen(false);
+ }}
+ className="text-xs font-black text-indigo-600 uppercase tracking-widest hover:underline">
  Contact Support
  </button>
  </div>

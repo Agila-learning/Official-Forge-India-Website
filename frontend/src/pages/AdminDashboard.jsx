@@ -32,6 +32,8 @@ const AdminDashboard = () => {
  const [managedSlots, setManagedSlots] = useState([]);
  const [managedServiceConfig, setManagedServiceConfig] = useState([]);
  const [managedPricingRules, setManagedPricingRules] = useState([]);
+ const [showProductForm, setShowProductForm] = useState(false);
+ const [showServiceForm, setShowServiceForm] = useState(false);
 
  useEffect(() => {
  if (editingItem.products) {
@@ -71,6 +73,9 @@ const AdminDashboard = () => {
  const [deliveryPartners, setDeliveryPartners] = useState([]);
  const [editingReview, setEditingReview] = useState(null);
  const [vendorFilter, setVendorFilter] = useState('all');
+ const [payoutLogs, setPayoutLogs] = useState([]);
+ const [orderSearch, setOrderSearch] = useState('');
+ const [bookingSearch, setBookingSearch] = useState('');
  const [locations, setLocations] = useState([]);
  const [selectedVendorForAsset, setSelectedVendorForAsset] = useState(null);
 
@@ -118,101 +123,94 @@ const AdminDashboard = () => {
  }
  };
 
- useEffect(() => {
- const fetchData = async () => {
- setLoadStatus({ loading: true, error: '' });
- try {
- const [eventsRes, jobsRes, productsRes, faqsRes, candidatesRes, usersRes, locationsRes, reviewsRes, ordersRes, appsRes, testimonialsRes, locationRequestsRes, ticketsRes, inquiriesRes, contactsRes, settlementsRes] = await Promise.all([
- api.get('/events').catch(() => ({ data: [] })),
- api.get('/jobs').catch(() => ({ data: [] })),
- api.get('/products').catch(() => ({ data: [] })),
- api.get('/faqs').catch(() => ({ data: [] })),
- api.get('/candidates').catch(() => ({ data: [] })),
- api.get('/users').catch(() => ({ data: [] })),
- api.get('/locations').catch(() => ({ data: [] })),
- api.get('/reviews').catch(() => ({ data: [] })),
- api.get('/orders').catch(() => ({ data: [] })),
- api.get('/applications').catch(() => ({ data: [] })),
- api.get('/testimonials').catch(() => ({ data: [] })),
- api.get('/location-requests').catch(() => ({ data: [] })),
- api.get('/tickets').catch(() => ({ data: [] })),
- api.get('/inquiries').catch(() => ({ data: [] })),
- api.get('/contacts').catch(() => ({ data: [] })),
- api.get('/settlements/pending').catch(() => ({ data: [] }))
- ]);
- 
- setData(prev => ({ 
- ...prev, 
- events: eventsRes.data || [], 
- jobs: jobsRes.data || [], 
- products: productsRes.data || [],
- faqs: faqsRes.data || [],
- candidates: candidatesRes.data || [],
- users: usersRes.data || [],
- applications: appsRes.data || [],
- testimonials: testimonialsRes.data || [],
- tickets: ticketsRes.data || (Array.isArray(ticketsRes) ? ticketsRes : []),
- inquiries: inquiriesRes.data || [],
- contacts: contactsRes.data || [],
- settlements: settlementsRes?.data || []
- }));
- setReviews(reviewsRes.data || []);
- setOrders(ordersRes.data || []);
- setLocations(locationsRes.data || []);
- setDeliveryPartners((usersRes.data || []).filter(u => u.role === 'Delivery Partner'));
- setLocationRequests(locationRequestsRes.data || []);
- 
- if (activeTab === 'overview') {
- const rev = (ordersRes.data || []).reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
- const hiredCount = (appsRes.data || []).filter(app => app.status === 'Hired').length;
- const serviceBookingsCount = (ordersRes.data || []).filter(order => 
- order.orderItems?.some(item => item.isService)
- ).length;
+  const fetchData = useCallback(async () => {
+    setLoadStatus({ loading: true, error: '' });
+    try {
+      const endpoints = {
+        events: '/events',
+        jobs: '/jobs',
+        products: '/products',
+        faqs: '/faqs',
+        candidates: '/candidates',
+        users: '/users',
+        locations: '/locations',
+        reviews: '/reviews',
+        orders: '/orders',
+        applications: '/applications',
+        testimonials: '/testimonials',
+        'location-requests': '/location-requests',
+        tickets: '/tickets',
+        inquiries: '/inquiries',
+        contacts: '/contacts',
+        settlements: '/settlements/pending',
+        homeCategories: '/home-categories',
+        homeSubCategories: '/home-categories/sub'
+      };
 
- setDashboardStats({
- totalUsers: (usersRes.data || []).length,
- revenue: (rev / 1000).toFixed(1) + 'k',
- activeSessions: 142,
- hiredCount: hiredCount,
- serviceBookings: serviceBookingsCount
- });
- }
+      const results = {};
+      await Promise.all(
+        Object.entries(endpoints).map(async ([key, path]) => {
+          try {
+            const { data: resData } = await api.get(path);
+            results[key] = resData.data || resData;
+          } catch (err) {
+            console.warn(`Strategic Alert: Failure at ${path}`, err);
+            results[key] = [];
+          }
+        })
+      );
 
- setLoadStatus({ loading: false, error: '' });
+      const finalCats = Array.isArray(results.homeCategories) ? results.homeCategories : [];
+      const prodCats = finalCats.filter(c => c.type === 'product' || !c.type);
+      const svcCats = finalCats.filter(c => c.type === 'service');
 
- // Final sync for categories with extra safety
- const catsResponse = await api.get('/home-categories').catch(() => ({ data: [] }));
- const subsResponse = await api.get('/home-categories/sub').catch(() => ({ data: [] }));
- 
- // Normalize data structures
- const finalCats = Array.isArray(catsResponse.data) ? catsResponse.data : (Array.isArray(catsResponse) ? catsResponse : []);
- const finalSubs = Array.isArray(subsResponse.data) ? subsResponse.data : (Array.isArray(subsResponse) ? subsResponse : []);
- 
- const prodCats = finalCats.filter(c => c.type === 'product' || !c.type);
- const svcCats = finalCats.filter(c => c.type === 'service');
- setData(prev => ({ 
- ...prev, 
- homeCategories: finalCats,
- productCategories: prodCats,
- serviceCategories: svcCats,
- homeSubCategories: finalSubs 
- }));
+      setData(prev => ({
+        ...prev,
+        ...results,
+        homeCategories: finalCats,
+        productCategories: prodCats,
+        serviceCategories: svcCats,
+        homeSubCategories: Array.isArray(results.homeSubCategories) ? results.homeSubCategories : []
+      }));
 
- gsap.from('.glass-card', {
- y: 30,
- opacity: 0,
- duration: 0.8,
- stagger: 0.2,
- ease: 'power4.out'
- });
- } catch (err) {
- setLoadStatus({ loading: false, error: 'Failed to fetch dashboard data' });
- }
- };
- if (activeTab === 'media') return;
- fetchData();
+      setReviews(results.reviews || []);
+      setOrders(results.orders || []);
+      setLocations(results.locations || []);
+      setDeliveryPartners((results.users || []).filter(u => 
+        ['Ride Provider', 'Stay Provider', 'Service Provider', 'Delivery Partner'].includes(u.role)
+      ));
+      setLocationRequests(results['location-requests'] || []);
 
- }, [activeTab]);
+      // Compute stats
+      const rev = (results.orders || []).reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
+      const hiredCount = (results.applications || []).filter(app => app.status === 'Hired').length;
+      const serviceBookingsCount = (results.orders || []).filter(order => 
+        order.orderItems?.some(item => item.isService)
+      ).length;
+
+      setDashboardStats({
+        totalUsers: (results.users || []).length,
+        revenue: (rev / 1000).toFixed(1) + 'k',
+        activeSessions: 142,
+        hiredCount,
+        serviceBookings: serviceBookingsCount
+      });
+
+      gsap.from('.glass-card', {
+        y: 30, opacity: 0, duration: 0.8, stagger: 0.2, ease: 'power4.out'
+      });
+
+    } catch (err) {
+      setLoadStatus({ loading: false, error: 'Failed to fetch dashboard data' });
+    } finally {
+      setLoadStatus({ loading: false, error: '' });
+    }
+  }, [api]);
+
+  useEffect(() => {
+    if (activeTab === 'media') return;
+    fetchData();
+  }, [fetchData, activeTab]);
 
  const handleSubmit = async (e, endpoint) => {
  e.preventDefault();
@@ -304,6 +302,8 @@ const AdminDashboard = () => {
  toast.success(`${endpoint.slice(0, -1)} created successfully!`);
  }
  e.target.reset();
+ setShowProductForm(false);
+ setShowServiceForm(false);
  } catch (err) {
  toast.error(err.response?.data?.message || 'Operation failed');
  }
@@ -326,6 +326,8 @@ const AdminDashboard = () => {
 
  const cancelEdit = (endpoint) => {
  setEditingItem(prev => ({...prev, [endpoint]: null}));
+ setShowProductForm(false);
+ setShowServiceForm(false);
  };
 
  const handleUpdateAdminProfile = async () => {
@@ -381,6 +383,7 @@ const AdminDashboard = () => {
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
  { id: 'rides', icon: Truck, label: 'Rides' },
+ { id: 'stays', icon: Home, label: 'Hotels & PG' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
@@ -631,7 +634,7 @@ const AdminDashboard = () => {
  </div>
  )}
 
- {activeTab === 'atomy' && (
+ {(activeTab === 'atomy' || (showProductForm && ['rentals', 'stays'].includes(activeTab))) && (
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
@@ -752,6 +755,7 @@ const AdminDashboard = () => {
  </div>
 
 {/* PRODUCT INVENTORY LIST */}
+ {activeTab === 'atomy' && (
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[70vh] custom-scrollbar">
  <div className="flex justify-between items-center mb-10">
  <h3 className="text-2xl font-black">Live <span className="text-primary">Inventory</span></h3>
@@ -798,7 +802,9 @@ const AdminDashboard = () => {
  </div>
  )}
 
- {activeTab === 'services' && (
+ )}
+ 
+ {(activeTab === 'services' || (showServiceForm && activeTab === 'rides')) && (
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
@@ -1034,6 +1040,7 @@ const AdminDashboard = () => {
  </form>
  </div>
 
+ {activeTab === 'services' && (
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 text-purple-600 uppercase tracking-tighter">Live Service Portfolio</h3>
  <div className="space-y-4">
@@ -1066,6 +1073,8 @@ const AdminDashboard = () => {
  </div>
  )}
 
+ )}
+ 
  {activeTab === 'rentals' && (
  <div className="space-y-12">
  <header className="flex justify-between items-center">
@@ -1073,7 +1082,7 @@ const AdminDashboard = () => {
  <h2 className="text-3xl font-black uppercase tracking-tighter">Property <span className="text-primary">Portfolio Hub</span></h2>
  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage all FIC rental assets and lease agreements.</p>
  </div>
- <button onClick={() => setActiveTab('atomy')} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: null })); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
  <Plus size={16} /> New Property Listing
  </button>
  </header>
@@ -1096,7 +1105,7 @@ const AdminDashboard = () => {
  <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
  <p className="text-xl font-black text-primary">₹{prop.price.toLocaleString()}<span className="text-[10px] text-gray-400 font-bold tracking-normal ml-1">/mo</span></p>
  <div className="flex gap-2">
- <button onClick={() => { setEditingItem(prev => ({ ...prev, products: prop })); setActiveTab('atomy'); }} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary rounded-xl transition-all"><Edit size={16} /></button>
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: prop })); setShowProductForm(true); }} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary rounded-xl transition-all"><Edit size={16} /></button>
  <button onClick={() => handleDelete('products', prop._id)} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-red-500 rounded-xl transition-all"><Trash2 size={16} /></button>
  </div>
  </div>
@@ -1119,7 +1128,7 @@ const AdminDashboard = () => {
  <h2 className="text-3xl font-black uppercase tracking-tighter">Fleet <span className="text-primary">Control Center</span></h2>
  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage ride-hailing operations and vehicle logistics.</p>
  </div>
- <button onClick={() => setActiveTab('services')} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: null })); setShowServiceForm(true); setManagedSlots([]); setManagedServiceConfig([]); setManagedPricingRules([]); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
  <Plus size={16} /> Register New Vehicle
  </button>
  </header>
@@ -1150,7 +1159,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  <div className="flex gap-2">
- <button onClick={() => { setEditingItem(prev => ({ ...prev, products: ride })); setActiveTab('services'); }} className="flex-1 py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Command Asset</button>
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: ride })); setShowServiceForm(true); }} className="flex-1 py-4 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Command Asset</button>
  <button onClick={() => handleDelete('products', ride._id)} className="p-4 bg-red-50 dark:bg-red-900/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><Trash2 size={18} /></button>
  </div>
  </div>
@@ -1159,6 +1168,52 @@ const AdminDashboard = () => {
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Truck size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No fleet assets registered in the global operations map.</p>
+ </div>
+ )}
+ </div>
+ </div>
+ )}
+
+ {activeTab === 'stays' && (
+ <div className="space-y-12">
+ <header className="flex justify-between items-center">
+ <div>
+ <h2 className="text-3xl font-black uppercase tracking-tighter">Stay <span className="text-primary">Registry Hub</span></h2>
+ <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Manage all Hotel, PG, and Hostel listings across the platform.</p>
+ </div>
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: null })); setShowProductForm(true); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+ <Plus size={16} /> New Stay Listing
+ </button>
+ </header>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+ {data.products.filter(p => p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays').map(stay => (
+ <div key={stay._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
+ <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
+ <img src={stay.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+ <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur text-[8px] font-black uppercase rounded-full border border-gray-100">{stay.category}</div>
+ </div>
+ <div className="flex justify-between items-start mb-4">
+ <h3 className="font-black text-lg uppercase truncate">{stay.name}</h3>
+ <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase ${stay.countInStock > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>{stay.countInStock > 0 ? 'Vacant' : 'Full'}</span>
+ </div>
+ <div className="flex items-center gap-2 mb-6">
+ <MapPin size={12} className="text-primary" />
+ <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{stay.shopName || 'FIC Strategic Stay'}</span>
+ </div>
+ <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
+ <p className="text-xl font-black text-primary">₹{stay.price.toLocaleString()}<span className="text-[10px] text-gray-400 font-bold tracking-normal ml-1">/mo</span></p>
+ <div className="flex gap-2">
+ <button onClick={() => { setEditingItem(prev => ({ ...prev, products: stay })); setShowProductForm(true); }} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-primary rounded-xl transition-all"><Edit size={16} /></button>
+ <button onClick={() => handleDelete('products', stay._id)} className="p-3 bg-gray-50 dark:bg-dark-bg text-gray-400 hover:text-red-500 rounded-xl transition-all"><Trash2 size={16} /></button>
+ </div>
+ </div>
+ </div>
+ ))}
+ {data.products.filter(p => p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays').length === 0 && (
+ <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
+ <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
+ <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No stay assets detected in the global registry.</p>
  </div>
  )}
  </div>
@@ -1881,10 +1936,30 @@ const AdminDashboard = () => {
  {activeTab === 'orders' && (
  <div className="space-y-8">
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <div className="mb-8">
- <h3 className="text-3xl font-black mb-1">Product Orders</h3>
- <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.filter(o => !o.orderItems?.some(i => i.isService)).length} product orders</p>
- </div>
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+      <h3 className="text-3xl font-black mb-1">Product Orders</h3>
+      <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">
+        {orders.filter(o => 
+          !o.orderItems?.some(i => i.isService) &&
+          (o._id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+           o.user?.firstName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+           o.user?.lastName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+           o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()))
+        ).length} product orders
+      </p>
+    </div>
+    <div className="relative w-full md:w-96">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+      <input 
+        type="text" 
+        placeholder="Search Order ID, Name, Email..." 
+        value={orderSearch}
+        onChange={(e) => setOrderSearch(e.target.value)}
+        className="w-full pl-12 pr-6 py-3 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:border-primary transition-all font-bold text-sm"
+      />
+    </div>
+  </div>
  <div className="mobile-table-scroll">
  <table className="w-full text-left">
  <thead>
@@ -1895,7 +1970,13 @@ const AdminDashboard = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
- {orders.filter(o => !o.orderItems?.some(i => i.isService)).map(order => (
+  {orders.filter(o => 
+    !o.orderItems?.some(i => i.isService) &&
+    (o._id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+     o.user?.firstName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+     o.user?.lastName?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+     o.user?.email?.toLowerCase().includes(orderSearch.toLowerCase()))
+  ).map(order => (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
@@ -1971,10 +2052,31 @@ const AdminDashboard = () => {
  {activeTab === 'bookings' && (
  <div className="space-y-8">
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <div className="mb-8">
- <h3 className="text-3xl font-black mb-1">Service Bookings</h3>
- <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{orders.filter(o => o.orderItems?.some(i => i.isService)).length} total bookings</p>
- </div>
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+      <h3 className="text-3xl font-black mb-1">Service Bookings</h3>
+      <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">
+        {orders.filter(o => 
+          o.orderItems?.some(i => i.isService) &&
+          (o._id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+           o.user?.firstName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+           o.user?.lastName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+           o.user?.email?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+           o.orderItems?.[0]?.name?.toLowerCase().includes(bookingSearch.toLowerCase()))
+        ).length} total bookings
+      </p>
+    </div>
+    <div className="relative w-full md:w-96">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+      <input 
+        type="text" 
+        placeholder="Search Booking ID, Name, Service..." 
+        value={bookingSearch}
+        onChange={(e) => setBookingSearch(e.target.value)}
+        className="w-full pl-12 pr-6 py-3 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 outline-none focus:border-primary transition-all font-bold text-sm"
+      />
+    </div>
+  </div>
  <div className="mobile-table-scroll">
  <table className="w-full text-left">
  <thead>
@@ -1985,7 +2087,14 @@ const AdminDashboard = () => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
- {orders.filter(o => o.orderItems?.some(i => i.isService)).map(order => (
+  {orders.filter(o => 
+    o.orderItems?.some(i => i.isService) &&
+    (o._id.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+     o.user?.firstName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+     o.user?.lastName?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+     o.user?.email?.toLowerCase().includes(bookingSearch.toLowerCase()) ||
+     o.orderItems?.[0]?.name?.toLowerCase().includes(bookingSearch.toLowerCase()))
+  ).map(order => (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
