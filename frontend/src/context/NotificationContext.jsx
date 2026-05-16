@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api, { SOCKET_URL, SOCKET_PATH } from '../services/api';
+import api, { SOCKET_URL, SOCKET_PATH, SOCKET_TRANSPORTS } from '../services/api';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import { X, Bell } from 'lucide-react';
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
  const socket = io(SOCKET_URL, {
  withCredentials: true,
  path: SOCKET_PATH,
- transports: ['polling', 'websocket'],
+ transports: SOCKET_TRANSPORTS,
  reconnection: true,
  reconnectionAttempts: 5,
  reconnectionDelay: 5000,

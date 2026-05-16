@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
- Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
- CheckCircle2, Clock, XCircle, Star, MapPin, DollarSign, Send,
- Menu, X, ArrowUpRight, Loader2, AlertCircle, ShoppingCart, LayoutDashboard,
- ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet, ExternalLink
+  Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
+  CheckCircle2, Clock, XCircle, Star, MapPin, DollarSign, Send,
+  Menu, X, ArrowUpRight, Loader2, AlertCircle, ShoppingCart, LayoutDashboard,
+  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet, ExternalLink, Zap
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';

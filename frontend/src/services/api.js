@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api';
 export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
 export const SOCKET_PATH = '/api/fic-socket/';
+export const SOCKET_TRANSPORTS = window.location.hostname === 'localhost' ? ['polling', 'websocket'] : ['polling'];
 
 const api = axios.create({
  baseURL: API_URL,
