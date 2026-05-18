@@ -24,7 +24,7 @@ const categories = [
  count: '150+ Experts',
  color: 'from-emerald-500 to-teal-600',
  tags: ['Cleaning', 'Plumbing', 'Electrical'],
- path: '/explore-shop'
+ path: '/home-services'
  },
  { 
  id: 'jobs', 
@@ -96,7 +96,7 @@ const categories = [
  count: 'Premium Stays',
  color: 'from-violet-500 to-purple-600',
  tags: ['Luxury', 'Budget PG', 'Verified'],
- path: '/services/category/stay'
+ path: '/rentals/hotels'
  }
 ];
 

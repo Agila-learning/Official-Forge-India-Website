@@ -221,11 +221,10 @@ const AdminDashboard = () => {
  const formData = new FormData(e.target);
  const payload = Object.fromEntries(formData);
  
- // Auto-detect service vs product based on active tab
- if (['services', 'rides'].includes(activeTab)) payload.isService = true;
- else if (activeTab === 'rentals' || activeTab === 'stays' || activeTab === 'atomy') payload.isService = false;
- else if (payload.isService) payload.isService = true;
- else payload.isService = false;
+  if (['services', 'rides', 'stays', 'rentals'].includes(activeTab)) payload.isService = true;
+  else if (activeTab === 'atomy') payload.isService = false;
+  else if (payload.isService) payload.isService = true;
+  else payload.isService = false;
 
  // Auto-assign category for specialized tabs if creating new
  if (!editingItem.products) {

@@ -57,9 +57,9 @@ const RentalServices = () => {
  onClick={() => {
  // Map IDs to the new dynamic category routes
  const routeMap = {
- 'pg': '/services/category/stay',
- 'villas': '/services/category/stay',
- 'hotels': '/services/category/hotels'
+ 'pg': '/services/landing/pg',
+ 'villas': '/services/landing/villas',
+ 'hotels': '/services/landing/hotels'
  };
  navigate(routeMap[item.id] || '/services');
  }}

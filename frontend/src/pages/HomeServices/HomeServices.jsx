@@ -112,10 +112,6 @@ const HomeServices = () => {
  </div>
  </div>
  </div>
-
- <div className="flex justify-center">
- <MembershipCard />
- </div>
  </div>
 
  <div className="mt-16 max-w-5xl mx-auto">
@@ -242,31 +238,6 @@ const HomeServices = () => {
  </div>
  )}
  </main>
-
- {/* --- MEMBERSHIP UPSELL --- */}
- <section className="px-6 py-24">
- <div className="max-w-7xl mx-auto glass-premium rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden">
- <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.1),transparent_70%)]" />
- <div className="relative z-10 max-w-3xl mx-auto space-y-10">
- <div className="w-24 h-24 bg-blue-600/10 text-blue-500 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl border border-blue-600/20">
- <Zap size={40} />
- </div>
- <h3 className="text-4xl md:text-7xl font-black uppercase tracking-tighter leading-none">
- Infinite Home <br/><span className="text-blue-500">Management</span>.
- </h3>
- <p className="text-xl text-white/50 font-medium leading-relaxed">
- Join the Forge Membership to unlock unlimited on-call service requests, priority scheduling, and 24/7 strategic support for your residence.
- </p>
- <div className="flex flex-wrap justify-center gap-6">
- <button className="px-12 py-6 bg-white text-black font-black rounded-2xl hover:scale-105 transition-all uppercase text-xs tracking-widest shadow-2xl">Join Premium</button>
- <button className="px-12 py-6 bg-white/5 border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">Standard Booking</button>
- </div>
- <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-8">
- *Standard bookings are available to all verified accounts. Membership is optional for elite benefits.
- </p>
- </div>
- </div>
- </section>
  </div>
  );
 };
