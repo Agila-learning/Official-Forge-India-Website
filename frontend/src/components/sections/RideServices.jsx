@@ -49,7 +49,7 @@ const RideServices = () => {
  </p>
  </div>
  <button 
- onClick={() => navigate('/services/category/bike-taxi')}
+ onClick={() => navigate('/services/landing/bike-taxi')}
  className="group flex items-center gap-3 px-8 py-4 bg-white dark:bg-dark-card border border-slate-100 dark:border-slate-800 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:border-primary transition-all"
  >
  Explore Rides <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -66,9 +66,9 @@ const RideServices = () => {
  className="glass-card p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] bg-white dark:bg-dark-card border border-slate-100 dark:border-slate-800 shadow-2xl group hover:-translate-y-2 transition-all relative overflow-hidden flex flex-col h-full cursor-pointer"
  onClick={() => {
  const routeMap = {
- 'bike': '/services/category/bike-taxi',
- 'taxi': '/services/category/car-taxi',
- 'delivery': '/services/category/express-delivery'
+ 'bike': '/services/landing/bike-taxi',
+ 'taxi': '/services/landing/car-taxi',
+ 'delivery': '/services/landing/express-delivery'
  };
  navigate(routeMap[ride.id] || '/services');
  }}

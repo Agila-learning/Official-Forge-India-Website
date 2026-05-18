@@ -73,16 +73,31 @@ export const LocationProvider = ({ children }) => {
  );
  };
 
- const updateManualLocation = (manualLoc) => {
- // Ensure city is set for the Navbar display
- const city = manualLoc.city || manualLoc.formatted.split(',')[0].trim();
- const updatedLoc = { ...manualLoc, city };
- 
- setLocation(updatedLoc);
- localStorage.setItem('fic_user_location', JSON.stringify(updatedLoc));
- localStorage.setItem('fic_location_asked', 'true');
- setShowModal(false);
- };
+  const updateManualLocation = async (manualLoc) => {
+  let city = manualLoc.city || manualLoc.formatted.split(',')[0].trim();
+  let pincode = '';
+
+  // Check if the input is a 6-digit Indian Pincode
+  if (/^\d{6}$/.test(city)) {
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${city}`);
+      const data = await response.json();
+      if (data && data[0] && data[0].Status === 'Success') {
+        pincode = city;
+        city = data[0].PostOffice[0].District || data[0].PostOffice[0].Block || data[0].PostOffice[0].Name;
+      }
+    } catch (err) {
+      console.error('Failed to fetch pincode details:', err);
+    }
+  }
+
+  const updatedLoc = { ...manualLoc, city, pincode: pincode || manualLoc.pincode };
+  
+  setLocation(updatedLoc);
+  localStorage.setItem('fic_user_location', JSON.stringify(updatedLoc));
+  localStorage.setItem('fic_location_asked', 'true');
+  setShowModal(false);
+  };
 
  const fetchPincodeByCity = async (city) => {
  if (!city || city.length < 3) return null;

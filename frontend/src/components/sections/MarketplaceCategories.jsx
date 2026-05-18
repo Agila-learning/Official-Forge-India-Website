@@ -78,7 +78,7 @@ const categories = [
  count: 'Instant Pickup',
  color: 'from-orange-400 to-red-500',
  tags: ['Swift', 'Economical', 'City wide'],
- path: '/services/category/bike-taxi'
+ path: '/services/landing/bike-taxi'
  },
  { 
  id: 'car-taxi', 
@@ -87,7 +87,7 @@ const categories = [
  count: 'Luxury & Mini',
  color: 'from-blue-400 to-indigo-500',
  tags: ['Safe', 'Intercity', 'Airport'],
- path: '/services/category/car-taxi'
+ path: '/services/landing/car-taxi'
  },
  { 
  id: 'luxury-stays', 
