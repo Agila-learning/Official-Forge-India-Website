@@ -408,7 +408,7 @@ const ServiceLanding = () => {
     }
   };
 
-  if (config.tag === 'RIDES' || config.tag === 'DELIVERY' || config.tag === 'STAYS') {
+  if (config.tag === 'DELIVERY') {
     return (
       <div className="min-h-screen bg-[#0f172a] pt-20 overflow-hidden flex flex-col lg:flex-row">
         <SEOMeta 
