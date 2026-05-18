@@ -8,15 +8,16 @@ import {
 import { useLocation } from '../../context/LocationContext';
 
 const Hero = () => {
- const navigate = useNavigate();
- const { setShowModal } = useLocation();
- const [typedText, setTypedText] = useState('');
- const fullText = "Empowering Connections. Building Futures. Delivering Solutions.";
- const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
- const heroRef = useRef(null);
+  const navigate = useNavigate();
+  const { setShowModal, updateManualLocation } = useLocation();
+  const [typedText, setTypedText] = useState('');
+  const fullText = "Empowering Connections. Building Futures. Delivering Solutions.";
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const heroRef = useRef(null);
 
- const [pincodePlaceholder, setPincodePlaceholder] = useState('');
- const pincodes = ["635109", "600001", "560001", "635115", "635001"];
+  const [pincodePlaceholder, setPincodePlaceholder] = useState('');
+  const [pincodeInput, setPincodeInput] = useState('');
+  const pincodes = ["635109", "600001", "560001", "635115", "635001"];
 
  useEffect(() => {
  let i = 0;
@@ -160,6 +161,8 @@ const Hero = () => {
  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-0.5">Deployment Area</p>
  <input 
  type="text" 
+ value={pincodeInput}
+ onChange={(e) => setPincodeInput(e.target.value)}
  placeholder={pincodePlaceholder}
  className="bg-transparent w-full text-white font-black uppercase tracking-tighter outline-none placeholder:text-white/20 text-lg"
  maxLength={6}
@@ -167,10 +170,17 @@ const Hero = () => {
  </div>
  <button 
  onClick={() => {
+ if (pincodeInput.length === 6 && /^\d+$/.test(pincodeInput)) {
+ updateManualLocation({ formatted: pincodeInput, manual: true });
+ toast.success(`Sector Verification Successful`);
+ } else if (!pincodeInput) {
  if (!pincodePlaceholder.includes(':')) {
  toast.success(`Mission Sector Verified: ${pincodePlaceholder.split(' ').pop()}`);
  } else {
  toast.success('Sector Verification Successful');
+ }
+ } else {
+ toast.error('Please enter a valid 6-digit Pincode');
  }
  }}
  className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/30"

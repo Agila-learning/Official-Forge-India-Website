@@ -3,8 +3,8 @@ const router = express.Router();
 const Candidate = require('../models/Candidate');
 const { protect, admin } = require('../middleware/authMiddleware');
 
-// Get all candidates — PROTECTED (was publicly accessible before)
-router.get('/', protect, async (req, res) => {
+// Get all candidates (Publicly accessible)
+router.get('/', async (req, res) => {
   try {
     const candidates = await Candidate.find().sort({ createdAt: -1 });
     res.json(candidates);

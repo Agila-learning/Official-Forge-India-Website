@@ -49,6 +49,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india
     .then(() => {
         console.log('✅ Connected to MongoDB');
         initializeAdmin();
+        initializeCandidates();
     })
     .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
@@ -272,6 +273,38 @@ const initializeAdmin = async () => {
         }
     } catch (err) {
         console.error('❌ Bootstrap Error:', err.message);
+    }
+};
+
+const Candidate = require('./models/Candidate');
+const initializeCandidates = async () => {
+    try {
+        const candidateCount = await Candidate.countDocuments();
+        if (candidateCount === 0) {
+            await Candidate.create([
+                {
+                    name: "Deepak Kumar",
+                    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
+                    text: "Thanks to the elite consulting at Forge India Connect, I landed my dream role as a Senior IT Architect at a global tech leader. The process was extremely seamless and professional!",
+                    domain: "IT"
+                },
+                {
+                    name: "Priya Sharma",
+                    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=300",
+                    text: "The Banking Placement Program was a game-changer for my career. The mentors were knowledgeable, and the mock interviews prepared me perfectly for my transition.",
+                    domain: "Banking"
+                },
+                {
+                    name: "Rohan Verma",
+                    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300",
+                    text: "Superb onboarding and placement service. They connected me to a high-paying Automobile Engineering role in Pune. Highly recommended ecosystem!",
+                    domain: "Automobile"
+                }
+            ]);
+            console.log('✅ Bootstrap: Candidate success stories initialized successfully');
+        }
+    } catch (err) {
+        console.error('❌ Bootstrap Candidates Error:', err.message);
     }
 };
 

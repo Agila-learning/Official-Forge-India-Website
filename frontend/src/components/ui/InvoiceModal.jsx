@@ -50,6 +50,11 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
  className="fixed inset-0 z-[2000] flex items-center justify-center bg-dark-bg/80 backdrop-blur-sm p-4 md:p-8"
+ onClick={(e) => {
+   if (e.target === e.currentTarget) {
+     onClose();
+   }
+ }}
  >
  <motion.div
  initial={{ scale: 0.9, y: 20 }}
@@ -77,6 +82,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  <Printer size={20} />
  </button>
  <button
+ type="button"
  onClick={onClose}
  className="p-3 bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-800 hover:text-red-500 transition-all shadow-sm"
  title="Close"

@@ -263,7 +263,7 @@ const ServiceLandingPage = () => {
       </section>
 
       {/* ── Features ────────────────────────────────────────────── */}
-      <section className="container-xl px-6 -mt-20 relative z-20">
+      <section className="container-xl px-6 pt-16 relative z-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {data.features.map((f, i) => (
             <motion.div

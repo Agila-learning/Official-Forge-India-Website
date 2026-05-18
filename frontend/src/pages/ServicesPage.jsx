@@ -85,6 +85,11 @@ const ServicesPage = () => {
  const [selectedService, setSelectedService] = useState(null);
  const [services, setServices] = useState([]);
  const [loading, setLoading] = useState(true);
+ const listingsRef = React.useRef(null);
+
+ const scrollToListings = () => {
+   listingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ };
 
  useEffect(() => {
  const fetchServices = async () => {
@@ -131,11 +136,14 @@ const ServicesPage = () => {
  const newServices = [...services].reverse().slice(0, 8);
 
  const filteredListings = services.filter(item => {
- const itemCategorySlug = item.category?.toLowerCase().replace(/\s+/g, '-');
- const activeCategorySlug = activeCategory?.toLowerCase().replace(/\s+/g, '-');
- 
- return (activeCategory === 'all' || itemCategorySlug === activeCategorySlug) &&
- (item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const itemCategorySlug = (item.category || '').toLowerCase().replace(/\s+/g, '-');
+  const activeCategorySlug = (activeCategory || '').toLowerCase().replace(/\s+/g, '-');
+  
+  const nameMatch = (item.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+  const descMatch = (item.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+  const catMatch = activeCategory === 'all' || itemCategorySlug === activeCategorySlug;
+  
+  return catMatch && (nameMatch || descMatch);
  });
 
  const handleBuyMembership = () => {
@@ -197,7 +205,10 @@ const ServicesPage = () => {
  <option>Bangalore</option>
  </select>
  </div>
- <button className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95">
+ <button 
+ onClick={scrollToListings}
+ className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+ >
  SEARCH
  </button>
  </div>
@@ -237,9 +248,14 @@ const ServicesPage = () => {
  onClick={handleBuyMembership}
  className="px-10 py-5 bg-blue-600 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest shadow-2xl shadow-blue-600/30 hover:scale-105 active:scale-95 transition-all"
  >
- Buy Membership - ₹999/mo
+ Buy Membership Card
  </button>
- <button className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all">View Full Protocol</button>
+ <button 
+ onClick={scrollToListings}
+ className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all"
+ >
+ View Full Protocol
+ </button>
  </div>
  </div>
  </div>
@@ -247,7 +263,7 @@ const ServicesPage = () => {
  </section>
 
  {/* --- 🏷️ CATEGORY BAR --- */}
- <section className="px-6 pb-12 sticky top-20 z-50">
+ <section ref={listingsRef} className="px-6 pb-12 sticky top-20 z-50">
  <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
  <button 
  onClick={() => setActiveCategory('all')}

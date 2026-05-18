@@ -32,7 +32,7 @@ const ServiceCard = ({ product, onBook }) => {
 
  <div className="bg-dark-bg/40 rounded-[2rem] overflow-hidden relative border border-white/5 h-full flex flex-col">
  {/* Standardized Aspect Ratio Container */}
- <div className="relative aspect-video overflow-hidden">
+ <div className="relative h-48 sm:h-52 w-full overflow-hidden">
  <img 
  src={product.image || '/logo.jpg'} 
  alt={product.name} 
