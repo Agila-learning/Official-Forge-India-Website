@@ -200,9 +200,8 @@ const AdminDashboard = () => {
         logisticsOrders: logisticsOrdersCount
       });
 
-      gsap.from('.glass-card', {
-        y: 30, opacity: 0, duration: 0.8, stagger: 0.2, ease: 'power4.out'
-      });
+      // NOTE: GSAP animation removed from here — animating glass-card opacity:0
+      // on every tab switch was causing cards to flash and stay hidden.
 
     } catch (err) {
       setLoadStatus({ loading: false, error: 'Failed to fetch dashboard data' });
@@ -211,10 +210,11 @@ const AdminDashboard = () => {
     }
   }, [api]);
 
+  // Fetch data once on mount only — not on every tab switch.
+  // Tab switching just reads from the already-loaded `data` state.
   useEffect(() => {
-    if (activeTab === 'media') return;
     fetchData();
-  }, [fetchData, activeTab]);
+  }, [fetchData]);
 
  const handleSubmit = async (e, endpoint) => {
  e.preventDefault();
@@ -443,11 +443,9 @@ const AdminDashboard = () => {
  <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} stats={dashboardStats}>
  <AnimatePresence mode="wait">
  <motion.div
- key={activeTab}
- initial={{ opacity: 0, y: 20 }}
+ initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0, y: -20 }}
- transition={{ duration: 0.4, ease: "easeOut" }}
+ transition={{ duration: 0.25, ease: "easeOut" }}
  >
  { /* GLOBAL SEARCH COMMAND CENTER */ }
  <div className="mb-8 mt-4">
