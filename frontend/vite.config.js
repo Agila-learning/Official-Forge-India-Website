@@ -12,12 +12,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            if (id.includes('gsap')) return 'vendor-gsap';
-            if (id.includes('lucide-react')) return 'vendor-lucide';
-            if (id.includes('react')) return 'vendor-react';
-            if (id.includes('swiper')) return 'vendor-swiper';
-            return 'vendor'; // all other package dependencies
+            return id.toString().split('node_modules/')[1].split('/')[0].toString();
           }
         }
       }
