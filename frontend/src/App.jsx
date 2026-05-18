@@ -86,6 +86,16 @@ const PageLoader = () => (
  </div>
 );
 
+const ServiceRouteWrapper = () => {
+  const { id } = useParams();
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(id || '');
+  if (isObjectId) {
+    return <ServiceDetails />;
+  }
+  return <ServiceLanding />;
+};
+
+
 const ContentWrapper = ({ loading }) => {
  const location = useLocation();
  const [showInactivityPopup, setShowInactivityPopup] = useState(false);
@@ -159,7 +169,7 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/forgot-password" element={<ForgotPassword />} />
  <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
  <Route path="/services" element={<ServicesPage />} />
- <Route path="/services/:id" element={<ServiceDetails />} />
+ <Route path="/services/:id" element={<ServiceRouteWrapper />} />
  <Route path="/clientele" element={<Clientele />} />
  <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />
  <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['Admin', 'Sub-Admin']}><AdminDashboard /></ProtectedRoute>} />

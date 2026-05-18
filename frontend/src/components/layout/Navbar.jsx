@@ -146,15 +146,15 @@ const Navbar = () => {
  ];
 
   const hotelOptions = [
-    { name: 'Hotels', path: '/services/landing/hotels', icon: <Building2 size={20} />, desc: 'Premium stays & hospitality' },
-    { name: 'PG & Hostels', path: '/services/landing/pg', icon: <Building2 size={20} />, desc: 'Affordable room rentals' },
-    { name: 'Luxury Villas', path: '/services/landing/villas', icon: <Building2 size={20} />, desc: 'Premium villa getaways' },
+    { name: 'Hotels', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Hotel' }, icon: <Building2 size={20} />, desc: 'Premium stays & hospitality' },
+    { name: 'PG & Hostels', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'PG' }, icon: <Building2 size={20} />, desc: 'Affordable room rentals' },
+    { name: 'Luxury Villas', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Villa' }, icon: <Building2 size={20} />, desc: 'Premium villa getaways' },
   ];
 
   const rideOptions = [
-    { name: 'Bike Taxi', path: '/services/landing/bike-taxi', icon: <Zap size={20} />, desc: 'Quick 2-wheeler rides' },
-    { name: 'Car Taxi', path: '/services/landing/car-taxi', icon: <Zap size={20} />, desc: 'Comfortable cab service' },
-    { name: 'Express Delivery', path: '/services/landing/delivery', icon: <Truck size={20} />, desc: 'Fast parcel delivery' },
+    { name: 'Bike Taxi', path: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Bike' }, icon: <Zap size={20} />, desc: 'Quick 2-wheeler rides' },
+    { name: 'Car Taxi', path: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Car' }, icon: <Zap size={20} />, desc: 'Comfortable cab service' },
+    { name: 'Express Delivery', path: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Truck' }, icon: <Truck size={20} />, desc: 'Fast parcel delivery' },
   ];
 
  const homeServicesOptions = [
@@ -255,7 +255,8 @@ const Navbar = () => {
  {item.items.map(sub => (
  <Link 
  key={sub.name} 
- to={sub.path} 
+ to={sub.path}
+ state={sub.state}
  className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-2xl transition-all group/subitem"
  >
  <div className="w-8 h-8 bg-primary/5 text-primary rounded-xl flex items-center justify-center group-hover/subitem:bg-primary group-hover/subitem:text-white transition-all">
@@ -270,7 +271,7 @@ const Navbar = () => {
  <Link 
  key={item.name} 
  to={item.path} 
- className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all group/item border border-transparent hover:border-gray-100 dark:hover:border-gray-800 shadow-sm hover:shadow-md"
+ className="flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-3xl transition-all group/item border border-transparent hover:border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md"
  >
  <div className="w-10 h-10 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all duration-300">
  {item.icon}
@@ -547,6 +548,7 @@ const Navbar = () => {
  <Link 
  key={sub.name} 
  to={sub.path} 
+ state={sub.state}
  onClick={() => setIsOpen(false)}
  className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5"
  >

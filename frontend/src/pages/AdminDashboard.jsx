@@ -845,11 +845,11 @@ const AdminDashboard = () => {
  <label className="block text-sm font-bold mb-2 uppercase">Category</label>
  <select name="category" defaultValue={editingItem.products?.category || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
  <option value="">Select Product Category</option>
- {data.productCategories?.map(cat => (
- <option key={cat._id} value={cat.name}>{cat.name}</option>
+ {data.homeCategories?.map(cat => (
+ <option key={cat._id} value={cat.name}>{cat.name} ({cat.type || 'product'})</option>
  ))}
- {data.productCategories?.length === 0 && (
- <option disabled>No product categories — add in Home Service CMS</option>
+ {(!data.homeCategories || data.homeCategories.length === 0) && (
+ <option disabled>No categories — add in Home Service CMS</option>
  )}
  </select>
  </div>
@@ -1301,15 +1301,15 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => p.propertyType && p.propertyType !== 'None' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(prop => (
+ {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(prop => (
  <div key={prop._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={prop.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
- <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur text-[8px] font-black uppercase rounded-full border border-gray-100">{prop.propertyType}</div>
+ <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur text-[8px] font-black uppercase rounded-full border border-gray-100">{prop.propertyType || prop.category || 'Rental'}</div>
  </div>
  <div className="flex justify-between items-start mb-4">
  <h3 className="font-black text-lg uppercase truncate">{prop.name}</h3>
- <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase ${prop.isAvailable ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>{prop.isAvailable ? 'Available' : 'Occupied'}</span>
+ <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase ${prop.isAvailable || prop.countInStock > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>{prop.isAvailable || prop.countInStock > 0 ? 'Available' : 'Occupied'}</span>
  </div>
  <div className="flex items-center gap-2 mb-6">
  <MapPin size={12} className="text-primary" />
@@ -1324,7 +1324,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => p.propertyType && p.propertyType !== 'None' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
+ {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No property assets detected in the global registry.</p>
@@ -1347,7 +1347,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(ride => (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(ride => (
  <div key={ride._id} className="glass-card p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group border-b-4 border-b-primary">
  <div className="flex items-center gap-6 mb-8">
  <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary border border-primary/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
@@ -1377,7 +1377,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Truck size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No fleet assets registered in the global operations map.</p>
@@ -1400,7 +1400,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(stay => (
+ {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(stay => (
  <div key={stay._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={stay.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -1423,7 +1423,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays').length === 0 && (
+ {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No stay assets detected in the global registry.</p>
@@ -3455,64 +3455,7 @@ const AdminDashboard = () => {
 
 
 
- {activeTab === 'inquiries' && (
- <div className="space-y-8">
- <div className="flex justify-between items-center">
- <div>
- <h2 className="text-3xl font-black uppercase tracking-tighter">Service <span className="text-primary">Inquiries</span></h2>
- <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">{(data?.inquiries || []).length} active consultations</p>
- </div>
- </div>
 
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
- {(data?.inquiries || []).length > 0 ? (data?.inquiries || []).map(inq => (
- <div key={inq._id} className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 transition-all shadow-sm hover:border-primary/30">
- <div className="flex justify-between items-start mb-6">
- <div className="flex items-center gap-4">
- <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black">{inq.user?.firstName?.[0] || 'G'}</div>
- <div>
- <h3 className="font-black text-gray-900 uppercase tracking-tight">{inq.serviceType}</h3>
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{inq.user ? `${inq.user.firstName} ${inq.user.lastName}` : (inq.guestName || 'Guest')}</p>
- </div>
- </div>
- <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${inq.status === 'Resolved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-700'}`}>{inq.status}</span>
- </div>
- <div className="space-y-4 mb-8">
- <p className="text-[10px] font-black uppercase text-gray-400">{inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : 'N/A'}</p>
- <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{inq.specificRequirement || inq.message || '—'}</p>
- </div>
- <div className="flex gap-3">
- <select 
- value={inq.status}
- onChange={async (e) => {
- try {
- await api.put(`/inquiries/${inq._id}/status`, { status: e.target.value });
- toast.success('Status updated');
- setData(prev => ({
- ...prev,
- inquiries: (prev.inquiries || []).map(i => i._id === inq._id ? { ...i, status: e.target.value } : i)
- }));
- } catch { toast.error('Update failed'); }
- }}
- className="flex-1 px-5 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg text-[10px] font-black uppercase tracking-widest outline-none focus:border-primary"
- >
- <option value="Pending">Pending</option>
- <option value="In Progress">In Progress</option>
- <option value="Resolved">Resolved</option>
- <option value="Cancelled">Cancelled</option>
- </select>
- <button onClick={() => handleDelete('inquiries', inq._id)} className="px-5 py-3 bg-red-50 text-red-500 rounded-2xl text-[10px] font-black uppercase">Delete</button>
- </div>
- </div>
- )) : (
- <div className="col-span-full py-24 text-center border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
- <ClipboardList className="mx-auto text-gray-200 mb-4" size={48} />
- <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No service inquiries found</p>
- </div>
- )}
- </div>
- </div>
- )}
 
  {activeTab === 'contacts' && (
  <div className="space-y-8">

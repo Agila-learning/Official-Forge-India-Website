@@ -12,6 +12,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import { useNotifications } from '../context/NotificationContext';
 import NoDataFound from '../components/ui/NoDataFound';
 import HomeServiceCMS from '../components/admin/HomeServiceCMS';
+import InvoiceModal from '../components/ui/InvoiceModal';
 
 const VendorDashboard = () => {
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -282,7 +283,20 @@ const VendorDashboard = () => {
  if (data.sqft) data.sqft = Number(data.sqft);
  if (data.isOnline) data.isOnline = data.isOnline === 'true';
  
- try {
+  // Auto-classify stay, rental, ride, hotel, villa assets as services
+  const hasPropertyType = data.propertyType && data.propertyType !== 'None';
+  const hasVehicleType = data.vehicleType && data.vehicleType !== 'None';
+  const isServiceCategory = data.category && (
+    /stays|rentals|rides|hotels|villas|pg/i.test(data.category) ||
+    data.category === 'Rides' ||
+    data.category === 'Rentals' ||
+    data.category === 'Services'
+  );
+  if (hasPropertyType || hasVehicleType || isServiceCategory) {
+    data.isService = true;
+  }
+  
+  try {
  if (editingProduct) {
  await api.put(`/products/${editingProduct._id}`, data);
  toast.success('Asset optimized and synced');
@@ -1150,6 +1164,12 @@ const VendorDashboard = () => {
  </motion.div>
  )}
  </AnimatePresence>
+
+ <InvoiceModal
+    isOpen={!!viewingInvoice}
+    onClose={() => setViewingInvoice(null)}
+    order={viewingInvoice}
+  />
 
  <Toaster position="bottom-right" reverseOrder={false} />
  </DashboardLayout>

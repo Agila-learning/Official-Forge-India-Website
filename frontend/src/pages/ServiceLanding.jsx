@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -257,9 +257,11 @@ const serviceConfig = {
 };
 
 const ServiceLanding = () => {
-  const { slug } = useParams();
+  const { slug, id } = useParams();
+  const activeSlug = slug || id;
   const navigate = useNavigate();
-  const config = serviceConfig[slug];
+  const [dbService, setDbService] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({});
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -268,7 +270,55 @@ const ServiceLanding = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
-  const Icon = config?.icon;
+
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        setLoading(true);
+        const { data } = await api.get(`/services/slug/${activeSlug}`);
+        setDbService(data);
+      } catch (err) {
+        console.warn("Dynamic Fetch Alert: Service not found in DB. Falling back to static configs.", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchService();
+  }, [activeSlug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <Loader2 className="animate-spin text-purple-500 w-12 h-12" />
+      </div>
+    );
+  }
+
+  // Parse dynamic DB service or fallback to legacy serviceConfig static definitions
+  const config = dbService ? {
+    title: dbService.serviceName,
+    subtitle: dbService.description.split('.')[0] || 'Dynamic FIC Service',
+    description: dbService.description,
+    icon: (dbService.icon === 'Truck' ? Truck : dbService.icon === 'Home' ? Home : dbService.icon === 'Building2' ? Building2 : Zap),
+    gradient: 'from-purple-600 to-violet-700', // Static styling fallback
+    lightBg: 'from-purple-50 to-violet-50',     // Static styling fallback
+    accentColor: 'text-purple-600',             // Static styling fallback
+    accentBg: 'bg-purple-600',                   // Static styling fallback
+    tag: dbService.category.toUpperCase(),
+    serviceType: dbService.category,
+    features: (dbService.features || []).map(f => ({
+      icon: (f.icon === 'Shield' ? <Shield size={20} /> : f.icon === 'Clock' ? <Clock size={20} /> : f.icon === 'Star' ? <Star size={20} /> : f.icon === 'MapPin' ? <MapPin size={20} /> : <Zap size={20} />),
+      title: f.title,
+      desc: f.description || f.desc
+    })),
+    fields: dbService.bookingFields || [],
+    stats: (dbService.stats || []).map(s => ({ v: s.value || s.v, l: s.label || s.l })),
+    serviceSlug: dbService.slug,
+    heroImage: dbService.bannerImage || 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?w=800',
+    bgImage: '/images/rides_bg.png'
+  } : serviceConfig[activeSlug];
+
+  const Icon = config?.icon || Zap;
 
   if (!config) {
     navigate('/');
@@ -279,6 +329,22 @@ const ServiceLanding = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // Dynamic booking API submission
+      const bookingPayload = {
+        serviceSlug: activeSlug,
+        serviceName: config.title,
+        bookingData: formData,
+        totalPrice: dbService?.basePrice || 0,
+        name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : name,
+        email: userInfo ? userInfo.email : email,
+        contactNumber: userInfo ? userInfo.mobile : phone,
+        paymentMethod: 'Online'
+      };
+      
+      const token = localStorage.getItem('token');
+      const authHeaders = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+      await api.post('/bookings', bookingPayload, authHeaders);
+
       if (userInfo) {
         // Authenticated user -> Create a formal Order
         const payload = {
@@ -286,7 +352,7 @@ const ServiceLanding = () => {
             name: `${config.title} Booking`,
             qty: 1,
             image: config.heroImage,
-            price: 0, // Price to be assigned by admin/provider
+            price: dbService?.basePrice || 0, // Price to be assigned by admin/provider
             isService: true,
             selectedConfig: formData
           }],
@@ -297,7 +363,7 @@ const ServiceLanding = () => {
             country: 'India'
           },
           paymentMethod: 'Pay on Delivery',
-          totalPrice: 0,
+          totalPrice: dbService?.basePrice || 0,
           instructions: Object.entries(formData).map(([k, v]) => `${k}: ${v}`).join(' | '),
           fulfillmentType: config.serviceSlug === 'hotels' || config.serviceSlug === 'villas' || config.serviceSlug === 'pg-hostels' ? 'Digital Fulfillment' : 'Technician Visit'
         };
@@ -310,7 +376,7 @@ const ServiceLanding = () => {
       } else {
         // Guest user -> Save as lead
         const payload = {
-          serviceSlug: slug,
+          serviceSlug: activeSlug,
           serviceName: config.title,
           serviceType: config.serviceType || 'General',
           name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : name,
@@ -489,7 +555,10 @@ const ServiceLanding = () => {
       />
 
       {/* Hero */}
-      <div className={`bg-gradient-to-br ${config.gradient} text-white py-20 px-4`}>
+      <div 
+        className={`bg-gradient-to-br ${dbService ? '' : config.gradient} text-white py-20 px-4`}
+        style={dbService?.serviceColor ? { background: `linear-gradient(135deg, ${dbService.serviceColor}, ${dbService.serviceColor}dd)` } : {}}
+      >
         <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
@@ -519,7 +588,10 @@ const ServiceLanding = () => {
       </div>
 
       {/* Features */}
-      <div className={`bg-gradient-to-br ${config.lightBg} dark:bg-dark-card py-16 px-4`}>
+      <div 
+        className={`bg-gradient-to-br ${dbService ? '' : config.lightBg} dark:bg-dark-card py-16 px-4`}
+        style={dbService?.serviceColor ? { background: `linear-gradient(135deg, ${dbService.serviceColor}0d, ${dbService.serviceColor}05)` } : {}}
+      >
         <div className="max-w-[1440px] mx-auto">
           <h2 className="text-2xl font-black text-center mb-10 uppercase tracking-tighter text-gray-900 dark:text-white">
             Why Choose FIC {config.title}?
@@ -534,7 +606,10 @@ const ServiceLanding = () => {
                 transition={{ delay: i * 0.1 }}
                 className="bg-white dark:bg-dark-bg p-6 rounded-[2rem] shadow-md border border-gray-100 dark:border-gray-800"
               >
-                <div className={`w-12 h-12 ${config.accentBg}/10 ${config.accentColor} rounded-2xl flex items-center justify-center mb-4`}>
+                <div 
+                  className={`w-12 h-12 ${dbService ? '' : `${config.accentBg}/10 ${config.accentColor}`} rounded-2xl flex items-center justify-center mb-4`}
+                  style={dbService?.serviceColor ? { backgroundColor: `${dbService.serviceColor}15`, color: dbService.serviceColor } : {}}
+                >
                   {f.icon}
                 </div>
                 <h3 className="font-black text-gray-900 dark:text-white mb-1 uppercase tracking-tight text-sm">{f.title}</h3>
@@ -639,7 +714,8 @@ const ServiceLanding = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className={`w-full py-5 ${config.accentBg} text-white font-black rounded-2xl text-sm uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-3 disabled:opacity-60`}
+                className={`w-full py-5 ${dbService ? '' : config.accentBg} text-white font-black rounded-2xl text-sm uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-3 disabled:opacity-60`}
+                style={dbService?.serviceColor ? { backgroundColor: dbService.serviceColor } : {}}
               >
                 {submitting ? (
                   <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />

@@ -42,6 +42,9 @@ const rentalRoutes = require('./routes/rentalRoutes');
 const rideRoutes = require('./routes/rideRoutes');
 const settlementRoutes = require('./routes/settlementRoutes');
 const serviceRegistrationRoutes = require('./routes/serviceRegistrationRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const { initializeServices } = require('./controllers/serviceController');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -50,6 +53,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india
         console.log('✅ Connected to MongoDB');
         initializeAdmin();
         initializeCandidates();
+        initializeServices();
     })
     .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
@@ -172,6 +176,8 @@ app.use('/api/training', trainingRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/rides', rideRoutes);
 app.use('/api/settlements', settlementRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();

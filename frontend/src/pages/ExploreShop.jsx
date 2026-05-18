@@ -76,6 +76,16 @@ function ExploreShop() {
  fetchProducts();
  }, []);
 
+ useEffect(() => {
+    if (location.state) {
+      if (location.state.viewType) setViewType(location.state.viewType);
+      if (location.state.propertyFilter) setPropertyFilter(location.state.propertyFilter);
+      if (location.state.vehicleFilter) setVehicleFilter(location.state.vehicleFilter);
+      if (location.state.category) setCategory(location.state.category);
+      if (location.state.searchQuery) setSearchQuery(location.state.searchQuery);
+    }
+  }, [location.state]);
+
  const fetchProducts = async () => {
  try {
  const { data } = await api.get('/products');
@@ -100,27 +110,48 @@ function ExploreShop() {
  }
  };
 
- const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
- const matchesViewType = 
- viewType === 'Services' ? (product.isService && product.propertyType === 'None') : 
- viewType === 'Rentals' ? (product.propertyType && product.propertyType !== 'None') :
- viewType === 'Rides' ? (product.category === 'Rides' || product.serviceType === 'Ride') :
- !product.isService;
+  const RENTAL_CATEGORIES = ['Hotels', 'PG / Hostels', 'Villas', 'Stays', 'Rentals'];
+  const RIDE_CATEGORIES = ['Rides', 'Bike Taxi', 'Car Taxi', 'Delivery'];
 
- const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
- const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
- const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
- 
- const matchesPincode = !pincodeFilter || 
- !product.pincode || 
- product.pincode.length === 0 || 
- (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
- 
- const matchesPrice = (product.price || 0) <= priceRange;
- const matchesProperty = propertyFilter === 'All' || product.propertyType === propertyFilter;
- const matchesVehicle = vehicleFilter === 'All' || product.vehicleType === vehicleFilter;
- 
- return matchesViewType && matchesCategory && matchesSearch && matchesShop && matchesPincode && matchesPrice && matchesProperty && matchesVehicle;
+  const filteredProducts = (Array.isArray(products) ? products : []).filter(product => {
+   const isRental = (product.propertyType && product.propertyType !== 'None') ||
+     RENTAL_CATEGORIES.includes(product.category);
+   const isRide = product.category === 'Rides' || product.serviceType === 'Ride' ||
+     (product.vehicleType && product.vehicleType !== 'None') ||
+     RIDE_CATEGORIES.includes(product.category);
+
+   const matchesViewType =
+     viewType === 'Services' ? (product.isService && !isRental && !isRide) :
+     viewType === 'Rentals' ? isRental :
+     viewType === 'Rides' ? isRide :
+     (!product.isService && !isRental && !isRide);
+
+  const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
+  const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
+
+  const matchesPincode = !pincodeFilter ||
+    !product.pincode ||
+    product.pincode.length === 0 ||
+    (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
+
+  const matchesPrice = (product.price || 0) <= priceRange;
+
+  // Property filter: match propertyType field OR category for stays
+  const matchesProperty = propertyFilter === 'All' ||
+    product.propertyType === propertyFilter ||
+    (propertyFilter === 'PG' && product.category === 'PG / Hostels') ||
+    (propertyFilter === 'Hotel' && product.category === 'Hotels') ||
+    (propertyFilter === 'Villa' && product.category === 'Villas');
+
+  // Vehicle filter: match vehicleType field OR category for rides
+  const matchesVehicle = vehicleFilter === 'All' ||
+    product.vehicleType === vehicleFilter ||
+    (vehicleFilter === 'Bike' && product.category === 'Bike Taxi') ||
+    (vehicleFilter === 'Car' && product.category === 'Car Taxi') ||
+    (vehicleFilter === 'Truck' && product.category === 'Delivery');
+
+  return matchesViewType && matchesCategory && matchesSearch && matchesShop && matchesPincode && matchesPrice && matchesProperty && matchesVehicle;
  }).sort((a, b) => {
  if (sortBy === 'Price Low') return (a.price || 0) - (b.price || 0);
  if (sortBy === 'Price High') return (b.price || 0) - (a.price || 0);
@@ -178,7 +209,7 @@ function ExploreShop() {
  {['Products', 'Services', 'Rentals', 'Rides'].map(t => (
  <button
  key={t}
- onClick={() => setViewType(t)}
+ onClick={() => { setViewType(t); setPropertyFilter('All'); setVehicleFilter('All'); }}
  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewType === t ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
  >
  {t === 'Products' ? <ShoppingBag size={14} /> : t === 'Rentals' ? <Building2 size={14} /> : t === 'Rides' ? <Truck size={14} /> : <Zap size={14} />}
@@ -429,6 +460,22 @@ function ExploreShop() {
  </div>
  </div>
  )}
+
+  {viewType === 'Rides' && (
+  <div>
+  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Vehicle Type</label>
+  <div className="flex flex-wrap gap-2">
+  {['All', 'Bike', 'Car', 'Truck', 'Auto'].map(v => (
+  <button 
+  key={v} onClick={() => setVehicleFilter(v)}
+  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all ${vehicleFilter === v ? 'bg-primary text-white border-primary' : 'border-gray-100 text-gray-400 hover:border-primary/50'}`}
+  >
+  {v}
+  </button>
+  ))}
+  </div>
+  </div>
+  )}
  </div>
  
  <div className="mt-auto pt-10">

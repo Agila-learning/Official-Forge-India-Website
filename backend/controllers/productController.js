@@ -61,6 +61,19 @@ const createProduct = async (req, res) => {
     // Default price
     if (!productData.price && productData.price !== 0) productData.price = 0;
     
+    // Auto-classify stay, rental, ride, hotel, villa assets as services
+    const hasPropertyType = productData.propertyType && productData.propertyType !== 'None';
+    const hasVehicleType = productData.vehicleType && productData.vehicleType !== 'None';
+    const isServiceCategory = productData.category && (
+      /stays|rentals|rides|hotels|villas|pg/i.test(productData.category) ||
+      productData.category === 'Rides' ||
+      productData.category === 'Rentals' ||
+      productData.category === 'Services'
+    );
+    if (hasPropertyType || hasVehicleType || isServiceCategory) {
+      productData.isService = true;
+    }
+    
     const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (error) {
@@ -97,6 +110,19 @@ const updateProduct = async (req, res) => {
     if (updates.subCategoryRef === "") updates.subCategoryRef = null;
 
     if (updates.slots === "") updates.slots = [];
+    
+    // Auto-classify stay, rental, ride, hotel, villa assets as services
+    const hasPropertyType = updates.propertyType && updates.propertyType !== 'None';
+    const hasVehicleType = updates.vehicleType && updates.vehicleType !== 'None';
+    const isServiceCategory = updates.category && (
+      /stays|rentals|rides|hotels|villas|pg/i.test(updates.category) ||
+      updates.category === 'Rides' ||
+      updates.category === 'Rentals' ||
+      updates.category === 'Services'
+    );
+    if (hasPropertyType || hasVehicleType || isServiceCategory) {
+      updates.isService = true;
+    }
     
     Object.assign(product, updates);
     const updatedProduct = await product.save();
