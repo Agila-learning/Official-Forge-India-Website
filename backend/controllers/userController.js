@@ -149,7 +149,7 @@ const updateUserProfile = async (req, res) => {
       firstName, lastName, mobile, address, city, pincode,
       vehicleDetails, licenseNumber, businessName, gstNumber, isSubscribed, 
       resumeUrl, subscriptionLevel, referredByAgentName, agentMobile, 
-      agentReference, additionalComments 
+      agentReference, additionalComments, profileDocuments 
     } = req.body;
     
     if (firstName) user.firstName = firstName;
@@ -168,6 +168,7 @@ const updateUserProfile = async (req, res) => {
     if (agentMobile) user.agentMobile = agentMobile;
     if (agentReference) user.agentReference = agentReference;
     if (additionalComments) user.additionalComments = additionalComments;
+    if (profileDocuments) user.profileDocuments = profileDocuments;
     if (typeof isSubscribed !== 'undefined') user.isSubscribed = isSubscribed;
 
     const updatedUser = await user.save();

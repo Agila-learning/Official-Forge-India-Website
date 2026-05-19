@@ -31,6 +31,7 @@ const userSchema = mongoose.Schema(
     profileDocuments: [{ 
       url: { type: String },
       name: { type: String },
+      type: { type: String, enum: ['credential', 'id_wallet'], default: 'credential' },
       uploadedAt: { type: Date, default: Date.now }
     }], // Secure Vault Documents
     vehicleDetails: { type: String },

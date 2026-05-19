@@ -6,7 +6,8 @@ const Product = require('../models/Product');
 // @route   POST /api/reviews
 // @access  Private
 const createReview = async (req, res) => {
-    const { orderId, productId, rating, comment } = req.body;
+    const { orderId, rating, comment } = req.body;
+    const productId = req.body.productId || req.body.product;
 
     const order = await Order.findById(orderId);
     if (!order) {
@@ -39,14 +40,14 @@ const createReview = async (req, res) => {
 
     await review.save();
 
-    // Update Product average rating
+    // Update Product average rating if product exists
     const product = await Product.findById(productId);
-    const reviews = await Review.find({ product: productId });
-    
-    product.numReviews = reviews.length;
-    product.rating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
-
-    await product.save();
+    if (product) {
+        const reviews = await Review.find({ product: productId });
+        product.numReviews = reviews.length;
+        product.rating = reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length;
+        await product.save();
+    }
 
     res.status(201).json({ message: 'Review added and ratings recalculated' });
 };

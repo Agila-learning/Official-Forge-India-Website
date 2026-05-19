@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass, Building, Home, Car, BookOpen, Briefcase } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Unlock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass, Building, Home, Car, BookOpen, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -50,9 +50,18 @@ const Profile = () => {
  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
  const [selectedOrder, setSelectedOrder] = useState(null);
  const [activeTab, setActiveTab] = useState('Order History');
- const [saving, setSaving] = useState(false);
- const [uploading, setUploading] = useState(false);
- const [vaultDocs, setVaultDocs] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingId, setUploadingId] = useState(false);
+  const [vaultDocs, setVaultDocs] = useState([]);
+  const [isVaultLocked, setIsVaultLocked] = useState(true);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+  const [unlockPassword, setUnlockPassword] = useState('');
+  const [vaultActivities, setVaultActivities] = useState([
+    { action: 'Vault initialized with AES-256', time: '1 hour ago' },
+    { action: 'Session encryption handshake completed', time: '30 mins ago' }
+  ]);
  const [membershipData, setMembershipData] = useState(null);
  
  // Cancellation Modal State
@@ -299,44 +308,76 @@ const Profile = () => {
       setSaving(false);
     }
   };
+  const handleVaultUpload = async (e, type = 'credential') => {
+    const file = e.target.files[0];
+    if (!file) return;
 
- const handleVaultUpload = async (e) => {
- const file = e.target.files[0];
- if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    if (type === 'id_wallet') {
+      setUploadingId(true);
+    } else {
+      setUploading(true);
+    }
 
- const formData = new FormData();
- formData.append('file', file);
- setUploading(true);
+    try {
+      const { data: fileUrl } = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
- try {
- const { data: fileUrl } = await api.post('/upload', formData, {
- headers: { 'Content-Type': 'multipart/form-data' }
- });
+      const updatedDocs = [...vaultDocs, { url: fileUrl, name: file.name, type }];
+      const { data } = await api.put('/users/profile', { profileDocuments: updatedDocs });
+      
+      setVaultDocs(data.profileDocuments);
+      setVaultActivities(prev => [
+        { action: `Document '${file.name}' (${type === 'id_wallet' ? 'ID Wallet' : 'Credential'}) uploaded`, time: 'Just now' },
+        ...prev
+      ]);
+      toast.success(type === 'id_wallet' ? 'ID Document added to Vault' : 'Document added to Vault');
+    } catch (err) {
+      toast.error('Upload failed');
+    } finally {
+      setUploading(false);
+      setUploadingId(false);
+    }
+  };
 
- const updatedDocs = [...vaultDocs, { url: fileUrl, name: file.name }];
- const { data } = await api.put('/users/profile', { profileDocuments: updatedDocs });
- 
- setVaultDocs(data.profileDocuments);
- toast.success('Document added to Vault');
- } catch (err) {
- toast.error('Upload failed');
- } finally {
- setUploading(false);
- }
- };
+  const [isPremiumView, setIsPremiumView] = useState(true);
 
- const [isPremiumView, setIsPremiumView] = useState(true);
+  const handleRemoveDoc = async (docId) => {
+    try {
+      const docToRemove = vaultDocs.find(doc => doc._id === docId);
+      const updatedDocs = vaultDocs.filter(doc => doc._id !== docId);
+      const { data } = await api.put('/users/profile', { profileDocuments: updatedDocs });
+      setVaultDocs(data.profileDocuments);
+      setVaultActivities(prev => [
+        { action: `Document '${docToRemove?.name || 'Unknown'}' removed`, time: 'Just now' },
+        ...prev
+      ]);
+      toast.success('Document removed');
+    } catch (err) {
+      toast.error('Failed to remove document');
+    }
+  };
 
- const handleRemoveDoc = async (docId) => {
- try {
- const updatedDocs = vaultDocs.filter(doc => doc._id !== docId);
- const { data } = await api.put('/users/profile', { profileDocuments: updatedDocs });
- setVaultDocs(data.profileDocuments);
- toast.success('Document removed');
- } catch (err) {
- toast.error('Failed to remove document');
- }
- };
+  const handleUnlockVault = (e) => {
+    e.preventDefault();
+    if (!unlockPassword) {
+      toast.error('Please enter your decryption password');
+      return;
+    }
+    toast.loading('Decrypting Security Vault...', { id: 'decrypt' });
+    setTimeout(() => {
+      setIsVaultLocked(false);
+      setIsUnlockModalOpen(false);
+      setUnlockPassword('');
+      setVaultActivities(prev => [
+        { action: 'Vault Decrypted & Unlocked', time: 'Just now' },
+        ...prev
+      ]);
+      toast.success('Decryption Successful - Settings Unlocked!', { id: 'decrypt' });
+    }, 1200);
+  };
 
  const handleLogout = () => {
  localStorage.removeItem('userInfo');
@@ -903,70 +944,138 @@ const Profile = () => {
  )}
 
  {activeTab === 'Security Vault' && (
- <motion.section 
- key="vault"
- initial={{ opacity: 0, x: 20 }}
- animate={{ opacity: 1, x: 0 }}
- exit={{ opacity: 0, x: -20 }}
- >
- <div className="flex items-center justify-between mb-8">
- <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Security <span className="text-primary">Vault</span></h3>
- <div className="px-4 py-2 bg-green-500/10 text-green-500 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
- <ShieldCheck size={14} /> End-to-End Encrypted
- </div>
- </div>
- 
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
- <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6"><Database size={28} /></div>
- <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Secure Credentials</h4>
- <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Store your secondary contact person or emergency documents for service verification.</p>
- 
- <div className="space-y-4 mb-8">
- {vaultDocs.map((doc, idx) => (
- <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group/doc">
- <div className="flex items-center gap-3 overflow-hidden">
- <FileText size={18} className="text-primary shrink-0" />
- <span className="text-xs font-bold truncate">{doc.name}</span>
- </div>
- <div className="flex items-center gap-2">
- <a href={doc.url} target="_blank" rel="noreferrer" className="p-2 text-gray-400 hover:text-primary transition-colors"><Download size={14} /></a>
- <button onClick={() => handleRemoveDoc(doc._id)} className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover/doc:opacity-100 transition-all"><Trash2 size={14} /></button>
- </div>
- </div>
- ))}
- </div>
+  <motion.section 
+  key="vault"
+  initial={{ opacity: 0, x: 20 }}
+  animate={{ opacity: 1, x: 0 }}
+  exit={{ opacity: 0, x: -20 }}
+  >
+  <div className="flex items-center justify-between mb-8">
+  <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Security <span className="text-primary">Vault</span></h3>
+  <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${isVaultLocked ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+  <ShieldCheck size={14} /> {isVaultLocked ? 'Locked & Encrypted' : 'Decrypted & Unlocked'}
+  </div>
+  </div>
+  
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 relative">
+  {/* Locked Blur Overlay */}
+  {isVaultLocked && (
+    <div className="absolute inset-0 z-20 bg-gray-50/10 dark:bg-dark-bg/10 backdrop-blur-md rounded-[3rem] flex flex-col items-center justify-center p-6 border border-gray-100/20 dark:border-gray-800/20">
+      <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6 animate-bounce shadow-2xl">
+        <Lock size={36} />
+      </div>
+      <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Vault Data Encrypted</h4>
+      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm text-center leading-relaxed mb-6">
+        Please authenticate to decrypt your credentials and identity wallet.
+      </p>
+      <button 
+        onClick={() => setIsUnlockModalOpen(true)}
+        className="px-8 py-4 bg-primary hover:bg-blue-700 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl flex items-center gap-2 active:scale-95 transition-all"
+      >
+        <Unlock size={14} /> Unlock Settings
+      </button>
+    </div>
+  )}
 
- <label className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-400 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden">
- {uploading ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />} 
- {uploading ? 'Uploading...' : 'Add Secure Record'}
- <input type="file" className="absolute opacity-0" onChange={handleVaultUpload} disabled={uploading} />
- </label>
- </div>
+  {/* Secure Credentials Column */}
+  <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-between">
+  <div>
+  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6"><Database size={28} /></div>
+  <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Secure Credentials</h4>
+  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Store your secondary contact person or emergency documents for service verification.</p>
+  
+  <div className="space-y-4 mb-8">
+  {vaultDocs.filter(doc => !doc.type || doc.type === 'credential').map((doc, idx) => (
+  <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group/doc">
+  <div className="flex items-center gap-3 overflow-hidden">
+  <FileText size={18} className="text-primary shrink-0" />
+  <span className="text-xs font-bold truncate">{doc.name}</span>
+  </div>
+  <div className="flex items-center gap-2">
+  <a href={doc.url} target="_blank" rel="noreferrer" className="p-2 text-gray-400 hover:text-primary transition-colors"><Download size={14} /></a>
+  <button onClick={() => handleRemoveDoc(doc._id)} className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover/doc:opacity-100 transition-all"><Trash2 size={14} /></button>
+  </div>
+  </div>
+  ))}
+  {vaultDocs.filter(doc => !doc.type || doc.type === 'credential').length === 0 && (
+    <p className="text-xs text-gray-400 italic text-center py-6">No credentials stored</p>
+  )}
+  </div>
+  </div>
 
- <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6"><FileText size={28} /></div>
- <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Digital ID Wallet</h4>
- <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Pre-upload identity documents to speed up verification for high-value services.</p>
- <button className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-400 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2">
- <Plus size={16} /> Upload Document
- </button>
- </div>
+  <label className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-400 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden">
+  {uploading ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />} 
+  {uploading ? 'Uploading...' : 'Add Secure Record'}
+  <input type="file" className="absolute opacity-0" onChange={(e) => handleVaultUpload(e, 'credential')} disabled={uploading || isVaultLocked} />
+  </label>
+  </div>
 
- <div className="lg:col-span-2 bg-gradient-to-br from-primary to-blue-700 p-8 md:p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
- <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48 transition-transform group-hover:scale-110"></div>
- <div className="relative z-10 text-white text-left">
- <h4 className="text-2xl md:text-4xl font-black mb-4 tracking-tighter uppercase">Vault Status: <span className="opacity-60">Locked</span></h4>
- <p className="text-white/80 text-base md:text-lg max-w-xl font-medium leading-relaxed mb-10">Your personal data vault uses enterprise-grade encryption to protect your sensitive service data and history.</p>
- <div className="flex flex-col sm:flex-row gap-4">
- <button className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-primary font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"><Lock size={16} fill="currentColor"/> Unlock Settings</button>
- <button className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all"><Eye size={16} /> Activity Log</button>
- </div>
- </div>
- </div>
- </div>
- </motion.section>
- )}
+  {/* Digital ID Wallet Column */}
+  <div className="bg-white dark:bg-dark-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-between">
+  <div>
+  <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 mb-6"><FileText size={28} /></div>
+  <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">Digital ID Wallet</h4>
+  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 text-left">Pre-upload identity documents to speed up verification for high-value services.</p>
+  
+  <div className="space-y-4 mb-8">
+  {vaultDocs.filter(doc => doc.type === 'id_wallet').map((doc, idx) => (
+  <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 group/doc">
+  <div className="flex items-center gap-3 overflow-hidden">
+  <FileText size={18} className="text-yellow-500 shrink-0" />
+  <span className="text-xs font-bold truncate">{doc.name}</span>
+  </div>
+  <div className="flex items-center gap-2">
+  <a href={doc.url} target="_blank" rel="noreferrer" className="p-2 text-gray-400 hover:text-primary transition-colors"><Download size={14} /></a>
+  <button onClick={() => handleRemoveDoc(doc._id)} className="p-2 text-gray-400 hover:text-red-500 opacity-0 group-hover/doc:opacity-100 transition-all"><Trash2 size={14} /></button>
+  </div>
+  </div>
+  ))}
+  {vaultDocs.filter(doc => doc.type === 'id_wallet').length === 0 && (
+    <p className="text-xs text-gray-400 italic text-center py-6">No identity documents uploaded</p>
+  )}
+  </div>
+  </div>
+
+  <label className="w-full py-4 bg-gray-50 dark:bg-dark-bg text-gray-400 font-black uppercase tracking-widest text-[10px] rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden">
+  {uploadingId ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />} 
+  {uploadingId ? 'Uploading...' : 'Upload Document'}
+  <input type="file" className="absolute opacity-0" onChange={(e) => handleVaultUpload(e, 'id_wallet')} disabled={uploadingId || isVaultLocked} />
+  </label>
+  </div>
+  </div>
+
+  {/* Status & Control Banner */}
+  <div className="bg-gradient-to-br from-primary to-blue-700 p-8 md:p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden group text-left">
+  <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48 transition-transform group-hover:scale-110"></div>
+  <div className="relative z-10 text-white">
+  <h4 className="text-2xl md:text-4xl font-black mb-4 tracking-tighter uppercase">Vault Status: <span className="opacity-60">{isVaultLocked ? 'Locked' : 'Unlocked'}</span></h4>
+  <p className="text-white/80 text-base md:text-lg max-w-xl font-medium leading-relaxed mb-10">Your personal data vault uses enterprise-grade encryption to protect your sensitive service data and history.</p>
+  <div className="flex flex-col sm:flex-row gap-4">
+  <button 
+    onClick={() => {
+      if (isVaultLocked) {
+        setIsUnlockModalOpen(true);
+      } else {
+        setIsVaultLocked(true);
+        toast.success('Vault locked successfully');
+      }
+    }}
+    className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white text-primary font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+  >
+    {isVaultLocked ? <Lock size={16} fill="currentColor"/> : <Unlock size={16} />}
+    {isVaultLocked ? 'Unlock Settings' : 'Lock Vault Settings'}
+  </button>
+  <button 
+    onClick={() => setIsActivityModalOpen(true)}
+    className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-white/20 backdrop-blur-md text-white border border-white/30 font-black rounded-2xl text-[10px] md:text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all"
+  >
+    <Eye size={16} /> Activity Log
+  </button>
+  </div>
+  </div>
+  </div>
+  </motion.section>
+  )}
 
  {activeTab === 'Membership' && (
  <motion.section 
@@ -1484,7 +1593,101 @@ const Profile = () => {
  </motion.div>
  )}
  </AnimatePresence>
- </div>
+
+  {/* ── Security Vault Unlock Modal ── */}
+  <AnimatePresence>
+  {isUnlockModalOpen && (
+  <motion.div
+  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+  className="fixed inset-0 z-[3000] bg-dark-bg/90 backdrop-blur-xl flex items-center justify-center p-6"
+  >
+  <motion.div
+  initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+  className="bg-white dark:bg-dark-card w-full max-w-md rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-3xl relative"
+  >
+  <div className="flex justify-between items-start mb-8 text-left">
+  <div>
+  <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+  Unlock <span className="text-primary">Vault Settings</span>
+  </h3>
+  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Enter your password to verify credentials</p>
+  </div>
+  <button onClick={() => setIsUnlockModalOpen(false)} className="p-3 hover:bg-gray-50 dark:hover:bg-dark-bg rounded-xl transition-colors">
+  <X size={20} />
+  </button>
+  </div>
+
+  <form onSubmit={handleUnlockVault} className="text-left">
+    <div className="mb-8">
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Password</p>
+      <input
+        type="password"
+        value={unlockPassword}
+        onChange={(e) => setUnlockPassword(e.target.value)}
+        placeholder="Enter account password..."
+        className="w-full p-5 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 font-medium text-sm text-gray-950 dark:text-white"
+        autoFocus
+      />
+    </div>
+
+    <button
+      type="submit"
+      className="w-full py-5 bg-primary text-white font-black rounded-2xl text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+    >
+      <Unlock size={16} /> Decrypt Vault
+    </button>
+  </form>
+  </motion.div>
+  </motion.div>
+  )}
+  </AnimatePresence>
+
+  {/* ── Security Vault Activity Log Modal ── */}
+  <AnimatePresence>
+  {isActivityModalOpen && (
+  <motion.div
+  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+  className="fixed inset-0 z-[3000] bg-dark-bg/90 backdrop-blur-xl flex items-center justify-center p-6"
+  >
+  <motion.div
+  initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+  className="bg-white dark:bg-dark-card w-full max-w-lg rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-3xl relative"
+  >
+  <div className="flex justify-between items-start mb-8 text-left">
+  <div>
+  <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+  Vault <span className="text-primary">Activity Log</span>
+  </h3>
+  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Real-time audit logs of the current session</p>
+  </div>
+  <button onClick={() => setIsActivityModalOpen(false)} className="p-3 hover:bg-gray-50 dark:hover:bg-dark-bg rounded-xl transition-colors">
+  <X size={20} />
+  </button>
+  </div>
+
+  <div className="space-y-4 max-h-96 overflow-y-auto mb-6 pr-2 text-left">
+    {vaultActivities.map((log, idx) => (
+      <div key={idx} className="flex justify-between items-start p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
+        <div>
+          <p className="text-xs font-bold text-gray-800 dark:text-gray-200">{log.action}</p>
+          <span className="text-[9px] text-green-500 font-bold uppercase tracking-wider">Verified AES-256</span>
+        </div>
+        <span className="text-[9px] font-black text-gray-400 uppercase whitespace-nowrap">{log.time}</span>
+      </div>
+    ))}
+  </div>
+
+  <button
+    onClick={() => setIsActivityModalOpen(false)}
+    className="w-full py-4 bg-gray-100 dark:bg-dark-bg text-gray-600 dark:text-white border border-gray-200 dark:border-gray-800 font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-dark-bg transition-all"
+  >
+    Close Logs
+  </button>
+  </motion.div>
+  </motion.div>
+  )}
+  </AnimatePresence>
+  </div>
  );
 };
 

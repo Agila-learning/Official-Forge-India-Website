@@ -57,22 +57,85 @@ const VendorDashboard = () => {
  holderName: userInfo.bankDetails?.holderName || '',
  panNumber: userInfo.panNumber || ''
  });
- const [settlements, setSettlements] = useState([]);
- const [isSavingBank, setIsSavingBank] = useState(false);
+  const [settlements, setSettlements] = useState([]);
+  const [isSavingBank, setIsSavingBank] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [selectedAvailabilityProduct, setSelectedAvailabilityProduct] = useState('');
 
- const handleSaveSettings = async () => {
- try {
- const { data } = await api.put('/users/profile', settingsData);
- const updatedInfo = { ...userInfo, ...data };
- localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
- toast.success('Store settings synchronized!');
- window.location.reload();
- } catch (err) {
- toast.error('Sync failed');
- }
- };
- const { fetchNotifications: fetchGlobalNotifications } = useNotifications();
- const navigate = useNavigate();
+  const fetchReviews = async () => {
+    try {
+      const { data } = await api.get('/reviews');
+      setReviews(data || []);
+    } catch (err) {
+      console.error('Failed to load reviews');
+    }
+  };
+
+  const handleAvailabilityProductChange = (productId) => {
+    setSelectedAvailabilityProduct(productId);
+    const prod = products.find(p => p._id === productId);
+    setManagedSlots(prod?.slots || []);
+  };
+
+  const handleSaveAvailability = async () => {
+    if (!selectedAvailabilityProduct) return toast.error('No service selected');
+    try {
+      const prod = products.find(p => p._id === selectedAvailabilityProduct);
+      if (!prod) return;
+      await api.put(`/products/${selectedAvailabilityProduct}`, {
+        ...prod,
+        slots: managedSlots
+      });
+      toast.success('Availability slots successfully updated!');
+      fetchProducts();
+    } catch (err) {
+      toast.error('Failed to update availability slots');
+    }
+  };
+
+  const handleUpdatePrice = async (product, newPrice, newDiscount, newGst) => {
+    try {
+      await api.put(`/products/${product._id}`, {
+        ...product,
+        price: Number(newPrice),
+        discountPrice: newDiscount ? Number(newDiscount) : undefined,
+        gstPercentage: Number(newGst)
+      });
+      toast.success(`Commercial parameters updated for ${product.name}`);
+      fetchProducts();
+    } catch (err) {
+      toast.error('Failed to update pricing details');
+    }
+  };
+
+  const vendorReviews = reviews.filter(rev => {
+    const productId = rev.product?._id || rev.product;
+    return products.some(p => p._id === productId);
+  });
+
+  useEffect(() => {
+    if (products.length > 0 && !selectedAvailabilityProduct) {
+      const firstService = products.find(p => p.isService);
+      if (firstService) {
+        setSelectedAvailabilityProduct(firstService._id);
+        setManagedSlots(firstService.slots || []);
+      }
+    }
+  }, [products, selectedAvailabilityProduct]);
+
+  const handleSaveSettings = async () => {
+    try {
+      const { data } = await api.put('/users/profile', settingsData);
+      const updatedInfo = { ...userInfo, ...data };
+      localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
+      toast.success('Store settings synchronized!');
+      window.location.reload();
+    } catch (err) {
+      toast.error('Sync failed');
+    }
+  };
+  const { fetchNotifications: fetchGlobalNotifications } = useNotifications();
+  const navigate = useNavigate();
 
 
 
@@ -108,13 +171,14 @@ const VendorDashboard = () => {
  }
  };
 
- useEffect(() => {
- fetchProducts();
- fetchNotifications();
- fetchDeliveryPartners();
- fetchCategories();
- fetchTickets();
- }, []);
+  useEffect(() => {
+    fetchProducts();
+    fetchNotifications();
+    fetchDeliveryPartners();
+    fetchCategories();
+    fetchTickets();
+    fetchReviews();
+  }, []);
 
  const fetchCategories = async () => {
  try {
@@ -572,7 +636,7 @@ const VendorDashboard = () => {
  {product.discountPrice && <p className="text-sm text-gray-400 line-through">₹{product.price}</p>}
  </div>
  <div className="flex gap-2 mt-8">
- <button onClick={() => { setEditingProduct(product); setIsAdding(true); }} className="flex-1 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Customize</button>
+ <button onClick={() => { setEditingProduct(product); setSelectedCategory(product.categoryRef?._id || product.categoryRef || ''); setIsAdding(true); }} className="flex-1 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Customize</button>
  <button onClick={() => handleDelete(product._id)} className="px-4 py-3 bg-red-100 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"><Trash2 size={16} /></button>
  </div>
  </div>
@@ -774,7 +838,7 @@ const VendorDashboard = () => {
  <p className="font-black text-gray-900 dark:text-white uppercase tracking-tighter">{prod.name}</p>
  <span className="px-3 py-1 bg-red-500 text-white rounded-full text-[8px] font-black uppercase">Low Stock: {prod.countInStock}</span>
  </div>
- <button onClick={() => { setEditingProduct(prod); setIsAdding(true); setView('inventory'); }} className="px-6 py-2 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all">Restock Now</button>
+ <button onClick={() => { setEditingProduct(prod); setSelectedCategory(prod.categoryRef?._id || prod.categoryRef || ''); setIsAdding(true); setView('inventory'); }} className="px-6 py-2 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all">Restock Now</button>
  </div>
  ))}
  {stockReport.length === 0 && (
@@ -1149,6 +1213,185 @@ const VendorDashboard = () => {
  </div>
  </motion.div>
  )}
+
+ {/* AVAILABILITY SCHEDULE TAB */}
+ {view === 'availability' && (
+ <motion.div key="availability" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+ <div>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Operation Scheduler</p>
+ <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Availability <span className="text-primary">& Scheduling</span></h2>
+ </div>
+
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+ <div className="lg:col-span-1 glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl space-y-6">
+ <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+ <Wrench size={18} className="text-primary" /> Active Services
+ </h3>
+ <p className="text-xs text-gray-500 font-medium">Select a service to configure its operational availability slots.</p>
+ <div className="space-y-3">
+ {products.filter(p => p.isService).map(p => (
+ <button 
+ key={p._id}
+ type="button"
+ onClick={() => handleAvailabilityProductChange(p._id)}
+ className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center gap-4 ${selectedAvailabilityProduct === p._id ? 'border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5' : 'border-gray-100 dark:border-gray-800 hover:border-primary/40 bg-white dark:bg-dark-card'}`}
+ >
+ <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-dark-bg p-1 overflow-hidden shrink-0 border border-gray-100 dark:border-gray-800">
+ <img src={p.image} className="w-full h-full object-cover rounded-lg" alt="" />
+ </div>
+ <div className="flex-1 truncate">
+ <p className="font-black text-xs uppercase truncate">{p.name}</p>
+ <p className="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-wider">{p.categoryRef?.name || p.category || 'General Service'}</p>
+ </div>
+ </button>
+ ))}
+ {products.filter(p => p.isService).length === 0 && (
+ <p className="text-center py-10 text-xs font-black text-gray-400 uppercase">No active services listed</p>
+ )}
+ </div>
+ </div>
+
+ <div className="lg:col-span-2 space-y-8">
+ {selectedAvailabilityProduct ? (
+ <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+ <div className="flex justify-between items-center mb-8">
+ <div>
+ <h3 className="text-xl font-black uppercase tracking-tighter">Availability Slots</h3>
+ <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">For {products.find(p => p._id === selectedAvailabilityProduct)?.name}</p>
+ </div>
+ <button 
+ type="button"
+ onClick={handleSaveAvailability}
+ className="px-6 py-3 bg-primary text-white font-black rounded-xl hover:bg-blue-700 transition-all text-[10px] uppercase tracking-widest shadow-lg shadow-primary/20"
+ >
+ Save Slots Configuration
+ </button>
+ </div>
+ 
+ <SlotManager slots={managedSlots} setSlots={setManagedSlots} />
+ </div>
+ ) : (
+ <div className="glass-card p-20 text-center rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+ <Calendar size={64} className="text-gray-300 mx-auto mb-6 animate-pulse" />
+ <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Select an active service from the left panel to begin scheduling</p>
+ </div>
+ )}
+ </div>
+ </div>
+ </motion.div>
+ )}
+
+ {/* ASSET PRICING & GST TAB */}
+ {view === 'pricing' && (
+ <motion.div key="pricing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+ <div>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Commercial Matrix</p>
+ <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Asset Pricing <span className="text-primary">& Taxation</span></h2>
+ </div>
+
+ <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+ <div className="overflow-x-auto">
+ <table className="w-full text-left">
+ <thead>
+ <tr className="border-b border-gray-100 dark:border-gray-800">
+ <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Asset</th>
+ <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Type</th>
+ <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Base Price (INR)</th>
+ <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">Discount Price (INR)</th>
+ <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-gray-400">GST %</th>
+ <th className="pb-6 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Actions</th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+ {products.map(prod => (
+ <PricingRow 
+ key={prod._id}
+ product={prod}
+ onSave={handleUpdatePrice}
+ />
+ ))}
+ {products.length === 0 && (
+ <tr>
+ <td colSpan="6" className="py-20 text-center text-gray-400 font-bold text-sm uppercase tracking-widest">No listings available to manage pricing</td>
+ </tr>
+ )}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </motion.div>
+ )}
+
+ {/* REVIEWS & RATINGS TAB */}
+ {view === 'reviews' && (
+ <motion.div key="reviews" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+ <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+ <div>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Quality & Ratings</p>
+ <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Customer <span className="text-primary">Reviews</span></h2>
+ </div>
+
+ <div className="glass-card px-10 py-6 rounded-3xl border border-yellow-500/20 bg-yellow-500/5 flex items-center gap-6">
+ <div className="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500">
+ <Star size={24} className="fill-yellow-500 text-yellow-500" />
+ </div>
+ <div>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Average Quality Index</p>
+ <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">
+ {vendorReviews.length > 0 
+    ? (vendorReviews.reduce((acc, r) => acc + r.rating, 0) / vendorReviews.length).toFixed(1) 
+    : '5.0'} <span className="text-xs font-bold text-gray-400">/ 5.0</span>
+ </p>
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+ {vendorReviews.map(rev => (
+ <div key={rev._id} className="p-8 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-between group hover:border-yellow-500/30 transition-all">
+ <div>
+ <div className="flex justify-between items-start mb-6">
+ <div className="flex items-center gap-3">
+ <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black uppercase text-sm">
+ {rev.name?.[0]}
+ </div>
+ <div>
+ <h4 className="font-black text-gray-900 dark:text-white uppercase text-xs tracking-tight">{rev.name}</h4>
+ <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{new Date(rev.createdAt).toLocaleDateString()}</p>
+ </div>
+ </div>
+ <div className="flex gap-0.5">
+ {Array(5).fill(0).map((_, i) => (
+    <Star 
+      key={i} 
+      size={12} 
+      className={i < rev.rating ? 'fill-yellow-500 text-yellow-500' : 'text-gray-200 dark:text-gray-700'} 
+    />
+  ))}
+ </div>
+ </div>
+ <p className="text-xs text-gray-600 dark:text-gray-300 font-medium leading-relaxed mb-6 italic">"{rev.comment}"</p>
+ </div>
+
+ <div className="pt-5 border-t border-gray-50 dark:border-gray-800 flex items-center gap-3">
+ <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-dark-bg p-1 overflow-hidden shrink-0 border border-gray-100 dark:border-gray-800">
+ <img src={rev.product?.image || 'https://via.placeholder.com/50'} className="w-full h-full object-cover rounded" alt="" />
+ </div>
+ <div className="truncate">
+ <p className="text-[9px] font-black uppercase text-gray-400">Reviewed Asset</p>
+ <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase truncate w-40">{rev.product?.name || 'Deleted Product'}</p>
+ </div>
+ </div>
+ </div>
+ ))}
+ {vendorReviews.length === 0 && (
+ <div className="col-span-full">
+ <NoDataFound title="No Customer Feedback" description="Once orders are executed, quality ratings will appear in this terminal." icon={Star} />
+ </div>
+ )}
+ </div>
+ </motion.div>
+ )}
  </AnimatePresence>
 
  </div>
@@ -1232,6 +1475,79 @@ const SlotManager = ({ slots, setSlots }) => {
  </div>
  </div>
  );
+};
+
+const PricingRow = ({ product, onSave }) => {
+  const [price, setPrice] = useState(product.price || 0);
+  const [discountPrice, setDiscountPrice] = useState(product.discountPrice || '');
+  const [gstPercentage, setGstPercentage] = useState(product.gstPercentage || 18);
+  const [saving, setSaving] = useState(false);
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    await onSave(product, price, discountPrice, gstPercentage);
+    setSaving(false);
+  };
+
+  return (
+    <tr className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
+      <td className="py-6 pr-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-white dark:bg-dark-card p-1 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden shrink-0">
+            <img src={product.image} className="w-full h-full object-cover rounded-lg" alt="" />
+          </div>
+          <div>
+            <p className="text-xs font-black text-gray-900 dark:text-white uppercase truncate w-40" title={product.name}>{product.name}</p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">{product.categoryRef?.name || product.category || 'Atomy Product'}</p>
+          </div>
+        </div>
+      </td>
+      <td className="py-6">
+        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${product.isService ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'}`}>
+          {product.isService ? 'Service' : 'Product'}
+        </span>
+      </td>
+      <td className="py-6 pr-4">
+        <input 
+          type="number" 
+          value={price} 
+          onChange={e => setPrice(Number(e.target.value))}
+          className="w-24 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs"
+        />
+      </td>
+      <td className="py-6 pr-4">
+        <input 
+          type="number" 
+          placeholder="None"
+          value={discountPrice} 
+          onChange={e => setDiscountPrice(e.target.value === '' ? '' : Number(e.target.value))}
+          className="w-24 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs"
+        />
+      </td>
+      <td className="py-6 pr-4">
+        <select 
+          value={gstPercentage} 
+          onChange={e => setGstPercentage(Number(e.target.value))}
+          className="w-20 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs"
+        >
+          <option value={0}>0%</option>
+          <option value={5}>5%</option>
+          <option value={12}>12%</option>
+          <option value={18}>18%</option>
+          <option value={28}>28%</option>
+        </select>
+      </td>
+      <td className="py-6 text-right">
+        <button 
+          onClick={handleUpdate}
+          disabled={saving}
+          className="px-5 py-2.5 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
+        >
+          {saving ? 'Saving...' : 'Sync'}
+        </button>
+      </td>
+    </tr>
+  );
 };
 
 export default VendorDashboard;
