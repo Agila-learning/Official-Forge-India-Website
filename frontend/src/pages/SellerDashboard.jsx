@@ -16,6 +16,29 @@ const SellerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
+  const [bankData, setBankData] = useState({
+    accountNumber: userInfo.bankDetails?.accountNumber || '',
+    ifscCode: userInfo.bankDetails?.ifscCode || '',
+    bankName: userInfo.bankDetails?.bankName || '',
+    holderName: userInfo.bankDetails?.holderName || '',
+    panNumber: userInfo.panNumber || ''
+  });
+  const [settlements, setSettlements] = useState([]);
+  const [isSavingBank, setIsSavingBank] = useState(false);
+
+  const fetchSettlements = async () => {
+    try {
+      const { data } = await api.get('/settlements/vendor');
+      setSettlements(data);
+    } catch (err) {
+      console.error('Failed to fetch settlements');
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'payouts') fetchSettlements();
+  }, [activeTab]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -184,6 +207,162 @@ const SellerDashboard = () => {
                 </tbody>
               </table>
            </div>
+        </div>
+      )}
+
+      {/* ── Payouts & Settlements ─────────────────────────────────── */}
+      {activeTab === 'payouts' && (
+        <div className="space-y-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Financial Treasury</p>
+              <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Wallet & Settlements</h2>
+            </div>
+            <div className="glass-card px-10 py-6 rounded-3xl border border-primary/20 bg-primary/5 flex items-center gap-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                <CreditCard size={24} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Available for Payout</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">₹{userInfo.walletBalance?.toLocaleString() || '0'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Bank Details Form */}
+            <div className="lg:col-span-1 space-y-8">
+              <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                <h3 className="text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-2">
+                  <CreditCard size={18} className="text-primary" /> Bank Onboarding
+                </h3>
+                <div className="space-y-5">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Holder Name</label>
+                    <input 
+                      value={bankData.holderName} 
+                      onChange={e => setBankData({...bankData, holderName: e.target.value})} 
+                      placeholder="As per bank records"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Number</label>
+                    <input 
+                      value={bankData.accountNumber} 
+                      onChange={e => setBankData({...bankData, accountNumber: e.target.value})} 
+                      placeholder="000000000000"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">IFSC Code</label>
+                      <input 
+                        value={bankData.ifscCode} 
+                        onChange={e => setBankData({...bankData, ifscCode: e.target.value.toUpperCase()})} 
+                        placeholder="SBIN0000000"
+                        className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">PAN Number</label>
+                      <input 
+                        value={bankData.panNumber} 
+                        onChange={e => setBankData({...bankData, panNumber: e.target.value.toUpperCase()})} 
+                        placeholder="ABCDE1234F"
+                        className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Bank Name</label>
+                    <input 
+                      value={bankData.bankName} 
+                      onChange={e => setBankData({...bankData, bankName: e.target.value})} 
+                      placeholder="State Bank of India"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-xs" 
+                    />
+                  </div>
+                  
+                  <div className={`p-4 rounded-2xl flex items-center gap-3 ${userInfo.kycStatus === 'Verified' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-yellow-50 text-yellow-600 border border-yellow-100'}`}>
+                    <CreditCard size={16} className="shrink-0" />
+                    <p className="text-[9px] font-black uppercase tracking-widest">KYC STATUS: {userInfo.kycStatus || 'NOT VERIFIED'}</p>
+                  </div>
+
+                  <button 
+                    disabled={isSavingBank}
+                    onClick={async () => {
+                      setIsSavingBank(true);
+                      try {
+                        const { data } = await api.put('/users/bank-details', bankData);
+                        localStorage.setItem('userInfo', JSON.stringify(data.user));
+                        toast.success('Financial Identity Synchronized');
+                        window.location.reload();
+                      } catch (err) {
+                        toast.error('Onboarding failed. Verify IFSC/PAN.');
+                      } finally {
+                        setIsSavingBank(false);
+                      }
+                    }}
+                    className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+                  >
+                    {isSavingBank ? 'Encrypting Data...' : 'Update Bank Records'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Settlement History */}
+            <div className="lg:col-span-2 space-y-8">
+              <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+                <div className="flex justify-between items-center mb-10">
+                  <h3 className="text-xl font-black uppercase tracking-tighter">Settlement Archive</h3>
+                  <button className="px-4 py-2 bg-gray-50 dark:bg-dark-bg rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-primary transition-all">Download Report</button>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-gray-50 dark:border-gray-800">
+                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Ref</th>
+                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Revenue</th>
+                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Commission</th>
+                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Settled</th>
+                        <th className="pb-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                      {settlements.map(s => (
+                        <tr key={s._id} className="group hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
+                          <td className="py-6 pr-4">
+                            <p className="text-xs font-black text-gray-900 dark:text-white uppercase">#{s.order?._id?.slice(-6)}</p>
+                            <p className="text-[9px] font-bold text-gray-400 uppercase">{new Date(s.createdAt).toLocaleDateString()}</p>
+                          </td>
+                          <td className="py-6 text-xs font-bold text-gray-500">₹{s.totalRevenue?.toLocaleString()}</td>
+                          <td className="py-6 text-xs font-bold text-red-400">-₹{s.commission?.toLocaleString()}</td>
+                          <td className="py-6 text-sm font-black text-green-500">₹{s.amount?.toLocaleString()}</td>
+                          <td className="py-6">
+                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${s.status === 'Settled' ? 'bg-green-100 text-green-600' : s.status === 'Failed' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-600'}`}>
+                              {s.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {settlements.length === 0 && (
+                    <div className="py-20 text-center">
+                      <div className="w-16 h-16 bg-gray-50 dark:bg-dark-bg rounded-3xl flex items-center justify-center mx-auto mb-4 opacity-40">
+                        <CreditCard size={24} className="text-gray-400" />
+                      </div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No financial movements detected.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

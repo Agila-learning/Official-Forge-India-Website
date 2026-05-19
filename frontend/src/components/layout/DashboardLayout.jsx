@@ -168,7 +168,8 @@ const DashboardLayout = ({
  return [
  { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
  { id: 'inventory', icon: Package, label: 'My Products' },
- { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' }
+ { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
+ { id: 'payouts', icon: CreditCard, label: 'Payouts' }
  ];
 
  case 'HR':

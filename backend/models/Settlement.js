@@ -9,8 +9,11 @@ const settlementSchema = mongoose.Schema(
     },
     order: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: 'Order',
+    },
+    booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Booking',
     },
     amount: {
       type: Number,

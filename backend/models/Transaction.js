@@ -11,6 +11,10 @@ const transactionSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Order',
     },
+    booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Booking',
+    },
     type: {
       type: String,
       enum: ['Credit', 'Debit', 'Payment', 'Payout', 'Refund', 'Commission', 'Adjustment'],

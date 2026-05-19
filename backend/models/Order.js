@@ -59,6 +59,15 @@ const orderSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Paid', 'Partially Paid', 'Failed', 'Refunded', 'Cancelled', 'Scheduled'],
+      default: 'Pending'
+    },
+    advancePaid: { type: Number, default: 0 },
+    remainingDue: { type: Number, default: 0 },
+    dueDate: { type: Date },
+    autoCancelAt: { type: Date },
     paidAt: {
       type: Date,
     },

@@ -63,7 +63,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  className="bg-white dark:bg-dark-card w-full max-w-4xl rounded-[2rem] shadow-3xl overflow-hidden relative border border-gray-100 dark:border-gray-800"
  >
  {/* ── Actions Header (no-print) ── */}
- <div className="flex justify-between items-center p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-bg/50 no-print">
+ <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-6 border-b border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-dark-bg/50 no-print">
  <h3 className="text-xl font-black uppercase tracking-widest text-primary">
  Forge India <span className="text-secondary">Invoice</span>
  </h3>
@@ -98,7 +98,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  className="p-10 md:p-14 overflow-y-auto max-h-[80vh] print:max-h-none print:overflow-visible print:p-0 bg-white"
  >
  {/* Header Row */}
- <div className="flex flex-col md:flex-row justify-between gap-10 mb-14">
+ <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-14">
  {/* Left: Company branding */}
  <div className="flex items-center gap-5">
  <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center p-2 shadow-xl border border-gray-100 shrink-0">
@@ -115,7 +115,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  </div>
 
  {/* Right: Seller / Platform details */}
- <div className="text-right shrink-0">
+ <div className="md:text-right shrink-0 mt-6 md:mt-0">
  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Platform / Seller Details</p>
  {sellerBusiness ? (
  <>
@@ -164,9 +164,15 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  <p className="text-sm font-bold text-gray-500">
  Date: {new Date(order.createdAt).toLocaleDateString('en-IN')}
  </p>
- <span className={`text-[10px] font-black uppercase tracking-widest mt-3 inline-block px-4 py-1.5 rounded-full ${order.isPaid ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
- {order.isPaid ? 'Payment Received' : 'Payment Pending'}
- </span>
+  <span className={`text-[10px] font-black uppercase tracking-widest mt-3 inline-block px-4 py-1.5 rounded-full ${
+    order.paymentStatus === 'Paid' || order.isPaid ? 'bg-green-500 text-white' :
+    order.paymentStatus === 'Partially Paid' ? 'bg-blue-500 text-white' :
+    'bg-red-500 text-white'
+  }`}>
+    {order.paymentStatus === 'Paid' || order.isPaid ? 'Payment Received' : 
+     order.paymentStatus === 'Partially Paid' ? 'Partially Paid' : 
+     'Payment Pending'}
+  </span>
  </div>
  </div>
 
@@ -242,14 +248,33 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  <span className="text-gray-900 font-bold">₹{shipping.toLocaleString('en-IN')}</span>
  </div>
  )}
+
+ <div className="flex justify-between items-center pt-4 border-t border-gray-200 text-[10px] font-black uppercase text-gray-500">
+ <span>Grand Total</span>
+ <span className="text-gray-900 font-bold">₹{grandTotal.toLocaleString('en-IN')}</span>
+ </div>
+
+ {(order.advancePaid > 0 || order.paymentStatus === 'Partially Paid') && (
+   <>
+     <div className="flex justify-between items-center text-[10px] font-black uppercase text-green-600">
+       <span>Advance Paid</span>
+       <span className="font-bold">₹{(order.advancePaid || 0).toLocaleString('en-IN')}</span>
+     </div>
+     <div className="flex justify-between items-center text-[10px] font-black uppercase text-red-500">
+       <span>Remaining Due</span>
+       <span className="font-bold">₹{(order.remainingDue !== undefined ? order.remainingDue : (grandTotal - (order.advancePaid || 0))).toLocaleString('en-IN')}</span>
+     </div>
+   </>
+ )}
+
  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Total Paid</span>
  <span className="text-3xl font-black text-primary">
- ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+ ₹{((order.paymentStatus === 'Partially Paid' || order.advancePaid > 0) ? (order.advancePaid || 0) : grandTotal).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
  </span>
  </div>
  <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-right">
- {order.isPaid ? 'Transaction Fully Authorized' : 'Pending Verification'}
+ {order.paymentStatus === 'Paid' || order.isPaid ? 'Transaction Fully Authorized' : order.paymentStatus === 'Partially Paid' ? 'Partially Paid & Authorized' : 'Pending Verification'}
  </div>
  <div className="text-[8px] font-bold text-gray-400 text-right">
  GSTIN: {FIC_GSTIN} | HSN/SAC: 998311

@@ -10,38 +10,53 @@ const { createNotification } = require('./notificationController');
  * @desc    Initialize Settlement for a completed order
  * @access  Internal/Admin
  */
-const initializeSettlement = async (orderId) => {
-    const order = await Order.findById(orderId).populate('orderItems.product');
-    if (!order || order.status !== 'Completed') return;
+const initializeSettlement = async (orderId, bookingId = null) => {
+    let sourceDoc = null;
+    let isBooking = false;
+
+    if (bookingId) {
+        sourceDoc = await require('../models/Booking').findById(bookingId);
+        isBooking = true;
+    } else {
+        sourceDoc = await Order.findById(orderId).populate('orderItems.product');
+    }
+
+    if (!sourceDoc || sourceDoc.status !== 'Completed') return;
 
     // Group items by vendor
     const vendorSales = {};
-    for (const item of order.orderItems) {
-        const vendorId = item.product?.vendorId || item.product?.seller;
-        if (!vendorId) continue;
-        
-        const vIdStr = vendorId.toString();
-        if (!vendorSales[vIdStr]) {
-            vendorSales[vIdStr] = { amount: 0, commission: 0 };
+    if (isBooking) {
+        // Bookings are typically assigned to a specific professional/vendor
+        // Need to add vendor reference to Booking schema in the future if missing, assuming it's available or handled differently
+        // For now, if we don't have a vendor directly on booking, we might skip or assign to system
+    } else {
+        for (const item of sourceDoc.orderItems) {
+            const vendorId = item.product?.vendorId || item.product?.seller;
+            if (!vendorId) continue;
+            
+            const vIdStr = vendorId.toString();
+            if (!vendorSales[vIdStr]) {
+                vendorSales[vIdStr] = { amount: 0, commission: 0 };
+            }
+            
+            const itemTotal = item.price * item.qty;
+            const commissionRate = 0.10; 
+            const commission = itemTotal * commissionRate;
+            
+            vendorSales[vIdStr].amount += (itemTotal - commission);
+            vendorSales[vIdStr].commission += commission;
         }
-        
-        const itemTotal = item.price * item.qty;
-        // Default commission logic: 10% if not specified, or use vendor's custom tier
-        const commissionRate = 0.10; 
-        const commission = itemTotal * commissionRate;
-        
-        vendorSales[vIdStr].amount += (itemTotal - commission);
-        vendorSales[vIdStr].commission += commission;
     }
 
     for (const [vendorId, data] of Object.entries(vendorSales)) {
-        // Check if settlement already exists to prevent duplicates
-        const existing = await Settlement.findOne({ order: orderId, vendor: vendorId });
+        const query = isBooking ? { booking: bookingId, vendor: vendorId } : { order: orderId, vendor: vendorId };
+        const existing = await Settlement.findOne(query);
         if (existing) continue;
 
         await Settlement.create({
             vendor: vendorId,
-            order: orderId,
+            order: orderId || undefined,
+            booking: bookingId || undefined,
             amount: data.amount,
             totalRevenue: data.amount + data.commission,
             commission: data.commission,
@@ -49,8 +64,8 @@ const initializeSettlement = async (orderId) => {
         });
     }
 
-    order.settlementStatus = 'Pending';
-    await order.save();
+    sourceDoc.settlementStatus = 'Pending';
+    await sourceDoc.save();
 };
 
 /**

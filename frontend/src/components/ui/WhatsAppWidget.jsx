@@ -19,7 +19,7 @@ const WhatsAppWidget = () => {
  };
 
  return (
- <div className="fixed bottom-10 right-10 md:bottom-12 md:right-12 z-[999] flex flex-col items-end gap-4 text-right">
+ <div className="fixed bottom-28 right-10 md:bottom-32 md:right-12 z-[999] flex flex-col items-end gap-4 text-right">
  <AnimatePresence>
  {showPopup && (
  <motion.div

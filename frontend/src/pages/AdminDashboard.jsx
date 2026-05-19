@@ -641,6 +641,53 @@ const AdminDashboard = () => {
     </div>
   )}
 
+  {activeTab === 'settlements' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <h3 className="text-3xl font-black mb-1 text-primary">Marketplace Treasury</h3>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">Pending Settlements & Payouts</p>
+        <div className="mobile-table-scroll">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Vendor</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Amount</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Commission</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Status</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+              {data.settlements?.map(s => (
+                <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+                  <td className="py-5 pr-4">
+                    <p className="font-bold text-sm">{s.vendor?.businessName || s.vendor?.firstName}</p>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase">{s.vendor?.email}</p>
+                  </td>
+                  <td className="py-5 pr-4 font-black text-green-600">₹{s.amount}</td>
+                  <td className="py-5 pr-4 font-bold text-gray-500">₹{s.commission}</td>
+                  <td className="py-5 pr-4">
+                    <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-yellow-100 text-yellow-600">
+                      {s.status}
+                    </span>
+                  </td>
+                  <td className="py-5 pr-4">
+                    <button onClick={() => handleApprovePayout(s._id)} className="px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">
+                      Approve Payout
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {(!data.settlements || data.settlements.length === 0) && (
+                <tr><td colSpan="5" className="py-10 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No pending settlements</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )}
+
   {activeTab === 'fleet' && (
     <div className="space-y-8">
       <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden h-[700px] relative">
@@ -851,6 +898,18 @@ const AdminDashboard = () => {
  )}
  </select>
  </div>
+ {['rentals', 'stays'].includes(activeTab) && (
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase text-indigo-500">Property Type</label>
+ <select name="propertyType" defaultValue={editingItem.products?.propertyType || (activeTab === 'stays' ? 'Hotel' : 'PG')} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
+ <option value="Hotel">Hotel</option>
+ <option value="PG">PG / Hostel</option>
+ <option value="Villa">Villa / Resort</option>
+ <option value="Room">Room</option>
+ <option value="Office Space">Office Space</option>
+ </select>
+ </div>
+ )}
  <div>
  <label className="block text-sm font-bold mb-2 uppercase">Base Price (INR)</label>
  <input name="price" defaultValue={editingItem.products?.price || ''} required type="number" placeholder="5000" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
@@ -1052,6 +1111,17 @@ const AdminDashboard = () => {
  <label className="block text-sm font-bold mb-2 uppercase">Service Name</label>
  <input name="name" defaultValue={editingItem.products?.name || ''} required type="text" placeholder="Deep Cleaning" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
+ {activeTab === 'rides' && (
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase text-indigo-500">Vehicle Type</label>
+ <select name="vehicleType" defaultValue={editingItem.products?.vehicleType || 'Bike'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
+ <option value="Bike">Bike (2-Wheeler)</option>
+ <option value="Car">Car (Cab/Taxi)</option>
+ <option value="Auto">Auto Rickshaw</option>
+ <option value="Truck">Logistics Truck</option>
+ </select>
+ </div>
+ )}
  <div>
  <label className="block text-sm font-bold mb-2 uppercase text-blue-600">Service Category</label>
  <select 

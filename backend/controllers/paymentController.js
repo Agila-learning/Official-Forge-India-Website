@@ -13,71 +13,49 @@ const razorpay = new Razorpay({
 // @access  Private
 // SECURITY: Amount is ALWAYS fetched from the DB Order record — never trusted from the client.
 const createRazorpayOrder = asyncHandler(async (req, res) => {
-  const { orderId, receipt } = req.body;
+  const { orderId, bookingId, receipt, amount } = req.body;
   console.log('--- RAZORPAY ORDER CREATION ATTEMPT ---');
   console.log('Request Body:', JSON.stringify(req.body));
-  console.log('Order ID Received:', orderId);
 
-  if (!orderId) {
-    console.error('Validation Failure: Missing orderId in request body');
+  if (!orderId && !bookingId) {
     return res.status(400).json({
       success: false,
-      message: 'Order ID is required to initiate payment.',
-      receivedBody: req.body
+      message: 'Order ID or Booking ID is required to initiate payment.',
     });
   }
 
-  // 1. Fetch the order from DB to get the authoritative price
-  const dbOrder = await Order.findById(orderId);
-  console.log('Database Order Lookup:', dbOrder ? 'SUCCESS' : 'FAILED');
-  if (dbOrder) {
-    console.log('Order Details:', {
-      id: dbOrder._id,
-      totalPrice: dbOrder.totalPrice,
-      isPaid: dbOrder.isPaid,
-      userId: dbOrder.user
-    });
+  let dbDoc = null;
+  let isBooking = false;
+
+  if (bookingId) {
+    dbDoc = await require('../models/Booking').findById(bookingId);
+    isBooking = true;
+  } else {
+    dbDoc = await Order.findById(orderId);
   }
 
-  if (!dbOrder) {
-    console.error('Lookup Failure: Order ID', orderId, 'not found in database');
+  if (!dbDoc) {
     return res.status(404).json({
       success: false,
-      message: 'Order sequence not detected in command center database.',
-      orderId
+      message: 'Document sequence not detected in database.',
     });
   }
 
-  // 2. Verify the requesting user is the order owner
-  if (dbOrder.user.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
-    res.status(403);
-    throw new Error('Authorization Failure: You are not permitted to pay for this order.');
-  }
-
-  // 3. Prevent double-payment or zero-amount payment
-  if (dbOrder.isPaid) {
-    return res.status(400).json({
-      success: false,
-      message: 'This order has already been paid and processed.',
-      orderStatus: dbOrder.status
-    });
-  }
-
-  if (dbOrder.totalPrice <= 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Strategic Error: Transaction amount cannot be zero. Please verify items in your deployment.',
-      totalPrice: dbOrder.totalPrice
-    });
+  // Allow advance payment if specified, else use totalPrice
+  let paymentAmount = dbDoc.totalPrice;
+  if (amount && amount < dbDoc.totalPrice) {
+    paymentAmount = amount; // Advance payment scenario
   }
 
   const options = {
-    amount: Math.round(dbOrder.totalPrice * 100), // DB-sourced amount in paise — cannot be manipulated
+    amount: Math.round(paymentAmount * 100), 
     currency: "INR",
-    receipt: receipt || `receipt_${dbOrder._id.toString().slice(-8)}_${Date.now()}`,
+    receipt: receipt || `receipt_${dbDoc._id.toString().slice(-8)}_${Date.now()}`,
     notes: {
-      mongoOrderId: dbOrder._id.toString(),
+      mongoId: dbDoc._id.toString(),
+      type: isBooking ? 'booking' : 'order',
       userId: req.user._id.toString(),
+      isAdvance: amount && amount < dbDoc.totalPrice ? 'true' : 'false'
     }
   };
 
@@ -101,10 +79,12 @@ const verifyPayment = asyncHandler(async (req, res) => {
     razorpay_order_id,
     razorpay_payment_id,
     razorpay_signature,
-    orderId
+    orderId,
+    bookingId,
+    amount
   } = req.body;
 
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || (!orderId && !bookingId)) {
     res.status(400);
     throw new Error('Missing payment verification parameters');
   }
@@ -121,26 +101,39 @@ const verifyPayment = asyncHandler(async (req, res) => {
     throw new Error('Invalid Payment Signature: Transaction integrity compromised');
   }
 
-  // 2. Fetch and Update Order
-  const order = await Order.findById(orderId);
-  if (!order) {
+  // 2. Fetch and Update Document (Order or Booking)
+  let dbDoc = null;
+  let isBooking = false;
+
+  if (bookingId) {
+    dbDoc = await require('../models/Booking').findById(bookingId);
+    isBooking = true;
+  } else {
+    dbDoc = await Order.findById(orderId);
+  }
+
+  if (!dbDoc) {
     res.status(404);
-    throw new Error('Order sequence not found in database');
+    throw new Error('Document sequence not found in database');
   }
 
-  // Security check: Only owner or Admin can verify
-  if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'Admin') {
-    res.status(403);
-    throw new Error('Authorization Failure: Access denied to verify this transaction');
+  // Handle Advance Payment Update
+  let paymentAmount = amount || dbDoc.totalPrice;
+  if (paymentAmount < dbDoc.totalPrice) {
+    dbDoc.advancePaid = (dbDoc.advancePaid || 0) + paymentAmount;
+    dbDoc.remainingDue = Math.max(0, dbDoc.totalPrice - dbDoc.advancePaid);
+    dbDoc.paymentStatus = dbDoc.remainingDue > 0 ? 'Partially Paid' : 'Paid';
+    if (dbDoc.remainingDue === 0) {
+      dbDoc.isPaid = true;
+      dbDoc.paidAt = Date.now();
+    }
+  } else {
+    dbDoc.paymentStatus = 'Paid';
+    dbDoc.isPaid = true; // For orders backward compatibility
+    dbDoc.paidAt = Date.now();
   }
 
-  if (order.isPaid) {
-    return res.json({ message: "Payment already verified", order });
-  }
-
-  order.isPaid = true;
-  order.paidAt = Date.now();
-  order.paymentResult = {
+  dbDoc.paymentResult = {
     id: razorpay_payment_id,
     status: 'Authorized',
     update_time: Date.now().toString(),
@@ -150,17 +143,30 @@ const verifyPayment = asyncHandler(async (req, res) => {
     razorpaySignature: razorpay_signature
   };
 
-  // Update status if it's a standard flow
-  if (order.status === 'Order Confirmed' || !order.status) {
-    order.status = 'Order Confirmed'; // Ensure it's set
+  if (!isBooking && (dbDoc.status === 'Order Confirmed' || !dbDoc.status)) {
+    dbDoc.status = 'Order Confirmed';
+  } else if (isBooking && dbDoc.status === 'Pending') {
+    dbDoc.status = 'Confirmed';
   }
 
-  const updatedOrder = await order.save();
+  const updatedDoc = await dbDoc.save();
   
+  // Track Transaction
+  await require('../models/Transaction').create({
+    user: req.user._id,
+    order: !isBooking ? orderId : undefined,
+    booking: isBooking ? bookingId : undefined,
+    type: 'Payment',
+    amount: paymentAmount,
+    status: 'Success',
+    gatewayId: razorpay_payment_id,
+    description: `Payment verification successful for ${isBooking ? 'Booking' : 'Order'}`
+  });
+
   res.json({ 
     success: true, 
     message: "Payment authorized and verified successfully", 
-    order: updatedOrder 
+    order: updatedDoc 
   });
 });
 

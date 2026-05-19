@@ -12,8 +12,21 @@ const bookingSchema = mongoose.Schema(
       enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
       default: 'Pending'
     },
-    paymentStatus: { type: String, enum: ['Unpaid', 'Paid'], default: 'Unpaid' },
+    paymentStatus: { 
+      type: String, 
+      enum: ['Pending', 'Paid', 'Partially Paid', 'Failed', 'Refunded', 'Cancelled', 'Scheduled'], 
+      default: 'Pending' 
+    },
     paymentMethod: { type: String, enum: ['Cash', 'Online'], default: 'Online' },
+    advancePaid: { type: Number, default: 0 },
+    remainingDue: { type: Number, default: 0 },
+    dueDate: { type: Date },
+    autoCancelAt: { type: Date },
+    settlementStatus: { 
+      type: String, 
+      enum: ['Pending', 'Processing', 'Settled', 'Hold'], 
+      default: 'Pending' 
+    },
     name: { type: String }, // For guest bookings
     email: { type: String }, // For guest bookings
     contactNumber: { type: String, required: true }

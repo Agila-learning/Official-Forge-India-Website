@@ -9,6 +9,38 @@ import toast from 'react-hot-toast';
 import WebUsageGuide from '../components/ui/WebUsageGuide';
 import MembershipCard from '../components/ui/MembershipCard';
 
+const CountdownTimer = ({ targetDate }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculateTime = () => {
+      const difference = new Date(targetDate) - new Date();
+      if (difference <= 0) {
+        setTimeLeft('EXPIRED');
+        return;
+      }
+      const hours = Math.floor(difference / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  if (timeLeft === 'EXPIRED') {
+    return <span className="text-red-500 font-black">AUTO-CANCELLED</span>;
+  }
+
+  return (
+    <span className="text-yellow-500 font-black flex items-center gap-1">
+      <Clock size={12} className="animate-pulse" /> Auto-Cancel in {timeLeft}
+    </span>
+  );
+};
+
 const Profile = () => {
  const [orders, setOrders] = useState([]);
  const { favorites, toggleWishlist } = useWishlist();
@@ -151,6 +183,63 @@ const Profile = () => {
  setCancelLoading(false);
  }
  };
+
+  const handlePayBalance = async (order) => {
+    try {
+      const amountToPay = order.remainingDue || order.totalPrice;
+      const { data: rzpOrder } = await api.post('/payments/create-order', {
+        orderId: order._id,
+        amount: amountToPay,
+        receipt: `order_bal_${order._id.toString().slice(-8)}`
+      });
+
+      if (!rzpOrder || !rzpOrder.id) {
+        throw new Error('Failed to synchronize with payment gateway');
+      }
+
+      const options = {
+        key: rzpOrder.keyId,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
+        name: "Forge India Connect",
+        description: `Balance Payment for Booking`,
+        image: "/logo.jpg",
+        order_id: rzpOrder.id,
+        handler: async (response) => {
+          try {
+            const verifyPayload = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: order._id,
+              amount: amountToPay
+            };
+
+            await api.post('/payments/verify', verifyPayload);
+            toast.success('Payment Verified & Completed Successfully!');
+            
+            // Refresh data
+            const ordersRes = await api.get('/orders/myorders');
+            setOrders(ordersRes.data);
+          } catch (err) {
+            toast.error('Signature verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: `${profileData?.firstName || ''} ${profileData?.lastName || ''}`.trim() || 'Guest',
+          email: profileData?.email || '',
+          contact: profileData?.mobile || profileData?.phone || ''
+        },
+        theme: { color: "#2563eb" }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Payment Error:', err);
+      toast.error(err.response?.data?.message || 'Gateway Operational Failure');
+    }
+  };
 
  const handleOpenReview = (order) => {
  const item = order.orderItems?.[0];
@@ -533,8 +622,25 @@ const Profile = () => {
  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Service Fee</p>
  <p className="text-lg font-black text-primary">₹{order.totalPrice}</p>
  </div>
+ <div className="flex items-center gap-3">
+ {order.paymentStatus ? (
+ <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+ order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30' :
+ order.paymentStatus === 'Partially Paid' ? 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/30' :
+ 'bg-yellow-50 text-yellow-600 border-yellow-100 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/30'
+ }`}>
+ {order.paymentStatus}
+ </span>
+ ) : (
+ <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+ order.isPaid ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30' : 'bg-yellow-50 text-yellow-600 border-yellow-100 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/30'
+ }`}>
+ {order.isPaid ? 'Paid' : 'Unpaid'}
+ </span>
+ )}
  <div className="px-5 py-2 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">
- Scheduled
+ {order.status || 'Scheduled'}
+ </div>
  </div>
  </div>
  </div>
@@ -550,6 +656,31 @@ const Profile = () => {
  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{order.orderItems[0].slot?.time}</p>
  </div>
  </div>
+ </div>
+
+ <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+ <div className="flex justify-between items-center">
+ <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Payment Progress</p>
+ <span className="text-[10px] font-black text-primary">₹{(order.advancePaid || 0).toLocaleString()} / ₹{order.totalPrice.toLocaleString()} Paid</span>
+ </div>
+ <div className="h-2.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+ <div 
+ className="h-full bg-primary rounded-full transition-all duration-500" 
+ style={{ width: `${Math.min(100, (((order.advancePaid || 0) / order.totalPrice) * 100) || 0)}%` }}
+ />
+ </div>
+ <div className="flex justify-between items-center text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+ <span>Advance: ₹{(order.advancePaid || 0).toLocaleString()}</span>
+ <span className={order.remainingDue > 0 || (!order.isPaid && order.paymentStatus !== 'Paid') ? "text-red-500 font-black" : "text-green-500 font-black"}>
+ {order.remainingDue > 0 || (!order.isPaid && order.paymentStatus !== 'Paid') ? `Due: ₹${(order.remainingDue !== undefined ? order.remainingDue : order.totalPrice).toLocaleString()}` : "Fully Paid"}
+ </span>
+ </div>
+ {(!order.isPaid && order.paymentStatus !== 'Paid') && order.autoCancelAt && (
+ <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+ <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Deposit Limit</span>
+ <CountdownTimer targetDate={order.autoCancelAt} />
+ </div>
+ )}
  </div>
  </div>
  <div className="bg-gray-50/50 dark:bg-dark-bg/50 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-inner">
@@ -582,6 +713,16 @@ const Profile = () => {
  Cancel Booking
  </button>
  ) : null}
+
+ {(order.remainingDue > 0 || (!order.isPaid && order.paymentStatus !== 'Paid')) && (order.status !== 'Cancelled' && order.status !== 'Refund Processing' && order.status !== 'Refunded') && (
+ <button 
+ onClick={() => handlePayBalance(order)}
+ className="flex items-center gap-2 py-3 px-6 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-xl shadow-primary/20"
+ >
+ <CreditCard size={14} /> Pay Remaining Balance
+ </button>
+ )}
+
  <button 
  onClick={() => {
  setSelectedOrder(order);
