@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const HomeCategory = require('../models/HomeCategory');
 
 const getProducts = async (req, res) => {
   try {
@@ -43,6 +44,14 @@ const createProduct = async (req, res) => {
     // Ensure vendorId is a valid ObjectId string, not an empty string
     const targetVendorId = (req.body.vendorId && req.body.vendorId !== "") ? req.body.vendorId : req.user._id;
     productData.vendorId = targetVendorId;
+
+    // Auto-populate required category string from categoryRef if missing
+    if ((!productData.category || productData.category.trim() === '') && productData.categoryRef) {
+      const cat = await HomeCategory.findById(productData.categoryRef);
+      if (cat) {
+        productData.category = cat.name;
+      }
+    }
 
     // Sanitize category references
     if (productData.categoryRef === "") productData.categoryRef = null;
@@ -103,6 +112,14 @@ const updateProduct = async (req, res) => {
     // Ensure vendorId is not an empty string during update
     if (updates.vendorId === "") {
         updates.vendorId = product.vendorId || req.user._id;
+    }
+
+    // Auto-populate required category string from categoryRef if missing
+    if ((!updates.category || updates.category.trim() === '') && updates.categoryRef) {
+      const cat = await HomeCategory.findById(updates.categoryRef);
+      if (cat) {
+        updates.category = cat.name;
+      }
     }
 
     // Sanitize category references

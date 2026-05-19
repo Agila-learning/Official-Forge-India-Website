@@ -177,7 +177,6 @@ const DashboardLayout = ({
  { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Pipeline' },
- { id: 'services', icon: Wrench, label: 'Manage Services' },
  { id: 'profile', icon: User, label: 'My Profile' },
  { id: 'settings', icon: Settings, label: 'Settings' },
  ];

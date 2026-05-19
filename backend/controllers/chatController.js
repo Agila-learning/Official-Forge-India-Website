@@ -72,10 +72,19 @@ const getThreads = async (req, res) => {
 // @access  Private
 const sendMessage = async (req, res) => {
   try {
-    const { receiverId, content, messageType, fileUrl } = req.body;
+    const { receiverId, receiver, content, messageType, fileUrl } = req.body;
+    
+    // Sanitize receiverId to handle both raw strings and fully populated objects
+    const targetReceiverId = (receiverId && typeof receiverId === 'object' ? receiverId._id : receiverId) || 
+                             (receiver && typeof receiver === 'object' ? receiver._id : receiver);
+
+    if (!targetReceiverId) {
+      return res.status(400).json({ message: 'Receiver target is required.' });
+    }
+
     const message = await Message.create({
       sender: req.user._id,
-      receiver: receiverId,
+      receiver: targetReceiverId,
       content,
       messageType: messageType || 'text',
       fileUrl,
@@ -93,24 +102,9 @@ const sendMessage = async (req, res) => {
 const getChatContacts = async (req, res) => {
   try {
     const currentUser = req.user;
-    let allowedRoles = [];
-
-    if (currentUser.role === 'Admin' || currentUser.role === 'Sub-Admin') {
-      allowedRoles = ['Vendor', 'HR', 'Admin', 'Sub-Admin', 'Delivery Partner', 'Customer', 'Candidate'];
-    } else if (currentUser.role === 'Vendor') {
-      allowedRoles = ['Admin', 'Sub-Admin', 'Customer'];
-    } else if (currentUser.role === 'HR') {
-      allowedRoles = ['Admin', 'Sub-Admin', 'Candidate'];
-    } else if (currentUser.role === 'Candidate') {
-      allowedRoles = ['HR', 'Admin', 'Sub-Admin'];
-    } else if (currentUser.role === 'Customer') {
-      allowedRoles = ['Admin', 'Sub-Admin'];
-    } else if (currentUser.role === 'Delivery Partner') {
-      allowedRoles = ['Admin', 'Sub-Admin'];
-    }
-
+    
+    // Open contacts view so any user can communicate with anyone on the platform, bypassing rigid role blocks
     const contacts = await User.find({
-      role: { $in: allowedRoles },
       _id: { $ne: currentUser._id },
       approvalStatus: 'Approved',
     }).select('firstName lastName role businessName companyName');

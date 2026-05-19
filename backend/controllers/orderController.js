@@ -345,7 +345,11 @@ const getOrders = async (req, res) => {
       // Find orders that contain at least one product owned by this vendor
       // First, get all products belonging to this vendor
       const vendorProducts = await Product.find({ 
-        $or: [{ user: req.user._id }, { seller: req.user._id }] 
+        $or: [
+          { vendorId: req.user._id },
+          { user: req.user._id },
+          { seller: req.user._id }
+        ] 
       }).select('_id');
       
       const productIds = vendorProducts.map(p => p._id);
@@ -657,10 +661,23 @@ const getPartnerOrders = async (req, res) => {
 // @access  Private/Vendor
 const getVendorOrders = async (req, res) => {
   try {
-    // For now, return all product orders to the Seller/Vendor
-    // In a real multi-vendor setup, this would filter by product vendor ID
-    const orders = await Order.find({ 'orderItems.isService': { $ne: true } })
+    const vendorProducts = await Product.find({ 
+      $or: [
+        { vendorId: req.user._id },
+        { user: req.user._id },
+        { seller: req.user._id }
+      ] 
+    }).select('_id');
+    const productIds = vendorProducts.map(p => p._id);
+
+    const orders = await Order.find({ 
+      "orderItems.product": { $in: productIds }
+    })
       .populate('user', 'id firstName lastName email')
+      .populate({
+        path: 'orderItems.product',
+        select: 'name price image vendorId'
+      })
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {

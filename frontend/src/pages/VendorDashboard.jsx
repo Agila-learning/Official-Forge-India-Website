@@ -310,54 +310,60 @@ const VendorDashboard = () => {
  }, [view]);
 
  const handleSubmit = async (e) => {
- e.preventDefault();
- const formData = new FormData(e.target);
- const data = Object.fromEntries(formData.entries());
- 
- data.isService = data.isService === 'true';
- data.price = Number(data.price);
- data.discountPrice = data.discountPrice ? Number(data.discountPrice) : undefined;
- data.countInStock = Number(data.countInStock || 0);
- data.tags = data.tags ? data.tags.split(',').map(tag => tag.trim()) : [];
- if (data.highlights) data.highlights = data.highlights.split(',').map(s => s.trim());
- if (data.whatsIncluded) data.whatsIncluded = data.whatsIncluded.split(',').map(s => s.trim());
- if (data.whatsExcluded) data.whatsExcluded = data.whatsExcluded.split(',').map(s => s.trim());
- if (data.pricingRules) {
- try { data.pricingRules = JSON.parse(data.pricingRules); } catch { data.pricingRules = {}; }
- }
- data.slots = managedSlots;
- data.serviceConfig = managedServiceConfig;
- data.deliveryCharge = Number(data.deliveryCharge || 0);
- data.freeDeliveryThreshold = Number(data.freeDeliveryThreshold || 0);
- data.gstPercentage = Number(data.gstPercentage || 18);
- if (data.serviceableArea) data.serviceableArea = data.serviceableArea.split(',').map(s => s.trim());
- data.teamSize = Number(data.teamSize || 0);
- data.equipmentProvided = data.equipmentProvided === 'true';
- if (data.safetyMeasures) data.safetyMeasures = data.safetyMeasures.split(',').map(s => s.trim());
- data.viewImages = {
- front: data.viewImages_front,
- back: data.viewImages_back,
- top: data.viewImages_top,
- bottom: data.viewImages_bottom
- };
- delete data.viewImages_bottom;
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData.entries());
+  
+  data.isService = data.isService === 'true';
+  data.price = Number(data.price);
+  data.discountPrice = data.discountPrice ? Number(data.discountPrice) : undefined;
+  data.countInStock = Number(data.countInStock || 0);
+  data.tags = data.tags ? data.tags.split(',').map(tag => tag.trim()) : [];
+  if (data.highlights) data.highlights = data.highlights.split(',').map(s => s.trim());
+  if (data.whatsIncluded) data.whatsIncluded = data.whatsIncluded.split(',').map(s => s.trim());
+  if (data.whatsExcluded) data.whatsExcluded = data.whatsExcluded.split(',').map(s => s.trim());
+  if (data.pricingRules) {
+    try { data.pricingRules = JSON.parse(data.pricingRules); } catch { data.pricingRules = {}; }
+  }
+  data.slots = managedSlots;
+  data.serviceConfig = managedServiceConfig;
+  data.deliveryCharge = Number(data.deliveryCharge || 0);
+  data.freeDeliveryThreshold = Number(data.freeDeliveryThreshold || 0);
+  data.gstPercentage = Number(data.gstPercentage || 18);
+  if (data.serviceableArea) data.serviceableArea = data.serviceableArea.split(',').map(s => s.trim());
+  data.teamSize = Number(data.teamSize || 0);
+  data.equipmentProvided = data.equipmentProvided === 'true';
+  if (data.safetyMeasures) data.safetyMeasures = data.safetyMeasures.split(',').map(s => s.trim());
+  data.viewImages = {
+    front: data.viewImages_front,
+    back: data.viewImages_back,
+    top: data.viewImages_top,
+    bottom: data.viewImages_bottom
+  };
+  delete data.viewImages_bottom;
 
- // Specialized fields
- if (data.perKmRate) data.perKmRate = Number(data.perKmRate);
- if (data.sqft) data.sqft = Number(data.sqft);
- if (data.isOnline) data.isOnline = data.isOnline === 'true';
- 
-  // Auto-classify stay, rental, ride, hotel, villa assets as services
-  const hasPropertyType = data.propertyType && data.propertyType !== 'None';
-  const hasVehicleType = data.vehicleType && data.vehicleType !== 'None';
-  const isServiceCategory = data.category && (
-    /stays|rentals|rides|hotels|villas|pg/i.test(data.category) ||
-    data.category === 'Rides' ||
-    data.category === 'Rentals' ||
-    data.category === 'Services'
-  );
-  if (hasPropertyType || hasVehicleType || isServiceCategory) {
-    data.isService = true;
+  // Specialized fields
+  if (data.perKmRate) data.perKmRate = Number(data.perKmRate);
+  if (data.sqft) data.sqft = Number(data.sqft);
+  if (data.isOnline) data.isOnline = data.isOnline === 'true';
+  
+  // Auto-populate data.category from selected category reference name to satisfy mongoose validation requirement
+  const selectedCatObj = categories.find(c => c._id === data.categoryRef || c._id === selectedCategory);
+  if (selectedCatObj) {
+    data.category = selectedCatObj.name;
+    if (selectedCatObj.type === 'service' || selectedCatObj.type === 'rental' || selectedCatObj.type === 'ride') {
+      data.isService = true;
+    } else {
+      data.isService = false;
+      data.propertyType = 'None';
+      data.vehicleType = 'None';
+    }
+  } else {
+    data.isService = isServiceDefault;
+    if (!isServiceDefault) {
+      data.propertyType = 'None';
+      data.vehicleType = 'None';
+    }
   }
   
   try {
@@ -512,10 +518,23 @@ const VendorDashboard = () => {
  <div className="space-y-2">
  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Category</label>
  <div className="flex gap-2">
- <select name="categoryRef" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} required className="flex-1 px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
- <option value="">Select Category</option>
- {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
- </select>
+ <select 
+    name="categoryRef" 
+    value={selectedCategory} 
+    onChange={(e) => {
+      const catId = e.target.value;
+      setSelectedCategory(catId);
+      const catObj = categories.find(c => c._id === catId);
+      if (catObj) {
+        setIsServiceDefault(catObj.type === 'service' || catObj.type === 'rental' || catObj.type === 'ride');
+      }
+    }} 
+    required 
+    className="flex-1 px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm"
+  >
+    <option value="">Select Category</option>
+    {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
+  </select>
  <button type="button" onClick={() => setIsAddingCategory(true)} className="px-4 bg-primary text-white rounded-xl hover:bg-blue-700 transition-all"><Plus size={20} /></button>
  </div>
  </div>

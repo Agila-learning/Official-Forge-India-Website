@@ -203,9 +203,12 @@ io.on('connection', (socket) => {
 
   socket.on('private-message', async ({ senderId, receiverId, content, messageType, fileUrl }) => {
     try {
+      const targetReceiverId = receiverId && typeof receiverId === 'object' ? receiverId._id : receiverId;
+      if (!targetReceiverId) return;
+
       const message = await Message.create({
         sender: senderId,
-        receiver: receiverId,
+        receiver: targetReceiverId,
         content,
         messageType: messageType || 'text',
         fileUrl,
@@ -215,7 +218,7 @@ io.on('connection', (socket) => {
         .populate('sender', 'firstName lastName role')
         .populate('receiver', 'firstName lastName role');
 
-      const receiverSocketId = onlineUsers.get(receiverId);
+      const receiverSocketId = onlineUsers.get(targetReceiverId);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit('receive-message', populated);
       }

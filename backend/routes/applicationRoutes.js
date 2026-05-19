@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Application = require('../models/Application');
 const User = require('../models/User');
+const JobPost = require('../models/JobPost');
 const { protect, hr } = require('../middleware/authMiddleware');
 const { createNotification } = require('../controllers/notificationController');
 
@@ -10,8 +11,13 @@ const { createNotification } = require('../controllers/notificationController');
 // @access Private (HR/Admin)
 router.get('/', protect, hr, async (req, res) => {
   try {
-    // Both HR and Admin see all applications
-    const applications = await Application.find({})
+    let query = {};
+    if (req.user.role === 'HR') {
+      const hrJobs = await JobPost.find({ hrId: req.user._id }).select('_id');
+      const jobIds = hrJobs.map(j => j._id);
+      query = { job: { $in: jobIds } };
+    }
+    const applications = await Application.find(query)
       .sort({ createdAt: -1 })
       .populate('user', 'firstName lastName email mobile')
       .populate('job', 'title companyName location');

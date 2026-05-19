@@ -3,9 +3,12 @@ const JobPost = require('../models/JobPost');
 const getJobs = async (req, res) => {
   try {
     let query = { status: 'Active' }; // Public view default
-    if (req.user && (req.user.role === 'HR' || req.user.role === 'Admin')) {
-      // Show all jobs for HR and Admin in dashboard
-      query = {};
+    if (req.user) {
+      if (req.user.role === 'HR') {
+        query = { hrId: req.user._id };
+      } else if (req.user.role === 'Admin') {
+        query = {};
+      }
     }
     const jobs = await JobPost.find(query).sort({ createdAt: -1 });
     res.json(jobs);
