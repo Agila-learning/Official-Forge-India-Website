@@ -36,27 +36,30 @@ const addOrderItems = async (req, res) => {
       const dbProducts = await Product.find({ _id: { $in: validProductIds } });
 
       const validatedOrderItems = orderItems.map(item => {
+        let processedItem = { ...item };
+        
         // If it's a valid product, validate against DB
         if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
           const product = dbProducts.find(p => p._id.toString() === item.product.toString());
           if (product) {
             const itemPrice = product.discountPrice || product.price;
             calculatedTotalPrice += itemPrice * (item.qty || 1);
-            return {
-              ...item,
-              price: itemPrice // Force DB price
-            };
+            processedItem.price = itemPrice; // Force DB price
           }
+        } else {
+          // If not found in Product DB or not a valid ObjectId, trust frontend price (for services/memberships)
+          calculatedTotalPrice += (item.price || 0) * (item.qty || 1);
         }
         
-        // If not found in Product DB or not a valid ObjectId, trust frontend price (for services/memberships)
-        // In a real prod env, you'd validate services against a Service model here.
-        calculatedTotalPrice += (item.price || 0) * (item.qty || 1);
-        
-        const processedItem = { ...item };
         if (processedItem.product && !mongoose.Types.ObjectId.isValid(processedItem.product)) {
             delete processedItem.product;
         }
+        
+        // Sanitize sub-document _id if it's not a valid mongoose ObjectId to prevent CastError
+        if (processedItem._id && !mongoose.Types.ObjectId.isValid(processedItem._id)) {
+            delete processedItem._id;
+        }
+        
         return processedItem;
       });
 
