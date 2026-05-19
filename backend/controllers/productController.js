@@ -4,7 +4,8 @@ const HomeCategory = require('../models/HomeCategory');
 const getProducts = async (req, res) => {
   try {
     let query = {};
-    if (req.user && (req.user.role === 'Vendor' || req.user.role === 'HR')) {
+    const vendorRoles = ['Vendor', 'Seller', 'Service Provider', 'Rental Provider', 'HR'];
+    if (req.user && vendorRoles.includes(req.user.role)) {
       query = { vendorId: req.user._id };
     }
     const products = await Product.find(query).populate('vendorId', 'businessName deliveryAvailable');

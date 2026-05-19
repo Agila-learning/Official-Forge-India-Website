@@ -28,7 +28,7 @@ const AdminDashboard = () => {
  const [activeTab, setActiveTab] = useState('overview');
  const [editingItem, setEditingItem] = useState({ events: null, jobs: null, products: null, faqs: null, candidates: null, locations: null, testimonials: null });
  const [selectedUserKYC, setSelectedUserKYC] = useState(null);
- const { fetchNotifications } = useNotifications();
+ const { socket, fetchNotifications } = useNotifications();
  const [managedSlots, setManagedSlots] = useState([]);
  const [managedServiceConfig, setManagedServiceConfig] = useState([]);
  const [managedPricingRules, setManagedPricingRules] = useState([]);
@@ -36,6 +36,31 @@ const AdminDashboard = () => {
  const [showServiceForm, setShowServiceForm] = useState(false);
  const [searchQuery, setSearchQuery] = useState('');
  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+
+ // Real-time messages sync
+ useEffect(() => {
+   if (!socket) return;
+
+   const handleReceiveMessage = (msg) => {
+     // If the incoming message belongs to the current chat session
+     if (selectedChatUser && (msg.sender?._id === selectedChatUser._id || msg.sender === selectedChatUser._id)) {
+       setChatMessages(prev => {
+         if (prev.find(m => m._id === msg._id)) return prev;
+         return [...prev, msg];
+       });
+     }
+     
+     // Auto-refresh chat threads to update last message preview and unread badges
+     api.get('/chat/threads')
+       .then(res => setChatThreads(res.data || []))
+       .catch(() => {});
+   };
+
+   socket.on('receive-message', handleReceiveMessage);
+   return () => {
+     socket.off('receive-message', handleReceiveMessage);
+   };
+ }, [socket, selectedChatUser]);
 
  useEffect(() => {
  if (editingItem.products) {
@@ -233,12 +258,19 @@ const AdminDashboard = () => {
  if (activeTab === 'rentals') payload.category = 'Rentals';
  if (activeTab === 'atomy') payload.category = 'Atomy';
  }
-
- // For services: auto-derive category name from selected categoryRef
- if (payload.isService === true && payload.categoryRef) {
- const svcCat = data.serviceCategories?.find(c => c._id === payload.categoryRef);
- if (svcCat) payload.category = svcCat.name;
- }
+ 
+ // Auto-derive category name from selected categoryRef for products/services
+  if (payload.categoryRef) {
+    const svcCat = data.serviceCategories?.find(c => c._id === payload.categoryRef);
+    if (svcCat) {
+      payload.category = svcCat.name;
+    } else {
+      const homeCat = data.homeCategories?.find(c => c._id === payload.categoryRef);
+      if (homeCat) {
+        payload.category = homeCat.name;
+      }
+    }
+  };
  
  if (endpoint === 'testimonials') {
  payload.featured = payload.featured === 'on';
@@ -828,6 +860,15 @@ const AdminDashboard = () => {
  <label className="block text-sm font-bold mb-2 uppercase">Requirements (Comma Separated)</label>
  <input name="requirements" defaultValue={Array.isArray(editingItem.jobs?.requirements) ? editingItem.jobs.requirements.join(', ') : (editingItem.jobs?.requirements || '')} type="text" placeholder="React, Node.js, AWS" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase text-purple-500">Assigned HR Personnel</label>
+ <select name="hrId" defaultValue={editingItem.jobs?.hrId?._id || editingItem.jobs?.hrId || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="">Platform (Admin / Main)</option>
+ {data.users.filter(u => u.role === 'HR').map(hr => (
+ <option key={hr._id} value={hr._id}>{hr.firstName} {hr.lastName} ({hr.email})</option>
+ ))}
+ </select>
+ </div>
  <div className="md:col-span-2">
  <label className="block text-sm font-bold mb-2 uppercase">Job Description</label>
  <textarea name="description" defaultValue={editingItem.jobs?.description || ''} rows="3" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none"></textarea>
@@ -887,11 +928,11 @@ const AdminDashboard = () => {
  <input name="name" defaultValue={editingItem.products?.name || ''} required type="text" placeholder="Atomy HemoHim" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div>
- <label className="block text-sm font-bold mb-2 uppercase">Category</label>
- <select name="category" defaultValue={editingItem.products?.category || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
- <option value="">Select Product Category</option>
+ <label className="block text-sm font-bold mb-2 uppercase text-primary">Marketplace Category</label>
+ <select name="categoryRef" defaultValue={editingItem.products?.categoryRef?._id || editingItem.products?.categoryRef || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
+ <option value="">Select Category</option>
  {data.homeCategories?.map(cat => (
- <option key={cat._id} value={cat.name}>{cat.name} ({cat.type || 'product'})</option>
+ <option key={cat._id} value={cat._id}>{cat.name} ({cat.type || 'product'})</option>
  ))}
  {(!data.homeCategories || data.homeCategories.length === 0) && (
  <option disabled>No categories — add in Home Service CMS</option>
@@ -934,8 +975,8 @@ const AdminDashboard = () => {
  <label className="block text-sm font-bold mb-2 uppercase text-secondary">Service Provider / Vendor</label>
  <select name="vendorId" defaultValue={editingItem.products?.vendorId?._id || editingItem.products?.vendorId || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
  <option value="">Platform (Admin)</option>
- {data.users.filter(u => u.role === 'Vendor').map(v => (
- <option key={v._id} value={v._id}>{v.businessName || `${v.firstName} ${v.lastName}`}</option>
+ {data.users.filter(u => ['Vendor', 'Seller', 'Service Provider', 'Rental Provider'].includes(u.role)).map(v => (
+ <option key={v._id} value={v._id}>{v.businessName || `${v.firstName} ${v.lastName}`} ({v.role})</option>
  ))}
  </select>
  </div>

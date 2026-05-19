@@ -1,12 +1,26 @@
-const JobPost = require('../models/JobPost');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const getJobs = async (req, res) => {
   try {
     let query = { status: 'Active' }; // Public view default
-    if (req.user) {
-      if (req.user.role === 'HR') {
-        query = { hrId: req.user._id };
-      } else if (req.user.role === 'Admin') {
+    
+    // Manually extract token to isolate jobs if user is logged in
+    let user;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'forge_secret_key_123');
+        user = await User.findById(decoded.id).select('-password');
+      } catch (err) {
+        // Suppress error since this is a public GET endpoint
+      }
+    }
+
+    if (user) {
+      if (user.role === 'HR') {
+        query = { hrId: user._id };
+      } else if (user.role === 'Admin') {
         query = {};
       }
     }
@@ -20,10 +34,15 @@ const getJobs = async (req, res) => {
 const createJob = async (req, res) => {
   const { 
     title, companyName, location, salary, description,
-    requirements, responsibilities, education, experience, openings, expiryDate, companyWebsite 
+    requirements, responsibilities, education, experience, openings, expiryDate, companyWebsite, hrId 
   } = req.body;
   
   try {
+    let targetHrId = req.user._id;
+    if (req.user.role === 'Admin' && hrId && hrId !== "") {
+      targetHrId = hrId;
+    }
+
     const job = await JobPost.create({
       title,
       companyName: companyName || 'Forge India Connect Partner',
@@ -37,7 +56,7 @@ const createJob = async (req, res) => {
       openings: openings || 1,
       companyWebsite,
       expiryDate,
-      hrId: req.user._id
+      hrId: targetHrId
     });
     res.status(201).json(job);
   } catch (error) {
@@ -57,7 +76,7 @@ const updateJob = async (req, res) => {
 
     const { 
       title, companyName, location, salary, description, 
-      requirements, responsibilities, education, experience, openings, expiryDate, status, companyWebsite 
+      requirements, responsibilities, education, experience, openings, expiryDate, status, companyWebsite, hrId 
     } = req.body;
 
     job.title = title || job.title;
@@ -73,6 +92,9 @@ const updateJob = async (req, res) => {
     job.expiryDate = expiryDate || job.expiryDate;
     job.status = status || job.status;
     job.companyWebsite = companyWebsite || job.companyWebsite;
+    if (req.user.role === 'Admin' && hrId && hrId !== "") {
+      job.hrId = hrId;
+    }
 
     const updatedJob = await job.save();
     res.json(updatedJob);

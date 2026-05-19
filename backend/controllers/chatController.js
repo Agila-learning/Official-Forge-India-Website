@@ -90,6 +90,12 @@ const sendMessage = async (req, res) => {
       fileUrl,
     });
     const populated = await message.populate('sender', 'firstName lastName role');
+    
+    // Broadcast via Socket.IO real-time if available
+    if (req.io) {
+      req.io.to(targetReceiverId.toString()).emit('receive-message', populated);
+    }
+
     res.status(201).json(populated);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -89,6 +89,12 @@ app.get('/api/socket-health', (req, res) => {
 app.set('io', io);
 app.set('trust proxy', 1); // Trust Vercel proxy for socket.io and rate limiting
 
+// Bind io to req.io for all controllers
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // ─── Security Middleware ──────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json());
@@ -182,6 +188,7 @@ app.use('/api/bookings', bookingRoutes);
 // Static Uploads Folder
 const __dirnameBase = path.resolve();
 app.use('/uploads', express.static(path.join(__dirnameBase, 'uploads')));
+app.use('/api/uploads', express.static(path.join(__dirnameBase, 'uploads')));
 
 // Health check
 app.get('/api', (req, res) => {

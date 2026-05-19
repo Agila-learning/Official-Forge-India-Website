@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { io } from 'socket.io-client';
 import {
  MessageCircle, X, Send, Image, Video, Mic, MicOff,
  Search, ChevronLeft, Phone, MoreVertical, Smile, Paperclip,
  Volume2, Check, CheckCheck, Loader2, ChevronDown, Trash2, Edit2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api, { SOCKET_URL, SOCKET_PATH, SOCKET_TRANSPORTS } from '../../services/api';
-
-let socket = null;
-
-
+import api from '../../services/api';
+import { useNotifications } from '../../context/NotificationContext';
 
 const getInitials = (user) => {
  if (!user) return '?';
@@ -38,120 +34,116 @@ const formatTime = (dateStr) => {
 };
 
 const ChatWidget = () => {
- const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
- const token = localStorage.getItem('token');
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  const token = localStorage.getItem('token');
+  const { socket } = useNotifications();
 
- const [isOpen, setIsOpen] = useState(false);
- const [contacts, setContacts] = useState([]);
- const [threads, setThreads] = useState([]);
- const [activeContact, setActiveContact] = useState(null);
- const [messages, setMessages] = useState([]);
- const [inputText, setInputText] = useState('');
- const [searchQuery, setSearchQuery] = useState('');
- const [isTyping, setIsTyping] = useState(false);
- const [onlineUsers, setOnlineUsers] = useState([]);
- const [loading, setLoading] = useState(false);
- const [isRecording, setIsRecording] = useState(false);
- const [unreadCount, setUnreadCount] = useState(0);
- const [tab, setTab] = useState('threads'); // 'threads' | 'contacts'
- const [showRedirectMenu, setShowRedirectMenu] = useState(false);
- const [editingMsgId, setEditingMsgId] = useState(null);
- const [editContent, setEditContent] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [threads, setThreads] = useState([]);
+  const [activeContact, setActiveContact] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [tab, setTab] = useState('threads'); // 'threads' | 'contacts'
+  const [showRedirectMenu, setShowRedirectMenu] = useState(false);
+  const [editingMsgId, setEditingMsgId] = useState(null);
+  const [editContent, setEditContent] = useState('');
 
- const handleEditMessage = async (msgId) => {
- if (!editContent.trim()) return;
- try {
- await api.put(`/${msgId}`, { messageId: msgId, content: editContent });
- setMessages(prev => prev.map(m => m._id === msgId ? { ...m, content: editContent, isEdited: true } : m));
- setEditingMsgId(null);
- setEditContent('');
- toast.success('Message updated');
- } catch (err) { toast.error('Failed to update'); }
- };
+  const handleEditMessage = async (msgId) => {
+    if (!editContent.trim()) return;
+    try {
+      await api.put(`/${msgId}`, { messageId: msgId, content: editContent });
+      setMessages(prev => prev.map(m => m._id === msgId ? { ...m, content: editContent, isEdited: true } : m));
+      setEditingMsgId(null);
+      setEditContent('');
+      toast.success('Message updated');
+    } catch (err) { toast.error('Failed to update'); }
+  };
 
- const handleDeleteMessage = async (msgId) => {
- if (!window.confirm('Delete this message permanently?')) return;
- try {
- await api.delete(`/${msgId}`);
- setMessages(prev => prev.filter(m => m._id !== msgId));
- toast.success('Message deleted');
- } catch (err) { toast.error('Failed to delete'); }
- };
+  const handleDeleteMessage = async (msgId) => {
+    if (!window.confirm('Delete this message permanently?')) return;
+    try {
+      await api.delete(`/${msgId}`);
+      setMessages(prev => prev.filter(m => m._id !== msgId));
+      toast.success('Message deleted');
+    } catch (err) { toast.error('Failed to delete'); }
+  };
 
- const endRef = useRef(null);
- const typingTimeout = useRef(null);
- const mediaRecorder = useRef(null);
- const audioChunks = useRef([]);
+  const endRef = useRef(null);
+  const typingTimeout = useRef(null);
+  const mediaRecorder = useRef(null);
+  const audioChunks = useRef([]);
 
- // Listen for programmatic open requests (e.g. from RoleGuide)
- useEffect(() => {
-   const handleOpen = () => setIsOpen(true);
-   window.addEventListener('open-chat-widget', handleOpen);
-   return () => window.removeEventListener('open-chat-widget', handleOpen);
- }, []);
+  // Listen for programmatic open requests (e.g. from RoleGuide)
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-chat-widget', handleOpen);
+    return () => window.removeEventListener('open-chat-widget', handleOpen);
+  }, []);
 
- // Initialize socket
- useEffect(() => {
- if (!userInfo?._id || !token) return;
+  // Initialize socket
+  useEffect(() => {
+    if (!socket || !userInfo?._id) return;
 
- if (!socket) {
- const isProd = window.location.hostname !== 'localhost';
- socket = io(SOCKET_URL, { 
- auth: { token },
- transports: SOCKET_TRANSPORTS,
- path: SOCKET_PATH
- });
+    socket.emit('user-online', userInfo._id);
 
- socket.on('connect', () => {
- socket.emit('user-online', userInfo._id);
- });
+    const handleConnect = () => {
+      socket.emit('user-online', userInfo._id);
+    };
 
- socket.on('connect_error', (err) => {
- console.error('Socket connection error:', err);
- });
+    const handleNotification = ({ userId, notification }) => {
+      if (userId === userInfo?._id) {
+        toast.success(`${notification.title}: ${notification.message}`, {
+          duration: 6000,
+          icon: '🏢',
+          style: { borderRadius: '20px', background: '#0a66c2', color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: '10px' }
+        });
+        setUnreadCount(prev => prev + 1);
+      }
+    };
 
- socket.on('notification', ({ userId, notification }) => {
- if (userId === userInfo?._id) {
- toast.success(`${notification.title}: ${notification.message}`, {
- duration: 6000,
- icon: '🏢',
- style: { borderRadius: '20px', background: '#0a66c2', color: '#fff', fontWeight: '900', textTransform: 'uppercase', fontSize: '10px' }
- });
- setUnreadCount(prev => prev + 1);
- }
- });
+    const handleReceiveMessage = (msg) => {
+      setMessages((prev) => {
+        if (prev.find((m) => m._id === msg._id)) return prev;
+        return [...prev, msg];
+      });
+      if (!isOpen || activeContact?._id !== msg.sender?._id) {
+        setUnreadCount((c) => c + 1);
+      }
+    };
 
- socket.on('receive-message', (msg) => {
- setMessages((prev) => {
- if (prev.find((m) => m._id === msg._id)) return prev;
- return [...prev, msg];
- });
- if (!isOpen || activeContact?._id !== msg.sender?._id) {
- setUnreadCount((c) => c + 1);
- }
- });
+    const handleUserTyping = ({ senderId }) => {
+      if (activeContact?._id === senderId) setIsTyping(true);
+    };
 
- socket.on('user-typing', ({ senderId }) => {
- if (activeContact?._id === senderId) setIsTyping(true);
- });
+    const handleUserStoppedTyping = ({ senderId }) => {
+      if (activeContact?._id === senderId) setIsTyping(false);
+    };
 
- socket.on('user-stopped-typing', ({ senderId }) => {
- if (activeContact?._id === senderId) setIsTyping(false);
- });
+    const handleOnlineUsers = (users) => setOnlineUsers(users);
 
- socket.on('online-users', (users) => setOnlineUsers(users));
- }
+    socket.on('connect', handleConnect);
+    socket.on('notification', handleNotification);
+    socket.on('receive-message', handleReceiveMessage);
+    socket.on('user-typing', handleUserTyping);
+    socket.on('user-stopped-typing', handleUserStoppedTyping);
+    socket.on('online-users', handleOnlineUsers);
 
- return () => {
- if (socket) {
- socket.off('notification');
- socket.off('receive-message');
- socket.off('user-typing');
- socket.off('user-stopped-typing');
- socket.off('online-users');
- }
- };
- }, [userInfo?._id, token, isOpen, activeContact]);
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('notification', handleNotification);
+      socket.off('receive-message', handleReceiveMessage);
+      socket.off('user-typing', handleUserTyping);
+      socket.off('user-stopped-typing', handleUserStoppedTyping);
+      socket.off('online-users', handleOnlineUsers);
+    };
+  }, [socket, userInfo?._id, isOpen, activeContact]);
 
  // Scroll to bottom
  useEffect(() => {

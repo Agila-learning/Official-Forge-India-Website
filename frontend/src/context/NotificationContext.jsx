@@ -11,6 +11,7 @@ export const NotificationProvider = ({ children }) => {
  const [unreadCount, setUnreadCount] = useState(0);
  const [loading, setLoading] = useState(true);
  const [userInfo, setUserInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo') || 'null'));
+ const [socket, setSocket] = useState(null);
 
  // Synchronize userInfo state with localStorage changes (login/logout)
  useEffect(() => {
@@ -44,8 +45,7 @@ export const NotificationProvider = ({ children }) => {
 
  // Socket.io integration for real-time notifications
  if (userInfo) {
- const isProd = window.location.hostname !== 'localhost';
- const socket = io(SOCKET_URL, {
+ const socketInstance = io(SOCKET_URL, {
  withCredentials: true,
  path: SOCKET_PATH,
  transports: SOCKET_TRANSPORTS,
@@ -55,9 +55,11 @@ export const NotificationProvider = ({ children }) => {
  timeout: 30000
  });
 
- socket.emit('user-online', userInfo._id);
+ setSocket(socketInstance);
 
- socket.on('new-notification', (notification) => {
+ socketInstance.emit('user-online', userInfo._id);
+
+ socketInstance.on('new-notification', (notification) => {
  setNotifications(prev => [notification, ...prev]);
  setUnreadCount(prev => prev + 1);
  
@@ -93,11 +95,16 @@ export const NotificationProvider = ({ children }) => {
  });
  });
 
- socket.on('connect_error', (err) => {
+ socketInstance.on('connect_error', (err) => {
  console.warn('FIC Socket Signal Error:', err.message);
  });
 
- return () => socket.disconnect();
+ return () => {
+ socketInstance.disconnect();
+ setSocket(null);
+ };
+ } else {
+ setSocket(null);
  }
  }, [userInfo?._id]);
 
@@ -147,7 +154,8 @@ export const NotificationProvider = ({ children }) => {
  markAsRead, 
  markAllAsRead, 
  fetchNotifications,
- pushLocalNotification 
+ pushLocalNotification,
+ socket
  }}>
  {children}
  </NotificationContext.Provider>
