@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const Joi = require('joi');
 const User = require('../models/User');
 
 const getJobs = async (req, res) => {
@@ -32,6 +33,67 @@ const getJobs = async (req, res) => {
 };
 
 const createJob = async (req, res) => {
+  // Validation schema
+  const schema = Joi.object({
+    title: Joi.string().required(),
+    companyName: Joi.string().optional(),
+    location: Joi.string().required(),
+    salary: Joi.string().optional(),
+    description: Joi.string().optional(),
+    responsibilities: Joi.string().optional(),
+    requirements: Joi.string().optional(),
+    education: Joi.string().optional(),
+    experience: Joi.string().optional(),
+    openings: Joi.number().integer().min(1).optional(),
+    expiryDate: Joi.date().optional(),
+    companyWebsite: Joi.string().uri().optional(),
+    hrId: Joi.string().optional()
+  });
+  const { error, value } = schema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: 'Validation error', details: error.details.map(d => d.message) });
+  }
+  const {
+    title,
+    companyName,
+    location,
+    salary,
+    description,
+    responsibilities,
+    requirements,
+    education,
+    experience,
+    openings,
+    expiryDate,
+    companyWebsite,
+    hrId
+  } = value;
+
+  try {
+    let targetHrId = req.user._id;
+    if (req.user.role === 'Admin' && hrId && hrId !== "") {
+      targetHrId = hrId;
+    }
+    const job = await JobPost.create({
+      title,
+      companyName: companyName || 'Forge India Connect Partner',
+      location,
+      salary,
+      description,
+      responsibilities,
+      requirements,
+      education,
+      experience,
+      openings: openings || 1,
+      companyWebsite,
+      expiryDate,
+      hrId: targetHrId
+    });
+    res.status(201).json(job);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}; /*
   const { 
     title, companyName, location, salary, description,
     requirements, responsibilities, education, experience, openings, expiryDate, companyWebsite, hrId 

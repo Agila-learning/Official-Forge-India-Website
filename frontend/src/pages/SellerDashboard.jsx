@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Package, ShoppingBag, CreditCard, Star, 
   Settings, Users, TrendingUp, Edit, Trash2, Plus
@@ -49,7 +50,7 @@ const SellerDashboard = () => {
     setLoading(true);
     try {
       const [prodRes, ordRes] = await Promise.all([
-        api.get('/products/vendor/me').catch(() => ({ data: [] })),
+        api.get('/products/vendor').catch(() => ({ data: [] })),
         api.get('/orders/vendor/me').catch(() => ({ data: [] }))
       ]);
       setProducts(prodRes.data);
