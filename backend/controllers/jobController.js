@@ -93,37 +93,6 @@ const createJob = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}; /*
-  const { 
-    title, companyName, location, salary, description,
-    requirements, responsibilities, education, experience, openings, expiryDate, companyWebsite, hrId 
-  } = req.body;
-  
-  try {
-    let targetHrId = req.user._id;
-    if (req.user.role === 'Admin' && hrId && hrId !== "") {
-      targetHrId = hrId;
-    }
-
-    const job = await JobPost.create({
-      title,
-      companyName: companyName || 'Forge India Connect Partner',
-      location,
-      salary,
-      description,
-      responsibilities,
-      requirements,
-      education,
-      experience,
-      openings: openings || 1,
-      companyWebsite,
-      expiryDate,
-      hrId: targetHrId
-    });
-    res.status(201).json(job);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
 };
 
 const updateJob = async (req, res) => {
