@@ -112,22 +112,6 @@ const AdminDashboard = () => {
  const [locations, setLocations] = useState([]);
  const [selectedVendorForAsset, setSelectedVendorForAsset] = useState(null);
 
- // Messaging state
- 
- 
- 
-  const [chatContacts, setChatContacts] = useState([]);
-  const [chatThreads, setChatThreads] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
-  const [chatRoleFilter, setChatRoleFilter] = useState('All');
-  const [contactSearch, setContactSearch] = useState('');
- 
- 
- 
- 
- 
  const [isAdminEditing, setIsAdminEditing] = useState(false);
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
  const [adminEditData, setAdminEditData] = useState({
@@ -261,6 +245,9 @@ const AdminDashboard = () => {
  e.preventDefault();
  const formData = new FormData(e.target);
  const payload = Object.fromEntries(formData);
+ 
+ // Fix for Joi validation rejecting empty strings on optional IDs
+ if (payload.hrId === "") delete payload.hrId;
  
   if (['services', 'rides', 'stays', 'rentals'].includes(activeTab)) payload.isService = true;
   else if (activeTab === 'atomy') payload.isService = false;
@@ -2958,7 +2945,7 @@ const AdminDashboard = () => {
  >
  <motion.div 
  initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
- className="bg-white dark:bg-dark-card w-full max-w-2xl rounded-[3rem] border border-gray-100 dark:border-gray-800 p-12 shadow-3xl relative"
+ className="bg-white dark:bg-dark-card w-full max-w-2xl rounded-[3rem] border border-gray-100 dark:border-gray-800 p-12 shadow-3xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
  >
  <button onClick={() => setSelectedUserKYC(null)} className="absolute top-10 right-10 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors">
  <AlertCircle size={32} />

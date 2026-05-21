@@ -21,6 +21,7 @@ const HRDashboard = () => {
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [atsScoreFilter, setAtsScoreFilter] = useState('All');
   
   // Expanded ATS Reports State (Object mapping application ID to boolean)
   const [expandedATS, setExpandedATS] = useState({});
@@ -145,7 +146,14 @@ const HRDashboard = () => {
     
     const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    const atsScore = getATSMetrics(app).compatibilityScore;
+    const matchesATS = 
+      atsScoreFilter === 'All' ? true :
+      atsScoreFilter === '80+' ? atsScore >= 80 :
+      atsScoreFilter === '60-79' ? (atsScore >= 60 && atsScore < 80) :
+      atsScore < 60;
+    
+    return matchesSearch && matchesStatus && matchesATS;
   });
 
   if (loading) {
@@ -330,6 +338,29 @@ const HRDashboard = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* ATS Score Filter */}
+              <div className="flex flex-wrap items-center gap-3 px-6 py-4 bg-indigo-50/30 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-900/20 rounded-2xl">
+                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-1.5"><Cpu size={12} /> ATS Score Filter:</span>
+                {[
+                  { label: 'All Candidates', value: 'All' },
+                  { label: 'Top Match (80%+)', value: '80+' },
+                  { label: 'Good Match (60-79%)', value: '60-79' },
+                  { label: 'Needs Review (<60%)', value: '<60' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setAtsScoreFilter(opt.value)}
+                    className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                      atsScoreFilter === opt.value
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-purple-500/20'
+                        : 'bg-white dark:bg-dark-card text-gray-400 hover:text-indigo-500 border border-gray-100 dark:border-gray-800'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
 
               {/* Candidates Grid */}

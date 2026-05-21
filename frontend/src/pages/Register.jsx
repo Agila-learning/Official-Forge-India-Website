@@ -484,7 +484,8 @@ const Register = () => {
  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">KYC Documents (Required)</h3>
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="space-y-2">
- <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aadhar Card / Gov ID</label>
+ <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aadhaar, PAN, or GST Certificate</label>
+ <p className="text-[9px] text-slate-400 font-medium ml-1 mb-1">Required for KYC verification & Admin approval</p>
  <label className="w-full p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg flex items-center justify-between cursor-pointer group hover:border-primary transition-all">
  <div className="flex items-center gap-3">
  <FileText size={20} className={formData.profileDocuments.length > 0 ? "text-green-500" : "text-slate-300"} />

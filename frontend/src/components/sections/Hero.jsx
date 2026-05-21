@@ -115,11 +115,11 @@ const Hero = () => {
  </svg>
  </div>
 
- <div className="container-xl relative z-20 px-6 py-32">
+ <div className="container-xl relative z-20 px-4 sm:px-6 py-32 w-full">
  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
  
  {/* Hero Content */}
- <div className="lg:col-span-7 space-y-10">
+ <div className="lg:col-span-7 space-y-10 min-w-0 overflow-hidden">
  <motion.div 
  initial={{ opacity: 0, x: -50 }}
  animate={{ opacity: 1, x: 0 }}
@@ -191,7 +191,7 @@ const Hero = () => {
  </div>
 
  {/* Animated Counters */}
- <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-white/5">
+ <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 pt-10 border-t border-white/5">
  {[
  { v: '5K+', l: 'Placed Candidates' },
  { v: '98%', l: 'Client Satisfaction' },
