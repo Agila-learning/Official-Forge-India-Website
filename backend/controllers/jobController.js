@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const User = require('../models/User');
+const JobPost = require('../models/JobPost');
 
 const getJobs = async (req, res) => {
   try {
