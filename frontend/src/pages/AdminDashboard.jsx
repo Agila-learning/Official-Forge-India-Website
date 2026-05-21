@@ -36,6 +36,15 @@ const AdminDashboard = () => {
  const [showServiceForm, setShowServiceForm] = useState(false);
  const [searchQuery, setSearchQuery] = useState('');
  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+  // Messaging state
+  const [selectedChatUser, setSelectedChatUser] = useState(null);
+  const [chatContacts, setChatContacts] = useState([]);
+  const [chatThreads, setChatThreads] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatRoleFilter, setChatRoleFilter] = useState('All');
+  const [contactSearch, setContactSearch] = useState('');
 
  // Real-time messages sync
  useEffect(() => {
@@ -104,14 +113,21 @@ const AdminDashboard = () => {
  const [selectedVendorForAsset, setSelectedVendorForAsset] = useState(null);
 
  // Messaging state
- const [chatContacts, setChatContacts] = useState([]);
- const [chatThreads, setChatThreads] = useState([]);
- const [selectedChatUser, setSelectedChatUser] = useState(null);
- const [chatMessages, setChatMessages] = useState([]);
- const [newMessage, setNewMessage] = useState('');
- const [chatLoading, setChatLoading] = useState(false);
- const [chatRoleFilter, setChatRoleFilter] = useState('All');
- const [contactSearch, setContactSearch] = useState('');
+ 
+ 
+ 
+  const [chatContacts, setChatContacts] = useState([]);
+  const [chatThreads, setChatThreads] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatRoleFilter, setChatRoleFilter] = useState('All');
+  const [contactSearch, setContactSearch] = useState('');
+ 
+ 
+ 
+ 
+ 
  const [isAdminEditing, setIsAdminEditing] = useState(false);
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
  const [adminEditData, setAdminEditData] = useState({
