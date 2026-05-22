@@ -493,12 +493,44 @@ function ExploreShop() {
  product={selectedProductForBooking}
  isOpen={!!selectedProductForBooking}
  onClose={() => setSelectedProductForBooking(null)}
- onComplete={(data) => {
- addToCart({ ...selectedProductForBooking, price: data.totalPrice }, 1, data.slot, data.config);
- setSelectedProductForBooking(null);
- toast.success('Service configured! Processing to checkout...');
- setTimeout(() => navigate('/checkout'), 800);
- }}
+ onComplete={async (data) => {
+  addToCart({ ...selectedProductForBooking, price: data.totalPrice }, 1, data.slot, data.config);
+
+  // Persist a Booking record for Rides, Rentals, PG & Hotel products
+  const p = selectedProductForBooking;
+  const isRideOrStay =
+    (p?.vehicleType && p.vehicleType !== 'None') ||
+    (p?.propertyType && p.propertyType !== 'None') ||
+    ['Rides','Bike Taxi','Car Taxi','Delivery','Hotels','PG / Hostels','Rentals','Stays','Villas'].includes(p?.category);
+  
+  if (isRideOrStay) {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const bookingPayload = {
+        serviceSlug: p.category?.toLowerCase().replace(/\s+/g, '-') || p._id,
+        serviceName: p.name,
+        totalPrice: data.totalPrice || p.price,
+        contactNumber: userInfo.mobile || '',
+        paymentMethod: 'Online',
+        bookingData: {
+          ...(data.config || {}),
+          slot: data.slot || null,
+          productId: p._id,
+          vehicleType: p.vehicleType || null,
+          propertyType: p.propertyType || null,
+          category: p.category,
+        }
+      };
+      await api.post('/bookings', bookingPayload);
+    } catch (err) {
+      console.warn('Booking record creation failed (non-critical):', err.message);
+    }
+  }
+
+  setSelectedProductForBooking(null);
+  toast.success('Service configured! Processing to checkout...');
+  setTimeout(() => navigate('/checkout'), 800);
+  }}
  />
  )}
 

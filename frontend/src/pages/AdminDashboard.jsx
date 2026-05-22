@@ -20,7 +20,7 @@ import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 
 const AdminDashboard = () => {
- const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [] });
+ const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [] });
  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
  const [locationRequests, setLocationRequests] = useState([]);
  const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
@@ -168,6 +168,7 @@ const AdminDashboard = () => {
         contacts: '/contacts',
         settlements: '/settlements/pending',
         serviceRegistrations: '/service-registrations',
+        bookings: '/bookings',
         homeCategories: '/home-categories',
         homeSubCategories: '/home-categories/sub'
       };
@@ -454,7 +455,8 @@ const AdminDashboard = () => {
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
  { id: 'rides', icon: Truck, label: 'Rides' },
-{ id: 'stays', icon: Home, label: 'Hotels & PG' },
+ { id: 'stays', icon: Home, label: 'Hotels & PG' },
+ { id: 'ride-stay-bookings', icon: Building2, label: 'Ride & Stay Bookings' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
@@ -2858,6 +2860,144 @@ const AdminDashboard = () => {
   </div>
   </div>
   )}
+
+  {/* RIDE & STAY BOOKINGS TAB — from POST /api/bookings */}
+  {activeTab === 'ride-stay-bookings' && (() => {
+    const [bookingStatusFilter, setBookingStatusFilter] = React.useState('All');
+    const bookingRows = (data.bookings || []).filter(b => {
+      const q = searchQuery.toLowerCase();
+      const nameMatch = (b.name || b.user?.firstName || '').toLowerCase().includes(q);
+      const slugMatch = (b.serviceSlug || '').toLowerCase().includes(q);
+      const statusMatch = bookingStatusFilter === 'All' || b.status === bookingStatusFilter;
+      return (nameMatch || slugMatch) && statusMatch;
+    });
+    return (
+      <div className="space-y-8">
+        <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-3xl font-black mb-1 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Ride &amp; Stay Bookings</h3>
+              <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">{bookingRows.length} booking records from rides, rentals, PG &amp; hotels</p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'].map(s => (
+                <button key={s} onClick={() => setBookingStatusFilter(s)}
+                  className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                    bookingStatusFilter === s ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-gray-100 dark:bg-dark-bg text-gray-500 hover:text-primary'
+                  }`}>{s}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mobile-table-scroll">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-800">
+                  {['ID', 'Customer', 'Service / Type', 'Booking Details', 'Price', 'Payment', 'Status', 'Date', 'Actions'].map(h => (
+                    <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                {bookingRows.map(booking => (
+                  <tr key={booking._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+                    <td className="py-5 pr-4">
+                      <p className="font-mono text-xs font-bold text-gray-500">#{booking._id?.slice(-6).toUpperCase()}</p>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <p className="font-bold text-sm">
+                        {booking.user ? `${booking.user.firstName} ${booking.user.lastName}` : (booking.name || 'Guest')}
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-bold">
+                        {booking.user?.email || booking.email || '—'}
+                      </p>
+                      <p className="text-[10px] font-mono text-gray-400">{booking.contactNumber}</p>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <p className="font-bold text-sm text-gray-800 dark:text-white">{booking.serviceName}</p>
+                      <span className="px-2 py-0.5 bg-violet-100 dark:bg-violet-900/20 text-violet-600 rounded-full text-[8px] font-black uppercase tracking-widest">
+                        {booking.serviceSlug}
+                      </span>
+                    </td>
+                    <td className="py-5 pr-4 max-w-[200px]">
+                      {booking.bookingData && Object.keys(booking.bookingData).length > 0 ? (
+                        <div className="space-y-1">
+                          {Object.entries(booking.bookingData).slice(0, 3).map(([k, v]) => (
+                            <p key={k} className="text-[10px] text-gray-500"><span className="font-black uppercase">{k}:</span> {String(v)}</p>
+                          ))}
+                        </div>
+                      ) : <span className="text-[10px] text-gray-300">No details</span>}
+                    </td>
+                    <td className="py-5 pr-4">
+                      <p className="font-black text-primary">₹{booking.totalPrice?.toLocaleString()}</p>
+                      {booking.advancePaid > 0 && <p className="text-[9px] text-gray-400">Adv: ₹{booking.advancePaid}</p>}
+                    </td>
+                    <td className="py-5 pr-4">
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        booking.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' :
+                        booking.paymentStatus === 'Partially Paid' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-red-100 text-red-500'
+                      }`}>{booking.paymentStatus || 'Pending'}</span>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <select
+                        value={booking.status}
+                        onChange={async (e) => {
+                          try {
+                            await api.put(`/bookings/${booking._id}/status`, { status: e.target.value });
+                            setData(prev => ({
+                              ...prev,
+                              bookings: prev.bookings.map(b => b._id === booking._id ? { ...b, status: e.target.value } : b)
+                            }));
+                            toast.success('Booking status updated');
+                          } catch { toast.error('Failed to update status'); }
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg ${
+                          booking.status === 'Confirmed' ? 'text-blue-500' :
+                          booking.status === 'Completed' ? 'text-green-500' :
+                          booking.status === 'Cancelled' ? 'text-red-500' : 'text-orange-500'
+                        }`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <p className="text-xs text-gray-400 font-bold">{new Date(booking.createdAt).toLocaleDateString()}</p>
+                    </td>
+                    <td className="py-5">
+                      <button
+                        onClick={async () => {
+                          if (!window.confirm('Delete this booking record?')) return;
+                          try {
+                            await api.delete(`/bookings/${booking._id}`);
+                            setData(prev => ({ ...prev, bookings: prev.bookings.filter(b => b._id !== booking._id) }));
+                            toast.success('Booking removed');
+                          } catch { toast.error('Delete failed'); }
+                        }}
+                        className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {bookingRows.length === 0 && (
+                  <tr><td colSpan="9" className="py-16 text-center">
+                    <Building2 size={48} className="mx-auto text-gray-200 dark:text-gray-700 mb-4" />
+                    <p className="font-black text-gray-400 uppercase tracking-widest text-sm">No bookings found</p>
+                    <p className="text-gray-400 text-xs mt-2">Bookings from Rides, Rentals, PG &amp; Hotels will appear here</p>
+                  </td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  })()}
 
   {activeTab === 'locations' && (
  <div className="space-y-12">
