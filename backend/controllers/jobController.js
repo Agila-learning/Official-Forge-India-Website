@@ -37,18 +37,20 @@ const createJob = async (req, res) => {
   // Validation schema
   const schema = Joi.object({
     title: Joi.string().required(),
-    companyName: Joi.string().optional(),
+    companyName: Joi.string().optional().allow(''),
     location: Joi.string().required(),
-    salary: Joi.string().optional(),
-    description: Joi.string().optional(),
-    responsibilities: Joi.string().optional(),
-    requirements: Joi.string().optional(),
-    education: Joi.string().optional(),
-    experience: Joi.string().optional(),
-    openings: Joi.number().integer().min(1).optional(),
-    expiryDate: Joi.date().optional(),
-    companyWebsite: Joi.string().uri().optional(),
-    hrId: Joi.string().optional()
+    salary: Joi.string().optional().allow(''),
+    description: Joi.string().optional().allow(''),
+    responsibilities: Joi.string().optional().allow(''),
+    requirements: Joi.string().optional().allow(''),
+    education: Joi.string().optional().allow(''),
+    experience: Joi.string().optional().allow(''),
+    openings: Joi.number().integer().min(1).optional().allow('', null),
+    expiryDate: Joi.date().optional().allow('', null),
+    companyWebsite: Joi.string().uri().optional().allow(''),
+    hrId: Joi.string().optional().allow(''),
+    recruitmentStatus: Joi.string().optional().allow(''),
+    status: Joi.string().optional().allow('')
   });
   const { error, value } = schema.validate(req.body);
   if (error) {
