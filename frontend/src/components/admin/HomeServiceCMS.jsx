@@ -480,8 +480,8 @@ const SubCategoryManager = ({ categories, onUpdate, isVendorMode }) => {
  <input type="number" placeholder="Display Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="px-4 py-3 rounded-xl outline-none font-bold text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card" />
  <button
  onClick={handleCreate}
- disabled={isVendorMode || submitting}
- className={`md:col-span-2 bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3 transition-all ${isVendorMode || submitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
+ disabled={submitting}
+ className={`md:col-span-2 bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-3 transition-all ${submitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
  >
  {submitting ? '⏳ Deploying...' : '🚀 Deploy Sub-Category'}
  </button>

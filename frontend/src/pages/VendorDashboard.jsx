@@ -1431,9 +1431,9 @@ const VendorDashboard = () => {
  {/* Category CMS Modal */}
  <AnimatePresence>
  {isAddingCategory && (
- <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
- <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-dark-card rounded-[3.5rem] shadow-3xl p-10 relative">
- <button onClick={() => { setIsAddingCategory(false); fetchCategories(); }} className="absolute top-10 right-10 p-4 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><X size={24} /></button>
+ <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/60 backdrop-blur-md">
+ <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="w-full max-w-6xl max-h-[90vh] overflow-x-hidden overflow-y-auto bg-white dark:bg-dark-card rounded-[2rem] md:rounded-[3.5rem] shadow-3xl p-6 md:p-10 relative">
+ <button onClick={() => { setIsAddingCategory(false); fetchCategories(); }} className="absolute top-4 right-4 md:top-8 md:right-8 p-3 md:p-4 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-xl md:rounded-2xl hover:bg-red-500 hover:text-white transition-all z-10"><X size={20} className="md:w-6 md:h-6" /></button>
  <HomeServiceCMS isVendorMode={true} />
  </motion.div>
  </motion.div>
