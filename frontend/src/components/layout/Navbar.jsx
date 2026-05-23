@@ -142,6 +142,7 @@ const Navbar = () => {
         name: 'Forge Services',
         isMega: true,
         widthClass: 'w-[95vw] max-w-[1200px]',
+        alignClass: 'left-0',
         gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
         categories: [
           {
@@ -161,9 +162,9 @@ const Navbar = () => {
               { name: 'Website Development', path: '/services/category/website-development', icon: <Code size={16} /> },
               { name: 'Mobile App Development', path: '/services/category/app-development', icon: <Smartphone size={16} /> },
               { name: 'Software Development', path: '/services/category/it-solutions', icon: <Cpu size={16} /> },
-              { name: 'CRM Solutions', path: '/yet-to-launch', icon: <Zap size={16} /> },
-              { name: 'ERP Solutions', path: '/yet-to-launch', icon: <Layout size={16} /> },
-              { name: 'Cloud Services', path: '/yet-to-launch', icon: <Network size={16} /> },
+              { name: 'CRM Solutions', path: '/services/category/it-solutions', icon: <Zap size={16} /> },
+              { name: 'ERP Solutions', path: '/services/category/it-solutions', icon: <Layout size={16} /> },
+              { name: 'Cloud Services', path: '/services/category/it-solutions', icon: <Network size={16} /> },
               { name: 'IT Consulting', path: '/services/category/it-solutions', icon: <Droplets size={16} /> },
             ]
           },
@@ -171,20 +172,20 @@ const Navbar = () => {
             title: 'Marketing & Branding',
             items: [
               { name: 'Digital Marketing', path: '/services/category/digital-marketing', icon: <Paintbrush size={16} /> },
-              { name: 'SEO Services', path: '/yet-to-launch', icon: <Search size={16} /> },
-              { name: 'Social Media Management', path: '/yet-to-launch', icon: <Globe size={16} /> },
-              { name: 'Branding & Design', path: '/yet-to-launch', icon: <Sparkles size={16} /> },
-              { name: 'Advertising Services', path: '/yet-to-launch', icon: <Rocket size={16} /> },
+              { name: 'SEO Services', path: '/services/category/digital-marketing', icon: <Search size={16} /> },
+              { name: 'Social Media Management', path: '/services/category/digital-marketing', icon: <Globe size={16} /> },
+              { name: 'Branding & Design', path: '/services/category/digital-marketing', icon: <Sparkles size={16} /> },
+              { name: 'Advertising Services', path: '/services/category/digital-marketing', icon: <Rocket size={16} /> },
             ]
           },
           {
             title: 'Insurance & Business Support',
             items: [
-              { name: 'Insurance Services', path: '/yet-to-launch', icon: <Shield size={16} /> },
-              { name: 'Financial Assistance', path: '/yet-to-launch', icon: <FileText size={16} /> },
-              { name: 'Documentation Support', path: '/yet-to-launch', icon: <FileText size={16} /> },
+              { name: 'Insurance Services', path: '/contact', icon: <Shield size={16} /> },
+              { name: 'Financial Assistance', path: '/contact', icon: <FileText size={16} /> },
+              { name: 'Documentation Support', path: '/contact', icon: <FileText size={16} /> },
               { name: 'Business Registration', path: '/services/category/business-consulting', icon: <Building2 size={16} /> },
-              { name: 'Business Compliance', path: '/yet-to-launch', icon: <CheckSquare size={16} /> },
+              { name: 'Business Compliance', path: '/contact', icon: <CheckSquare size={16} /> },
             ]
           }
         ]
@@ -193,6 +194,7 @@ const Navbar = () => {
         name: 'Customer Services',
         isMega: true,
         widthClass: 'w-[90vw] max-w-[800px]',
+        alignClass: 'left-1/2 -translate-x-1/2',
         gridClass: 'grid-cols-1 md:grid-cols-2',
         categories: [
           {
@@ -223,6 +225,7 @@ const Navbar = () => {
         name: 'Careers',
         isMega: true,
         widthClass: 'w-[320px]',
+        alignClass: 'left-1/2 -translate-x-1/2',
         gridClass: 'grid-cols-1',
         categories: [
           {
@@ -241,24 +244,25 @@ const Navbar = () => {
         name: 'Partners',
         isMega: true,
         widthClass: 'w-[90vw] max-w-[900px]',
+        alignClass: 'right-0',
         gridClass: 'grid-cols-1 md:grid-cols-3',
         categories: [
           {
             title: 'Delivery Partner',
             items: [
               { name: 'Join Delivery Partner', path: '/register', icon: <Truck size={16} /> },
-              { name: 'Delivery Benefits', path: '/yet-to-launch', icon: <Gift size={16} /> },
-              { name: 'Earnings & Incentives', path: '/yet-to-launch', icon: <Wallet size={16} /> },
-              { name: 'Partner App Info', path: '/yet-to-launch', icon: <Smartphone size={16} /> }
+              { name: 'Delivery Benefits', path: '/contact', icon: <Gift size={16} /> },
+              { name: 'Earnings & Incentives', path: '/contact', icon: <Wallet size={16} /> },
+              { name: 'Partner App Info', path: '/contact', icon: <Smartphone size={16} /> }
             ]
           },
           {
             title: 'Agent Partner',
             items: [
-              { name: 'Join Agent Network', path: '/register', icon: <Users size={16} /> },
-              { name: 'Sales Partnership', path: '/yet-to-launch', icon: <Building2 size={16} /> },
-              { name: 'Commission Programs', path: '/yet-to-launch', icon: <Wallet size={16} /> },
-              { name: 'Agent Dashboard', path: '/login', icon: <LayoutDashboard size={16} /> }
+              { name: 'Join Agent Network', path: 'https://agent-3-mu.vercel.app/', icon: <Users size={16} /> },
+              { name: 'Sales Partnership', path: 'https://agent-3-mu.vercel.app/', icon: <Building2 size={16} /> },
+              { name: 'Commission Programs', path: 'https://agent-3-mu.vercel.app/', icon: <Wallet size={16} /> },
+              { name: 'Agent Dashboard', path: 'https://agent-3-mu.vercel.app/', icon: <LayoutDashboard size={16} /> }
             ]
           },
           {
@@ -320,7 +324,7 @@ const Navbar = () => {
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                     </button>
                     
-                    <div className={`absolute top-[85%] left-1/2 -translate-x-1/2 mt-4 ${link.widthClass} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left z-50 max-h-[85vh] overflow-y-auto`}>
+                    <div className={`absolute top-[85%] ${link.alignClass || 'left-1/2 -translate-x-1/2'} mt-4 ${link.widthClass} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left z-50 max-h-[85vh] overflow-y-auto`}>
                       <div className={`grid ${link.gridClass} gap-8`}>
                         {link.categories.map((cat) => (
                           <div key={cat.title} className="space-y-4">
@@ -328,11 +332,15 @@ const Navbar = () => {
                               {cat.title}
                             </h4>
                             <div className="space-y-2">
-                              {cat.items.map((item) => (
-                                <Link 
+                              {cat.items.map((item) => {
+                                const isExternal = item.path.startsWith('http');
+                                const LinkComponent = isExternal ? 'a' : Link;
+                                const linkProps = isExternal ? { href: item.path, target: "_blank", rel: "noopener noreferrer" } : { to: item.path, state: item.state };
+                                
+                                return (
+                                <LinkComponent 
                                   key={item.name} 
-                                  to={item.path} 
-                                  state={item.state} 
+                                  {...linkProps}
                                   className="flex items-center gap-3 p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-2xl transition-all group/item border border-transparent hover:border-gray-100/50 dark:hover:border-gray-800"
                                 >
                                   <div className="w-8 h-8 bg-primary/10 text-primary dark:text-primary/90 rounded-xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all shrink-0">
@@ -342,8 +350,9 @@ const Navbar = () => {
                                     <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight leading-tight">{item.name}</p>
                                     <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Access System</p>
                                   </div>
-                                </Link>
-                              ))}
+                                </LinkComponent>
+                                )
+                              })}
                             </div>
                           </div>
                         ))}
