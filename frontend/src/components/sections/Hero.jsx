@@ -86,33 +86,9 @@ const Hero = () => {
 
       {/* Cinematic Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center opacity-20 scale-110 animate-mesh" />
-        <div className="absolute inset-0 bg-gradient-to-b from-dark-bg via-transparent to-dark-bg" />
-        <div className="absolute inset-0 bg-gradient-to-r from-dark-bg via-transparent to-dark-bg" />
-      </div>
-
-      {/* AI Network Map Overlay */}
-      <div className="absolute inset-0 z-5 flex items-center justify-center opacity-10 pointer-events-none">
-        <svg className="w-[80%] h-[80%] text-primary" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="400" cy="400" r="300" stroke="currentColor" strokeWidth="0.5" strokeDasharray="4 4" />
-          <circle cx="400" cy="400" r="200" stroke="currentColor" strokeWidth="0.5" strokeDasharray="8 8" />
-          <motion.path 
-            d="M200,400 Q400,100 600,400 T800,400" 
-            stroke="currentColor" 
-            strokeWidth="1" 
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.path 
-            d="M100,500 Q400,800 700,500" 
-            stroke="currentColor" 
-            strokeWidth="1" 
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear", delay: 2 }}
-          />
-        </svg>
+        <div className="absolute inset-0 bg-[url('/images/india_network_bg.png')] bg-cover bg-center md:bg-right opacity-60 animate-mesh" />
+        <div className="absolute inset-0 bg-gradient-to-b from-dark-bg/80 via-transparent to-dark-bg/80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-dark-bg via-dark-bg/50 to-transparent" />
       </div>
 
       <div className="container-xl relative z-20 px-4 sm:px-6 py-32 w-full">
