@@ -177,6 +177,8 @@ const DashboardLayout = ({
  { id: 'overview', icon: LayoutDashboard, label: 'Overview' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Pipeline' },
+ { id: 'analytics', icon: BarChart2, label: 'Analytics' },
+ { id: 'interviews', icon: CalendarDays, label: 'Interviews' },
  { id: 'profile', icon: User, label: 'My Profile' },
  { id: 'settings', icon: Settings, label: 'Settings' },
  ];
@@ -429,7 +431,7 @@ const DashboardLayout = ({
  </div>
  
  <button 
- onClick={() => { setActiveTab('notifications'); setIsNotificationOpen(false); }}
+ onClick={() => { navigate('/notifications'); setIsNotificationOpen(false); }}
  className="w-full py-6 bg-gray-50 dark:bg-dark-bg/50 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-primary transition-colors border-t border-gray-50 dark:border-gray-800"
  >
  View Strategic Archive <ChevronRight size={10} className="inline ml-1" />

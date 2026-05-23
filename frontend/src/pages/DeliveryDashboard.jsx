@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, MapPin, CheckCircle2, Clock, LogOut, Package, Navigation, AlertTriangle, Edit, LayoutDashboard, Users, ShieldCheck } from 'lucide-react';
+import { Truck, MapPin, CheckCircle2, Clock, LogOut, Package, Navigation, AlertTriangle, Edit, LayoutDashboard, Users, ShieldCheck, TrendingUp } from 'lucide-react';
 import api, { SOCKET_URL, SOCKET_PATH } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';

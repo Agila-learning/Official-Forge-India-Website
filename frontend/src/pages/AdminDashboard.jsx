@@ -2280,68 +2280,77 @@ const AdminDashboard = () => {
      o.user?.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()))
-  ).map(order => (
- <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
- <td className="py-5 pr-4">
- <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
- </td>
- <td className="py-5 pr-4">
- <p className="font-bold text-sm">{order.user?.firstName} {order.user?.lastName}</p>
- <p className="text-[10px] text-gray-500 dark:text-gray-400">{order.user?.email}</p>
- </td>
- <td className="py-5 pr-4">
- <p className="font-bold text-sm">{order.orderItems?.length} item(s)</p>
- </td>
- <td className="py-5 pr-4">
- <p className="font-black text-primary">₹{order.totalPrice?.toLocaleString()}</p>
- </td>
- <td className="py-5 pr-4">
- <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isPaid ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
- {order.isPaid ? 'Paid' : 'Pending'}
- </span>
- </td>
- <td className="py-5 pr-4">
- <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isDelivered ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700'}`}>
- {order.isDelivered ? 'Delivered' : 'In Transit'}
- </span>
- </td>
- <td className="py-5 pr-4">
- <select 
- value={order.deliveryPartner?._id || order.deliveryPartner || ''}
- onChange={(e) => handleAssignPartner(order._id, e.target.value)}
- className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase outline-none border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg cursor-pointer shadow-sm text-primary"
- >
- <option value="">Select Partner</option>
- {deliveryPartners.map(p => (
- <option key={p._id} value={p._id}>{p.firstName} {p.lastName}</option>
- ))}
- </select>
- </td>
- <td className="py-5 pr-4">
- {order.cancellationReason ? (
- <p className="text-[10px] font-bold text-red-500 max-w-[150px] line-clamp-2" title={order.cancellationReason}>
- {order.cancellationReason}
- </p>
- ) : (
- <p className="text-[10px] text-gray-400">N/A</p>
- )}
- </td>
- <td className="py-5 pr-4">
- <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>
- </td>
- <td className="py-5">
- {!order.isDelivered && (
- <button onClick={async () => {
- await api.put(`/orders/${order._id}/deliver`, {});
- setOrders(prev => prev.map(o => o._id === order._id ? { ...o, isDelivered: true } : o));
- toast.success('Order marked as delivered');
- }} className="px-3 py-1.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors">
- Mark Delivered
- </button>
- )}
- </td>
- </tr>
- ))}
+  ).map(order => {
+  const isDigital = order.orderItems?.some(i => ['IT Solutions', 'Web Development', 'App Development', 'Job Consulting'].some(cat => i.category?.includes(cat) || i.name?.includes(cat)));
+
+  return (
+  <tr key={order._id} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+  <td className="py-5 pr-4">
+  <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <p className="font-bold text-sm">{order.user?.firstName} {order.user?.lastName}</p>
+  <p className="text-[10px] text-gray-500 dark:text-gray-400">{order.user?.email}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <p className="font-bold text-sm">{order.orderItems?.[0]?.name} {order.orderItems?.length > 1 ? `+${order.orderItems.length - 1} more` : ''}</p>
+  <p className="text-[10px] font-bold text-gray-400">{order.orderItems?.length} item(s)</p>
+  </td>
+  <td className="py-5 pr-4">
+  <p className="font-black text-primary">₹{order.totalPrice?.toLocaleString()}</p>
+  </td>
+  <td className="py-5 pr-4">
+  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isPaid ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+  {order.isPaid ? 'Paid' : 'Pending'}
+  </span>
+  </td>
+  <td className="py-5 pr-4">
+  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${ order.isDelivered ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700'}`}>
+  {order.isDelivered ? 'Delivered' : (isDigital ? 'Processing' : 'In Transit')}
+  </span>
+  </td>
+  <td className="py-5 pr-4">
+  {isDigital ? (
+    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">N/A (Digital)</span>
+  ) : (
+  <select 
+  value={order.deliveryPartner?._id || order.deliveryPartner || ''}
+  onChange={(e) => handleAssignPartner(order._id, e.target.value)}
+  className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase outline-none border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg cursor-pointer shadow-sm text-primary"
+  >
+  <option value="">Select Partner</option>
+  {deliveryPartners.map(p => (
+  <option key={p._id} value={p._id}>{p.firstName} {p.lastName}</option>
+  ))}
+  </select>
+  )}
+  </td>
+  <td className="py-5 pr-4">
+  {order.cancellationReason ? (
+  <p className="text-[10px] font-bold text-red-500 max-w-[150px] line-clamp-2" title={order.cancellationReason}>
+  {order.cancellationReason}
+  </p>
+  ) : (
+  <p className="text-[10px] text-gray-400">N/A</p>
+  )}
+  </td>
+  <td className="py-5 pr-4">
+  <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{new Date(order.createdAt).toLocaleDateString()}</p>
+  </td>
+  <td className="py-5">
+  {!order.isDelivered && (
+  <button onClick={async () => {
+  await api.put(`/orders/${order._id}/deliver`, {});
+  setOrders(prev => prev.map(o => o._id === order._id ? { ...o, isDelivered: true } : o));
+  toast.success(isDigital ? 'Order marked as completed' : 'Order marked as delivered');
+  }} className="px-3 py-1.5 bg-primary text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 transition-colors">
+  {isDigital ? 'Mark Done' : 'Mark Delivered'}
+  </button>
+  )}
+  </td>
+  </tr>
+  );
+  })}
  {orders.filter(o => !o.orderItems?.some(i => i.isService)).length === 0 && (
  <tr><td colSpan={10} className="py-20 text-center text-gray-500 dark:text-gray-400 font-bold">No product orders yet</td></tr>
  )}
@@ -2388,7 +2397,9 @@ const AdminDashboard = () => {
      o.user?.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      o.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
      o.orderItems?.[0]?.name?.toLowerCase().includes(searchQuery.toLowerCase()))
-  ).map(order => (
+  ).map(order => {
+  const isDigital = order.orderItems?.some(i => ['IT Solutions', 'Web Development', 'App Development', 'Job Consulting'].some(cat => i.category?.includes(cat) || i.name?.includes(cat)));
+  return (
  <tr key={order._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
  <p className="font-mono text-xs font-bold text-gray-500">#{order._id?.slice(-8).toUpperCase()}</p>
@@ -2459,7 +2470,8 @@ const AdminDashboard = () => {
   </div>
  </td>
  </tr>
- ))}
+ );
+ })}
  {orders.filter(o => o.orderItems?.some(i => i.isService)).length === 0 && (
  <tr>
  <td colSpan="10" className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No service bookings found</td>

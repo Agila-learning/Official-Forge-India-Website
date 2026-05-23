@@ -661,14 +661,27 @@ const VendorDashboard = () => {
  </div>
  ))}
  {products.length === 0 && (
- <div className="col-span-full">
- <NoDataFound title="Inventory Empty" description="Register your first product or service mission to start your campaign." icon={Package} onAction={() => setIsAdding(true)} actionLabel="Launch New Asset" />
- </div>
- )}
- </div>
- )}
- </motion.div>
- )}
+  <div className="col-span-full">
+  <NoDataFound title="Inventory Empty" description="Register your first product or service mission to start your campaign." icon={Package} onAction={() => setIsAdding(true)} actionLabel="Launch New Asset" />
+  </div>
+  )}
+  </div>
+  )}
+  </motion.div>
+  )}
+
+  <AnimatePresence>
+  {isAddingCategory && (
+    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex justify-center p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-dark-bg w-full max-w-6xl rounded-[2.5rem] p-8 shadow-2xl relative my-auto">
+        <button onClick={() => { setIsAddingCategory(false); fetchCategories(); }} className="absolute top-8 right-8 w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all z-[210]">
+          <X size={20} />
+        </button>
+        <HomeServiceCMS />
+      </div>
+    </div>
+  )}
+  </AnimatePresence>
 
  {view === 'missions' && (
  <motion.div key="missions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
