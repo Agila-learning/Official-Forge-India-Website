@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, ChevronDown, ChevronRight, Briefcase, Globe, Cpu, Smartphone, 
-  Zap, ShoppingBag, User, LogOut, LayoutDashboard, ShoppingCart, 
-  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush, GraduationCap, Truck, Search, FileText, FileSpreadsheet, Gift, ShieldAlert, BadgeInfo
+  Zap, ShoppingBag, User, Users, LogOut, LayoutDashboard, ShoppingCart, 
+  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush, GraduationCap, Truck, Search, FileText, FileSpreadsheet, Gift, ShieldAlert, BadgeInfo, Wallet
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';

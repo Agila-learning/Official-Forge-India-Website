@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building2, ShoppingBag, Briefcase, Users, ArrowRight, Zap, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Building2, ShoppingBag, Briefcase, Users, ArrowRight, Zap, ShieldAlert, Sparkles, CheckCircle2, Wallet } from 'lucide-react';
 
 const ChoosePath = () => {
   const navigate = useNavigate();
