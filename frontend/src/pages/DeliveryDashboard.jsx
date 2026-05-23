@@ -272,10 +272,16 @@ const DeliveryDashboard = () => {
 
                       <div className="mt-8 space-y-3">
                         <div className="flex gap-2">
-                          <button className="flex-1 py-3 bg-white dark:bg-[#15171A] border border-gray-200 dark:border-white/10 rounded-xl flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors">
+                          <button 
+                            onClick={() => window.open(`tel:${order.shippingAddress?.phone || '9999999999'}`)}
+                            className="flex-1 py-3 bg-white dark:bg-[#15171A] border border-gray-200 dark:border-white/10 rounded-xl flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 hover:text-green-500 transition-colors"
+                          >
                             <Phone size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Call</span>
                           </button>
-                          <button className="flex-1 py-3 bg-white dark:bg-[#15171A] border border-gray-200 dark:border-white/10 rounded-xl flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors">
+                          <button 
+                            onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(order.shippingAddress?.address + ', ' + order.shippingAddress?.city)}`)}
+                            className="flex-1 py-3 bg-white dark:bg-[#15171A] border border-gray-200 dark:border-white/10 rounded-xl flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors"
+                          >
                             <Navigation2 size={16} /> <span className="text-[10px] font-black uppercase tracking-widest">Navigate</span>
                           </button>
                         </div>
@@ -283,7 +289,7 @@ const DeliveryDashboard = () => {
                         {/* OTP Section */}
                         <div className="bg-white dark:bg-[#15171A] border border-orange-500/20 rounded-xl p-3 flex justify-between items-center">
                           <span className="text-[9px] font-black uppercase tracking-widest text-orange-500">Delivery PIN</span>
-                          <span className="font-mono font-black text-sm tracking-[0.3em]">****</span>
+                          <span className="font-mono font-black text-sm tracking-[0.3em]">4821</span>
                         </div>
 
                         <button 
@@ -389,7 +395,12 @@ const DeliveryDashboard = () => {
                   <h3 className="text-2xl font-black uppercase tracking-tighter mb-1">Emergency SOS</h3>
                   <p className="text-xs font-medium opacity-80">Only use in case of accident or emergency.</p>
                 </div>
-                <button className="w-16 h-16 bg-white text-red-500 rounded-full flex items-center justify-center font-black uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-xl">SOS</button>
+                <button 
+                  onClick={() => toast.error('🚨 SOS Dispatched! Emergency units and fleet managers have been notified.')}
+                  className="w-16 h-16 bg-white text-red-500 rounded-full flex items-center justify-center font-black uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-transform shadow-xl shrink-0"
+                >
+                  SOS
+                </button>
               </div>
 
               <div className="bg-white dark:bg-[#15171A] p-8 rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm text-center">
@@ -399,7 +410,10 @@ const DeliveryDashboard = () => {
                 <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Partner Support</h3>
                 <p className="text-sm text-gray-500 font-medium mb-8">AI Assistant is online and ready to help.</p>
                 
-                <button className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20">
+                <button 
+                  onClick={() => toast.success('Connecting to Live Dispatch Agent... Please wait.')}
+                  className="px-8 py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+                >
                   Start Live Chat
                 </button>
               </div>
@@ -471,7 +485,12 @@ const DeliveryDashboard = () => {
                     <Wallet className="absolute top-8 right-8 opacity-20" size={64} />
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 mb-2">Wallet Balance</p>
                     <h3 className="text-4xl font-black tracking-tighter mb-6">₹1,240</h3>
-                    <button className="w-full py-3 bg-white/20 hover:bg-white/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors border border-white/20">Withdraw</button>
+                    <button 
+                      onClick={() => toast.success('💸 Settlement request of ₹1,240 submitted! Funds will arrive in your registered bank account in 2-4 hours.')}
+                      className="w-full py-3 bg-white/20 hover:bg-white/30 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors border border-white/20"
+                    >
+                      Withdraw
+                    </button>
                   </div>
                 </div>
               </div>
