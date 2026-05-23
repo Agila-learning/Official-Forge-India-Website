@@ -677,7 +677,7 @@ const VendorDashboard = () => {
         <button onClick={() => { setIsAddingCategory(false); fetchCategories(); }} className="absolute top-8 right-8 w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all z-[210]">
           <X size={20} />
         </button>
-        <HomeServiceCMS />
+        <HomeServiceCMS isVendorMode={true} />
       </div>
     </div>
   )}

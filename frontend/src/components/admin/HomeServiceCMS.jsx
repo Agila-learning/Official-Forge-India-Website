@@ -9,7 +9,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMode = false }) => {
- const [activeSubTab, setActiveSubTab] = useState('hero');
+ const [activeSubTab, setActiveSubTab] = useState(isVendorMode ? 'categories' : 'hero');
  const [config, setConfig] = useState(null);
  const [categories, setCategories] = useState([]);
  const [workflow, setWorkflow] = useState([]);
@@ -20,16 +20,21 @@ const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMo
  const fetchData = async () => {
  setLoading(true);
  try {
- // Using individual try-catches to allow partial failure
- const fetchConfig = api.get('/home-ui-config').then(res => setConfig(res.data)).catch(() => console.warn('Hero config failed'));
+ const promises = [];
  const fetchCats = api.get('/home-categories').then(res => setCategories(res.data)).catch(() => console.warn('Categories failed'));
+ promises.push(fetchCats);
+
+ if (!isVendorMode) {
+ const fetchConfig = api.get('/home-ui-config').then(res => setConfig(res.data)).catch(() => console.warn('Hero config failed'));
  const fetchWorkflow = api.get('/workflow-steps').then(res => setWorkflow(res.data)).catch(() => console.warn('Workflow failed'));
  const fetchTrust = api.get('/trust-cards').then(res => setTrustCards(res.data)).catch(() => console.warn('Trust cards failed'));
  const fetchTestimonials = api.get('/testimonials').then(res => setTestimonials(res.data)).catch(() => {
  if (globalData?.testimonials) setTestimonials(globalData.testimonials);
  });
+ promises.push(fetchConfig, fetchWorkflow, fetchTrust, fetchTestimonials);
+ }
 
- await Promise.all([fetchConfig, fetchCats, fetchWorkflow, fetchTrust, fetchTestimonials]);
+ await Promise.all(promises);
  } catch (err) {
  toast.error('Partial failure in CMS sync');
  } finally {
@@ -39,7 +44,7 @@ const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMo
 
  useEffect(() => {
  fetchData();
- }, []);
+ }, [isVendorMode]);
 
  const handleConfigUpdate = async (e) => {
  e.preventDefault();
@@ -51,7 +56,7 @@ const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMo
  }
  };
 
- const subTabs = [
+ const allTabs = [
  { id: 'hero', label: 'Hero Section', icon: Layout },
  { id: 'categories', label: 'Categories', icon: Filter },
  { id: 'sub-categories', label: 'Sub-Categories', icon: Layers },
@@ -60,6 +65,8 @@ const HomeServiceCMS = ({ data: globalData, onUpdate: onGlobalUpdate, isVendorMo
  { id: 'trust', label: 'Trust Section', icon: CheckCircle },
  { id: 'testimonials', label: 'Testimonials', icon: Star }
  ];
+
+ const subTabs = isVendorMode ? allTabs.filter(t => t.id === 'categories' || t.id === 'sub-categories') : allTabs;
 
  if (loading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
 
