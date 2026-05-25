@@ -386,8 +386,7 @@ const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
  <input type="number" placeholder="Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="w-full px-5 py-4 rounded-xl outline-none font-bold text-sm" />
  <button 
  onClick={handleCreate} 
- disabled={isVendorMode}
- className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-4 px-6 ${isVendorMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+ className={`bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] py-4 px-6`}
  >
  Add Vertical
  </button>

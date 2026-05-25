@@ -54,8 +54,9 @@ const TrackMission = () => {
 
  const handleSearch = (e) => {
    e.preventDefault();
-   if (searchInput.trim()) {
-     navigate(`/track-mission/${searchInput.trim()}`);
+   const query = searchInput.trim().replace(/^#/, '');
+   if (query) {
+     navigate(`/track-mission/${query}`);
    }
  };
 

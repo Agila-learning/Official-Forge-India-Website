@@ -142,7 +142,7 @@ const Navbar = () => {
         name: 'Forge Services',
         isMega: true,
         widthClass: 'w-[95vw] max-w-[1200px]',
-        alignClass: 'left-0',
+        alignClass: 'left-1/2 -translate-x-1/2',
         gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
         categories: [
           {
@@ -244,7 +244,7 @@ const Navbar = () => {
         name: 'Partners',
         isMega: true,
         widthClass: 'w-[90vw] max-w-[900px]',
-        alignClass: 'right-0',
+        alignClass: 'left-1/2 -translate-x-1/2',
         gridClass: 'grid-cols-1 md:grid-cols-3',
         categories: [
           {
@@ -317,7 +317,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isMega ? (
-                  <div className="relative group py-4 flex items-center h-full">
+                  <div className="group py-4 flex items-center h-full">
                     <button className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[11px] 2xl:text-[12px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
                       {link.name} 
                       <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
