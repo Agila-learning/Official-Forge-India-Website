@@ -37,6 +37,8 @@ const Checkout = () => {
  const paymentMethod = 'Razorpay'; // Only Razorpay now
  const isDigitalOnly = !isPhysicalFlow;
 
+ const [showPremiumPopup, setShowPremiumPopup] = useState(false);
+
  useEffect(() => {
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
  if (userInfo && userInfo.email) {
@@ -44,6 +46,12 @@ const Checkout = () => {
  email: userInfo.email || '',
  contactNumber: userInfo.mobile || userInfo.phone || ''
  });
+ }
+
+ // Check if they are a premium member
+ const isPremiumMember = userInfo?.membershipVault && userInfo.membershipVault.planTier !== 'None';
+ if (!isPremiumMember && !localStorage.getItem('fic_dismissedPremiumPopup')) {
+ setShowPremiumPopup(true);
  }
  }, []);
 
@@ -541,6 +549,129 @@ const Checkout = () => {
  </div>
  </div>
  </div>
+ </motion.div>
+ )}
+ </AnimatePresence>
+
+ {/* PREMIUM CHECKOUT POPUP */}
+ <AnimatePresence>
+ {showPremiumPopup && (
+ <motion.div 
+ initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+ className="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6"
+ >
+ <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => { setShowPremiumPopup(false); localStorage.setItem('fic_dismissedPremiumPopup', 'true'); }} />
+ 
+ <motion.div 
+ initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+ className="relative max-w-4xl w-full bg-[#0a0a0b] rounded-[2.5rem] border border-blue-500/30 shadow-[0_0_100px_rgba(37,99,235,0.2)] overflow-hidden flex flex-col md:flex-row z-10"
+ >
+ {/* Glowing effects */}
+ <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 blur-[100px] rounded-full pointer-events-none" />
+ <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />
+
+ <button onClick={() => { setShowPremiumPopup(false); localStorage.setItem('fic_dismissedPremiumPopup', 'true'); }} className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all z-20">
+ <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+ </button>
+
+ {/* Left Content */}
+ <div className="flex-1 p-8 md:p-12 z-10 relative">
+ <span className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-full mb-6">
+ ✨ Premium Benefits
+ </span>
+ <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight mb-4">
+ Unlock <span className="text-blue-500">Premium</span><br />Member Benefits
+ </h2>
+ <p className="text-sm text-white/60 leading-relaxed mb-8 max-w-sm">
+ You're missing exclusive member pricing, zero convenience fees, priority booking access, and premium rewards.
+ </p>
+
+ <div className="grid grid-cols-2 gap-4 mb-10">
+ {[
+ { label: 'Zero transaction fees', icon: Zap },
+ { label: 'Exclusive discounts', icon: BadgeCheck },
+ { label: 'Priority service booking', icon: Clock },
+ { label: 'Faster confirmations', icon: CheckCircle },
+ { label: 'Premium customer support', icon: ShieldCheck },
+ { label: 'Reward credits', icon: Star },
+ ].map((item, i) => (
+ <div key={i} className="flex items-center gap-3">
+ <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+ <item.icon size={12} />
+ </div>
+ <span className="text-[10px] font-bold text-white uppercase tracking-widest leading-tight">{item.label}</span>
+ </div>
+ ))}
+ </div>
+
+ <div className="flex flex-col sm:flex-row gap-4">
+ <button onClick={() => {
+ setAddMembership(true);
+ setShowPremiumPopup(false);
+ localStorage.setItem('fic_dismissedPremiumPopup', 'true');
+ toast.success('Premium Membership Added to Checkout!');
+ }} className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black text-[11px] uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-blue-600/20 flex-1">
+ Get Membership Card
+ </button>
+ <button onClick={() => { setShowPremiumPopup(false); localStorage.setItem('fic_dismissedPremiumPopup', 'true'); }} className="px-8 py-4 bg-transparent border border-white/10 text-white/50 hover:text-white font-black text-[11px] uppercase tracking-widest rounded-2xl transition-all hover:bg-white/5">
+ Continue Without Benefits
+ </button>
+ </div>
+ <p className="text-center sm:text-left text-[9px] text-white/30 uppercase tracking-widest mt-4">
+ Save more. Enjoy more. Be a premium member.
+ </p>
+ </div>
+
+ {/* Right Card Visual */}
+ <div className="w-full md:w-[400px] bg-white/5 border-l border-white/5 relative flex items-center justify-center p-12 perspective-1000 hidden md:flex">
+ <motion.div 
+ animate={{ rotateY: [-5, 5, -5], rotateX: [5, -5, 5] }}
+ transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+ className="w-full aspect-[1.586/1] bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-700 shadow-2xl relative overflow-hidden flex flex-col justify-between p-6 transform-gpu"
+ style={{ transformStyle: 'preserve-3d' }}
+ >
+ {/* Card design elements */}
+ <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/10 to-transparent pointer-events-none" />
+ <div className="absolute -right-10 -top-10 w-40 h-40 bg-yellow-500/10 blur-3xl rounded-full" />
+ 
+ <div className="flex justify-between items-start z-10 transform-gpu translate-z-10">
+ <div className="flex items-center gap-3">
+ <div className="w-8 h-8 bg-white rounded flex items-center justify-center font-black text-black">F</div>
+ <div>
+ <h3 className="text-xs font-black text-white tracking-widest">FORGE INDIA</h3>
+ <p className="text-[8px] text-white/50 tracking-widest">CONNECT</p>
+ </div>
+ </div>
+ <span className="text-[8px] font-black text-yellow-500 tracking-widest border border-yellow-500/30 px-2 py-1 rounded">PREMIUM MEMBER</span>
+ </div>
+ 
+ <div className="flex justify-between items-center z-10 transform-gpu translate-z-10 px-2 mt-4">
+ {[
+ { label: 'UNLIMITED ACCESS', icon: '∞' },
+ { label: 'ZERO FEES', icon: '₹' },
+ { label: 'PRIORITY SUPPORT', icon: '★' },
+ { label: 'EXCLUSIVE DEALS', icon: '♥' }
+ ].map((f, i) => (
+ <div key={i} className="flex flex-col items-center gap-1">
+ <div className="w-6 h-6 rounded-full border border-yellow-500/30 flex items-center justify-center text-yellow-500 text-[10px]">{f.icon}</div>
+ <span className="text-[5px] text-white/70 tracking-widest text-center mt-1">{f.label}</span>
+ </div>
+ ))}
+ </div>
+
+ <div className="flex justify-between items-end z-10 transform-gpu translate-z-10 mt-6">
+ <div className="text-sm font-mono text-white/80 tracking-[0.2em]">FI 8888 2024 0001</div>
+ <div className="text-white/50">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+ </div>
+ </div>
+ </motion.div>
+ 
+ {/* Holographic base */}
+ <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-12 bg-blue-500/20 blur-xl rounded-full" />
+ <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-1 bg-blue-400 rounded-full shadow-[0_0_20px_#3b82f6]" />
+ </div>
+ </motion.div>
  </motion.div>
  )}
  </AnimatePresence>

@@ -77,6 +77,17 @@ const ServiceLanding = lazy(() => import('./pages/ServiceLanding'));
 const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
 const RidesCategoryPage = lazy(() => import('./pages/RidesCategoryPage'));
 
+// New ecosystem pages
+const CourseCatalogPage = lazy(() => import('./pages/CourseCatalogPage'));
+const CourseDetailPage = lazy(() => import('./pages/CourseDetailPage'));
+const MyCourses = lazy(() => import('./pages/MyCourses'));
+const CoursePlayer = lazy(() => import('./pages/CoursePlayer'));
+const PGListingPage = lazy(() => import('./pages/PGListingPage'));
+const PGDetailPage = lazy(() => import('./pages/PGDetailPage'));
+const RideBookingPage = lazy(() => import('./pages/RideBookingPage'));
+const RideTrackingPage = lazy(() => import('./pages/RideTrackingPage'));
+const RideHistoryPage = lazy(() => import('./pages/RideHistoryPage'));
+
 // Context
 import { NotificationProvider } from './context/NotificationContext';
 
@@ -218,15 +229,29 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/services/category/website-development" element={<ServiceLandingPage />} />
  <Route path="/services/category/digital-marketing" element={<ServiceLandingPage />} />
  <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
- <Route path="/rentals/pg" element={<Navigate to="/services/landing/pg" replace />} />
- <Route path="/rentals/villas" element={<Navigate to="/services/landing/villas" replace />} />
- <Route path="/rentals/hotels" element={<Navigate to="/services/landing/hotels" replace />} />
- <Route path="/rides/bike" element={<Navigate to="/services/landing/bike-taxi" replace />} />
- <Route path="/rides/taxi" element={<Navigate to="/services/landing/car-taxi" replace />} />
- <Route path="/rides/delivery" element={<Navigate to="/services/landing/delivery" replace />} />
- <Route path="/rentals/*" element={<Navigate to="/services/landing/hotels" replace />} />
- <Route path="/rides/*" element={<Navigate to="/services/landing/bike-taxi" replace />} />
- <Route path="*" element={<NotFound />} />
+  {/* PG / Hotels / Rental Stays */}
+  <Route path="/pg-stays" element={<PGListingPage />} />
+  <Route path="/pg-stays/:id" element={<PGDetailPage />} />
+  <Route path="/rentals/pg" element={<Navigate to="/pg-stays" replace />} />
+  <Route path="/rentals/villas" element={<Navigate to="/pg-stays" replace />} />
+  <Route path="/rentals/hotels" element={<Navigate to="/pg-stays" replace />} />
+  <Route path="/rentals/*" element={<Navigate to="/pg-stays" replace />} />
+
+  {/* Courses */}
+  <Route path="/courses" element={<CourseCatalogPage />} />
+  <Route path="/courses/:id" element={<CourseDetailPage />} />
+  <Route path="/courses/:id/learn" element={<ProtectedRoute allowedRoles={['Candidate', 'Customer', 'Admin']}><CoursePlayer /></ProtectedRoute>} />
+  <Route path="/my-courses" element={<ProtectedRoute allowedRoles={['Candidate', 'Customer', 'Admin']}><MyCourses /></ProtectedRoute>} />
+
+  {/* Rides */}
+  <Route path="/rides/book" element={<RideBookingPage />} />
+  <Route path="/rides/tracking/:id" element={<RideTrackingPage />} />
+  <Route path="/rides/history" element={<ProtectedRoute allowedRoles={['Candidate', 'Customer', 'Admin']}><RideHistoryPage /></ProtectedRoute>} />
+  <Route path="/rides/bike" element={<Navigate to="/rides/book" replace />} />
+  <Route path="/rides/taxi" element={<Navigate to="/rides/book" replace />} />
+  <Route path="/rides/delivery" element={<Navigate to="/rides/book" replace />} />
+  <Route path="/rides/*" element={<Navigate to="/rides/book" replace />} />
+  <Route path="*" element={<NotFound />} />
  </Routes>
  </Suspense>
  </main>

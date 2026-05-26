@@ -288,7 +288,7 @@ const Navbar = () => {
       <div className="max-w-[1440px] mx-auto px-4 sm:px-5 md:px-8 lg:px-10 xl:px-14">
         <div className="flex justify-between items-center gap-2">
           
-          <Link to="/" className="flex items-center gap-1.5 md:gap-4 group relative shrink-0 min-w-0 max-w-[160px] md:max-w-none">
+          <Link to="/" className="flex items-center gap-1.5 md:gap-4 group relative shrink-0 min-w-[160px] md:min-w-[220px] md:max-w-none">
             <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white dark:bg-dark-card rounded-lg md:rounded-xl lg:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
               <motion.img 
                 src="/logo.svg" 

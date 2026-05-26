@@ -262,6 +262,56 @@ const ServicesPage = () => {
  </div>
  </section>
 
+ {/* --- 🌟 PREMIUM SERVICES EXPLORER --- */}
+ <section className="px-6 pb-24">
+ <div className="max-w-7xl mx-auto">
+ <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-white/5 pb-6">
+ <div>
+ <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-2">
+ Explore <span className="text-blue-500">Premium Services</span>
+ </h2>
+ <p className="text-sm text-white/50 font-medium">Premium experiences. Exclusive member benefits.</p>
+ </div>
+ <button className="mt-4 md:mt-0 px-6 py-2 border border-white/10 rounded-full text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2 group">
+ View all services <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+ </button>
+ </div>
+
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+ {[
+ { title: 'HOTELS', subtitle: 'Premium stays & business hotels', image: '/premium-hotels.png', icon: Building2, link: '/services/category/hotels' },
+ { title: 'TRAVEL', subtitle: 'Flights, buses & travel bookings', image: '/premium-travel.png', icon: Bus, link: '/services/category/travel' },
+ { title: 'FOOD', subtitle: 'Restaurants & online delivery', image: '/premium-food.png', icon: Utensils, link: '/services/category/food' },
+ { title: 'SHOPPING', subtitle: 'Top brands & exclusive deals', image: '/premium-shopping.png', icon: ShoppingBag, link: '/services/category/shopping' },
+ { title: 'ENTERTAINMENT', subtitle: 'Movies, events & fun experiences', image: '/premium-entertainment.png', icon: Ticket, link: '/services/category/entertainment' },
+ ].map((card, i) => (
+ <div key={i} onClick={() => navigate(card.link)} className="group relative h-80 lg:h-96 rounded-[2rem] overflow-hidden cursor-pointer bg-[#050505]">
+ <div className="absolute inset-0">
+ <img src={card.image} alt={card.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700" />
+ </div>
+ <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-[#0a0a0b]/60 to-transparent"></div>
+ 
+ {/* Neon Glow Border */}
+ <div className="absolute inset-0 border border-white/10 rounded-[2rem] group-hover:border-blue-500/50 transition-colors duration-500 shadow-[inset_0_0_0_rgba(59,130,246,0)] group-hover:shadow-[inset_0_0_30px_rgba(59,130,246,0.3)] pointer-events-none"></div>
+
+ <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+ <div className="w-10 h-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center">
+ <card.icon className="text-white" size={18} />
+ </div>
+ <div>
+ <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-1">{card.title}</h3>
+ <p className="text-[10px] font-bold text-white/50 leading-tight mb-4">{card.subtitle}</p>
+ <button className="px-5 py-2.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2 group-hover:border-white">
+ Explore Now <ChevronRight size={12} />
+ </button>
+ </div>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ </section>
+
  {/* --- 🏷️ CATEGORY BAR --- */}
  <section ref={listingsRef} className="px-6 pb-12 sticky top-20 z-50">
  <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
