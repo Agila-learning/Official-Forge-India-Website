@@ -500,21 +500,12 @@ const FICQuippy = () => {
 
  // Auto-scroll
  useEffect(() => {
- if (isOpen && endRef.current) {
- const scrollContainer = document.getElementById('quippy-messages');
- if (scrollContainer) {
- const scrollToBottom = () => {
- scrollContainer.scrollTo({
- top: scrollContainer.scrollHeight,
- behavior: 'smooth'
- });
- };
- // Scroll once immediately and once after a small delay to catch content updates
- scrollToBottom();
- const timer = setTimeout(scrollToBottom, 200);
- return () => clearTimeout(timer);
- }
- }
+  if (isOpen && endRef.current) {
+   const scroll = () => endRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+   scroll();
+   const timer = setTimeout(scroll, 200);
+   return () => clearTimeout(timer);
+  }
  }, [messages, isTyping, isOpen]);
 
  // Initial greeting

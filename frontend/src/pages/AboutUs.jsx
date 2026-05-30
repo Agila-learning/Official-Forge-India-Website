@@ -355,6 +355,41 @@ const AboutUs = () => {
           </div>
         </section>
 
+        {/* ── Location Map ── */}
+        <section className="py-28 px-6 bg-slate-50 dark:bg-dark-bg border-t border-slate-100 dark:border-slate-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-5">
+                Our Office Location
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
+                Visit Forge India Connect
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto flex items-center justify-center gap-2">
+                <MapPin size={18} className="text-primary shrink-0" />
+                <span>No 83, Hyundai Showroom, 1st Floor, Opp Jio Petrol Bunk, Tirupattur, Tamil Nadu - 635853</span>
+              </p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="w-full h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 relative z-10"
+            >
+              <iframe
+                src="https://maps.google.com/maps?q=No%2083,%20hyundai%20showroom,%201st%20floor,%20oppo%20to%20Jio%20petrol%20Bunk,%20Tirupattur,%20Tamil%20Nadu%20-%20635853&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="FIC Tirupattur Office Location"
+              ></iframe>
+            </motion.div>
+          </div>
+        </section>
+
         {/* ── Leadership Contact Strip ── */}
         <section className="py-16 px-6 bg-white dark:bg-dark-card border-y border-slate-100 dark:border-slate-800">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">

@@ -677,6 +677,44 @@ const AdminDashboard = () => {
       </div>
     </div>
   )}
+  {activeTab === 'contacts' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <h3 className="text-3xl font-black mb-6 bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Contact Queries</h3>
+        <div className="mobile-table-scroll">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Name</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Contact</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Category</th>
+                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Message</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+              {data.contacts?.map(contact => (
+                <tr key={contact._id} className="hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
+                  <td className="py-5 pr-4 font-bold text-sm">{contact.firstName} {contact.lastName}</td>
+                  <td className="py-5 pr-4">
+                     <p className="font-bold text-sm">{contact.phone}</p>
+                     <p className="text-[10px] text-gray-400 font-bold">{contact.email}</p>
+                  </td>
+                  <td className="py-5 pr-4">
+                     <p className="font-bold text-sm capitalize">{contact.category}</p>
+                     <p className="text-[10px] text-gray-400 font-bold">{contact.service || 'General'}</p>
+                  </td>
+                  <td className="py-5 pr-4 text-xs max-w-xs truncate" title={contact.message}>{contact.message || 'No message provided'}</td>
+                </tr>
+              ))}
+              {(!data.contacts || data.contacts.length === 0) && (
+                 <tr><td colSpan="4" className="py-10 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No contact queries found</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )}
 
   {activeTab === 'settlements' && (
     <div className="space-y-8">

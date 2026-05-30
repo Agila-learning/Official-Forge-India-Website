@@ -285,7 +285,7 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-5 bg-transparent'}`}>
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-5 md:px-8 lg:px-10 xl:px-14">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 2xl:px-24">
         <div className="flex justify-between items-center gap-2">
           
           <Link to="/" className="flex items-center gap-1.5 md:gap-4 group relative shrink-0 min-w-[160px] md:min-w-[220px] md:max-w-none">

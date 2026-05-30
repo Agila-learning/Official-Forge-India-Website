@@ -44,6 +44,7 @@ const footerLinks = [
 
 const branches = [
  { city: 'Krishnagiri', type: 'Head Office', phone: '+91 63694 06416', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002' },
+ { city: 'Tirupattur', type: 'Branch Office', phone: '+91 63694 06416', address: 'No 83, hyundai showroom, 1st floor,oppo to Jio petrol Bunk, Tirupattur, Tamil Nadu - 635853' },
  { city: 'Chennai', type: 'Branch Office', phone: '+91 63694 06416', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002' },
  { city: 'Bangalore', type: 'Liaison Office', phone: '+91 63694 06416', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.' },
 ];
@@ -162,7 +163,7 @@ const Footer = () => {
  </div>
 
  {/* Regional Offices Row */}
- <div className="mt-16 pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+ <div className="mt-16 pt-12 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
  {branches.map(branch => (
  <div key={branch.city} className="space-y-3 p-6 rounded-2xl bg-white/5 border border-transparent hover:border-white/10 transition-all">
  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{branch.type}</p>
