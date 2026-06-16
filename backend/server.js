@@ -44,7 +44,9 @@ const settlementRoutes = require('./routes/settlementRoutes');
 const serviceRegistrationRoutes = require('./routes/serviceRegistrationRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const membershipPlanRoutes = require('./routes/membershipPlanRoutes');
 const { initializeServices } = require('./controllers/serviceController');
+const { initializePlans } = require('./controllers/membershipPlanController');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -54,6 +56,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india
         initializeAdmin();
         initializeCandidates();
         initializeServices();
+        initializePlans();
     })
     .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
@@ -69,7 +72,8 @@ const io = new Server(httpServer, {
       "http://localhost:5173", 
       "http://localhost:3000", 
       "http://localhost:5001",
-      "http://localhost:5000"
+      "http://localhost:5000",
+      "http://localhost:8081"
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -102,7 +106,8 @@ app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:5173',
     'https://www.forgeindiaconnect.com',
-    'https://forgeindiaconnect.com'
+    'https://forgeindiaconnect.com',
+    'http://localhost:8081'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -184,6 +189,7 @@ app.use('/api/rides', rideRoutes);
 app.use('/api/settlements', settlementRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/membership-plans', membershipPlanRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();

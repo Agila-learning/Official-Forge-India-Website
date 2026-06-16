@@ -103,6 +103,10 @@ const orderSchema = mongoose.Schema(
           'Rescheduled',
           'Refund Processing',
           'Refunded',
+          'Return Requested',
+          'Return Approved',
+          'Return Rejected',
+          'Returned',
           'Settlement Pending',
           'Settled',
           'Survey Scheduled',
@@ -180,6 +184,9 @@ const orderSchema = mongoose.Schema(
       type: String
     },
     cancellationReason: {
+      type: String
+    },
+    returnReason: {
       type: String
     }
   },

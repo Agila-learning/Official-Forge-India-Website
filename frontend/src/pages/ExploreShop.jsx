@@ -7,14 +7,31 @@ import api from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { Search, MapPin, Filter, Heart, Star, ChevronRight, X, Loader2, CheckCircle2, XCircle, ShoppingBag, Zap, ArrowLeft, Building2, Truck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import ServiceCard from '../components/ui/ServiceCard';
 import ProductCard from '../components/ui/ProductCard';
 import ProductDetailsModal from '../components/ui/ProductDetailsModal';
 import BookingFlowManager from '../components/ui/BookingFlowManager';
 import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
 
-function ExploreShop() {
- const { addToCart } = useCart();
+ function ExploreShop() {
+  const titleRef = React.useRef(null);
+  
+  useGSAP(() => {
+    if (titleRef.current) {
+      gsap.to(titleRef.current, {
+        color: '#fb923c', // Radiant orange
+        textShadow: "0px 0px 20px rgba(249, 115, 22, 0.5)",
+        duration: 2,
+        yoyo: true,
+        repeat: -1,
+        ease: 'power2.inOut',
+      });
+    }
+  }, []);
+
+  const { addToCart } = useCart();
  const { isFavorite, toggleWishlist } = useWishlist();
  
  // Core State
@@ -194,7 +211,7 @@ function ExploreShop() {
  <span className="text-sm font-black uppercase tracking-widest">Connect Marketplace</span>
  </motion.div>
  <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter leading-tight text-gray-900 dark:text-white uppercase">
- Shop <span className="text-primary">Everything.</span>
+ Shop <span ref={titleRef} className="text-primary">Everything.</span>
  </h1>
  <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed">
  "From high-performance industrial assets to daily essentials in Health, Beauty, and Electronics. Curated precision for the Forge India ecosystem."

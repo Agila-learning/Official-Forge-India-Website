@@ -10,11 +10,12 @@ import {
  Upload, UserPlus, ClipboardList, XCircle, CheckCircle2, Menu, X,
  Bell, Settings, User, ChevronRight, PanelLeftClose, PanelLeftOpen,
  Shield, Target, Zap, LifeBuoy, Send, CreditCard, MessageCircle,
- GraduationCap, BookOpen, Share2, Building2, Truck, BarChart2, CalendarDays
+ GraduationCap, BookOpen, Share2, Building2, Truck, BarChart2, CalendarDays, Navigation, Home
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import LiveActivityToast from '../ui/LiveActivityToast';
 import RoleGuide from '../ui/RoleGuide';
+import { useNotifications } from '../../context/NotificationContext';
 
 const DashboardLayout = ({ 
  children, 
@@ -31,33 +32,7 @@ const DashboardLayout = ({
  const role = userInfo.role || 'Customer';
 
  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
- const [notifications, setNotifications] = useState([]);
- 
- useEffect(() => {
- const fetchNotifications = async () => {
- try {
- const { data } = await api.get('/notifications');
- setNotifications(Array.isArray(data) ? data : []);
- } catch (err) {
- console.warn('Notifications fetch failed');
- setNotifications([]);
- }
- };
- if (role) fetchNotifications();
- 
- // Refresh every 30 seconds
- const timer = setInterval(fetchNotifications, 30000);
- return () => clearInterval(timer);
- }, [role]);
-
- const markAsRead = async (id) => {
- try {
- await api.put(`/notifications/${id}/read`);
- setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
- } catch (err) {
- toast.error('Failed to mark notification');
- }
- };
+ const { notifications, unreadCount, markAsRead } = useNotifications();
 
  const themeClasses = {
  'primary': {
@@ -116,27 +91,32 @@ const DashboardLayout = ({
  { id: 'users', icon: Users, label: 'Users & Partners' },
  { id: 'vendors', icon: Store, label: 'Vendor Management' },
  { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
- { id: 'bookings', icon: Calendar, label: 'Service Bookings' },
+ { id: 'logistics', icon: Package, label: 'Logistics Hub' },
+ { id: 'fleet', icon: Navigation, label: 'Live Fleet Monitor' },
  { id: 'events', icon: Calendar, label: 'Events' },
  { id: 'atomy', icon: Package, label: 'Product Catalog' },
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
  { id: 'rides', icon: Truck, label: 'Rides' },
- { id: 'stays', icon: Building2, label: 'Hotels & PG' },
+ { id: 'stays', icon: Home, label: 'Hotels & PG' },
+ { id: 'ride-stay-bookings', icon: Building2, label: 'Ride & Stay Bookings' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
  { id: 'jobs', icon: Briefcase, label: 'Job Postings' },
  { id: 'applications', icon: ClipboardList, label: 'Candidate Tracking' },
- { id: 'training', icon: GraduationCap, label: 'Training & Courses' },
  { id: 'faqs', icon: MessageSquare, label: 'Manage FAQs' },
+ { id: 'candidates', icon: UserPlus, label: 'Placed Candidates & Stories' },
  { id: 'testimonials', icon: Star, label: 'Testimonials' },
  { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
  { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
  { id: 'media', icon: Image, label: 'Media Manager' },
  { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
  { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
- { id: 'settlements', icon: CreditCard, label: 'Financial Settlements' },
+ { id: 'contacts', icon: Mail, label: 'Contact Queries' },
+ { id: 'settlements', icon: CreditCard, label: 'Marketplace Treasury' },
+ { id: 'service-leads', icon: UserPlus, label: 'Service Leads (Guests)' },
  { id: 'messages', icon: Send, label: 'Messages' },
- { id: 'profile', icon: User, label: 'My Profile' }
+ { id: 'membership', icon: ShieldCheck, label: 'Membership Program' },
+ { id: 'profile', icon: Users, label: 'My Profile' }
  ].filter(tab => !isSubAdmin || !subAdminRestricted.includes(tab.id));
 
  case 'Vendor':
@@ -155,12 +135,18 @@ const DashboardLayout = ({
  { id: 'car', icon: Truck, label: 'Car / Taxi' },
  { id: 'bike', icon: Truck, label: 'Bike Rides' },
  ] : []),
+ { id: 'missions', icon: Target, label: 'Active Missions' },
  { id: 'orders', icon: ShoppingBag, label: 'Bookings' },
  { id: 'inventory', icon: Package, label: 'Inventory' },
  { id: 'availability', icon: Calendar, label: 'Availability' },
+ { id: 'customers', icon: Users, label: 'Customers' },
  { id: 'pricing', icon: CreditCard, label: 'Pricing' },
+ { id: 'insights', icon: BarChart2, label: 'Insights & Reports' },
+ { id: 'tickets', icon: LifeBuoy, label: 'Support Tickets' },
  { id: 'reviews', icon: Star, label: 'Reviews' },
+ { id: 'alerts', icon: Bell, label: 'Alerts' },
  { id: 'payouts', icon: CreditCard, label: 'Payouts' },
+ { id: 'subscription', icon: ShieldCheck, label: 'Subscription' },
  { id: 'profile', icon: User, label: 'Profile' },
  ];
 
@@ -248,9 +234,9 @@ const DashboardLayout = ({
  <img src="/logo.jpg" alt="FIC Logo" className="w-full h-full object-contain" />
  </div>
  <div className="flex flex-col leading-none">
- <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{role} Hub</span>
- <span className="text-sm font-black uppercase tracking-tighter text-white">FIC <span className="text-yellow-500">CON</span></span>
- </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-1">{role} Hub</span>
+        <span className="text-sm font-black uppercase tracking-tighter text-gray-900 dark:text-white">FIC <span className="text-yellow-500">CONNECT</span></span>
+      </div>
  </Link>
  <div className="flex items-center gap-2">
  <button 

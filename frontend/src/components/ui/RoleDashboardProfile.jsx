@@ -100,7 +100,7 @@ const RoleDashboardProfile = ({ user, stats = {} }) => {
  {user?.firstName} <span className="text-primary">{user?.lastName}</span>
  </h2>
  <p className="text-gray-500 font-bold uppercase text-xs tracking-widest max-w-xl opacity-80 leading-relaxed">
- Welcome to your personalized {role.toLowerCase()} executive suite. Track your impact, manage your assets, and scale your presence in Forge India Connect.
+ Welcome to your personalized {role.toLowerCase()} executive suite. Track your impact, manage your operations, and scale your presence in Forge India Connect.
  </p>
  </div>
 

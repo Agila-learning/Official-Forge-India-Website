@@ -13,7 +13,7 @@ const applicationSchema = new mongoose.Schema(
     coverLetter: { type: String },
     status: {
       type: String,
-      enum: ['Pending', 'Shortlisted', 'Hired', 'Rejected'],
+      enum: ['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'],
       default: 'Pending',
     },
     hrNotes: { type: String }, // Internal notes from HR

@@ -253,11 +253,38 @@ const MembershipPopup = ({ onClose }) => {
  })}
  </div>
 
+ {/* How It Works & Trust */}
+ <div className="bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-6 mt-4 mb-8 border border-gray-100 dark:border-gray-700">
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+ <div className="flex flex-col items-center text-center">
+ <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black mb-3">1</div>
+ <h5 className="font-bold text-gray-900 dark:text-white text-sm">Choose Your Vault</h5>
+ <p className="text-xs text-gray-500 mt-1">Select a prepaid amount that fits your lifestyle.</p>
+ </div>
+ <div className="flex flex-col items-center text-center">
+ <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-black mb-3">2</div>
+ <h5 className="font-bold text-gray-900 dark:text-white text-sm">Secure Payment</h5>
+ <p className="text-xs text-gray-500 mt-1">Pay safely via UPI, Card, or Netbanking (Powered by Razorpay).</p>
+ </div>
+ <div className="flex flex-col items-center text-center">
+ <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-black mb-3">3</div>
+ <h5 className="font-bold text-gray-900 dark:text-white text-sm">Enjoy Services</h5>
+ <p className="text-xs text-gray-500 mt-1">Instantly unlock zero-fee access to travel, food, and stays.</p>
+ </div>
+ </div>
+ </div>
+
  {/* CTA */}
- <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
- <p className="text-xs font-bold text-gray-400 text-center sm:text-left">
- ✅ Service-only redemption · ✅ No product purchases · ✅ Monthly usage tracking
- </p>
+ <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-dark-card p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+ <div className="flex items-center gap-3">
+ <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
+ <span className="text-xl">🛡️</span>
+ </div>
+ <div>
+ <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest">100% Secure Transaction</p>
+ <p className="text-[10px] text-gray-400 font-bold">256-bit SSL Encryption · Razorpay Trusted</p>
+ </div>
+ </div>
  <button
  disabled={!selectedPlan || loading}
  onClick={() => selectedPlan && handlePurchase(selectedPlan)}
@@ -267,7 +294,7 @@ const MembershipPopup = ({ onClose }) => {
  : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
  }`}
  >
- {loading ? 'Activating...' : selectedPlan ? `Activate ${selectedPlan.name}` : 'Select a Plan'}
+ {loading ? 'Processing...' : selectedPlan ? `Securely Pay ${selectedPlan.price}` : 'Select a Plan'}
  {!loading && <ArrowRight size={18} />}
  </button>
  </div>

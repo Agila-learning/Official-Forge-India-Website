@@ -13,9 +13,11 @@ import { useNotifications } from '../context/NotificationContext';
 import NoDataFound from '../components/ui/NoDataFound';
 import HomeServiceCMS from '../components/admin/HomeServiceCMS';
 import InvoiceModal from '../components/ui/InvoiceModal';
+import { useCart } from '../context/CartContext';
 
 const VendorDashboard = () => {
- const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+ const [userInfo, setUserInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo') || '{}'));
+ const { addToCart } = useCart();
  const [products, setProducts] = useState([]);
  const [loading, setLoading] = useState(true);
  const [isAdding, setIsAdding] = useState(false);
@@ -28,6 +30,7 @@ const VendorDashboard = () => {
  const [notifications, setNotifications] = useState([]);
  const [deliveryPartners, setDeliveryPartners] = useState([]);
  const [categories, setCategories] = useState([]);
+ const [membershipPlans, setMembershipPlans] = useState([]);
  const [subCategories, setSubCategories] = useState([]);
  const [selectedCategory, setSelectedCategory] = useState('');
  const [dashboardStats, setDashboardStats] = useState({});
@@ -178,6 +181,27 @@ const VendorDashboard = () => {
     fetchCategories();
     fetchTickets();
     fetchReviews();
+
+    const fetchPlans = async () => {
+      try {
+        const { data } = await api.get('/membership-plans');
+        setMembershipPlans(data);
+      } catch (err) {
+        console.error('Failed to load membership plans');
+      }
+    };
+    fetchPlans();
+
+    const fetchProfile = async () => {
+      try {
+        const { data } = await api.get('/users/profile');
+        setUserInfo(data);
+        localStorage.setItem('userInfo', JSON.stringify(data));
+      } catch (err) {
+        console.error('Failed to sync profile');
+      }
+    };
+    fetchProfile();
   }, []);
 
  const fetchCategories = async () => {
@@ -216,9 +240,9 @@ const VendorDashboard = () => {
  const fetchOrders = async (currentProducts) => {
  try {
  const res = await api.get('/orders');
- const vendorOrders = res.data.filter(order => 
- order.orderItems.some(item => (currentProducts || products).some(p => p._id === item.product))
- );
+ const vendorOrders = Array.isArray(res.data) ? res.data.filter(order => 
+ Array.isArray(order.orderItems) && order.orderItems.some(item => (currentProducts || products).some(p => p._id === item.product))
+ ) : [];
  setOrders(vendorOrders);
  generateReports(vendorOrders);
  } catch (err) {
@@ -229,7 +253,7 @@ const VendorDashboard = () => {
  const fetchProducts = async () => {
  try {
  const { data } = await api.get('/products');
- const vendorProducts = data.filter(p => (p.vendorId?._id || p.vendorId) === userInfo?._id);
+ const vendorProducts = Array.isArray(data) ? data.filter(p => (p.vendorId?._id || p.vendorId) === userInfo?._id) : [];
  setProducts(vendorProducts);
  
  // Categorize for specific views
@@ -545,27 +569,49 @@ const VendorDashboard = () => {
  {subCategories.filter(s => !selectedCategory || s.categoryId?._id === selectedCategory).map(sub => <option key={sub._id} value={sub._id}>{sub.name}</option>)}
  </select>
  </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Stock</label>
- <input name="countInStock" type="number" defaultValue={editingProduct?.countInStock || 0} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images (Link)</label>
- <input name="image" defaultValue={editingProduct?.image} required className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
- </div>
- <div className="md:col-span-2 space-y-2">
- <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
- <textarea name="description" defaultValue={editingProduct?.description} rows="3" className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none resize-none"></textarea>
- </div>
-
- <div className="space-y-2">
- <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{isServiceDefault ? 'Service Warranty' : 'Product Warranty'}</label>
- <input name="warranty" defaultValue={editingProduct?.warranty || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 1 Year Warranty, 30 Days Guarantee" />
- </div>
- <div className="space-y-2">
- <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Estimated Delivery / Fulfillment Time</label>
- <input name="estimatedDeliveryTime" defaultValue={editingProduct?.estimatedDeliveryTime || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 3-5 Business Days" />
- </div>
+ {!isServiceDefault ? (
+   <>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Stock</label>
+     <input name="countInStock" type="number" defaultValue={editingProduct?.countInStock || 0} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images (Link)</label>
+     <input name="image" defaultValue={editingProduct?.image} required className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+     </div>
+     <div className="md:col-span-2 space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
+     <textarea name="description" defaultValue={editingProduct?.description} rows="3" className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none resize-none"></textarea>
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Product Warranty</label>
+     <input name="warranty" defaultValue={editingProduct?.warranty || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 1 Year Warranty" />
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Estimated Delivery</label>
+     <input name="estimatedDeliveryTime" defaultValue={editingProduct?.estimatedDeliveryTime || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 3-5 Business Days" />
+     </div>
+   </>
+ ) : (
+   <>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Images (Link)</label>
+     <input name="image" defaultValue={editingProduct?.image} required className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+     </div>
+     <div className="md:col-span-2 space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Service Details & Scope</label>
+     <textarea name="description" defaultValue={editingProduct?.description} rows="3" className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none resize-none"></textarea>
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Service Warranty / Guarantee</label>
+     <input name="warranty" defaultValue={editingProduct?.warranty || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 30 Days Quality Guarantee" />
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Team Size / Equipment</label>
+     <input name="teamSize" defaultValue={editingProduct?.teamSize || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 2 Professionals, All tools provided" />
+     </div>
+   </>
+ )}
 
  {/* Dynamic Rental/Ride Fields */}
  {(categories.find(c => c._id === selectedCategory)?.name === 'Rentals' || editingProduct?.propertyType !== 'None') && (
@@ -969,29 +1015,10 @@ const VendorDashboard = () => {
 
  {/* Plan Comparison Grid */}
  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
- {[
- {
- name: 'Free', price: '₹0', period: '/month', color: 'gray',
- features: ['3 Service Listings', 'Basic Analytics', 'Email Support', 'Standard Visibility'],
- current: (userInfo?.subscriptionLevel || 'Free') === 'Free'
- },
- {
- name: 'Basic', price: '₹999', period: '/month', color: 'blue',
- features: ['10 Service Listings', 'Order Management', 'Priority Listing', 'Chat Support', 'Monthly Reports'],
- current: userInfo?.subscriptionLevel === 'Basic'
- },
- {
- name: 'Premium', price: '₹2,499', period: '/month', color: 'purple',
- features: ['Unlimited Listings', 'Advanced Analytics', 'Dedicated Manager', 'Featured Badge', 'Customer Insights', 'API Access'],
- current: userInfo?.subscriptionLevel === 'Premium', popular: true
- },
- {
- name: 'Elite', price: '₹4,999', period: '/month', color: 'yellow',
- features: ['All Premium features', 'White-label Portal', 'Custom Domain', 'SLA Guarantee', 'Bulk Imports', '24/7 Phone Support'],
- current: userInfo?.subscriptionLevel === 'Elite'
- }
- ].map(plan => (
- <div key={plan.name} className={`relative glass-card rounded-[2.5rem] border ${plan.current ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02]' : 'border-gray-100 dark:border-gray-800'} overflow-hidden`}>
+ {membershipPlans.filter(p => p.status === 'Active').map(plan => {
+ const isCurrent = (userInfo?.subscriptionLevel || 'Free') === plan.name;
+ return (
+ <div key={plan.name} className={`relative glass-card rounded-[2.5rem] border ${isCurrent ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02]' : 'border-gray-100 dark:border-gray-800'} overflow-hidden`}>
  {plan.popular && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />}
  {plan.popular && <div className="absolute top-4 right-4 px-3 py-1 bg-purple-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full">Popular</div>}
  <div className="p-8">
@@ -1008,23 +1035,19 @@ const VendorDashboard = () => {
  ))}
  </ul>
  <button
- disabled={plan.current}
- onClick={async () => {
- try {
- await api.put('/users/profile', { subscriptionLevel: plan.name });
- const updated = { ...userInfo, subscriptionLevel: plan.name };
- localStorage.setItem('userInfo', JSON.stringify(updated));
- toast.success(`Upgraded to ${plan.name} Plan!`);
- window.location.reload();
- } catch { toast.error('Upgrade failed'); }
+ disabled={isCurrent}
+ onClick={() => {
+ addToCart({ _id: `membership-${plan.name.toLowerCase()}`, name: `FIC ${plan.name} Membership`, price: plan.price, isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' });
+ toast.success(`Upgrade initiated! Redirecting to checkout...`);
+ setTimeout(() => window.location.href = "/checkout", 1500);
  }}
- className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${plan.current ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20'}`}
+ className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${isCurrent ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20'}`}
  >
- {plan.current ? 'Current Plan' : `Upgrade to ${plan.name}`}
+ {isCurrent ? 'Current Plan' : `Upgrade to ${plan.name}`}
  </button>
  </div>
  </div>
- ))}
+ )})}
  </div>
  </motion.div>
  )}

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault, verifyMembershipVaultPayment, updateBankDetails } = require('../controllers/userController');
+const { getUsers, updateUserApproval, getUserProfile, toggleFavorite, getUserFavorites, updateUserProfile, deleteUser, subscribeNewsletter, createSubAdmin, purchaseMembershipVault, verifyMembershipVaultPayment, updateBankDetails, updateUser } = require('../controllers/userController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -15,7 +15,9 @@ router.route('/profile')
 router.route('/favorites').get(protect, getUserFavorites);
 router.route('/favorites/toggle').post(protect, toggleFavorite);
 router.route('/:id/approve').put(protect, admin, updateUserApproval);
-router.route('/:id').delete(protect, admin, deleteUser);
+router.route('/:id')
+  .put(protect, admin, updateUser)
+  .delete(protect, admin, deleteUser);
 
 module.exports = router;
 

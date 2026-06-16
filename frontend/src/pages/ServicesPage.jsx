@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { 
   Search, MapPin, Calendar, Star, ShieldCheck, 
   Zap, Clock, Heart, ArrowRight, Home, 
@@ -17,20 +19,20 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const categories = [
- { id: 'stay', label: 'PG / Stay', icon: Home, color: 'text-orange-500', bg: 'bg-orange-500/10' },
- { id: 'hotels', label: 'Hotels', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-500/10' },
- { id: 'travel', label: 'Travel', icon: Bus, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
- { id: 'food', label: 'Food', icon: Utensils, color: 'text-rose-500', bg: 'bg-rose-500/10' },
- { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
- { id: 'entertainment', label: 'Entertainment', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-500/10' },
- { id: 'it-solutions', label: 'IT Solutions', icon: Cpu, color: 'text-purple-500', bg: 'bg-purple-500/10' },
- { id: 'app-development', label: 'App Development', icon: Smartphone, color: 'text-blue-400', bg: 'bg-blue-400/10' },
- { id: 'website-development', label: 'Web Development', icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+ { id: 'stay', label: 'PG / Stay', icon: Home, color: 'text-orange-500', bg: 'bg-orange-500/10', target: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'PG' } },
+ { id: 'hotels', label: 'Hotels', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-500/10', target: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Hotel' } },
+ { id: 'travel', label: 'Travel', icon: Bus, color: 'text-emerald-500', bg: 'bg-emerald-500/10', target: '/explore-shop', state: { viewType: 'Rides' } },
+ { id: 'food', label: 'Food', icon: Utensils, color: 'text-rose-500', bg: 'bg-rose-500/10', target: '/explore-shop', state: { viewType: 'Products', category: 'Food' } },
+ { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-indigo-500', bg: 'bg-indigo-500/10', target: '/explore-shop', state: { viewType: 'Products', category: 'All' } },
+ { id: 'entertainment', label: 'Entertainment', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-500/10', target: '/explore-shop', state: { viewType: 'Products', category: 'Entertainment' } },
+ { id: 'it-solutions', label: 'IT Solutions', icon: Cpu, color: 'text-purple-500', bg: 'bg-purple-500/10', target: '/it-solutions' },
+ { id: 'app-development', label: 'App Development', icon: Smartphone, color: 'text-blue-400', bg: 'bg-blue-400/10', target: '/app-development' },
+ { id: 'website-development', label: 'Web Development', icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-400/10', target: '/web-development' },
  { id: 'business-consulting', label: 'Business Consulting', icon: Building2, color: 'text-indigo-400', bg: 'bg-indigo-400/10' },
- { id: 'job-consulting', label: 'Job Consulting', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-400/10' },
- { id: 'bike-taxi', label: 'Bike Taxi', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
- { id: 'car-taxi', label: 'Car Taxi', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10' },
- { id: 'express-delivery', label: 'Delivery', icon: Truck, color: 'text-green-500', bg: 'bg-green-500/10' },
+ { id: 'job-consulting', label: 'Job Consulting', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-400/10', target: '/job-consulting' },
+ { id: 'bike-taxi', label: 'Bike Taxi', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-500/10', target: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Bike' } },
+ { id: 'car-taxi', label: 'Car Taxi', icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10', target: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Car' } },
+ { id: 'express-delivery', label: 'Delivery', icon: Truck, color: 'text-green-500', bg: 'bg-green-500/10', target: '/explore-shop', state: { viewType: 'Rides', vehicleFilter: 'Truck' } },
 ];
 
 const HorizontalCarousel = ({ title, items, onBook }) => {
@@ -55,17 +57,17 @@ const HorizontalCarousel = ({ title, items, onBook }) => {
  <button onClick={() => scroll('right')} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all">
  <ChevronRight size={20} />
  </button>
- <button className="ml-4 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">View All</button>
+ <button onClick={() => navigate('/explore-shop')} className="ml-4 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">View All</button>
  </div>
  </div>
  
  <div 
  ref={scrollRef}
- className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar snap-x snap-mandatory"
+ className="flex gap-4 md:gap-6 overflow-x-auto pb-8 hide-scrollbar snap-x snap-mandatory px-4 md:px-0"
  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
  >
  {items.map((item) => (
- <div key={item._id || item.id} className="min-w-[300px] md:min-w-[380px] snap-start">
+ <div key={item._id || item.id} className="min-w-[85vw] sm:min-w-[300px] md:min-w-[380px] snap-start">
  <ServiceCard product={item} onBook={onBook} />
  </div>
  ))}
@@ -86,6 +88,20 @@ const ServicesPage = () => {
  const [services, setServices] = useState([]);
  const [loading, setLoading] = useState(true);
  const listingsRef = React.useRef(null);
+ const titleRef = React.useRef(null);
+
+ useGSAP(() => {
+   if (titleRef.current) {
+     gsap.to(titleRef.current, {
+       color: '#fb923c',
+       textShadow: "0px 0px 30px rgba(249, 115, 22, 0.6)",
+       duration: 2,
+       yoyo: true,
+       repeat: -1,
+       ease: 'power2.inOut',
+     });
+   }
+ }, []);
 
  const scrollToListings = () => {
    listingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -147,7 +163,16 @@ const ServicesPage = () => {
  });
 
  const handleBuyMembership = () => {
- navigate('/profile');
+   addToCart({
+     _id: 'MEMBERSHIP_UPGRADE',
+     name: 'Forge Membership Protocol',
+     price: 2000,
+     image: '/logo.jpg',
+     isService: true,
+     category: 'Membership'
+   }, 1);
+   toast.success('Membership Card added to cart');
+   navigate('/checkout');
  };
 
  const handleBookNow = (service) => {
@@ -182,7 +207,7 @@ const ServicesPage = () => {
  animate={{ opacity: 1, y: 0 }}
  className="text-5xl md:text-7xl font-black mb-8 tracking-tighter"
  >
- EXPERIENCE <span className="text-blue-500">UNLIMITED</span>
+ EXPERIENCE <span ref={titleRef} className="text-blue-500">UNLIMITED</span>
  </motion.h1>
  
  <div className="max-w-4xl mx-auto">
@@ -272,20 +297,20 @@ const ServicesPage = () => {
  </h2>
  <p className="text-sm text-white/50 font-medium">Premium experiences. Exclusive member benefits.</p>
  </div>
- <button className="mt-4 md:mt-0 px-6 py-2 border border-white/10 rounded-full text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2 group">
+ <button onClick={() => navigate('/explore-shop')} className="mt-4 md:mt-0 px-6 py-2 border border-white/10 rounded-full text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2 group">
  View all services <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
  </button>
  </div>
 
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
  {[
- { title: 'HOTELS', subtitle: 'Premium stays & business hotels', image: '/premium-hotels.png', icon: Building2, link: '/services/category/hotels' },
- { title: 'TRAVEL', subtitle: 'Flights, buses & travel bookings', image: '/premium-travel.png', icon: Bus, link: '/services/category/travel' },
- { title: 'FOOD', subtitle: 'Restaurants & online delivery', image: '/premium-food.png', icon: Utensils, link: '/services/category/food' },
- { title: 'SHOPPING', subtitle: 'Top brands & exclusive deals', image: '/premium-shopping.png', icon: ShoppingBag, link: '/services/category/shopping' },
- { title: 'ENTERTAINMENT', subtitle: 'Movies, events & fun experiences', image: '/premium-entertainment.png', icon: Ticket, link: '/services/category/entertainment' },
+ { title: 'HOTELS', subtitle: 'Premium stays & business hotels', image: '/premium-hotels.png', icon: Building2, target: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Hotel' } },
+ { title: 'TRAVEL', subtitle: 'Flights, buses & travel bookings', image: '/premium-travel.png', icon: Bus, target: '/explore-shop', state: { viewType: 'Rides' } },
+ { title: 'FOOD', subtitle: 'Restaurants & online delivery', image: '/premium-food.png', icon: Utensils, target: '/explore-shop', state: { viewType: 'Products', category: 'Food' } },
+ { title: 'SHOPPING', subtitle: 'Top brands & exclusive deals', image: '/premium-shopping.png', icon: ShoppingBag, target: '/explore-shop', state: { viewType: 'Products', category: 'All' } },
+ { title: 'ENTERTAINMENT', subtitle: 'Movies, events & fun experiences', image: '/premium-entertainment.png', icon: Ticket, target: '/explore-shop', state: { viewType: 'Products', category: 'Entertainment' } },
  ].map((card, i) => (
- <div key={i} onClick={() => navigate(card.link)} className="group relative h-80 lg:h-96 rounded-[2rem] overflow-hidden cursor-pointer bg-[#050505]">
+ <div key={i} onClick={() => navigate(card.target, { state: card.state })} className="group relative h-80 lg:h-96 rounded-[2rem] overflow-hidden cursor-pointer bg-[#050505]">
  <div className="absolute inset-0">
  <img src={card.image} alt={card.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700" />
  </div>
@@ -301,7 +326,7 @@ const ServicesPage = () => {
  <div>
  <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-1">{card.title}</h3>
  <p className="text-[10px] font-bold text-white/50 leading-tight mb-4">{card.subtitle}</p>
- <button className="px-5 py-2.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2 group-hover:border-white">
+ <button onClick={(e) => { e.stopPropagation(); navigate(card.target, { state: card.state }); }} className="px-5 py-2.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2 group-hover:border-white z-20">
  Explore Now <ChevronRight size={12} />
  </button>
  </div>
@@ -314,7 +339,7 @@ const ServicesPage = () => {
 
  {/* --- 🏷️ CATEGORY BAR --- */}
  <section ref={listingsRef} className="px-6 pb-12 sticky top-20 z-50">
- <div className="max-w-7xl mx-auto flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+ <div className="max-w-7xl mx-auto flex gap-3 md:gap-4 overflow-x-auto pb-4 hide-scrollbar px-4 md:px-0">
  <button 
  onClick={() => setActiveCategory('all')}
  className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border transition-all whitespace-nowrap ${activeCategory === 'all' ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
@@ -324,7 +349,13 @@ const ServicesPage = () => {
  {categories.map((cat) => (
  <button 
  key={cat.id}
- onClick={() => setActiveCategory(cat.id)}
+ onClick={() => {
+   if (cat.target) {
+     navigate(cat.target, { state: cat.state });
+   } else {
+     setActiveCategory(cat.id);
+   }
+ }}
  className={`px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border transition-all flex items-center gap-3 whitespace-nowrap ${activeCategory === cat.id ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/10 hover:border-white/30'}`}
  >
  <cat.icon className={activeCategory === cat.id ? 'text-blue-600' : 'text-white/40'} size={18} />
@@ -335,7 +366,7 @@ const ServicesPage = () => {
  </section>
 
  {/* --- 📋 2. LISTINGS / CAROUSELS --- */}
- <section className="px-6 pb-32">
+ <section id="listings" className="px-6 pb-32">
  <div className="max-w-7xl mx-auto">
  {activeCategory === 'all' && searchQuery === '' ? (
  <>
@@ -427,3 +458,7 @@ const ServicesPage = () => {
 };
 
 export default ServicesPage;
+
+
+
+

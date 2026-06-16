@@ -5,6 +5,8 @@ import api from '../services/api';
 import JobApplicationForm from '../components/ui/JobApplicationForm';
 import toast from 'react-hot-toast';
 import { useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 const ExploreJobs = () => {
  const routerLocation = useRouterLocation();
@@ -24,6 +26,20 @@ const ExploreJobs = () => {
  const [isFormOpen, setIsFormOpen] = useState(false);
  const [isFilterOpen, setIsFilterOpen] = useState(false);
  const [selectedJob, setSelectedJob] = useState(null);
+ const titleRef = React.useRef(null);
+
+ useGSAP(() => {
+   if (titleRef.current) {
+     gsap.to(titleRef.current, {
+       color: '#fb923c',
+       textShadow: "0px 0px 30px rgba(249, 115, 22, 0.6)",
+       duration: 2,
+       yoyo: true,
+       repeat: -1,
+       ease: 'power2.inOut',
+     });
+   }
+ }, []);
 
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
  const returnPath = userInfo?.role === 'Admin' ? '/admin' : 
@@ -134,7 +150,7 @@ const ExploreJobs = () => {
  <span className="text-sm font-black uppercase tracking-widest">Connect Career Portal</span>
  </div>
  <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tighter uppercase leading-[0.8] font-syne">
- Forge Your <span className="text-primary tracking-normal">Future.</span>
+ Forge Your <span ref={titleRef} className="text-primary tracking-normal">Future.</span>
  </h1>
  </motion.div>
 

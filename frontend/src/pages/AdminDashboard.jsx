@@ -18,6 +18,7 @@ import HomeServiceCMS from '../components/admin/HomeServiceCMS';
 import TrainingManager from '../components/admin/TrainingManager';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
+import MissionMap from '../components/ui/MissionMap';
 
 const AdminDashboard = () => {
  const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [] });
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const [chatRoleFilter, setChatRoleFilter] = useState('All');
   const [contactSearch, setContactSearch] = useState('');
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('All');
 
  // Real-time messages sync
  useEffect(() => {
@@ -170,7 +172,8 @@ const AdminDashboard = () => {
         serviceRegistrations: '/service-registrations',
         bookings: '/bookings',
         homeCategories: '/home-categories',
-        homeSubCategories: '/home-categories/sub'
+        homeSubCategories: '/home-categories/sub',
+        membershipPlans: '/membership-plans'
       };
 
       const results = {};
@@ -725,28 +728,28 @@ const AdminDashboard = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-800">
-                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Vendor</th>
-                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Amount</th>
-                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Commission</th>
-                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Status</th>
-                <th className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 pr-4">Action</th>
+                <th className="pb-5 px-4 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Vendor</th>
+                <th className="pb-5 px-4 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Amount</th>
+                <th className="pb-5 px-4 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Commission</th>
+                <th className="pb-5 px-4 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Status</th>
+                <th className="pb-5 px-4 whitespace-nowrap text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
               {data.settlements?.map(s => (
                 <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
-                  <td className="py-5 pr-4">
+                  <td className="py-5 px-4 whitespace-nowrap">
                     <p className="font-bold text-sm">{s.vendor?.businessName || s.vendor?.firstName}</p>
                     <p className="text-[10px] text-gray-400 font-bold uppercase">{s.vendor?.email}</p>
                   </td>
-                  <td className="py-5 pr-4 font-black text-green-600">₹{s.amount}</td>
-                  <td className="py-5 pr-4 font-bold text-gray-500">₹{s.commission}</td>
-                  <td className="py-5 pr-4">
+                  <td className="py-5 px-4 whitespace-nowrap font-black text-green-600">₹{s.amount}</td>
+                  <td className="py-5 px-4 whitespace-nowrap font-bold text-gray-500">₹{s.commission}</td>
+                  <td className="py-5 px-4 whitespace-nowrap">
                     <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-yellow-100 text-yellow-600">
                       {s.status}
                     </span>
                   </td>
-                  <td className="py-5 pr-4">
+                  <td className="py-5 px-4 whitespace-nowrap text-center">
                     <button onClick={() => handleApprovePayout(s._id)} className="px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">
                       Approve Payout
                     </button>
@@ -2913,7 +2916,6 @@ const AdminDashboard = () => {
 
   {/* RIDE & STAY BOOKINGS TAB — from POST /api/bookings */}
   {activeTab === 'ride-stay-bookings' && (() => {
-    const [bookingStatusFilter, setBookingStatusFilter] = React.useState('All');
     const bookingRows = (data.bookings || []).filter(b => {
       const q = searchQuery.toLowerCase();
       const nameMatch = (b.name || b.user?.firstName || '').toLowerCase().includes(q);
@@ -3850,31 +3852,31 @@ const AdminDashboard = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="border-b border-gray-50 dark:border-gray-800 text-[10px] font-black text-gray-400 uppercase tracking-widest">
- <th className="pb-6">Vendor Identity</th>
- <th className="pb-6">Order Reference</th>
- <th className="pb-6 text-right">Revenue</th>
- <th className="pb-6 text-right text-red-400">Commission</th>
- <th className="pb-6 text-right text-green-500">Net Settlement</th>
- <th className="pb-6 text-center">Action</th>
+ <th className="pb-6 px-4 whitespace-nowrap">Vendor Identity</th>
+ <th className="pb-6 px-4 whitespace-nowrap">Order Reference</th>
+ <th className="pb-6 px-4 whitespace-nowrap text-right">Revenue</th>
+ <th className="pb-6 px-4 whitespace-nowrap text-right text-red-400">Commission</th>
+ <th className="pb-6 px-4 whitespace-nowrap text-right text-green-500">Net Settlement</th>
+ <th className="pb-6 px-4 whitespace-nowrap text-center">Action</th>
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
  {data.settlements?.map(s => (
  <tr key={s._id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
- <td className="py-6">
+ <td className="py-6 px-4 whitespace-nowrap">
  <p className="font-black text-gray-900 dark:text-white uppercase text-xs">{s.vendor?.businessName || `${s.vendor?.firstName} ${s.vendor?.lastName}`}</p>
  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">ID: {s.vendor?._id?.slice(-8).toUpperCase()}</p>
  </td>
- <td className="py-6">
+ <td className="py-6 px-4 whitespace-nowrap">
  <p className="font-bold text-gray-500 uppercase text-xs">#{s.order?._id?.slice(-6).toUpperCase()}</p>
  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">{new Date(s.createdAt).toLocaleDateString()}</p>
  </td>
- <td className="py-6 text-right font-bold text-gray-400">₹{s.totalRevenue?.toLocaleString()}</td>
- <td className="py-6 text-right font-bold text-red-400">-₹{s.commission?.toLocaleString()}</td>
- <td className="py-6 text-right">
+ <td className="py-6 px-4 whitespace-nowrap text-right font-bold text-gray-400">₹{s.totalRevenue?.toLocaleString()}</td>
+ <td className="py-6 px-4 whitespace-nowrap text-right font-bold text-red-400">-₹{s.commission?.toLocaleString()}</td>
+ <td className="py-6 px-4 whitespace-nowrap text-right">
  <p className="text-lg font-black text-green-500 leading-none">₹{s.amount?.toLocaleString()}</p>
  </td>
- <td className="py-6 text-center">
+ <td className="py-6 px-4 whitespace-nowrap text-center">
  {s.status === 'Pending' ? (
  <button 
  onClick={() => handleApprovePayout(s._id)}
@@ -4002,6 +4004,125 @@ const AdminDashboard = () => {
  </div>
  </div>
  )}
+
+ {activeTab === 'membership' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Membership Vault</h3>
+            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-1">Manage global subscription plans & pricing</p>
+          </div>
+          <button 
+            onClick={() => {
+              setEditingItem({...editingItem, membership: { name: '', price: 0, period: '/month', features: '', color: 'blue', popular: false, status: 'Active' }});
+            }} 
+            className="px-6 py-3 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
+          >
+            Create New Plan
+          </button>
+        </div>
+
+        {editingItem.membership && (
+          <div className="p-8 bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 mb-8">
+            <h4 className="text-sm font-black uppercase tracking-widest mb-6">{editingItem.membership._id ? 'Edit Plan' : 'New Plan'}</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input placeholder="Plan Name (e.g. Premium)" value={editingItem.membership.name} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, name: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+              <input type="number" placeholder="Price (₹)" value={editingItem.membership.price} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, price: Number(e.target.value)}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+              <input placeholder="Period (e.g. /month)" value={editingItem.membership.period} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, period: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+              <select value={editingItem.membership.color} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, color: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
+                <option value="gray">Gray</option>
+                <option value="blue">Blue</option>
+                <option value="purple">Purple</option>
+                <option value="yellow">Yellow</option>
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+              </select>
+              <textarea placeholder="Features (comma separated)" value={Array.isArray(editingItem.membership.features) ? editingItem.membership.features.join(', ') : editingItem.membership.features} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, features: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm md:col-span-2" rows="3"></textarea>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-xs font-bold text-gray-500">
+                  <input type="checkbox" checked={editingItem.membership.popular} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, popular: e.target.checked}})} className="w-4 h-4 text-primary" />
+                  Mark as Popular
+                </label>
+              </div>
+              <div className="flex items-center gap-4">
+                <select value={editingItem.membership.status} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, status: e.target.value}})} className="px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button onClick={async () => {
+                try {
+                  const payload = {
+                    ...editingItem.membership,
+                    features: typeof editingItem.membership.features === 'string' 
+                      ? editingItem.membership.features.split(',').map(f => f.trim()).filter(Boolean)
+                      : editingItem.membership.features
+                  };
+                  if (editingItem.membership._id) {
+                    await api.put(`/membership-plans/${editingItem.membership._id}`, payload);
+                    toast.success('Plan updated');
+                  } else {
+                    await api.post('/membership-plans', payload);
+                    toast.success('Plan created');
+                  }
+                  fetchData();
+                  setEditingItem({...editingItem, membership: null});
+                } catch (err) {
+                  toast.error('Failed to save plan');
+                }
+              }} className="px-6 py-3 bg-primary text-white font-black rounded-xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Save Plan</button>
+              <button onClick={() => setEditingItem({...editingItem, membership: null})} className="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-black rounded-xl text-[10px] uppercase tracking-widest hover:text-red-500 transition-all">Cancel</button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {(data.membershipPlans || []).map(plan => (
+            <div key={plan._id} className={`relative p-8 rounded-[2.5rem] border ${plan.popular ? 'border-primary shadow-2xl shadow-primary/20' : 'border-gray-100 dark:border-gray-800'} bg-white dark:bg-dark-card`}>
+              {plan.popular && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-t-[2.5rem]" />}
+              {plan.status === 'Inactive' && <div className="absolute top-4 right-4 px-3 py-1 bg-gray-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Inactive</div>}
+              {plan.popular && plan.status !== 'Inactive' && <div className="absolute top-4 right-4 px-3 py-1 bg-purple-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Popular</div>}
+              
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{plan.name}</p>
+              <div className="flex items-end gap-1 mb-6">
+                <span className="text-4xl font-black text-gray-900 dark:text-white">₹{plan.price}</span>
+                <span className="text-sm font-bold text-gray-400 mb-1">{plan.period}</span>
+              </div>
+              
+              <ul className="space-y-2 mb-8 h-32 overflow-y-auto pr-2 custom-scrollbar">
+                {plan.features.map((f, i) => (
+                  <li key={i} className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
+                    <CheckCircle2 size={12} className="text-primary shrink-0" /> <span className="line-clamp-2 leading-tight">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="flex items-center justify-between border-t border-gray-50 dark:border-gray-800/50 pt-4">
+                <button onClick={() => setEditingItem({...editingItem, membership: plan})} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"><Edit size={16} /></button>
+                <button onClick={async () => {
+                  if(window.confirm('Delete this membership plan?')) {
+                    try {
+                      await api.delete(`/membership-plans/${plan._id}`);
+                      toast.success('Plan deleted');
+                      fetchData();
+                    } catch(err) {
+                      toast.error('Failed to delete plan');
+                    }
+                  }
+                }} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"><Trash2 size={16} /></button>
+              </div>
+            </div>
+          ))}
+          {(data.membershipPlans || []).length === 0 && (
+            <div className="col-span-full py-20 text-center text-gray-400 font-black uppercase tracking-widest text-xs">No plans found</div>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
  </motion.div>
  </AnimatePresence>
   {/* DETAIL MODAL */}

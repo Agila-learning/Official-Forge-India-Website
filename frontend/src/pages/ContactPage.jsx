@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import ContactFunnel from '../components/ui/ContactFunnel';
 import SEOMeta from '../components/ui/SEOMeta';
 import {
@@ -41,8 +43,24 @@ const socials = [
  { icon: Linkedin, href: 'https://www.linkedin.com/company/forge-india-connect-pvt-ltd/?viewAsMember=true', label: 'LinkedIn' },
 ];
 
-const ContactPage = () => (
- <>
+const ContactPage = () => {
+  const titleRef = useRef(null);
+
+  useGSAP(() => {
+    if (titleRef.current) {
+      gsap.to(titleRef.current, {
+        color: '#fb923c',
+        textShadow: "0px 0px 30px rgba(249, 115, 22, 0.6)",
+        duration: 2,
+        yoyo: true,
+        repeat: -1,
+        ease: 'power2.inOut',
+      });
+    }
+  }, []);
+
+  return (
+    <>
  <SEOMeta
  title="Contact Forge India Connect | Job Consulting & Business Services Inquiry"
  description="Get in touch with Forge India Connect for job placement, HR consulting, digital marketing, or web development services in Chennai, Krishnagiri & Bangalore."
@@ -63,6 +81,7 @@ const ContactPage = () => (
  <Building2 size={12} /> Get In Touch
  </motion.span>
  <motion.h1
+ ref={titleRef}
  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
  className="text-white mb-4"
  >
@@ -183,6 +202,7 @@ const ContactPage = () => (
  </div>
  </section>
  </>
-);
+  );
+};
 
 export default ContactPage;

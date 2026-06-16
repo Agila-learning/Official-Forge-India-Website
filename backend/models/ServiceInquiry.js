@@ -29,6 +29,11 @@ const serviceInquirySchema = new mongoose.Schema({
   },
   guestName: { type: String },
   guestEmail: { type: String },
+  requestType: {
+    type: String,
+    enum: ['inquiry', 'callback'],
+    default: 'inquiry'
+  },
 
   // ── Job Consulting Payment Fields ────────────────────────────
   consultingType: {

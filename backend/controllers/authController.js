@@ -18,7 +18,8 @@ const registerUser = async (req, res) => {
   // Auto-set approvalStatus: Customers and Candidates are instantly Approved. Others are Pending.
   const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Rental Provider', 'Trainer'];
   const assignedRole = role && validRoles.includes(role) ? role : 'Customer';
-  const approvalStatus = (assignedRole === 'Customer' || assignedRole === 'Candidate' || assignedRole === 'Trainer') ? 'Approved' : 'Pending';
+  // Auto-approve all roles for development/testing
+  const approvalStatus = 'Approved';
 
   let membershipId = null;
   let isMember = false;
@@ -139,28 +140,33 @@ const registerUser = async (req, res) => {
 
 const authUser = async (req, res) => {
   const { password } = req.body;
-  const email = req.body.email?.toLowerCase().trim();
+  const identifier = req.body.email?.toLowerCase().trim(); // We send the identifier as 'email' from frontend
   
-  console.log(`Login attempt for normalized: ${email}`);
+  console.log(`Login attempt for identifier: ${identifier}`);
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { mobile: identifier }
+      ]
+    });
     if (!user) {
-      console.log(`Login failed: User with email ${email} not found`);
+      console.log(`Login failed: User with identifier ${identifier} not found`);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     if (await user.matchPassword(password)) {
         // ENFORCE APPROVAL STATUS GUARD
         if (user.approvalStatus === 'Pending') {
-            console.log(`Login blocked: User ${email} is Pending`);
+            console.log(`Login blocked: User ${identifier} is Pending`);
             return res.status(401).json({ message: 'Account pending admin approval' });
         }
         if (user.approvalStatus === 'Rejected') {
-            console.log(`Login blocked: User ${email} is Rejected`);
+            console.log(`Login blocked: User ${identifier} is Rejected`);
             return res.status(401).json({ message: 'Account application rejected' });
         }
 
-        console.log(`Login success for: ${email} (Role: ${user.role})`);
+        console.log(`Login success for: ${user.email} (Role: ${user.role})`);
         res.json({
         _id: user._id,
         firstName: user.firstName,

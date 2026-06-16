@@ -619,7 +619,7 @@ const FICQuippy = () => {
  </motion.div>
  ) : (
  <motion.div key="bot" initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} className="relative">
- <Bot size={26} className="text-white" />
+ <MessageSquare size={26} className="text-white" />
  <Sparkles size={10} className="absolute -top-1 -right-1 text-yellow-300 animate-pulse" />
  </motion.div>
  )}
@@ -693,7 +693,7 @@ const FICQuippy = () => {
  className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg"
  style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
  >
- <Bot size={22} className="text-white" />
+ <MessageSquare size={22} className="text-white" />
  </div>
  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-[#0c0f1a]" />
  </div>
@@ -731,7 +731,7 @@ const FICQuippy = () => {
  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 shadow-md"
  style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
  >
- <Bot size={14} className="text-white" />
+ <MessageSquare size={14} className="text-white" />
  </div>
  <div
  className="px-4 py-3 rounded-2xl rounded-tl-md text-[13px] text-gray-100 leading-[1.6] font-medium"

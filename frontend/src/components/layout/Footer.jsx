@@ -172,7 +172,7 @@ const Footer = () => {
  {branch.city}
  </h5>
  <p className="text-slate-400 text-xs font-medium leading-relaxed">{branch.address}</p>
- <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-slate-400 hover:text-secondary transition-colors text-sm font-bold flex items-center gap-2">
+ <a href={`tel:${branch.phone.replace(/\s/g,'')}`} className="text-slate-400 hover:text-secondary transition-colors text-sm font-bold flex items-center gap-2 whitespace-nowrap">
  <Phone size={14} className="text-secondary" /> {branch.phone}
  </a>
  </div>

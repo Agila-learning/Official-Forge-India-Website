@@ -4,7 +4,7 @@ import { Truck } from 'lucide-react';
 
 const containerStyle = {
  width: '100%',
- height: '500px',
+ height: '100%',
  borderRadius: '2rem'
 };
 
@@ -45,7 +45,7 @@ const MissionMap = ({ mission }) => {
  }, [mission, destination]);
 
   return isLoaded ? (
-  <div className="relative group overflow-hidden rounded-[2.5rem] border-4 border-white dark:border-white/5 shadow-2xl">
+  <div className="relative group overflow-hidden w-full h-full rounded-[2.5rem] border-4 border-white dark:border-white/5 shadow-2xl">
   <GoogleMap
   mapContainerStyle={containerStyle}
   center={position}

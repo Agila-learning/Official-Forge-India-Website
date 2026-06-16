@@ -62,6 +62,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const JobConsultingPage = lazy(() => import('./pages/JobConsultingPage'));
 const AgentDashboard = lazy(() => import('./pages/AgentDashboard'));
+const AgentPortalWrapper = lazy(() => import('./pages/AgentPortalWrapper'));
 const ServiceProviderDashboard = lazy(() => import('./pages/ServiceProviderDashboard'));
 const YetToLaunch = lazy(() => import('./pages/YetToLaunch'));
 const Notifications = lazy(() => import('./pages/Notifications'));
@@ -74,6 +75,13 @@ const AtomyProducts = lazy(() => import('./pages/AtomyProducts'));
 const StayPartnerDashboard = lazy(() => import('./pages/StayPartnerDashboard'));
 const RidePartnerDashboard = lazy(() => import('./pages/RidePartnerDashboard'));
 const ServiceLanding = lazy(() => import('./pages/ServiceLanding'));
+const ITSolutions = lazy(() => import('./pages/ITSolutions'));
+const CloudServices = lazy(() => import('./pages/CloudServices'));
+const CRMSolutions = lazy(() => import('./pages/CRMSolutions'));
+const WebAppDevelopment = lazy(() => import('./pages/WebAppDevelopment'));
+const MobileAppDevelopment = lazy(() => import('./pages/MobileAppDevelopment'));
+const DigitalMarketing = lazy(() => import('./pages/DigitalMarketing'));
+const InsuranceServices = lazy(() => import('./pages/InsuranceServices'));
 const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
 const RidesCategoryPage = lazy(() => import('./pages/RidesCategoryPage'));
 
@@ -113,7 +121,7 @@ const ContentWrapper = ({ loading }) => {
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
  
  const hideNavPaths = [
- '/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', 
+ '/admin', '/vendor', '/hr', '/delivery', '/candidate/dashboard', '/agent-network', 
  '/employer', '/track-mission', '/service-provider', '/stay-partner', '/ride-partner', '/seller-dashboard'
  ];
  const isDashboard = hideNavPaths.some(path => location.pathname.startsWith(path));
@@ -124,7 +132,7 @@ const ContentWrapper = ({ loading }) => {
  const shouldHide = isDashboard;
  
  // Log navigation visibility (after shouldHide is defined)
- console.log('Nav Visibility:', { pathname: location.pathname, role: userInfo?.role, shouldHide });
+ // console.log('Nav Visibility:', { pathname: location.pathname, role: userInfo?.role, shouldHide });
 
  useEffect(() => {
  const hasDismissed = localStorage.getItem('fic_inactivity_dismissed');
@@ -201,7 +209,7 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/employer/post-job" element={<EmployerDashboard />} />
  <Route path="/home-services" element={<HomeServices />} />
  <Route path="/home-services/booking/:serviceId" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ServiceWizard /></ProtectedRoute>} />
- <Route path="/explore-shop" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ExploreShop /></ProtectedRoute>} />
+ <Route path="/explore-shop" element={<ExploreShop />} />
  <Route path="/testimonials" element={<Testimonials />} />
  <Route path="/faq" element={<FAQ />} />
  <Route path="/about" element={<AboutUs />} />
@@ -217,6 +225,7 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/training-placement" element={<TrainingPlacementPage />} />
  <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
  <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
+        <Route path="/agent-network" element={<AgentPortalWrapper />} />
  <Route path="/products/:id" element={<ProductRedirect />} />
  <Route path="/refund-policy" element={<RefundPolicy />} />
  <Route path="/yet-to-launch" element={<YetToLaunch />} />
@@ -224,10 +233,16 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/atomy" element={<AtomyProducts />} />
  <Route path="/services/rides" element={<Suspense fallback={<PageLoader />}><RidesCategoryPage /></Suspense>} />
  <Route path="/services/landing/:slug" element={<Suspense fallback={<PageLoader />}><ServiceLanding /></Suspense>} />
- <Route path="/services/category/it-solutions" element={<ServiceLandingPage />} />
- <Route path="/services/category/app-development" element={<ServiceLandingPage />} />
- <Route path="/services/category/website-development" element={<ServiceLandingPage />} />
- <Route path="/services/category/digital-marketing" element={<ServiceLandingPage />} />
+ <Route path="/it-solutions" element={<Suspense fallback={<PageLoader />}><ITSolutions /></Suspense>} />
+  <Route path="/cloud-services" element={<Suspense fallback={<PageLoader />}><CloudServices /></Suspense>} />
+  <Route path="/crm-solutions" element={<Suspense fallback={<PageLoader />}><CRMSolutions /></Suspense>} />
+ <Route path="/web-development" element={<Suspense fallback={<PageLoader />}><WebAppDevelopment /></Suspense>} />
+        <Route path="/app-development" element={<Suspense fallback={<PageLoader />}><MobileAppDevelopment /></Suspense>} />
+        <Route path="/digital-marketing" element={<Suspense fallback={<PageLoader />}><DigitalMarketing /></Suspense>} />
+        <Route path="/insurance-services" element={<Suspense fallback={<PageLoader />}><InsuranceServices /></Suspense>} />
+        <Route path="/services/category/app-development" element={<Navigate to="/app-development" replace />} />
+ <Route path="/services/category/website-development" element={<Navigate to="/web-development" replace />} />
+ <Route path="/services/category/digital-marketing" element={<Navigate to="/digital-marketing" replace />} />
  <Route path="/services/category/:categorySlug" element={<ServicesPage />} />
   {/* PG / Hotels / Rental Stays */}
   <Route path="/pg-stays" element={<PGListingPage />} />
@@ -315,3 +330,6 @@ const ProductRedirect = () => {
 };
 
 export default App;
+
+
+

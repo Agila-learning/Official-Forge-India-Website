@@ -28,6 +28,7 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     message,
     contactNumber,
     domain, // New field for domain selection
+    customAmount, // Custom fee inputted by the user
   } = req.body;
 
   // Validation
@@ -39,8 +40,9 @@ const submitConsultingInquiry = asyncHandler(async (req, res) => {
     });
   }
 
-  // Dynamic pricing: ₹2500 for Banking, ₹1500 for others
-  const AMOUNT_INR = domain === 'Banking' ? 2500 : 1500;
+  // Dynamic pricing: ₹2500 for Banking, ₹1500 for others. Use customAmount if provided.
+  const baseAmount = domain === 'Banking' ? 2500 : 1500;
+  const AMOUNT_INR = customAmount ? Number(customAmount) : baseAmount;
 
   // 1. Save inquiry to DB with paymentStatus: Pending (for tracking purposes)
   let inquiry;

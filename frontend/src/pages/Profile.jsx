@@ -4,6 +4,7 @@ import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, S
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { useLocation as useAppLocation } from '../context/LocationContext';
 import InvoiceModal from '../components/ui/InvoiceModal';
 import toast from 'react-hot-toast';
 import WebUsageGuide from '../components/ui/WebUsageGuide';
@@ -63,6 +64,7 @@ const Profile = () => {
     { action: 'Session encryption handshake completed', time: '30 mins ago' }
   ]);
  const [membershipData, setMembershipData] = useState(null);
+ const [membershipPlans, setMembershipPlans] = useState([]);
  
  // Cancellation Modal State
  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -81,6 +83,7 @@ const Profile = () => {
  
  const userInfoStr = localStorage.getItem('userInfo');
  const [profileData, setProfileData] = useState(JSON.parse(localStorage.getItem('userInfo') || '{}'));
+ const { location: appLocation, setShowModal } = useAppLocation();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -103,12 +106,15 @@ const Profile = () => {
  useEffect(() => {
  const fetchUserData = async () => {
  try {
- const [ordersRes, userRes, reviewsRes, appsRes] = await Promise.all([
+ const [ordersRes, userRes, reviewsRes, appsRes, plansRes] = await Promise.all([
  api.get('/orders/myorders'),
  api.get('/users/profile'),
  api.get('/reviews/myreviews'),
- api.get('/applications/mine').catch(() => ({ data: [] }))
+ api.get('/applications/mine').catch(() => ({ data: [] })),
+ api.get('/membership-plans').catch(() => ({ data: [] }))
  ]);
+ 
+ setMembershipPlans(plansRes.data || []);
  
  setOrders(ordersRes.data);
  setReviews(reviewsRes.data || []);
@@ -384,6 +390,8 @@ const Profile = () => {
  localStorage.removeItem('token');
  window.location.href = '/login';
  };
+
+ const isMembershipExpired = membershipData?.cycleEndDate && new Date(membershipData.cycleEndDate) < new Date();
 
  return (
  <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
@@ -1115,26 +1123,22 @@ const Profile = () => {
  <h3 className={`text-3xl md:text-5xl font-black tracking-tighter mb-6 uppercase ${!isPremiumView && 'text-gray-900 dark:text-white'}`}>Unlock Forge <span className={isPremiumView ? "text-yellow-300" : "text-primary"}>Membership</span></h3>
  <p className={`max-w-xl mx-auto text-lg font-medium leading-relaxed mb-10 ${isPremiumView ? "text-white/70" : "text-gray-500"}`}>Get unlimited access to Home Services, Job Consulting, and Premium Products for one flat monthly fee.</p>
  <div className="flex flex-wrap justify-center gap-6 mb-12">
- {[
- { tier: 'Basic', price: '₹5,000', tag: 'Strategic Choice', perks: ['5 Service Credits', 'Job Portal Access', 'Priority Support'] },
- { tier: 'Premium', price: '₹10,000', tag: 'Best Value', perks: ['15 Service Credits', 'IT Consultation', 'Featured Listings'] },
- { tier: 'Elite', price: '₹25,000', tag: 'Enterprise Grade', perks: ['Unlimited Credits', 'Dedicated Manager', 'All-Access Pass'] },
- ].map(plan => (
- <div key={plan.tier} className={`${isPremiumView ? 'bg-white/10 backdrop-blur-md border-white/20' : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-gray-800'} rounded-[2rem] p-8 border text-left min-w-[280px] group hover:-translate-y-2 transition-all duration-500 relative overflow-hidden`}>
- {plan.tag && (
+ {membershipPlans.filter(p => p.status === 'Active').map(plan => (
+ <div key={plan.name} className={`${isPremiumView ? 'bg-white/10 backdrop-blur-md border-white/20' : 'bg-gray-50 dark:bg-dark-bg border-gray-100 dark:border-gray-800'} rounded-[2rem] p-8 border text-left min-w-[280px] group hover:-translate-y-2 transition-all duration-500 relative overflow-hidden`}>
+ {plan.popular && (
  <div className="absolute top-0 right-0 px-4 py-1.5 bg-yellow-400 text-dark-bg text-[9px] font-black uppercase tracking-widest rounded-bl-2xl shadow-lg">
- {plan.tag}
+ Popular
  </div>
  )}
- <p className={`text-xs font-black uppercase tracking-widest mb-2 ${isPremiumView ? "text-white/60" : "text-gray-400"}`}>{plan.tier}</p>
- <p className={`text-3xl font-black mb-6 ${isPremiumView ? "text-white" : "text-gray-900 dark:text-white"}`}>{plan.price}</p>
+ <p className={`text-xs font-black uppercase tracking-widest mb-2 ${isPremiumView ? "text-white/60" : "text-gray-400"}`}>{plan.name}</p>
+ <p className={`text-3xl font-black mb-6 ${isPremiumView ? "text-white" : "text-gray-900 dark:text-white"}`}>₹{plan.price}</p>
  <ul className="space-y-3 mb-8">
- {plan.perks.map(p => <li key={p} className={`text-xs font-bold flex items-center gap-2 ${isPremiumView ? "text-white/70" : "text-gray-500"}`}><ShieldCheck size={14} className={isPremiumView ? "text-yellow-300" : "text-primary"} />{p}</li>)}
+ {Array.isArray(plan.features) ? plan.features.map((p, idx) => <li key={idx} className={`text-xs font-bold flex items-center gap-2 ${isPremiumView ? "text-white/70" : "text-gray-500"}`}><ShieldCheck size={14} className={isPremiumView ? "text-yellow-300" : "text-primary"} />{p}</li>) : null}
  </ul>
  <button
  onClick={() => {
- addToCart({ _id: `membership-${plan.tier.toLowerCase()}`, name: `FIC ${plan.tier} Membership`, price: parseInt(plan.price.replace(/[^0-9]/g, '')), isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' });
- toast.success(`${plan.tier} Membership added! Redirecting...`); setTimeout(() => window.location.href = "/checkout", 1500);
+ addToCart({ _id: `membership-${plan.name.toLowerCase()}`, name: `FIC ${plan.name} Membership`, price: plan.price, isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' });
+ toast.success(`${plan.name} Membership added! Redirecting...`); setTimeout(() => window.location.href = "/checkout", 1500);
  }}
  className={`w-full py-4 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 ${isPremiumView ? "bg-white text-blue-700 hover:bg-yellow-400 hover:text-dark-bg" : "bg-primary text-white hover:bg-blue-700"}`}
  >
@@ -1176,7 +1180,11 @@ const Profile = () => {
  <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-6 md:p-10 border border-gray-100 dark:border-gray-800 shadow-xl relative overflow-hidden text-left">
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
  <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Vault Insights</h4>
+ {isMembershipExpired ? (
+ <span className="px-3 py-1 bg-red-500/10 text-red-600 text-[9px] font-black uppercase tracking-widest rounded-full">EXPIRED</span>
+ ) : (
  <span className="px-3 py-1 bg-green-500/10 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-full">{membershipData.planTier} Tier Active</span>
+ )}
  </div>
  
  <div className="space-y-8 md:space-y-10">
@@ -1199,7 +1207,7 @@ const Profile = () => {
  />
  </div>
  <p className="text-[9px] text-gray-400 font-bold mt-2 uppercase tracking-widest">
- {membershipData.cycleEndDate ? `Renews: ${new Date(membershipData.cycleEndDate).toLocaleDateString()}` : 'Plan Active'}
+ {isMembershipExpired ? <span className="text-red-500">EXPIRED</span> : (membershipData.cycleEndDate ? `Renews: ${new Date(membershipData.cycleEndDate).toLocaleDateString()}` : 'Plan Active')}
  </p>
  </div>
 
@@ -1225,9 +1233,9 @@ const Profile = () => {
  <Clock size={24} />
  </div>
  <div className="flex flex-col">
- <p className="text-white font-black text-sm uppercase tracking-tight">Status: Active {membershipData.planTier}</p>
+ <p className={`text-white font-black text-sm uppercase tracking-tight ${isMembershipExpired ? 'text-red-400' : ''}`}>Status: {isMembershipExpired ? 'EXPIRED' : `Active ${membershipData.planTier}`}</p>
  <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mt-1">
- {membershipData.cycleEndDate ? `Renews: ${new Date(membershipData.cycleEndDate).toLocaleDateString()}` : 'Lifetime Access'}
+ {isMembershipExpired ? 'Action Required' : (membershipData.cycleEndDate ? `Renews: ${new Date(membershipData.cycleEndDate).toLocaleDateString()}` : 'Lifetime Access')}
  </p>
  </div>
  </div>
@@ -1237,7 +1245,15 @@ const Profile = () => {
  </div>
 
  {/* ⚡ RECOMMENDED SERVICES */}
- <div className="space-y-8">
+ <div className="space-y-8 relative">
+ {isMembershipExpired && (
+ <div className="absolute inset-0 z-20 bg-white/60 dark:bg-dark-bg/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center rounded-[2.5rem] border border-red-500/20">
+ <Shield size={48} className="text-red-500 mb-4" />
+ <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Membership Expired</h4>
+ <p className="text-sm font-bold text-gray-500 mb-6 max-w-sm">Your access to these recommended premium services has been paused. Please renew to continue.</p>
+ <button onClick={() => window.scrollTo(0,0)} className="px-6 py-3 bg-red-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20">Renew Now</button>
+ </div>
+ )}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
  <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Use Your Membership</h4>
  <button onClick={() => window.location.href = '/explore-shop'} className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-2 hover:translate-x-1 transition-transform">Explore Marketplace <ArrowUpRight size={14} /></button>
@@ -1384,6 +1400,21 @@ const Profile = () => {
  onChange={(e) => setProfileData({...profileData, address: e.target.value})}
  className="w-full pl-16 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold"
  />
+ </div>
+ </div>
+ <div className="space-y-3 md:col-span-2 mt-4 border-t border-gray-100 dark:border-gray-800 pt-6">
+ <div className="flex items-center justify-between mb-4">
+   <label className="text-[14px] font-black text-gray-900 dark:text-white uppercase tracking-tight flex items-center gap-2"><MapPin size={18} className="text-primary"/> Service Area Location</label>
+   <button type="button" onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-[10px] font-black uppercase text-blue-600 rounded-xl hover:bg-blue-100 transition-colors">Change Detected Area</button>
+ </div>
+ <div className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 mb-6 flex items-center gap-4">
+   <div className="w-10 h-10 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center shadow-sm">
+     <MapPin size={16} className="text-primary" />
+   </div>
+   <div>
+     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Currently Serving</p>
+     <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{appLocation?.formatted || appLocation?.city || 'Not Set'}</p>
+   </div>
  </div>
  </div>
  <div className="space-y-3">

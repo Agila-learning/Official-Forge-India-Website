@@ -19,6 +19,10 @@ const productSchema = mongoose.Schema(
     },
     discountPrice: { type: Number },
     tags: [{ type: String }],
+    customFields: [{
+      label: { type: String, required: true },
+      value: { type: String, required: true }
+    }],
     availability: { type: String, default: 'All India' },
     pincode: { type: String }, // For location-based filtering
     shopName: { type: String }, // For shop name filtering

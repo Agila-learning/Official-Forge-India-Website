@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Menu, X, ChevronDown, ChevronRight, Briefcase, Globe, Cpu, Smartphone, 
   Zap, ShoppingBag, User, Users, LogOut, LayoutDashboard, ShoppingCart, 
-  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush, GraduationCap, Truck, Search, FileText, FileSpreadsheet, Gift, ShieldAlert, BadgeInfo, Wallet
+  Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush, GraduationCap, Truck, Search, FileText, FileSpreadsheet, Gift, ShieldAlert, BadgeInfo, Wallet,
+  Home, Settings, Headphones, Info, PhoneCall, ExternalLink, Compass
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -51,7 +52,7 @@ const AnimatedConnectText = () => (
       initial={{ opacity: 0, letterSpacing: "-0.1em", filter: "blur(4px)", scale: 0.9 }}
       animate={{ opacity: 1, letterSpacing: "0.2em", filter: "blur(0px)", scale: 1 }}
       transition={{ duration: 0.8, ease: "easeOut", delay: 1.1 }}
-      className="text-amber-500 font-black uppercase tracking-[0.2em] text-[9px] absolute w-[80px] text-left"
+      className="text-amber-500 font-black uppercase tracking-[0.2em] text-[11px] lg:text-xs absolute w-[90px] text-left drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"
     >
       CONNECT
     </motion.div>
@@ -69,6 +70,7 @@ const Navbar = () => {
   const { location: appLocation, setShowModal } = useUserLocation();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showActions, setShowActions] = useState(true);
 
   const userInfoStr = localStorage.getItem('userInfo');
   const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
@@ -136,11 +138,13 @@ const Navbar = () => {
   }, []);
 
   const getNavLinks = () => {
+    const iconClass = "w-3 h-3 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 mr-1 lg:mr-1.5 shrink-0";
     return [
-      { name: 'Home', path: '/' },
+      { name: 'Home', path: '/', icon: <Home className={iconClass} /> },
       {
         name: 'Forge Services',
         isMega: true,
+        icon: <Settings className={iconClass} />,
         widthClass: 'w-[95vw] max-w-[1200px]',
         alignClass: 'left-1/2 -translate-x-1/2',
         gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
@@ -159,140 +163,89 @@ const Navbar = () => {
           {
             title: 'IT & Digital Solutions',
             items: [
-              { name: 'Website Development', path: '/services/category/website-development', icon: <Code size={16} /> },
-              { name: 'Mobile App Development', path: '/services/category/app-development', icon: <Smartphone size={16} /> },
-              { name: 'Software Development', path: '/services/category/it-solutions', icon: <Cpu size={16} /> },
-              { name: 'CRM Solutions', path: '/services/category/it-solutions', icon: <Zap size={16} /> },
-              { name: 'ERP Solutions', path: '/services/category/it-solutions', icon: <Layout size={16} /> },
-              { name: 'Cloud Services', path: '/services/category/it-solutions', icon: <Network size={16} /> },
-              { name: 'IT Consulting', path: '/services/category/it-solutions', icon: <Droplets size={16} /> },
+              { name: 'IT Solutions', path: '/it-solutions', icon: <Cpu size={16} /> },
+              { name: 'Cloud Services', path: '/cloud-services', icon: <Network size={16} /> },
+              { name: 'CRM Solutions', path: '/crm-solutions', icon: <Zap size={16} /> },
+              { name: 'Website Development', path: '/web-development', icon: <Code size={16} /> },
+              { name: 'Mobile App Development', path: '/app-development', icon: <Smartphone size={16} /> },
+              { name: 'ERP Solutions', path: '/services/category/erp-solutions', icon: <Layout size={16} /> },
             ]
           },
           {
             title: 'Marketing & Branding',
             items: [
-              { name: 'Digital Marketing', path: '/services/category/digital-marketing', icon: <Paintbrush size={16} /> },
-              { name: 'SEO Services', path: '/services/category/digital-marketing', icon: <Search size={16} /> },
-              { name: 'Social Media Management', path: '/services/category/digital-marketing', icon: <Globe size={16} /> },
-              { name: 'Branding & Design', path: '/services/category/digital-marketing', icon: <Sparkles size={16} /> },
-              { name: 'Advertising Services', path: '/services/category/digital-marketing', icon: <Rocket size={16} /> },
+              { name: 'Digital Marketing', path: '/digital-marketing', icon: <Paintbrush size={16} /> },
+              { name: 'SEO Services', path: '/digital-marketing', icon: <Search size={16} /> },
+              { name: 'Social Media Management', path: '/digital-marketing', icon: <Globe size={16} /> },
+              { name: 'Branding & Design', path: '/digital-marketing', icon: <Sparkles size={16} /> },
+              { name: 'Advertising Services', path: '/digital-marketing', icon: <Rocket size={16} /> },
             ]
           },
           {
             title: 'Insurance & Business Support',
             items: [
-              { name: 'Insurance Services', path: '/contact', icon: <Shield size={16} /> },
-              { name: 'Financial Assistance', path: '/contact', icon: <FileText size={16} /> },
-              { name: 'Documentation Support', path: '/contact', icon: <FileText size={16} /> },
-              { name: 'Business Registration', path: '/services/category/business-consulting', icon: <Building2 size={16} /> },
-              { name: 'Business Compliance', path: '/contact', icon: <CheckSquare size={16} /> },
+              { name: 'Insurance Services', path: '/insurance-services', icon: <Shield size={16} /> },
+              { name: 'Financial Assistance', path: '/insurance-services', icon: <FileText size={16} /> },
+              { name: 'Documentation Support', path: '/insurance-services', icon: <FileText size={16} /> },
+              { name: 'Business Registration', path: '/insurance-services', icon: <Building2 size={16} /> },
+              { name: 'Business Compliance', path: '/insurance-services', icon: <CheckSquare size={16} /> },
             ]
           }
         ]
       },
       {
-        name: 'Customer Services',
+        name: 'Explore More',
         isMega: true,
-        widthClass: 'w-[90vw] max-w-[800px]',
+        icon: <Compass className={iconClass} />,
+        widthClass: 'w-[90vw] max-w-[1000px]',
         alignClass: 'left-1/2 -translate-x-1/2',
-        gridClass: 'grid-cols-1 md:grid-cols-2',
+        gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
         categories: [
           {
-            title: 'Shopping & Products',
+            title: 'Customer Services',
             items: [
               { name: 'Product Ordering', path: '/explore-shop', icon: <ShoppingBag size={16} /> },
-              { name: 'Grocery Shopping', path: '/explore-shop', icon: <ShoppingCart size={16} /> },
-              { name: 'Product Delivery', path: '/explore-shop', icon: <Truck size={16} /> },
-              { name: 'Online Orders', path: '/explore-shop', icon: <ShoppingBag size={16} /> },
-              { name: 'Cart & Checkout', path: '/cart', icon: <ShoppingCart size={16} /> },
-              { name: 'Atomy Wellness', path: '/atomy', icon: <Gift size={16} /> }
-            ]
-          },
-          {
-            title: 'Book a Service',
-            items: [
               { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={16} /> },
               { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={16} /> },
-              { name: 'PG & Hostel Booking', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'PG' }, icon: <Building2 size={16} /> },
               { name: 'Hotel Bookings', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Hotel' }, icon: <Building2 size={16} /> },
-              { name: 'Ride Services', path: '/services/rides', icon: <MapPin size={16} /> },
               { name: 'Service Tracking', path: '/track-mission', icon: <Zap size={16} /> }
             ]
-          }
-        ]
-      },
-      {
-        name: 'Careers',
-        isMega: true,
-        widthClass: 'w-[320px]',
-        alignClass: 'left-1/2 -translate-x-1/2',
-        gridClass: 'grid-cols-1',
-        categories: [
+          },
           {
-            title: 'Candidate Opportunities',
+            title: 'Partner Network',
             items: [
-              { name: 'Apply For Jobs', path: '/jobs', icon: <Briefcase size={16} /> },
-              { name: 'Upload & Scan Resume', path: '/candidate/dashboard', icon: <Rocket size={16} /> },
-              { name: 'Track Applications', path: '/candidate/dashboard', icon: <FileText size={16} /> },
-              { name: 'Interview Schedules', path: '/candidate/dashboard', icon: <GraduationCap size={16} /> },
-              { name: 'Explore Categories', path: '/explore-jobs', icon: <Search size={16} /> }
-            ]
-          }
-        ]
-      },
-      {
-        name: 'Partners',
-        isMega: true,
-        widthClass: 'w-[90vw] max-w-[900px]',
-        alignClass: 'left-1/2 -translate-x-1/2',
-        gridClass: 'grid-cols-1 md:grid-cols-3',
-        categories: [
-          {
-            title: 'Delivery Partner',
-            items: [
-              { name: 'Join Delivery Partner', path: '/register', icon: <Truck size={16} /> },
-              { name: 'Delivery Benefits', path: '/contact', icon: <Gift size={16} /> },
-              { name: 'Earnings & Incentives', path: '/contact', icon: <Wallet size={16} /> },
-              { name: 'Partner App Info', path: '/contact', icon: <Smartphone size={16} /> }
+              { name: 'Vendor Registration', path: '/register', state: { presetRole: 'Vendor' }, icon: <Building2 size={16} /> },
+              { name: 'Delivery Partner', path: '/register', state: { presetRole: 'Delivery Partner' }, icon: <Truck size={16} /> },
+              { name: 'Agent Network', path: '/agent-network', icon: <Users size={16} /> },
+              { name: 'Partner Dashboard', path: '/login', icon: <LayoutDashboard size={16} /> }
             ]
           },
           {
-            title: 'Agent Partner',
+            title: 'About & Support',
             items: [
-              { name: 'Join Agent Network', path: 'https://agent-3-mu.vercel.app/', icon: <Users size={16} /> },
-              { name: 'Sales Partnership', path: 'https://agent-3-mu.vercel.app/', icon: <Building2 size={16} /> },
-              { name: 'Commission Programs', path: 'https://agent-3-mu.vercel.app/', icon: <Wallet size={16} /> },
-              { name: 'Agent Dashboard', path: 'https://agent-3-mu.vercel.app/', icon: <LayoutDashboard size={16} /> }
-            ]
-          },
-          {
-            title: 'Vendor Partner',
-            items: [
-              { name: 'Vendor Registration', path: '/register', icon: <Building2 size={16} /> },
-              { name: 'Vendor Dashboard', path: '/login', icon: <LayoutDashboard size={16} /> },
-              { name: 'Product Listing Portal', path: '/login', icon: <ShoppingBag size={16} /> },
-              { name: 'Supply Chain Console', path: '/login', icon: <Network size={16} /> }
+              { name: 'About Forge India', path: '/about', icon: <Info size={16} /> },
+              { name: 'Contact Support', path: '/contact', icon: <PhoneCall size={16} /> },
+              { name: 'Atomy Wellness', path: '/atomy', icon: <Gift size={16} /> }
             ]
           }
         ]
-      },
-      { name: 'About', path: '/about' },
-      { name: 'Contact', path: '/contact' }
+      }
     ];
   };
 
   const navLinks = getNavLinks();
 
   return (
-    <nav className={`fixed w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-3 bg-white/95 dark:bg-dark-bg/95 backdrop-blur-xl shadow-2xl border-b border-gray-100 dark:border-gray-800' : 'py-5 bg-transparent'}`}>
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-12 2xl:px-24">
-        <div className="flex justify-between items-center gap-2">
+    <nav className={`fixed top-0 w-full z-[99999] transition-all duration-500 ${isScrolled ? 'py-1 bg-white/70 dark:bg-dark-bg/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b border-gray-200/50 dark:border-gray-800/50' : 'py-2 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-800/30'}`}>
+      <div className="w-full max-w-[1536px] mx-auto px-2 sm:px-4 md:px-6 xl:px-8">
+        <div className="flex flex-nowrap items-center justify-between w-full gap-1 lg:gap-2 xl:gap-4 whitespace-nowrap overflow-visible h-16 lg:h-20">
           
-          <Link to="/" className="flex items-center gap-1.5 md:gap-4 group relative shrink-0 min-w-[160px] md:min-w-[220px] md:max-w-none">
-            <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white dark:bg-dark-card rounded-lg md:rounded-xl lg:rounded-2xl flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center justify-start shrink-0">
+            <Link to="/" className="flex items-center gap-2 group relative shrink-0">
+            <div className="w-8 h-8 lg:w-9 lg:h-9 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
               <motion.img 
-                src="/logo.svg" 
-                alt="Forge India Connect Official Logo" 
+                src="/logo.jpg" 
+                alt="Forge India Connect" 
                 decoding="async"
                 className="w-[90%] h-[90%] object-contain rounded-lg"
                 onError={(e) => {
@@ -304,23 +257,26 @@ const Navbar = () => {
               />
             </div>
             <div className="flex flex-col justify-center min-w-0">
-              <span className="text-[10px] md:text-sm lg:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
+              <span className="text-[10px] md:text-sm lg:text-[13px] xl:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
                 <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
               </span>
-              <div className="mt-0.5 scale-[0.5] md:scale-[0.8] lg:scale-100 origin-left flex justify-start">
+              <div className="mt-0.5 scale-[0.5] md:scale-[0.8] lg:scale-[0.7] xl:scale-100 origin-left flex justify-start">
                 <AnimatedConnectText key={location.pathname} />
               </div>
             </div>
-          </Link>
+            </Link>
+          </div>
 
-          <div className="hidden lg:flex flex-1 justify-center items-center gap-4 2xl:gap-8 mx-2 2xl:mx-10 min-w-0">
+          {/* Center: Navigation Links */}
+          <div className="hidden lg:flex items-center justify-center flex-1 gap-4 xl:gap-6 2xl:gap-8 min-w-0">
             {navLinks.map((link) => (
               <React.Fragment key={link.name}>
                 {link.isMega ? (
                   <div className="group py-4 flex items-center h-full">
-                    <button className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[11px] 2xl:text-[12px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
+                    <button className="flex items-center text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
+                      {link.icon}
                       {link.name} 
-                      <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-300" />
+                      <ChevronDown className="w-2.5 h-2.5 lg:w-2.5 lg:h-2.5 xl:w-3 xl:h-3 group-hover:rotate-180 transition-transform duration-300 ml-0.5 xl:ml-1" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                     </button>
                     
@@ -362,180 +318,180 @@ const Navbar = () => {
                 ) : (
                   <Link 
                     to={link.path || '#'} 
-                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[11px] 2xl:text-[12px] uppercase tracking-[0.15em] 2xl:tracking-[0.2em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                    className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                   >
+                    {link.icon}
                     {link.name}
                     <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                   </Link>
                 )}
               </React.Fragment>
             ))}
-          </div>
+            </div>
 
-          <div className="hidden lg:flex items-center gap-2 2xl:gap-4 shrink-0 h-12">
-            <button 
-              onClick={() => setShowModal(true)}
-              className="flex items-center h-full gap-2 px-3 2xl:px-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm group/loc shrink-0"
-            >
-              <div className="w-7 h-7 2xl:w-8 2xl:h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center group-hover/loc:scale-110 transition-transform">
-                <MapPin size={14} />
-              </div>
-              <div className="text-left flex flex-col justify-center leading-none">
-                <p className="text-[7px] 2xl:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Service Area</p>
-                <p className="text-[9px] 2xl:text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[60px] 2xl:max-w-[80px] uppercase">
-                  {appLocation?.city || 'Select Area'}
-                </p>
-              </div>
-            </button>
+          {/* Right: Actions & Mobile Menu */}
+          <div className="flex flex-nowrap items-center justify-end gap-1 xl:gap-2 shrink-0 whitespace-nowrap">
+            
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0 h-10 relative">
 
-            {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
-              <Link to="/cart" className="relative flex items-center justify-center w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
-                <ShoppingCart size={18} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+              {isLoggedIn ? (
+                <div className="relative group/profile">
+                  <button className="flex items-center justify-center w-10 h-10 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary/50 transition-all shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm uppercase shadow-sm">
+                      {userInfo.firstName?.[0] ?? '?'}
+                    </div>
+                  </button>
+                  <div className="absolute top-[100%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500">
+                    <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
+                      <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
+                      <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
+                    </button>
+                    <div className="px-4 py-2 flex items-center justify-between border-b border-gray-50 dark:border-gray-800 mb-2">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Interface Theme</span>
+                      <ThemeToggle />
+                    </div>
+                    <button onClick={handleDashboardClick} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
+                      <LayoutDashboard size={20} className="text-gray-400 group-hover/sub:text-primary" />
+                      <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Control Hub</span>
+                    </button>
+                    <div className="my-2 border-t border-gray-100 dark:border-gray-800"></div>
+                    <button onClick={handleLogout} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all text-left rounded-2xl group/sub">
+                      <LogOut size={20} />
+                      <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 xl:gap-2 shrink-0">
+                  <Link to="/login" className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-gray-50 hover:bg-primary/10 text-gray-500 hover:text-primary rounded-full transition-all" title="Login">
+                    <User className="w-4 h-4" />
+                  </Link>
+                  <Link 
+                    to="/contact" 
+                    className="flex items-center h-7 lg:h-8 xl:h-9 px-2 lg:px-3 xl:px-4 bg-primary text-white rounded-full font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap shrink-0"
+                  >
+                    Hire Through FIC <ExternalLink className="w-2.5 h-2.5 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 ml-1" />
+                  </Link>
+                </div>
+              )}
+              
+              {/* Location, Cart, Notifications (Moved out of dropdown) */}
+              <button 
+                onClick={() => setShowModal(true)}
+                className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 hover:bg-white dark:hover:bg-dark-card border border-gray-200/50 dark:border-gray-800/50 rounded-full transition-all group/loc shadow-sm"
+                title="Location"
+              >
+                <div className="flex items-center justify-center text-primary group-hover/loc:scale-110 transition-transform">
+                  <MapPin size={16} />
+                </div>
+              </button>
+
+              {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
+                <Link to="/cart" className="relative flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
+                  <ShoppingCart size={16} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+                  {cartItems.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                      {cartItems.length}
+                    </span>
+                  )}
+                </Link>
+              )}
+
+              <div className="relative group/notif">
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-secondary transition-all shadow-sm shrink-0"
+                >
+                  <Bell size={16} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                
+                <AnimatePresence>
+                  {showNotifications && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute top-full right-0 mt-4 w-80 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-6 z-[100]"
+                    >
+                      <div className="flex justify-between items-center mb-6">
+                        <h4 className="text-sm font-black uppercase tracking-tighter">Intelligence <span className="text-secondary">Feed</span></h4>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAllAsRead();
+                          }} 
+                          className="text-[10px] text-gray-400 hover:text-primary font-bold uppercase tracking-widest transition-colors flex items-center gap-1"
+                        >
+                          <CheckSquare size={12} /> Clear All
+                        </button>
+                      </div>
+                      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {notifications.length === 0 ? (
+                          <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase tracking-widest">No signals detected</p>
+                        ) : (
+                          notifications.map((n) => {
+                            const isOTP = n.type === 'otp' || n.title?.toLowerCase().includes('otp');
+                            return (
+                              <div 
+                                key={n._id} 
+                                onClick={() => !n.isRead && markAsRead(n._id)}
+                                className={`p-4 rounded-2xl border cursor-pointer group/notifitem transition-all ${n.isRead ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800 opacity-60' : 'bg-secondary/5 border-secondary/20 shadow-md ring-1 ring-secondary/10'}`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  {isOTP && (
+                                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                                      <Zap size={14} />
+                                    </div>
+                                  )}
+                                  <div className="flex-1">
+                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${n.isRead ? 'text-gray-400' : 'text-secondary'}`}>
+                                      {n.title || (isOTP ? 'Security Alert' : 'System Message')}
+                                    </p>
+                                    <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
+                                    <div className="flex items-center justify-between mt-2">
+                                      <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
+                                      {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                      <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            <div className="lg:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
+              <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
+                <ShoppingCart size={18} />
                 {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 2xl:w-5 2xl:h-5 bg-primary text-white text-[9px] 2xl:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center">
                     {cartItems.length}
                   </span>
                 )}
               </Link>
-            )}
-
-            <div className="relative group/notif h-full">
               <button 
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="flex items-center justify-center w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-secondary transition-all shadow-sm shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }}
+                className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
               >
-                <Bell size={18} className="text-gray-600 dark:text-gray-300 group-hover/notif:text-secondary transition-colors" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 2xl:w-5 2xl:h-5 bg-secondary text-white text-[9px] 2xl:text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg">
-                    {unreadCount}
-                  </span>
-                )}
+                <Menu size={20} />
               </button>
-              
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute top-full right-0 mt-4 w-80 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-6 z-[100]"
-                  >
-                    <div className="flex justify-between items-center mb-6">
-                      <h4 className="text-sm font-black uppercase tracking-tighter">Intelligence <span className="text-secondary">Feed</span></h4>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markAllAsRead();
-                        }} 
-                        className="text-[9px] font-black text-gray-400 uppercase hover:text-primary transition-colors bg-gray-50 dark:bg-dark-bg px-3 py-1.5 rounded-full border border-gray-100 dark:border-gray-800"
-                      >
-                        Clear Signals
-                      </button>
-                    </div>
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {notifications.length === 0 ? (
-                        <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase tracking-widest">No signals detected</p>
-                      ) : (
-                        notifications.map((n) => {
-                          const isOTP = n.type === 'otp' || n.title?.toLowerCase().includes('otp');
-                          return (
-                            <div 
-                              key={n._id} 
-                              onClick={() => !n.isRead && markAsRead(n._id)}
-                              className={`p-4 rounded-2xl border cursor-pointer group/notifitem transition-all ${n.isRead ? 'bg-gray-50/50 dark:bg-dark-bg/50 border-gray-100 dark:border-gray-800 opacity-60' : 'bg-secondary/5 border-secondary/20 shadow-md ring-1 ring-secondary/10'}`}
-                            >
-                              <div className="flex items-start gap-3">
-                                {isOTP && (
-                                  <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
-                                    <Zap size={14} />
-                                  </div>
-                                )}
-                                <div className="flex-1">
-                                  <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${n.isRead ? 'text-gray-400' : 'text-secondary'}`}>
-                                    {n.title || (isOTP ? 'Security Alert' : 'System Message')}
-                                  </p>
-                                  <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
-                                  <div className="flex items-center justify-between mt-2">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
-                                    {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                    <Link to="/notifications" onClick={() => setShowNotifications(false)} className="block text-center mt-6 text-[10px] font-black uppercase tracking-widest text-primary hover:underline">View All Operations</Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
-            
-            {isLoggedIn ? (
-              <div className="relative group/profile h-full">
-                <button className="flex items-center h-full gap-3 px-2 pr-4 bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-full hover:border-primary/20 transition-all shadow-sm">
-                  <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-xs uppercase shadow-sm">
-                    {userInfo.firstName?.[0] ?? '?'}
-                  </div>
-                  <div className="text-left flex flex-col justify-center leading-none">
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Welcome</p>
-                    <p className="text-[10px] font-black text-gray-900 dark:text-white truncate max-w-[80px] uppercase">{userInfo.firstName}</p>
-                  </div>
-                </button>
-                <div className="absolute top-[100%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500">
-                  <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
-                    <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
-                    <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
-                  </button>
-                  <div className="px-4 py-2 flex items-center justify-between border-b border-gray-50 dark:border-gray-800 mb-2">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Interface Theme</span>
-                    <ThemeToggle />
-                  </div>
-                  <button onClick={handleDashboardClick} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
-                    <LayoutDashboard size={20} className="text-gray-400 group-hover/sub:text-primary" />
-                    <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Control Hub</span>
-                  </button>
-                  <div className="my-2 border-t border-gray-100 dark:border-gray-800"></div>
-                  <button onClick={handleLogout} className="w-full flex items-center gap-4 p-4 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-all text-left rounded-2xl group/sub">
-                    <LogOut size={20} />
-                    <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 2xl:gap-4 h-full shrink-0">
-                <Link to="/login" className="text-[9px] 2xl:text-[10px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-primary transition-colors shrink-0">Login</Link>
-                <Link 
-                  to="/contact" 
-                  className="flex items-center h-full px-4 2xl:px-6 bg-primary text-white rounded-full font-black text-[9px] 2xl:text-[10px] uppercase tracking-[0.15em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap shrink-0"
-                >
-                  Hire Through FIC
-                </Link>
-              </div>
-            )}
           </div>
-
-          <div className="lg:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
-            <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
-              <ShoppingCart size={18} />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center">
-                  {cartItems.length}
-                </span>
-              )}
-            </Link>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsOpen(true);
-              }}
-              className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white active:scale-90 transition-all shadow-sm"
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
         </div>
       </div>
 
@@ -555,7 +511,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[100001] shadow-3xl flex flex-col overflow-y-auto"
+              className="fixed top-0 right-0 h-[100dvh] w-[85vw] max-w-sm bg-white dark:bg-dark-bg z-[100001] shadow-3xl flex flex-col overflow-y-auto"
             >
               <div className="p-6 md:p-8 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-dark-bg/50 backdrop-blur-sm sticky top-0 z-[10]">
                 <div className="flex items-center gap-3 min-w-0">

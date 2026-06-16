@@ -50,7 +50,8 @@ const Login = () => {
  'HR': '/hr',
  'Delivery Partner': '/delivery',
  'Candidate': '/candidate/dashboard',
- 'Trainer': '/trainer-dashboard'
+ 'Trainer': '/trainer-dashboard',
+ 'Customer': '/profile'
  };
  
  navigate(roleMap[data.role] || '/');

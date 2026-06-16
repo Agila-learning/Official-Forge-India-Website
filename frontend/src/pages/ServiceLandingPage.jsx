@@ -3,7 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Zap, ShieldCheck, Cpu, Smartphone, Code, ArrowRight, MessageSquare,
   CheckCircle2, BarChart, Globe, Terminal, Layers, X, Loader2, Send,
-  Building2, Clock, DollarSign
+  Building2, Clock, DollarSign,
+  Network,
+  Droplets,
+  Search,
+  Paintbrush,
+  Sparkles,
+  Rocket,
+  FileText,
+  FileSpreadsheet,
+  GraduationCap,
+  Compass,
+  CheckSquare,
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import SEOMeta from '../components/ui/SEOMeta';
@@ -18,7 +29,7 @@ const serviceData = {
     desc: 'Deploy resilient, cloud-native IT systems that grow with your business. From cybersecurity audits to managed cloud migrations.',
     icon: Cpu,
     color: 'from-blue-600 to-indigo-600',
-    heroImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1920&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1920&auto=format&fit=crop',
     features: [
       { icon: ShieldCheck, title: 'Security Audits', desc: 'Comprehensive vulnerability assessments.' },
       { icon: Layers, title: 'Cloud Integration', desc: 'Hybrid and multi-cloud architecture.' },
@@ -32,7 +43,7 @@ const serviceData = {
     desc: 'High-performance corporate websites and e-commerce platforms designed for conversion and speed.',
     icon: Code,
     color: 'from-emerald-500 to-teal-600',
-    heroImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1920&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1920&auto=format&fit=crop',
     features: [
       { icon: Zap, title: 'Performance First', desc: 'Optimized for Core Web Vitals.' },
       { icon: Globe, title: 'Global Reach', desc: 'Multi-lingual and localized SEO.' },
@@ -46,7 +57,7 @@ const serviceData = {
     desc: 'Bespoke mobile applications for iOS and Android that engage users and drive operational efficiency.',
     icon: Smartphone,
     color: 'from-orange-500 to-rose-600',
-    heroImage: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1920&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?q=80&w=1920&auto=format&fit=crop',
     features: [
       { icon: Smartphone, title: 'Native iOS/Android', desc: 'High-performance platform-specific builds.' },
       { icon: Zap, title: 'Fast MVP', desc: 'Accelerated development cycles.' },
@@ -60,7 +71,7 @@ const serviceData = {
     desc: 'Accelerate your customer acquisition through targeted performance marketing and content strategy.',
     icon: BarChart,
     color: 'from-purple-500 to-pink-600',
-    heroImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1920&auto=format&fit=crop',
+    heroImage: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=1920&auto=format&fit=crop',
     features: [
       { icon: BarChart, title: 'PPC Management', desc: 'Maximize ROI on ad spend.' },
       { icon: MessageSquare, title: 'Content Strategy', desc: 'Engage your audience naturally.' },
@@ -68,6 +79,204 @@ const serviceData = {
     ],
     highlights: ['Google & Meta Ads', 'Monthly Analytics Reports', 'Dedicated Campaign Manager', 'A/B Testing'],
   },
+  'insurance-services': {
+    title: 'Insurance Consulting',
+    subtitle: 'Comprehensive Protection For Your Future',
+    desc: 'Navigate complex insurance portfolios with our expert advisors. From enterprise liability to personal health coverage.',
+    icon: ShieldCheck,
+    color: 'from-violet-500 to-indigo-600',
+    heroImage: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: ShieldCheck, title: 'Risk Assessment', desc: 'Identify critical vulnerabilities.' },
+      { icon: BarChart, title: 'Portfolio Management', desc: 'Optimize premiums and coverage.' },
+      { icon: CheckCircle2, title: 'Claims Assistance', desc: 'End-to-end support during claims.' }
+    ],
+    highlights: ['Certified IRDAI Advisors', 'Custom Policy Structuring', 'Corporate Health Plans', 'Free Initial Consultation'],
+  },
+  'crm-solutions': {
+    title: 'CRM Solutions',
+    subtitle: 'Intelligent Customer Relationship Management',
+    desc: 'Streamline your sales pipeline and automate customer interactions with our customized CRM deployments.',
+    icon: Layers,
+    color: 'from-sky-500 to-blue-600',
+    heroImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: BarChart, title: 'Sales Automation', desc: 'Automate repetitive follow-ups.' },
+      { icon: Globe, title: 'Omnichannel Support', desc: 'Unify communication channels.' },
+      { icon: Zap, title: 'Analytics Dashboard', desc: 'Real-time performance tracking.' }
+    ],
+    highlights: ['Salesforce & Zoho Integration', 'Data Migration Services', 'Custom Automations', 'Staff Training Included'],
+  },
+
+  'software-development': {
+    title: 'Custom Software Development',
+    subtitle: 'Tailored Solutions for Complex Business Problems',
+    desc: 'End-to-end software engineering using modern stacks. We build robust, scalable applications tailored perfectly to your operational needs.',
+    icon: Code,
+    color: 'from-blue-500 to-indigo-600',
+    heroImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Code, title: 'Custom Architecture', desc: 'Built specifically for your business logic.' },
+      { icon: ShieldCheck, title: 'Secure by Design', desc: 'Enterprise-grade security standards.' },
+      { icon: Zap, title: 'High Performance', desc: 'Optimized for speed and scale.' }
+    ],
+    highlights: ['Microservices Architecture', 'Agile Methodology', 'Post-Launch Support', 'Full IP Ownership']
+  },
+  'erp-solutions': {
+    title: 'ERP Solutions',
+    subtitle: 'Unify Your Business Operations',
+    desc: 'Integrate all your core business processes—finance, HR, manufacturing, supply chain—into a single, intelligent system.',
+    icon: Layers,
+    color: 'from-emerald-500 to-green-700',
+    heroImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: BarChart, title: 'Data Centralization', desc: 'Single source of truth for all departments.' },
+      { icon: Zap, title: 'Process Automation', desc: 'Eliminate manual data entry.' },
+      { icon: Globe, title: 'Real-Time Insights', desc: 'Live dashboards for executives.' }
+    ],
+    highlights: ['SAP & Oracle Integration', 'Custom Module Development', 'Data Migration', 'Staff Training']
+  },
+  'cloud-services': {
+    title: 'Cloud Computing Services',
+    subtitle: 'Scale Infinitely, Securely',
+    desc: 'Migrate, manage, and optimize your infrastructure on AWS, Azure, or GCP. Achieve high availability and disaster recovery.',
+    icon: Network,
+    color: 'from-sky-400 to-blue-600',
+    heroImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Network, title: 'Cloud Migration', desc: 'Seamless transition to the cloud.' },
+      { icon: ShieldCheck, title: 'Disaster Recovery', desc: 'Automated backups and failover.' },
+      { icon: Terminal, title: 'DevOps & CI/CD', desc: 'Automated deployment pipelines.' }
+    ],
+    highlights: ['AWS / Azure / GCP', '24/7 Monitoring', 'Cost Optimization', 'Serverless Architecture']
+  },
+  'it-consulting': {
+    title: 'IT Consulting',
+    subtitle: 'Strategic Technology Roadmaps',
+    desc: 'Align your technology strategy with your business goals. Our experts help you navigate digital transformation and system architecture.',
+    icon: Droplets,
+    color: 'from-slate-600 to-gray-800',
+    heroImage: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: ShieldCheck, title: 'Tech Audits', desc: 'Comprehensive system reviews.' },
+      { icon: Layers, title: 'Digital Transformation', desc: 'Modernize legacy systems.' },
+      { icon: BarChart, title: 'Cost Analysis', desc: 'Optimize IT spending and ROI.' }
+    ],
+    highlights: ['Vendor Agnostic Advice', 'Enterprise Architecture', 'Security Compliance', 'Strategic Planning']
+  },
+  'seo-services': {
+    title: 'SEO Services',
+    subtitle: 'Dominate Search Engine Rankings',
+    desc: 'Data-driven SEO strategies to increase organic visibility, drive targeted traffic, and outrank your competition.',
+    icon: Search,
+    color: 'from-green-500 to-teal-600',
+    heroImage: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Search, title: 'Keyword Research', desc: 'Identify high-intent search terms.' },
+      { icon: Code, title: 'Technical SEO', desc: 'Optimize site speed and structure.' },
+      { icon: Globe, title: 'Link Building', desc: 'High-authority backlink outreach.' }
+    ],
+    highlights: ['Monthly Audits', 'Local SEO', 'Competitor Analysis', 'Content Optimization']
+  },
+  'social-media-management': {
+    title: 'Social Media Management',
+    subtitle: 'Build Your Brand Community',
+    desc: 'Engaging content creation, community management, and targeted ad campaigns across Facebook, Instagram, LinkedIn, and X.',
+    icon: Globe,
+    color: 'from-pink-500 to-rose-600',
+    heroImage: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: MessageSquare, title: 'Content Creation', desc: 'Viral, brand-aligned posts.' },
+      { icon: BarChart, title: 'Paid Ads', desc: 'High ROI targeted social campaigns.' },
+      { icon: CheckCircle2, title: 'Community Growth', desc: 'Active engagement with followers.' }
+    ],
+    highlights: ['Content Calendars', 'Influencer Outreach', 'Analytics Reports', 'Crisis Management']
+  },
+  'branding-design': {
+    title: 'Branding & Design',
+    subtitle: 'Visual Identities That Resonate',
+    desc: 'Crafting memorable brand identities, logos, and UI/UX designs that captivate your audience and communicate your values.',
+    icon: Sparkles,
+    color: 'from-amber-400 to-orange-500',
+    heroImage: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Sparkles, title: 'Brand Identity', desc: 'Logos, colors, and typography.' },
+      { icon: Layers, title: 'UI/UX Design', desc: 'Intuitive user experiences.' },
+      { icon: Code, title: 'Print & Digital', desc: 'Cohesive assets for all mediums.' }
+    ],
+    highlights: ['Brand Guidelines', 'Wireframing', 'Market Research', 'Rebranding Strategies']
+  },
+  'advertising-services': {
+    title: 'Advertising Services',
+    subtitle: 'High-Conversion Paid Campaigns',
+    desc: 'Maximize your advertising budget with precision-targeted PPC and display ads across Google, Meta, and premium networks.',
+    icon: Rocket,
+    color: 'from-red-500 to-rose-700',
+    heroImage: 'https://images.unsplash.com/photo-1557838923-2985c318be48?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Zap, title: 'Google Ads', desc: 'Capture high-intent search traffic.' },
+      { icon: BarChart, title: 'Retargeting', desc: 'Bring back lost visitors.' },
+      { icon: Terminal, title: 'A/B Testing', desc: 'Continuous ad copy optimization.' }
+    ],
+    highlights: ['ROAS Focus', 'Custom Landing Pages', 'Video Ads', 'Real-time Bidding']
+  },
+  'financial-assistance': {
+    title: 'Financial Assistance',
+    subtitle: 'Strategic Capital for Growth',
+    desc: 'Expert guidance on securing business loans, venture capital, and government grants to fuel your expansion.',
+    icon: DollarSign,
+    color: 'from-green-600 to-emerald-800',
+    heroImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: BarChart, title: 'Financial Modeling', desc: 'Accurate growth projections.' },
+      { icon: CheckCircle2, title: 'Loan Procurement', desc: 'Connect with premium lenders.' },
+      { icon: Layers, title: 'Grant Applications', desc: 'Identify and apply for subsidies.' }
+    ],
+    highlights: ['VC Pitch Decks', 'SME Loans', 'Tax Optimization', 'Working Capital Advisory']
+  },
+  'documentation-support': {
+    title: 'Documentation Support',
+    subtitle: 'Flawless Paperwork & Compliance',
+    desc: 'Professional drafting of NDAs, contracts, employment agreements, and business proposals to protect your interests.',
+    icon: FileText,
+    color: 'from-slate-500 to-gray-700',
+    heroImage: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: FileText, title: 'Legal Drafting', desc: 'Watertight business contracts.' },
+      { icon: ShieldCheck, title: 'IP Protection', desc: 'Trademarks and patents.' },
+      { icon: CheckCircle2, title: 'Tender Prep', desc: 'Winning government bids.' }
+    ],
+    highlights: ['Corporate Governance', 'NDA & Non-competes', 'Policy Manuals', 'Notary Services']
+  },
+  'business-registration': {
+    title: 'Business Registration',
+    subtitle: 'Launch Your Startup Legally',
+    desc: 'Seamless company incorporation services. We handle the red tape so you can focus on building your product.',
+    icon: Building2,
+    color: 'from-blue-600 to-indigo-800',
+    heroImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: Building2, title: 'Company Incorporation', desc: 'Pvt Ltd, LLP, and Partnerships.' },
+      { icon: Zap, title: 'Fast Track', desc: 'Expedited registration processes.' },
+      { icon: ShieldCheck, title: 'Founder Agreements', desc: 'Protect equity and IP.' }
+    ],
+    highlights: ['DIN & DSC Registration', 'MoA & AoA Drafting', 'Startup India Registration', 'Virtual CFO']
+  },
+  'business-compliance': {
+    title: 'Business Compliance',
+    subtitle: 'Stay on the Right Side of the Law',
+    desc: 'Ongoing compliance management including GST filings, annual returns, and labor law adherence for risk-free operations.',
+    icon: CheckSquare,
+    color: 'from-violet-600 to-purple-800',
+    heroImage: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1920&auto=format&fit=crop',
+    features: [
+      { icon: CheckSquare, title: 'Tax Filings', desc: 'Timely GST and IT returns.' },
+      { icon: ShieldCheck, title: 'Labor Laws', desc: 'PF, ESI, and payroll compliance.' },
+      { icon: FileText, title: 'Annual RoC', desc: 'Ministry of Corporate Affairs filings.' }
+    ],
+    highlights: ['Dedicated Compliance Officer', 'Audit Support', 'Penalty Prevention', 'Regulatory Updates']
+  }
+,
   'logistics-delivery': {
     title: 'Logistics & Express Delivery',
     subtitle: 'Precision Global Supply Chain Deployment',

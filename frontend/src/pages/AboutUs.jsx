@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import {
   Target, Users, Award, Briefcase, Zap, Rocket, Globe,
   ArrowRight, ShieldCheck, Building2, Heart, CheckCircle2,
@@ -148,6 +150,20 @@ const VALUES = [
 /* ─── Main Component ─── */
 const AboutUs = () => {
   const [activeDiv, setActiveDiv] = useState(0);
+  const titleRef = useRef(null);
+
+  useGSAP(() => {
+    if (titleRef.current) {
+      gsap.to(titleRef.current, {
+        color: '#fb923c',
+        textShadow: "0px 0px 30px rgba(249, 115, 22, 0.6)",
+        duration: 2,
+        yoyo: true,
+        repeat: -1,
+        ease: 'power2.inOut',
+      });
+    }
+  }, []);
 
   return (
     <>
@@ -176,7 +192,7 @@ const AboutUs = () => {
                 </motion.span>
                 <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-8">
                   India's Premier<br />
-                  <span className="inline-block bg-gradient-to-r from-primary via-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                  <span ref={titleRef} className="inline-block bg-gradient-to-r from-primary via-blue-400 to-indigo-400 bg-clip-text text-transparent">
                     Business Ecosystem.
                   </span>
                 </h1>

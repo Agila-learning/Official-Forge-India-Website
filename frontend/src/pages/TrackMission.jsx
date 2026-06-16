@@ -34,7 +34,7 @@ const TrackMission = () => {
  const fetchOrder = async () => {
  if (!id) return;
  try {
- const { data } = await api.get(`/orders/${id}`);
+ const { data } = await api.get(`/orders/${id}/track`);
  setOrder(data);
  setLoading(false);
  } catch (err) {
@@ -93,19 +93,19 @@ const TrackMission = () => {
      <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-4">Track <span className="text-primary">Mission</span></h2>
      <p className="text-gray-500 font-bold text-xs uppercase tracking-widest mb-10">Enter your Order ID or Mission Sequence to sync live status</p>
      
-     <form onSubmit={handleSearch} className="flex gap-4">
-       <input 
-         type="text" 
-         value={searchInput}
-         onChange={(e) => setSearchInput(e.target.value)}
-         placeholder="e.g. 64a8f9b..." 
-         className="flex-1 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl px-6 py-4 outline-none focus:border-primary text-sm font-bold dark:text-white"
-         required
-       />
-       <button type="submit" className="bg-primary text-white px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-105 transition-all">
-         Sync
-       </button>
-     </form>
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
+        <input 
+          type="text" 
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="e.g. 64a8f9b..." 
+          className="flex-1 w-full bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 rounded-2xl px-6 py-4 outline-none focus:border-primary text-sm font-bold dark:text-white"
+          required
+        />
+        <button type="submit" className="bg-primary text-white px-8 py-4 sm:py-0 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 hover:scale-105 transition-all w-full sm:w-auto">
+          Sync
+        </button>
+      </form>
    </div>
  </div>
  );
@@ -255,8 +255,8 @@ const TrackMission = () => {
  <MapPin size={12}/> Target Hub
  </p>
  <p className="text-sm font-black leading-relaxed uppercase tracking-tight">
- {order.shippingAddress.address},<br/>
- {order.shippingAddress.city} - {order.shippingAddress.postalCode}
+  {order.shippingAddress?.address || 'Location Protected'},<br/>
+  {order.shippingAddress?.city || 'Encrypted Hub'} - {order.shippingAddress?.postalCode || 'N/A'}
  </p>
  </div>
  <div className="grid grid-cols-1 gap-8 pt-6 border-t border-white/10">

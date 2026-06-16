@@ -10,7 +10,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // @access  Private
 router.post('/', async (req, res) => {
   try {
-    const { serviceType, specificRequirement, message, contactNumber, name, email } = req.body;
+    const { serviceType, specificRequirement, message, contactNumber, name, email, requestType } = req.body;
 
     let userId = null;
     const authHeader = req.headers.authorization;
@@ -31,7 +31,8 @@ router.post('/', async (req, res) => {
       serviceType,
       specificRequirement,
       message,
-      contactNumber
+      contactNumber,
+      requestType
     });
 
     const createdInquiry = await inquiry.save();

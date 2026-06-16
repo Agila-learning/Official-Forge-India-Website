@@ -3,8 +3,14 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const Razorpay = require('razorpay');
 const { createNotification } = require('./notificationController');
 const { initializeSettlement } = require('./settlementController');
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret'
+});
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -173,14 +179,19 @@ const addOrderItems = async (req, res) => {
       }
 
       // Check if this item is a membership plan (convention: category === 'Membership')
-      // Note: We'd ideally fetch the product from DB to verify category, but using item data for now
-      // assuming the frontend passes the correct category/flag
       if (item.category === 'Membership' || item.name?.toLowerCase().includes('membership')) {
         membershipActivated = true;
         planValue = item.price;
-        if (planValue >= 5000) planTier = 'Elite';
-        else if (planValue >= 2999) planTier = 'Premium';
-        else if (planValue >= 999) planTier = 'Basic';
+        
+        // Extract exact plan name from format "FIC <PlanName> Membership"
+        const match = item.name.match(/FIC (.*) Membership/i);
+        if (match && match[1]) {
+          planTier = match[1];
+        } else {
+          // Fallback parsing
+          planTier = item.name.replace(/ Membership/i, '').replace(/FIC /i, '').trim();
+          if (!planTier) planTier = 'Basic';
+        }
       }
     }
 
@@ -188,9 +199,13 @@ const addOrderItems = async (req, res) => {
       const cycleStartDate = new Date();
       const cycleEndDate = new Date();
       cycleEndDate.setDate(cycleEndDate.getDate() + 30);
+      
+      const generatedMembershipId = req.user.membershipId || ('FIC-PLT-' + Math.floor(1000 + Math.random() * 9000));
 
       await User.findByIdAndUpdate(req.user._id, {
         isMember: true,
+        subscriptionLevel: planTier,
+        membershipId: generatedMembershipId,
         membershipVault: {
           planTier,
           planValue,
@@ -204,7 +219,7 @@ const addOrderItems = async (req, res) => {
       await createNotification(io, {
         user: req.user._id,
         title: 'Membership Activated!',
-        message: `Welcome to the ${planTier} tier. You now have unlimited access to services below ₹${planValue}.`,
+        message: `Welcome to the ${planTier} tier. You now have unlimited access to platform benefits.`,
         type: 'membership',
         link: '/profile'
       });
@@ -688,6 +703,139 @@ const getVendorOrders = async (req, res) => {
   }
 };
 
+// @desc    Delete order
+// @route   DELETE /api/orders/:id
+// @access  Private/Admin
+const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (order) {
+      await Order.findByIdAndDelete(req.params.id);
+      res.json({ message: 'Order removed' });
+    } else {
+      res.status(404).json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update order
+// @route   PUT /api/orders/:id
+// @access  Private/Admin
+const updateOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (order) {
+      const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(updatedOrder);
+    } else {
+      res.status(404).json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const createRazorpayOrder = async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount) return res.status(400).json({ message: 'Amount is required' });
+
+      const options = {
+        amount: amount * 100, // paise
+        currency: "INR",
+        receipt: `order_rcptid_${Date.now()}`
+      };
+
+      const order = await razorpay.orders.create(options);
+
+      // Generate fallback payment link
+      const user = req.user;
+      let paymentLink = null;
+      try {
+        const pLink = await razorpay.paymentLink.create({
+          amount: amount * 100,
+          currency: "INR",
+          accept_partial: false,
+          description: `Product Purchase`,
+          customer: {
+            name: user ? user.firstName || 'User' : 'User',
+            email: user ? user.email : 'test@example.com',
+            contact: user ? user.mobile || '9999999999' : '9999999999'
+          },
+          notify: { sms: false, email: false },
+          reminder_enable: false,
+        });
+        paymentLink = pLink.short_url;
+      } catch(e) {
+        console.warn('Failed to generate product payment link', e);
+      }
+
+      res.json({
+        orderId: order.id,
+        paymentLink,
+        keyId: process.env.RAZORPAY_KEY_ID
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+  // @desc    Request a return for a delivered order
+  // @route   PUT /api/orders/:id/return
+  // @access  Private
+  const requestReturn = async (req, res) => {
+    try {
+      const order = await Order.findById(req.params.id);
+
+      if (order) {
+        if (order.status !== 'Delivered') {
+          return res.status(400).json({ message: 'Only delivered orders can be returned' });
+        }
+        if (order.user.toString() !== req.user._id.toString()) {
+           return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        order.status = 'Return Requested';
+        order.returnReason = req.body.reason || 'No reason provided';
+        
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+      } else {
+        res.status(404).json({ message: 'Order not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+// @desc    Track public order status by ID
+// @route   GET /api/orders/:id/track
+// @access  Public
+const trackOrderById = async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Mission Sequence' });
+    }
+
+    const order = await Order.findById(req.params.id)
+      .populate('orderItems.product', 'name image price')
+      .select('-paymentResult -user'); // EXCLUDE sensitive info like user object and payment details
+
+    if (order) {
+      // Only return safe tracking details
+      res.json(order);
+    } else {
+      res.status(404).json({ message: 'Mission Sequence not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   addOrderItems,
   getOrderById,
@@ -701,5 +849,10 @@ module.exports = {
   rescheduleOrder,
   cancelOrder,
   getPartnerOrders,
-  getVendorOrders
+  getVendorOrders,
+  deleteOrder,
+  updateOrder,
+  createRazorpayOrder,
+  requestReturn,
+  trackOrderById
 };

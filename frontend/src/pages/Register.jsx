@@ -203,7 +203,18 @@ const Register = () => {
  } else {
  localStorage.setItem('token', data.token);
  localStorage.setItem('userInfo', JSON.stringify(data));
- window.location.href = '/';
+ const roleMap = {
+ 'Admin': '/admin/dashboard',
+ 'Vendor': '/vendor',
+ 'Seller': '/seller-dashboard',
+ 'Service Provider': '/service-provider',
+ 'HR': '/hr',
+ 'Delivery Partner': '/delivery',
+ 'Candidate': '/candidate/dashboard',
+ 'Trainer': '/trainer-dashboard',
+ 'Customer': '/profile'
+ };
+ window.location.href = roleMap[data.role] || '/';
  }
  } catch (err) {
  setError(err.response?.data?.message || 'Registration failed');

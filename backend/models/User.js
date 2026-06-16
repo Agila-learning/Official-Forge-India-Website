@@ -17,6 +17,8 @@ const userSchema = mongoose.Schema(
     address: { type: String },
     city: { type: String },
     pincode: { type: String },
+    gender: { type: String, enum: ['Male', 'Female', 'Other', ''] },
+    dob: { type: String },
     approvalStatus: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],
@@ -82,7 +84,7 @@ const userSchema = mongoose.Schema(
       balance: { type: Number, default: 0 },
       cycleStartDate: { type: Date },
       cycleEndDate: { type: Date },
-      planTier: { type: String, enum: ['None', 'Basic', 'Premium', 'Elite'], default: 'None' },
+      planTier: { type: String, default: 'None' },
       planValue: { type: Number, default: 0 },
       savingsThisMonth: { type: Number, default: 0 }
     },
@@ -90,7 +92,6 @@ const userSchema = mongoose.Schema(
     registrationFee: { type: Number, default: 0 },
     subscriptionLevel: { 
       type: String, 
-      enum: ['Free', 'Basic', 'Premium', 'Elite'], 
       default: 'Free' 
     },
     referredByAgentName: { type: String }, // Mandatory for vendors during reg

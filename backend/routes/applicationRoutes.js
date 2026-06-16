@@ -27,6 +27,32 @@ router.get('/', protect, hr, async (req, res) => {
   }
 });
 
+// @desc   Create an application (Admin view)
+// @route  POST /api/applications
+// @access Private (HR/Admin)
+router.post('/', protect, hr, async (req, res) => {
+  try {
+    const application = new Application(req.body);
+    const saved = await application.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @desc   Update an application (Admin view)
+// @route  PUT /api/applications/:id
+// @access Private (HR/Admin)
+router.put('/:id', protect, hr, async (req, res) => {
+  try {
+    const application = await Application.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!application) return res.status(404).json({ message: 'Application not found' });
+    res.json(application);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // @desc   Get my own applications (Candidate view)
 // @route  GET /api/applications/mine
 // @access Private (Candidate)
