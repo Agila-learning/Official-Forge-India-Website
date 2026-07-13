@@ -58,6 +58,7 @@ const JobPortal = lazy(() => import('./pages/JobPortal/JobPortal'));
 const HomeServices = lazy(() => import('./pages/HomeServices/HomeServices'));
 const EmployerDashboard = lazy(() => import('./pages/JobPortal/EmployerDashboard'));
 const ServiceWizard = lazy(() => import('./components/ui/ServiceWizard'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const OrderTrackingPage = lazy(() => import('./pages/OrderTrackingPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
