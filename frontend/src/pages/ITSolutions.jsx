@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Cpu, Server, Code, Smartphone, Terminal, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -28,9 +29,13 @@ const ITSolutions = () => {
             className="max-w-4xl"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center backdrop-blur-md border border-blue-500/30">
+              <motion.div 
+                animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(59,130,246,0)", "0 0 20px rgba(59,130,246,0.5)", "0 0 0px rgba(59,130,246,0)"] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center backdrop-blur-md border border-blue-500/30"
+              >
                 <Cpu size={24} className="text-blue-400" />
-              </div>
+              </motion.div>
               <span className="text-blue-400 font-black uppercase tracking-[0.3em] text-xs">Enterprise IT Architecture</span>
             </div>
             
@@ -62,34 +67,38 @@ const ITSolutions = () => {
               icon: Server,
               title: "Infrastructure Support",
               desc: "24/7 monitoring, network architecture, and server management to ensure zero downtime.",
-              color: "from-blue-500 to-cyan-500"
+              color: "from-blue-500 to-cyan-500",
+              slug: "infrastructure-support"
             },
             {
               icon: Code,
               title: "Custom Software Dev",
               desc: "Full-stack development of enterprise applications tailored to your business logic.",
-              color: "from-indigo-500 to-purple-500"
+              color: "from-indigo-500 to-purple-500",
+              slug: "custom-software-dev"
             },
             {
               icon: Smartphone,
               title: "Web & Mobile Solutions",
               desc: "High-performance React Native and Next.js applications for seamless user experiences.",
-              color: "from-sky-400 to-blue-600"
+              color: "from-sky-400 to-blue-600",
+              slug: "web-mobile-solutions"
             }
           ].map((service, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] hover:bg-white/10 transition-colors group"
-            >
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                <service.icon size={24} className="text-white" />
-              </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3">{service.title}</h3>
-              <p className="text-gray-400 font-medium leading-relaxed">{service.desc}</p>
-            </motion.div>
+            <Link to={`/services/sub/${service.slug}`} key={idx} className="h-full block">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] hover:bg-white/10 transition-colors group h-full flex flex-col justify-start"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+                  <service.icon size={24} className="text-white" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3 group-hover:text-blue-400 transition-colors">{service.title}</h3>
+                <p className="text-gray-400 font-medium leading-relaxed">{service.desc}</p>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

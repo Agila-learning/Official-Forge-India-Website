@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
  Home, Bed, Users, Calendar, TrendingUp, Settings, 
  Bell, LogOut, Plus, Search, Filter, MapPin, 
- ShieldCheck, Star, Clock, ChevronRight, LayoutDashboard,
  Building, UserCheck, MessageSquare, Wallet
 } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -59,9 +59,11 @@ const StayPartnerDashboard = () => {
  };
 
  return (
- <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} role="Stay Partner">
+ <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} role="Stay Partner" stats={{ occupancy: stats.occupancy, rating: stats.rating }}>
  <div className="space-y-12">
  
+ {activeTab === 'overview' && (
+   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
  {/* --- 🚁 MISSION HEADER --- */}
  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
  <div>
@@ -77,7 +79,7 @@ const StayPartnerDashboard = () => {
  </h1>
  </div>
  <div className="flex items-center gap-4">
- <button className="px-8 py-4 bg-blue-600 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 transition-all flex items-center gap-2">
+ <button onClick={() => navigate('/vendor-dashboard')} className="px-8 py-4 bg-blue-600 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 transition-all flex items-center gap-2">
  <Plus size={16} /> List New Property
  </button>
  </div>
@@ -216,6 +218,57 @@ const StayPartnerDashboard = () => {
  </div>
  </div>
  </div>
+   </motion.div>
+ )}
+
+ {activeTab === 'availability' && (
+   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+     <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+       <div className="flex items-center justify-between mb-8">
+         <div>
+           <h3 className="text-xl font-black uppercase tracking-tight">Property Calendar</h3>
+           <p className="text-gray-500 font-bold text-xs mt-1">Block dates or manage availability</p>
+         </div>
+         <button className="px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20">
+           Update Inventory
+         </button>
+       </div>
+       <div className="grid grid-cols-7 gap-4">
+         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => (
+           <div key={idx} className="border border-gray-100 dark:border-gray-800 rounded-2xl p-4 text-center hover:border-blue-500/50 cursor-pointer transition-all">
+             <p className="font-black text-sm mb-4">{day}</p>
+             <div className={`w-full py-2 rounded-lg text-[10px] font-black uppercase tracking-widest ${idx === 5 || idx === 6 ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
+               {idx === 5 || idx === 6 ? 'Sold Out' : 'Available'}
+             </div>
+           </div>
+         ))}
+       </div>
+     </div>
+   </motion.div>
+ )}
+
+ {activeTab === 'insights' && (
+   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+     <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+       <h3 className="text-xl font-black uppercase tracking-tight mb-8">Occupancy & Revenue</h3>
+       <div className="h-80 w-full">
+         <ResponsiveContainer width="100%" height="100%">
+           <LineChart data={[
+             { day: 'Mon', revenue: 5200 }, { day: 'Tue', revenue: 4500 },
+             { day: 'Wed', revenue: 4900 }, { day: 'Thu', revenue: 6100 },
+             { day: 'Fri', revenue: 9200 }, { day: 'Sat', revenue: 11100 }, { day: 'Sun', revenue: 9800 }
+           ]}>
+             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
+             <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
+             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
+             <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', backgroundColor: '#1f2937', color: '#fff' }} />
+             <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={4} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 8 }} />
+           </LineChart>
+         </ResponsiveContainer>
+       </div>
+     </div>
+   </motion.div>
+ )}
 
  </div>
  </DashboardLayout>
@@ -223,3 +276,4 @@ const StayPartnerDashboard = () => {
 };
 
 export default StayPartnerDashboard;
+

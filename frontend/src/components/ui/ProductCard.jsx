@@ -55,14 +55,28 @@ const ProductCard = ({ product, onAddToCart, onToggleFavorite, isFavorite, onVie
  <div className="p-6 flex flex-col flex-grow">
  {/* Header Information */}
  <div className="mb-4">
- <div className="flex items-center gap-2 text-primary text-[9px] font-black uppercase tracking-widest mb-1.5">
- <span>{product.category}</span>
- <span className="w-1 h-1 bg-gray-300 rounded-full" />
- <div className="flex items-center gap-1 text-yellow-500">
- <Star size={10} fill="currentColor" />
- {product.rating || '4.8'}
- </div>
- </div>
+  <div className="flex items-center gap-2 text-primary text-[9px] font-black uppercase tracking-widest mb-1.5 flex-wrap">
+  <span>{product.category}</span>
+  <span className="w-1 h-1 bg-gray-300 rounded-full" />
+  <div className="flex items-center gap-1 text-yellow-500 mr-1">
+  <Star size={10} fill="currentColor" />
+  {product.rating || '4.8'}
+  </div>
+  {product.fulfillmentMode && (
+    <>
+      <span className="w-1 h-1 bg-gray-300 rounded-full" />
+      <span className="text-green-600 font-bold dark:text-green-400">{product.fulfillmentMode}</span>
+    </>
+  )}
+  {product.isService && product.serviceMode && (
+    <>
+      <span className="w-1 h-1 bg-gray-300 rounded-full" />
+      <span className="text-purple-600 font-bold dark:text-purple-400">
+        {product.serviceMode === 'at_home' ? 'Home Service' : 'Store Visit'}
+      </span>
+    </>
+  )}
+  </div>
  <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight group-hover:text-primary transition-colors line-clamp-2 min-h-[3rem] uppercase">
  {product.name}
  </h3>

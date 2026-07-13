@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Unlock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass, Building, Home, Car, BookOpen, Briefcase } from 'lucide-react';
+import { User, Package, Heart, LogOut, ChevronRight, Clock, Star, ShieldCheck, Save, Loader2, Mail, Phone, Lock, Unlock, Eye, FileText, Download, Trash2, History, Database, MapPin, Plus, Zap, CreditCard, Settings, Shield, ShoppingBag, Gift, ArrowUpRight, X, Compass, Building, Home, Car, BookOpen, Briefcase, Activity, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -42,7 +43,148 @@ const CountdownTimer = ({ targetDate }) => {
   );
 };
 
+// ─── Ride History Sub-Component ───────────────────────────────────────────────
+const RideHistorySection = ({ orders, navigate }) => {
+  const rideServiceTypes = ['Bike', 'Auto', 'Car', 'Mini', 'Sedan', 'SUV', 'Luxury', 'Van',
+    'Pickup Truck', 'Bike Ride', 'Premium Taxi', 'Delivery Service', 'Parcel Delivery', 'Bike Taxi'];
+  const rideHistory = (orders || [])
+    .filter(o => o.isService && rideServiceTypes.includes(o.serviceType))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const [ratingState, setRatingState] = React.useState({});
+  const [submittingRating, setSubmittingRating] = React.useState(null);
+
+  const submitRating = async (rideId, rating, feedback) => {
+    try {
+      setSubmittingRating(rideId);
+      const { default: api } = await import('../services/api');
+      await api.put(`/rides/${rideId}/rate`, { rating, feedback });
+      toast.success('Rating submitted! Thank you.');
+      setRatingState(p => ({ ...p, [rideId]: { ...p[rideId], submitted: true } }));
+    } catch { toast.error('Could not submit rating'); }
+    finally { setSubmittingRating(null); }
+  };
+
+  if (rideHistory.length === 0) {
+    return (
+      <div className="text-center py-20 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800">
+        <Car size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">No ride history yet</p>
+        <button onClick={() => navigate('/rides/book')} className="mt-4 px-6 py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">Book Your First Ride</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {rideHistory.map(ride => {
+        const isCompleted = ride.status === 'Completed' || ride.isDelivered;
+        const isCancelled = ride.status === 'Cancelled';
+        const hasRating = !!ride.rideMetadata?.customerRating;
+        const rs = ratingState[ride._id] || {};
+        const driver = ride.deliveryPartner;
+
+        return (
+          <div key={ride._id} className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div className="p-6 space-y-4">
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isCompleted ? 'bg-emerald-100 dark:bg-emerald-900/30' : isCancelled ? 'bg-red-100 dark:bg-red-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}>
+                    <Car size={20} className={isCompleted ? 'text-emerald-600' : isCancelled ? 'text-red-500' : 'text-blue-600'} />
+                  </div>
+                  <div>
+                    <p className="font-black text-gray-900 dark:text-white text-sm">{ride.serviceType || 'Ride'}</p>
+                    <p className="text-[10px] text-gray-400 font-bold">{new Date(ride.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-black text-gray-900 dark:text-white">₹{ride.totalPrice || '—'}</p>
+                  <span className={`inline-block px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full mt-1 ${isCompleted ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : isCancelled ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}`}>
+                    {ride.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Route */}
+              <div className="relative pl-4 space-y-3 border-l-2 border-gray-100 dark:border-white/10 ml-1">
+                {[
+                  { label: 'Pickup', addr: ride.pickupDetails?.location || '—', color: 'bg-blue-500' },
+                  { label: 'Drop-off', addr: ride.shippingAddress?.address || '—', color: 'bg-orange-500' }
+                ].map(({ label, addr, color }) => (
+                  <div key={label} className="relative">
+                    <div className={`absolute -left-[21px] top-0.5 w-3 h-3 ${color} rounded-full`} />
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
+                    <p className="text-xs font-black text-gray-700 dark:text-gray-300">{addr}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Driver */}
+              {driver && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-dark-bg rounded-2xl">
+                  <div className="w-9 h-9 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-black text-sm">{driver.firstName?.[0] || 'D'}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-black text-gray-900 dark:text-white">{driver.firstName} {driver.lastName || ''}</p>
+                    <p className="text-[9px] text-gray-400 font-bold">Your Driver</p>
+                  </div>
+                  {ride.rideMetadata?.driverRating && (
+                    <div className="flex items-center gap-1 text-amber-500">
+                      <Star size={12} fill="currentColor" />
+                      <span className="text-xs font-black">{ride.rideMetadata.driverRating}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {ride.rideMetadata?.distanceKm && <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-black rounded-xl">{ride.rideMetadata.distanceKm} km</span>}
+                {ride.rideMetadata?.durationMin && <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-black rounded-xl">{ride.rideMetadata.durationMin} min</span>}
+                <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-black rounded-xl">{ride.paymentMethod}</span>
+              </div>
+
+              {/* Rating */}
+              {isCompleted && driver && !hasRating && !rs.submitted && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-2xl space-y-3">
+                  <p className="text-xs font-black text-amber-700 dark:text-amber-400">Rate your driver</p>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button key={n} onClick={() => setRatingState(p => ({ ...p, [ride._id]: { ...p[ride._id], rating: n } }))}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${(rs.rating || 0) >= n ? 'bg-amber-400 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-400'}`}>
+                        <Star size={16} fill={(rs.rating || 0) >= n ? 'currentColor' : 'none'} />
+                      </button>
+                    ))}
+                  </div>
+                  <input placeholder="Leave a comment (optional)..." value={rs.feedback || ''} onChange={e => setRatingState(p => ({ ...p, [ride._id]: { ...p[ride._id], feedback: e.target.value } }))}
+                    className="w-full px-4 py-2 text-xs font-bold rounded-xl border border-amber-200 dark:border-amber-500/30 bg-white dark:bg-dark-bg outline-none text-gray-700 dark:text-gray-300" />
+                  <button disabled={!rs.rating || submittingRating === ride._id}
+                    onClick={() => submitRating(ride._id, rs.rating, rs.feedback)}
+                    className="px-5 py-2 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest disabled:opacity-40 flex items-center gap-2">
+                    {submittingRating === ride._id ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} />}
+                    Submit Rating
+                  </button>
+                </div>
+              )}
+              {(hasRating || rs.submitted) && (
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 size={14} />
+                  <span className="text-xs font-black">Rated {ride.rideMetadata?.customerRating || rs.rating}★ — Thank you!</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const Profile = () => {
+
+ const navigate = useNavigate();
  const [orders, setOrders] = useState([]);
  const { favorites, toggleWishlist } = useWishlist();
  const { addToCart } = useCart();
@@ -50,8 +192,8 @@ const Profile = () => {
  const [loading, setLoading] = useState(true);
  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
  const [selectedOrder, setSelectedOrder] = useState(null);
- const [activeTab, setActiveTab] = useState('Order History');
-  const [saving, setSaving] = useState(false);
+ const [activeTab, setActiveTab] = useState('Active Operations');
+ const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingId, setUploadingId] = useState(false);
   const [vaultDocs, setVaultDocs] = useState([]);
@@ -65,6 +207,11 @@ const Profile = () => {
   ]);
  const [membershipData, setMembershipData] = useState(null);
  const [membershipPlans, setMembershipPlans] = useState([]);
+ const [trustedContacts, setTrustedContacts] = useState([]);
+ const [isTrustedContactsModalOpen, setIsTrustedContactsModalOpen] = useState(false);
+ const [newContactName, setNewContactName] = useState('');
+ const [newContactPhone, setNewContactPhone] = useState('');
+ const [newContactRelation, setNewContactRelation] = useState('Family');
  
  // Cancellation Modal State
  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -100,8 +247,102 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
+  const [driverForm, setDriverForm] = useState({
+    driverType: 'Bike',
+    vehicleOwnership: 'Own Vehicle',
+    vehicleCategory: 'Bike',
+    registrationNumber: '',
+    make: '',
+    model: '',
+    year: '',
+    color: '',
+    rcDocumentImage: '',
+    rcExpiry: '',
+    insuranceDocumentImage: '',
+    insuranceExpiry: '',
+    aadhaarNumber: '',
+    aadhaarFrontImage: '',
+    panNumberValue: '',
+    panImage: '',
+    licenseNumberValue: '',
+    licenseExpiry: '',
+    licenseFrontImage: '',
+    bankAccountNumber: '',
+    bankIfscCode: '',
+    bankName: '',
+    bankHolderName: '',
+    panNumber: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
   const [managedVehicleDetails, setManagedVehicleDetails] = useState(profileData?.vehicleDetails || {});
- const [myApplications, setMyApplications] = useState([]);
+  const [myApplications, setMyApplications] = useState([]);
+
+  useEffect(() => {
+    if (profileData) {
+      const p = profileData;
+      const driver = p.driverProfile || {};
+      const docs = p.driverDocuments || {};
+      const vehicle = driver.activeVehicle || {};
+      const bank = p.bankDetails || {};
+      
+      setDriverForm({
+        driverType: driver.driverType || p.driverType || 'Bike',
+        vehicleOwnership: driver.vehicleOwnership || p.vehicleOwnership || 'Own Vehicle',
+        
+        vehicleCategory: vehicle.vehicleCategory || 'Bike',
+        registrationNumber: vehicle.registrationNumber?.startsWith('PENDING-') ? '' : vehicle.registrationNumber || '',
+        make: vehicle.make || '',
+        model: vehicle.model || '',
+        year: vehicle.year || '',
+        color: vehicle.color || '',
+        rcDocumentImage: vehicle.rcDocument?.url || '',
+        rcExpiry: vehicle.rcDocument?.expiryDate ? new Date(vehicle.rcDocument.expiryDate).toISOString().split('T')[0] : '',
+        insuranceDocumentImage: vehicle.insuranceDocument?.url || '',
+        insuranceExpiry: vehicle.insuranceDocument?.expiryDate ? new Date(vehicle.insuranceDocument.expiryDate).toISOString().split('T')[0] : '',
+        
+        aadhaarNumber: docs.aadhaar?.number || '',
+        aadhaarFrontImage: docs.aadhaar?.frontImageUrl || '',
+        panNumberValue: docs.pan?.number || '',
+        panImage: docs.pan?.imageUrl || '',
+        licenseNumberValue: docs.drivingLicense?.number || '',
+        licenseExpiry: docs.drivingLicense?.expiryDate ? new Date(docs.drivingLicense.expiryDate).toISOString().split('T')[0] : '',
+        licenseFrontImage: docs.drivingLicense?.frontImageUrl || '',
+        
+        bankAccountNumber: bank.accountNumber || '',
+        bankIfscCode: bank.ifscCode || '',
+        bankName: bank.bankName || '',
+        bankHolderName: bank.holderName || '',
+        panNumber: p.panNumber || '',
+        
+        newPassword: '',
+        confirmPassword: ''
+      });
+    }
+  }, [profileData]);
+
+  const handleDriverDocUpload = async (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append('file', file);
+    setUploading(true);
+
+    try {
+      const { data } = await api.post('/upload', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const url = typeof data === 'string' ? data : data.url;
+      setDriverForm(prev => ({ ...prev, [field]: url }));
+      toast.success('Document uploaded successfully!');
+    } catch (err) {
+      toast.error('Failed to upload document');
+    } finally {
+      setUploading(false);
+    }
+  };
 
  useEffect(() => {
  const fetchUserData = async () => {
@@ -127,6 +368,7 @@ const Profile = () => {
  // Update local profile with fresh server data
  const freshProfile = { ...JSON.parse(localStorage.getItem('userInfo') || '{}'), ...userRes.data };
  setProfileData(freshProfile);
+ setTrustedContacts(userRes.data.trustedContacts || []);
  localStorage.setItem('userInfo', JSON.stringify(freshProfile));
  setLoading(false);
  } catch (err) {
@@ -393,40 +635,88 @@ const Profile = () => {
 
  const isMembershipExpired = membershipData?.cycleEndDate && new Date(membershipData.cycleEndDate) < new Date();
 
+ const handleAddTrustedContact = async (e) => {
+   e.preventDefault();
+   try {
+     const newContact = {
+       name: newContactName,
+       phone: newContactPhone,
+       relation: newContactRelation,
+       notifyOnEmergency: true
+     };
+     const updatedContacts = [...trustedContacts, newContact];
+     const { data } = await api.put('/users/trusted-contacts', { contacts: updatedContacts });
+     setTrustedContacts(data.trustedContacts);
+     setIsTrustedContactsModalOpen(false);
+     setNewContactName('');
+     setNewContactPhone('');
+     toast.success('Trusted Contact Added');
+   } catch (err) {
+     toast.error('Failed to add contact');
+   }
+ };
+
+ const handleRemoveTrustedContact = async (index) => {
+   try {
+     const updatedContacts = trustedContacts.filter((_, i) => i !== index);
+     const { data } = await api.put('/users/trusted-contacts', { contacts: updatedContacts });
+     setTrustedContacts(data.trustedContacts);
+     toast.success('Trusted Contact Removed');
+   } catch (err) {
+     toast.error('Failed to remove contact');
+   }
+ };
+
  return (
  <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-32 pb-20 px-6 sm:px-10 lg:px-16">
- <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
+ <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
  {/* Sidebar */}
  <aside className="w-full lg:w-80 space-y-8">
- <div className="bg-white dark:bg-dark-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl text-center">
- <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-white dark:border-dark-bg shadow-lg">
- <span className="text-3xl font-black text-primary uppercase">{profileData?.firstName?.[0]}</span>
- </div>
- <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{profileData?.firstName} {profileData?.lastName}</h2>
- <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-2 px-4 py-1 bg-gray-50 dark:bg-dark-bg rounded-lg inline-block border border-gray-100 dark:border-gray-800">{profileData?.role}</p>
- 
- <button onClick={handleLogout} className="w-full mt-10 flex items-center justify-center gap-2 py-4 text-red-500 font-black uppercase tracking-widest text-[10px] hover:bg-red-50 dark:hover:bg-red-900/10 rounded-2xl transition-all border border-red-50 dark:border-red-900/20">
- <LogOut size={16} /> Sign Out
- </button>
- </div>
+  <div className="bg-white dark:bg-dark-card rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden text-center relative">
+    <div className="h-32 bg-gray-200 dark:bg-gray-800 w-full relative">
+       <img src="/assets/customer_banner.png" alt="Banner" className="w-full h-full object-cover" />
+       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+    </div>
+    <div className="p-10 pt-0 relative -mt-12 z-10">
+      <div className="w-24 h-24 bg-white dark:bg-dark-card rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-dark-bg shadow-xl">
+        <span className="text-3xl font-black text-primary uppercase">{profileData?.firstName?.[0]}</span>
+      </div>
+      <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{profileData?.firstName} {profileData?.lastName}</h2>
+      <p className="text-xs font-black text-gray-400 uppercase tracking-widest mt-2 px-4 py-1 bg-gray-50 dark:bg-dark-bg rounded-lg inline-block border border-gray-100 dark:border-gray-800">{profileData?.role}</p>
+      
+      <button onClick={handleLogout} className="w-full mt-8 flex items-center justify-center gap-2 py-4 text-red-500 font-black uppercase tracking-widest text-[10px] hover:bg-red-50 dark:hover:bg-red-900/10 rounded-2xl transition-all border border-red-50 dark:border-red-900/20">
+        <LogOut size={16} /> Sign Out
+      </button>
+    </div>
+  </div>
 
- <nav className="bg-white dark:bg-dark-card p-4 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg space-y-2">
- {[
- { label: 'Order History', icon: Package, count: productOrders.length, show: profileData?.role === 'Customer' },
- { label: 'Stay & Ride', icon: Compass, count: 'NEW', show: profileData?.role === 'Customer' },
+ <nav className="bg-white dark:bg-dark-card p-4 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible space-x-4 lg:space-x-0 lg:space-y-2 custom-scrollbar snap-x">
+  {[
+  { label: 'Active Operations', icon: Activity, count: 'LIVE', show: profileData?.role === 'Customer' },
+  { label: 'Order History', icon: Package, count: productOrders.length, show: profileData?.role === 'Customer' },
+  { label: 'Stay & Ride', icon: Compass, count: 'NEW', show: profileData?.role === 'Customer' },
  { label: 'Service Bookings', icon: Clock, count: serviceBookings.length, show: profileData?.role === 'Customer' },
  { label: 'Membership', icon: Zap, count: 'PRO', show: profileData?.role === 'Customer' },
  { label: 'Job Applications', icon: Briefcase, count: myApplications.length, show: profileData?.role === 'Customer' },
  { label: 'My Favorites', icon: Heart, count: favorites.length, show: profileData?.role === 'Customer' },
  { label: 'Review History', icon: History, count: reviews.length, show: profileData?.role === 'Customer' },
  { label: 'Security Vault', icon: Lock, count: null, show: profileData?.role === 'Customer' },
- { label: 'Usage Guide', icon: BookOpen, count: null, show: true },
+ { label: 'Trusted Circle', icon: Shield, count: trustedContacts.length, show: profileData?.role === 'Customer' },
+ { label: 'Usage Guide', icon: BookOpen, count: null, show: profileData?.role === 'Customer' },
+ { label: 'Vehicle & Documents', icon: Car, count: null, show: ['Driver', 'Delivery Partner'].includes(profileData?.role) },
+ { label: 'Bank Details', icon: CreditCard, count: null, show: ['Driver', 'Delivery Partner', 'Vendor', 'Seller', 'Service Provider', 'Stay Provider', 'Trainer'].includes(profileData?.role) },
+ { label: 'Security & Password', icon: Lock, count: null, show: profileData?.role !== 'Customer' },
  { label: 'Account Settings', icon: User, count: null, show: true },
  ].filter(item => item.show).map((item) => (
  <button 
  key={item.label} 
- onClick={() => setActiveTab(item.label)}
- className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${activeTab === item.label ? 'bg-primary/5 border border-primary/10' : 'hover:bg-gray-50 dark:hover:bg-dark-bg'}`}
+ onClick={() => {
+   setActiveTab(item.label);
+   if (window.innerWidth < 1024) {
+     window.scrollTo({ top: document.querySelector('main')?.offsetTop - 80 || 300, behavior: 'smooth' });
+   }
+ }}
+ className={`shrink-0 w-[220px] lg:w-full snap-start flex items-center justify-between p-4 rounded-2xl transition-all group ${activeTab === item.label ? 'bg-primary/5 border border-primary/10' : 'hover:bg-gray-50 dark:hover:bg-dark-bg'}`}
  >
  <div className="flex items-center gap-4">
  <div className={`p-3 rounded-xl transition-colors ${activeTab === item.label ? 'bg-primary text-white' : 'bg-gray-50 dark:bg-dark-bg text-gray-400 group-hover:text-primary'}`}><item.icon size={20} /></div>
@@ -440,7 +730,74 @@ const Profile = () => {
 
  {/* Main Content */}
  <main className="flex-1 space-y-12">
- <AnimatePresence mode="wait">
+  <AnimatePresence mode="wait">
+  {activeTab === 'Active Operations' && (
+    <motion.section 
+      key="active-ops"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-8"
+    >
+      <div className="flex items-center justify-between mb-8">
+        <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Active <span className="text-blue-500">Operations</span></h3>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live Tracking</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
+              <Compass size={24} />
+            </div>
+            <div>
+              <h4 className="text-lg font-black uppercase tracking-tight">Active Bookings</h4>
+              <p className="text-[10px] font-bold text-gray-400 uppercase">Live Rides & Stays</p>
+            </div>
+          </div>
+          {serviceBookings.filter(b => !b.isDelivered).length === 0 ? (
+            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest text-center py-8">No active bookings</p>
+          ) : (
+            serviceBookings.filter(b => !b.isDelivered).map(b => (
+              <div key={b._id} className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl mb-4 border border-blue-500/20">
+                <p className="font-bold text-sm text-gray-900 dark:text-white uppercase">{b.orderItems?.[0]?.name}</p>
+                <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full mt-4 overflow-hidden">
+                  <div className="h-full bg-blue-500 w-2/3 animate-pulse"></div>
+                </div>
+                <p className="text-[10px] font-black text-blue-500 uppercase mt-2 text-right">In Progress</p>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="bg-white dark:bg-dark-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center">
+              <Package size={24} />
+            </div>
+            <div>
+              <h4 className="text-lg font-black uppercase tracking-tight">Active Orders</h4>
+              <p className="text-[10px] font-bold text-gray-400 uppercase">Pending Deliveries</p>
+            </div>
+          </div>
+          {productOrders.filter(o => !o.isDelivered).length === 0 ? (
+            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest text-center py-8">No pending orders</p>
+          ) : (
+            productOrders.filter(o => !o.isDelivered).map(o => (
+              <div key={o._id} className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl mb-4 border border-orange-500/20">
+                <p className="font-bold text-sm text-gray-900 dark:text-white uppercase">Order #{o._id.slice(-6).toUpperCase()}</p>
+                <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full mt-4 overflow-hidden">
+                  <div className="h-full bg-orange-500 w-1/3"></div>
+                </div>
+                <p className="text-[10px] font-black text-orange-500 uppercase mt-2 text-right">{o.status || 'Processing'}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </motion.section>
+  )}
+
  {activeTab === 'Order History' && (
  <motion.section 
  key="history"
@@ -535,6 +892,12 @@ const Profile = () => {
  Cancel Order
  </button>
  )}
+ <button
+    onClick={() => navigate(`/track-order/${order._id}`)}
+    className="flex items-center gap-2 font-black text-blue-600 dark:text-blue-400 text-xs uppercase tracking-widest hover:underline transition-colors"
+  >
+    <MapPin size={14} /> Track Order
+  </button>
  <button 
  onClick={() => {
  setSelectedOrder(order);
@@ -552,38 +915,35 @@ const Profile = () => {
  )}
  </motion.section>
  )}
-
  {activeTab === 'Stay & Ride' && (
  <motion.section 
  key="stay-ride"
  initial={{ opacity: 0, x: 20 }}
  animate={{ opacity: 1, x: 0 }}
  exit={{ opacity: 0, x: -20 }}
- className="space-y-12"
+ className="space-y-10"
  >
- <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+ <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
  <div>
  <h3 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">
- Explore <span className="text-primary">Ecosystem.</span>
+ Ride <span className="text-primary">History.</span>
  </h3>
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mt-4">High-End Domestic & Transit Operations</p>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mt-4">All your cab, bike and delivery bookings</p>
  </div>
- <div className="flex bg-white dark:bg-dark-card p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl">
- <button className="px-6 py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Explore</button>
- <button onClick={() => navigate('/stay-partner')} className="px-6 py-2.5 text-gray-400 hover:text-primary rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Host Property</button>
- </div>
+ <button onClick={() => navigate('/rides/book')} className="px-6 py-3 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 flex items-center gap-2">
+   <Car size={16} /> Book New Ride
+ </button>
  </div>
 
- {/* --- CATEGORY SELECTOR (Image Inspired) --- */}
  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
  {[
- { id: 'hotels', label: 'Hotels', icon: Building, desc: 'Luxury Stays' },
- { id: 'pg', label: 'PG / Hostels', icon: Home, desc: 'Verified Paying Guests' },
- { id: 'homestays', label: 'Homestays', icon: Heart, desc: 'Cozy Spaces' },
- { id: 'apartments', label: 'Apartments', icon: Shield, desc: 'Service Living' },
- { id: 'rides', label: 'Ride Services', icon: Car, desc: 'Cab & Bike Taxi' }
+ { id: 'hotels', label: 'Hotels', icon: Building, desc: 'Luxury Stays', link: '/rentals/hotels' },
+ { id: 'pg', label: 'PG / Hostels', icon: Home, desc: 'Verified Paying Guests', link: '/pg-stays' },
+ { id: 'homestays', label: 'Homestays', icon: Heart, desc: 'Cozy Spaces', link: '/pg-stays' },
+ { id: 'apartments', label: 'Apartments', icon: Shield, desc: 'Service Living', link: '/pg-stays' },
+ { id: 'rides', label: 'Ride Services', icon: Car, desc: 'Cab & Bike Taxi', link: '/rides/book' }
  ].map((cat) => (
- <div key={cat.id} className="p-6 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg hover:border-primary/40 transition-all cursor-pointer group text-left">
+ <div key={cat.id} onClick={() => navigate(cat.link)} className="p-6 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-lg hover:border-primary/40 transition-all cursor-pointer group text-left">
  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
  <cat.icon size={20} />
  </div>
@@ -593,38 +953,9 @@ const Profile = () => {
  ))}
  </div>
 
- {/* --- FEATURED LISTINGS --- */}
- <div className="bg-white dark:bg-dark-card p-8 md:p-12 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl relative overflow-hidden">
- <div className="flex items-center justify-between mb-10">
- <h4 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Verified <span className="text-primary">Accommodations</span></h4>
- <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-2">View All Map <ChevronRight size={14} /></button>
- </div>
+ {/* Real Ride History */}
+ <RideHistorySection orders={orders} navigate={navigate} />
 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
- {[
- { name: 'Ocean View Premium', type: 'Hotel', loc: 'Goa, India', price: '₹3,500', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800' },
- { name: 'Elite PG Bangalore', type: 'PG', loc: 'HSR Layout', price: '₹12,000', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800' }
- ].map((item, i) => (
- <div key={i} className="group bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-primary/30 transition-all">
- <div className="h-64 relative overflow-hidden">
- <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="" />
- <div className="absolute top-6 left-6 px-4 py-2 bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/20">
- {item.type}
- </div>
- <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
- <div className="p-3 bg-white/90 dark:bg-dark-card/90 backdrop-blur-md rounded-2xl border border-white/20">
- <p className="text-[10px] font-black text-gray-900 dark:text-white">{item.name}</p>
- <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1 mt-1"><MapPin size={10} /> {item.loc}</p>
- </div>
- <div className="p-3 bg-primary text-white rounded-2xl shadow-xl font-black text-sm">
- {item.price}
- </div>
- </div>
- </div>
- </div>
- ))}
- </div>
- </div>
  </motion.section>
  )}
 
@@ -810,7 +1141,7 @@ const Profile = () => {
  <Briefcase size={64} className="mx-auto text-gray-200 dark:text-gray-800 mb-6" />
  <h4 className="text-xl font-bold text-gray-400 uppercase tracking-widest">No Job Applications Yet</h4>
  <p className="text-sm text-gray-400 mt-2">Explore the Job Portal and apply for opportunities.</p>
- <button onClick={() => window.location.href='/explore-jobs'} className="mt-6 px-8 py-3 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest">Explore Jobs</button>
+ <button onClick={() => navigate('/explore-jobs')} className="mt-6 px-8 py-3 bg-primary text-white rounded-2xl font-black text-sm uppercase tracking-widest">Explore Jobs</button>
  </div>
  ) : (
  <div className="space-y-6">
@@ -1137,8 +1468,8 @@ const Profile = () => {
  </ul>
  <button
  onClick={() => {
- addToCart({ _id: `membership-${plan.name.toLowerCase()}`, name: `FIC ${plan.name} Membership`, price: plan.price, isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' });
- toast.success(`${plan.name} Membership added! Redirecting...`); setTimeout(() => window.location.href = "/checkout", 1500);
+ toast.success("Redirecting to Membership Hub...");
+ navigate('/membership');
  }}
  className={`w-full py-4 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 ${isPremiumView ? "bg-white text-blue-700 hover:bg-yellow-400 hover:text-dark-bg" : "bg-primary text-white hover:bg-blue-700"}`}
  >
@@ -1239,7 +1570,7 @@ const Profile = () => {
  </p>
  </div>
  </div>
- <button onClick={() => { addToCart({ _id: `membership-${membershipData.planTier.toLowerCase()}`, name: `FIC ${membershipData.planTier} Membership Renewal`, price: membershipData.planValue, isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' }); toast.success("Renewal added! Redirecting..."); setTimeout(() => window.location.href = "/checkout", 1500); }} className="w-full sm:w-auto px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">Renew Early</button>
+ <button onClick={() => { toast.success("Redirecting to Membership Hub..."); navigate('/membership'); }} className="w-full sm:w-auto px-10 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95">Renew Early</button>
  </div>
  </div>
  </div>
@@ -1256,7 +1587,7 @@ const Profile = () => {
  )}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
  <h4 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Use Your Membership</h4>
- <button onClick={() => window.location.href = '/explore-shop'} className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-2 hover:translate-x-1 transition-transform">Explore Marketplace <ArrowUpRight size={14} /></button>
+ <button onClick={() => navigate('/explore-shop')} className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-2 hover:translate-x-1 transition-transform">Explore Marketplace <ArrowUpRight size={14} /></button>
  </div>
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
  {[
@@ -1277,7 +1608,7 @@ const Profile = () => {
  <span className="text-[10px] font-bold text-gray-400 line-through">{s.price}</span>
  <span className="text-[11px] font-black text-blue-600 uppercase tracking-tighter">Included</span>
  </div>
- <button onClick={() => window.location.href='/explore-shop'} className="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-90"><Plus size={16} /></button>
+ <button onClick={() => navigate('/explore-shop')} className="p-3 bg-gray-50 dark:bg-dark-bg rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-90"><Plus size={16} /></button>
  </div>
  </div>
  </div>
@@ -1329,6 +1660,584 @@ const Profile = () => {
  <WebUsageGuide />
  </motion.section>
  )}
+
+ {activeTab === 'Trusted Circle' && (
+ <motion.section 
+ key="trusted"
+ initial={{ opacity: 0, x: 20 }}
+ animate={{ opacity: 1, x: 0 }}
+ exit={{ opacity: 0, x: -20 }}
+ >
+ <div className="flex justify-between items-center mb-8">
+   <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Trusted <span className="text-primary">Circle</span></h3>
+   <button onClick={() => setIsTrustedContactsModalOpen(true)} className="px-6 py-3 bg-primary text-white rounded-xl font-black uppercase text-xs flex items-center gap-2 hover:bg-primary-dark shadow-lg">
+     <Plus size={16}/> Add Contact
+   </button>
+ </div>
+ 
+ <div className="bg-white dark:bg-dark-card p-8 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+   <p className="text-sm font-bold text-gray-500 mb-8">These contacts will receive SOS alerts, live tracking links, and emergency notifications during your rides.</p>
+   
+   {trustedContacts.length === 0 ? (
+     <div className="text-center py-12">
+       <div className="w-20 h-20 bg-gray-50 dark:bg-dark-bg rounded-full flex items-center justify-center mx-auto mb-4">
+         <Shield className="text-gray-400" size={32} />
+       </div>
+       <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase mb-2">No Contacts Yet</h4>
+       <p className="text-sm text-gray-500 font-bold">Add family or friends to your Trusted Circle for safety.</p>
+     </div>
+   ) : (
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+       {trustedContacts.map((contact, idx) => (
+         <div key={idx} className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800">
+           <div className="flex items-center gap-4">
+             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-black text-lg">
+               {contact.name[0]}
+             </div>
+             <div>
+               <p className="font-black text-gray-900 dark:text-white">{contact.name}</p>
+               <p className="text-xs font-bold text-gray-500">{contact.phone} • {contact.relation}</p>
+             </div>
+           </div>
+           <button onClick={() => handleRemoveTrustedContact(idx)} className="p-3 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-colors">
+             <Trash2 size={16} />
+           </button>
+         </div>
+       ))}
+     </div>
+   )}
+ </div>
+ </motion.section>
+ )}
+
+  {activeTab === 'Vehicle & Documents' && (
+    <motion.section 
+      key="vehicle-docs"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Vehicle & <span className="text-primary">Documents</span></h3>
+      <div className="bg-white dark:bg-dark-card p-12 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl space-y-10">
+        
+        <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Verification Protocol</p>
+            <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">Status: <span className="text-primary">{profileData?.driverProfile?.verificationStatus || 'Pending'}</span></p>
+            <p className="text-xs font-bold text-gray-500 mt-1 font-inter">Updates to documents or vehicle details will trigger re-verification under review.</p>
+          </div>
+          {profileData?.driverProfile?.verificationStatus === 'Verified' && (
+            <span className="px-4 py-2 bg-green-500/10 text-green-500 font-black uppercase text-[10px] tracking-widest rounded-xl border border-green-500/20">Verified Partner ✓</span>
+          )}
+        </div>
+
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const payload = {
+            driverType: driverForm.driverType,
+            vehicleOwnership: driverForm.vehicleOwnership,
+            vehicleCategory: driverForm.vehicleCategory,
+            registrationNumber: driverForm.registrationNumber,
+            make: driverForm.make,
+            model: driverForm.model,
+            year: driverForm.year,
+            color: driverForm.color,
+            rcDocumentImage: driverForm.rcDocumentImage,
+            rcExpiry: driverForm.rcExpiry,
+            insuranceDocumentImage: driverForm.insuranceDocumentImage,
+            insuranceExpiry: driverForm.insuranceExpiry,
+            aadhaarNumber: driverForm.aadhaarNumber,
+            aadhaarFrontImage: driverForm.aadhaarFrontImage,
+            panNumberValue: driverForm.panNumberValue,
+            panImage: driverForm.panImage,
+            licenseNumberValue: driverForm.licenseNumberValue,
+            licenseExpiry: driverForm.licenseExpiry,
+            licenseFrontImage: driverForm.licenseFrontImage
+          };
+          
+          setSaving(true);
+          try {
+            const { data } = await api.put('/users/profile', payload);
+            const existingUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const updatedUserInfo = { ...existingUserInfo, ...data };
+            localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+            setProfileData(updatedUserInfo);
+            toast.success('Vehicle and documents updated successfully!');
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update details');
+          } finally {
+            setSaving(false);
+          }
+        }} className="space-y-8">
+          
+          <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight border-b border-gray-100 dark:border-gray-800 pb-3">Driver Profile Configurations</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Driver / Partner Type</label>
+              <select
+                value={driverForm.driverType}
+                onChange={(e) => setDriverForm({ ...driverForm, driverType: e.target.value })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+              >
+                {['Bike', 'Auto', 'Taxi', 'Cab', 'Delivery Partner', 'Logistics Driver'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vehicle Ownership Status</label>
+              <select
+                value={driverForm.vehicleOwnership}
+                onChange={(e) => setDriverForm({ ...driverForm, vehicleOwnership: e.target.value })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+              >
+                {['Own Vehicle', 'Company Assigned Vehicle'].map(o => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {driverForm.vehicleOwnership === 'Own Vehicle' && (
+            <>
+              <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight border-b border-gray-100 dark:border-gray-800 pb-3 mt-10">Vehicle Specifications</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vehicle Category</label>
+                  <select
+                    value={driverForm.vehicleCategory}
+                    onChange={(e) => setDriverForm({ ...driverForm, vehicleCategory: e.target.value })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  >
+                    {['Bike', 'Auto', 'Mini', 'Sedan', 'SUV', 'Luxury', 'Tow Truck', 'Van', 'Other'].map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Registration Number</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. KA-01-MJ-1234"
+                    value={driverForm.registrationNumber}
+                    onChange={(e) => setDriverForm({ ...driverForm, registrationNumber: e.target.value.toUpperCase() })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Manufacturer / Make</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Honda"
+                    value={driverForm.make}
+                    onChange={(e) => setDriverForm({ ...driverForm, make: e.target.value })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Vehicle Model</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Activa"
+                    value={driverForm.model}
+                    onChange={(e) => setDriverForm({ ...driverForm, model: e.target.value })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Model Year</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 2022"
+                    value={driverForm.year}
+                    onChange={(e) => setDriverForm({ ...driverForm, year: e.target.value })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Color</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Red"
+                    value={driverForm.color}
+                    onChange={(e) => setDriverForm({ ...driverForm, color: e.target.value })}
+                    className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight border-b border-gray-100 dark:border-gray-800 pb-3 mt-10">Vehicle Documentation</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+                  <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Registration Certificate (RC)</p>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">RC Expiry Date</label>
+                    <input
+                      type="date"
+                      value={driverForm.rcExpiry}
+                      onChange={(e) => setDriverForm({ ...driverForm, rcExpiry: e.target.value })}
+                      className="w-full px-5 py-3 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">RC Image File</label>
+                    {driverForm.rcDocumentImage ? (
+                      <div className="flex items-center gap-3">
+                        <a href={driverForm.rcDocumentImage} target="_blank" rel="noreferrer" className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 hover:bg-primary/25 transition-colors">View Document</a>
+                        <button type="button" onClick={() => setDriverForm({ ...driverForm, rcDocumentImage: '' })} className="text-red-500 font-bold text-[10px] uppercase">Remove</button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:bg-primary/5 hover:border-primary transition-all">
+                        <Upload className="text-gray-400 mr-2" size={18} />
+                        <span className="text-xs font-bold text-gray-500">{uploading ? 'Uploading...' : 'Upload RC Scan'}</span>
+                        <input type="file" accept="image/*,.pdf" className="hidden" disabled={uploading} onChange={(e) => handleDriverDocUpload(e, 'rcDocumentImage')} />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+                  <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Vehicle Insurance Certificate</p>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Insurance Expiry Date</label>
+                    <input
+                      type="date"
+                      value={driverForm.insuranceExpiry}
+                      onChange={(e) => setDriverForm({ ...driverForm, insuranceExpiry: e.target.value })}
+                      className="w-full px-5 py-3 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Insurance Image File</label>
+                    {driverForm.insuranceDocumentImage ? (
+                      <div className="flex items-center gap-3">
+                        <a href={driverForm.insuranceDocumentImage} target="_blank" rel="noreferrer" className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 hover:bg-primary/25 transition-colors">View Document</a>
+                        <button type="button" onClick={() => setDriverForm({ ...driverForm, insuranceDocumentImage: '' })} className="text-red-500 font-bold text-[10px] uppercase">Remove</button>
+                      </div>
+                    ) : (
+                      <label className="flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:bg-primary/5 hover:border-primary transition-all">
+                        <Upload className="text-gray-400 mr-2" size={18} />
+                        <span className="text-xs font-bold text-gray-500">{uploading ? 'Uploading...' : 'Upload Insurance Scan'}</span>
+                        <input type="file" accept="image/*,.pdf" className="hidden" disabled={uploading} onChange={(e) => handleDriverDocUpload(e, 'insuranceDocumentImage')} />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          <h4 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight border-b border-gray-100 dark:border-gray-800 pb-3 mt-10">Identity & KYC Verification</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+              <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Aadhaar Card (UIDAI)</p>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Aadhaar Number</label>
+                <input
+                  type="text"
+                  maxLength={12}
+                  placeholder="12 Digit Aadhaar"
+                  value={driverForm.aadhaarNumber}
+                  onChange={(e) => setDriverForm({ ...driverForm, aadhaarNumber: e.target.value.replace(/\D/g, '') })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Aadhaar Front Image</label>
+                {driverForm.aadhaarFrontImage ? (
+                  <div className="flex items-center gap-3">
+                    <a href={driverForm.aadhaarFrontImage} target="_blank" rel="noreferrer" className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 hover:bg-primary/25 transition-colors">View</a>
+                    <button type="button" onClick={() => setDriverForm({ ...driverForm, aadhaarFrontImage: '' })} className="text-red-500 font-bold text-[10px] uppercase">Remove</button>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer hover:bg-primary/5 hover:border-primary transition-all">
+                    <Upload className="text-gray-400 mr-2" size={16} />
+                    <span className="text-[11px] font-bold text-gray-500">{uploading ? 'Uploading...' : 'Upload Card'}</span>
+                    <input type="file" accept="image/*,.pdf" className="hidden" disabled={uploading} onChange={(e) => handleDriverDocUpload(e, 'aadhaarFrontImage')} />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+              <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">PAN Card (IT Dept)</p>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">PAN Card Number</label>
+                <input
+                  type="text"
+                  maxLength={10}
+                  placeholder="PAN alphanumeric code"
+                  value={driverForm.panNumberValue}
+                  onChange={(e) => setDriverForm({ ...driverForm, panNumberValue: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">PAN Image scan</label>
+                {driverForm.panImage ? (
+                  <div className="flex items-center gap-3">
+                    <a href={driverForm.panImage} target="_blank" rel="noreferrer" className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 hover:bg-primary/25 transition-colors">View</a>
+                    <button type="button" onClick={() => setDriverForm({ ...driverForm, panImage: '' })} className="text-red-500 font-bold text-[10px] uppercase">Remove</button>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer hover:bg-primary/5 hover:border-primary transition-all">
+                    <Upload className="text-gray-400 mr-2" size={16} />
+                    <span className="text-[11px] font-bold text-gray-500">{uploading ? 'Uploading...' : 'Upload Card'}</span>
+                    <input type="file" accept="image/*,.pdf" className="hidden" disabled={uploading} onChange={(e) => handleDriverDocUpload(e, 'panImage')} />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6 bg-gray-50 dark:bg-dark-bg rounded-3xl border border-gray-100 dark:border-gray-800 space-y-4">
+              <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Driving License (RTO)</p>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">License Number</label>
+                <input
+                  type="text"
+                  placeholder="e.g. DL-XXXXXXXXXXXX"
+                  value={driverForm.licenseNumberValue}
+                  onChange={(e) => setDriverForm({ ...driverForm, licenseNumberValue: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">License Expiry Date</label>
+                <input
+                  type="date"
+                  value={driverForm.licenseExpiry}
+                  onChange={(e) => setDriverForm({ ...driverForm, licenseExpiry: e.target.value })}
+                  className="w-full px-4 py-2 rounded-xl bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700 outline-none font-bold text-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">License front image</label>
+                {driverForm.licenseFrontImage ? (
+                  <div className="flex items-center gap-3">
+                    <a href={driverForm.licenseFrontImage} target="_blank" rel="noreferrer" className="text-primary font-black uppercase text-[10px] tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 hover:bg-primary/25 transition-colors">View</a>
+                    <button type="button" onClick={() => setDriverForm({ ...driverForm, licenseFrontImage: '' })} className="text-red-500 font-bold text-[10px] uppercase">Remove</button>
+                  </div>
+                ) : (
+                  <label className="flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-3 cursor-pointer hover:bg-primary/5 hover:border-primary transition-all">
+                    <Upload className="text-gray-400 mr-2" size={16} />
+                    <span className="text-[11px] font-bold text-gray-500">{uploading ? 'Uploading...' : 'Upload DL'}</span>
+                    <input type="file" accept="image/*,.pdf" className="hidden" disabled={uploading} onChange={(e) => handleDriverDocUpload(e, 'licenseFrontImage')} />
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-gray-50 dark:border-gray-800">
+            <button
+              disabled={saving || uploading}
+              type="submit"
+              className="w-full md:w-auto px-12 py-5 bg-dark-bg dark:bg-white text-white dark:text-dark-bg font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] shadow-xl hover:bg-primary transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Profile Documents
+            </button>
+          </div>
+        </form>
+      </div>
+    </motion.section>
+  )}
+
+  {activeTab === 'Bank Details' && (
+    <motion.section 
+      key="bank-details"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Bank & <span className="text-primary">Settlement</span></h3>
+      <div className="bg-white dark:bg-dark-card p-12 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl space-y-10">
+        
+        <div className="p-6 bg-green-50 dark:bg-green-900/10 rounded-2xl border border-green-100 dark:border-green-900/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-black text-green-500 uppercase tracking-widest mb-1">Treasury Network</p>
+            <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">KYC Verification Status: <span className="text-primary">{profileData?.kycStatus || 'Not Started'}</span></p>
+            <p className="text-xs font-bold text-gray-500 mt-1 font-inter">Direct bank settlements are processed via Razorpay Treasury. Providing details auto-registers contact points.</p>
+          </div>
+          {profileData?.razorpayContactId && (
+            <span className="px-4 py-2 bg-green-500/10 text-green-500 font-black uppercase text-[10px] tracking-widest rounded-xl border border-green-500/20">Razorpay Active ✓</span>
+          )}
+        </div>
+
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const payload = {
+            accountNumber: driverForm.bankAccountNumber,
+            ifscCode: driverForm.bankIfscCode,
+            bankName: driverForm.bankName,
+            holderName: driverForm.bankHolderName,
+            panNumber: driverForm.panNumber
+          };
+          
+          setSaving(true);
+          try {
+            const { data } = await api.put('/users/bank-details', payload);
+            const existingUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const updatedUserInfo = { ...existingUserInfo, bankDetails: payload, panNumber: driverForm.panNumber, kycStatus: 'Pending' };
+            localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+            setProfileData(updatedUserInfo);
+            toast.success('Bank details saved and registered successfully!');
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update bank details');
+          } finally {
+            setSaving(false);
+          }
+        }} className="space-y-8">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Holder Name</label>
+              <input
+                type="text"
+                placeholder="Name as in Passbook"
+                value={driverForm.bankHolderName}
+                onChange={(e) => setDriverForm({ ...driverForm, bankHolderName: e.target.value })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Bank Name</label>
+              <input
+                type="text"
+                placeholder="e.g. State Bank of India"
+                value={driverForm.bankName}
+                onChange={(e) => setDriverForm({ ...driverForm, bankName: e.target.value })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Account Number</label>
+              <input
+                type="text"
+                placeholder="Enter complete account number"
+                value={driverForm.bankAccountNumber}
+                onChange={(e) => setDriverForm({ ...driverForm, bankAccountNumber: e.target.value.replace(/\D/g, '') })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">IFSC Code</label>
+              <input
+                type="text"
+                maxLength={11}
+                placeholder="e.g. SBIN0001234"
+                value={driverForm.bankIfscCode}
+                onChange={(e) => setDriverForm({ ...driverForm, bankIfscCode: e.target.value.toUpperCase() })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+            <div className="space-y-3 md:col-span-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Permanent Account Number (PAN)</label>
+              <input
+                type="text"
+                maxLength={10}
+                placeholder="10 Character Alphanumeric PAN"
+                value={driverForm.panNumber}
+                onChange={(e) => setDriverForm({ ...driverForm, panNumber: e.target.value.toUpperCase() })}
+                className="w-full px-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-gray-50 dark:border-gray-800">
+            <button
+              disabled={saving}
+              type="submit"
+              className="w-full md:w-auto px-12 py-5 bg-dark-bg dark:bg-white text-white dark:text-dark-bg font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] shadow-xl hover:bg-primary transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Bank Details
+            </button>
+          </div>
+        </form>
+      </div>
+    </motion.section>
+  )}
+
+  {activeTab === 'Security & Password' && (
+    <motion.section 
+      key="security-pwd"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter uppercase">Security & <span className="text-primary">Password</span></h3>
+      <div className="bg-white dark:bg-dark-card p-12 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          if (driverForm.newPassword !== driverForm.confirmPassword) {
+            toast.error('Passwords do not match');
+            return;
+          }
+          if (driverForm.newPassword.length < 6) {
+            toast.error('Password must be at least 6 characters');
+            return;
+          }
+          
+          setSaving(true);
+          try {
+            await api.put('/users/profile', { password: driverForm.newPassword });
+            toast.success('Password updated successfully!');
+            setDriverForm(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update password');
+          } finally {
+            setSaving(false);
+          }
+        }} className="space-y-8">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">New Password</label>
+              <div className="relative group">
+                <Lock size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <input
+                  type="password"
+                  placeholder="Min 6 characters"
+                  value={driverForm.newPassword}
+                  onChange={(e) => setDriverForm({ ...driverForm, newPassword: e.target.value })}
+                  className="w-full pl-16 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Confirm Password</label>
+              <div className="relative group">
+                <Lock size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" />
+                <input
+                  type="password"
+                  placeholder="Repeat your password"
+                  value={driverForm.confirmPassword}
+                  onChange={(e) => setDriverForm({ ...driverForm, confirmPassword: e.target.value })}
+                  className="w-full pl-16 pr-6 py-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold text-gray-900 dark:text-white"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-gray-50 dark:border-gray-800">
+            <button
+              disabled={saving}
+              type="submit"
+              className="w-full md:w-auto px-12 py-5 bg-dark-bg dark:bg-white text-white dark:text-dark-bg font-black rounded-2xl uppercase tracking-[0.2em] text-[11px] shadow-xl hover:bg-primary transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Update Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </motion.section>
+  )}
 
  {activeTab === 'Account Settings' && (
  <motion.section 
@@ -1717,8 +2626,39 @@ const Profile = () => {
   </motion.div>
   </motion.div>
   )}
-  </AnimatePresence>
-  </div>
+  {isTrustedContactsModalOpen && (
+   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+     <div className="bg-white dark:bg-dark-card rounded-[2.5rem] p-8 max-w-sm w-full border border-gray-100 dark:border-gray-800 shadow-2xl">
+       <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6 uppercase">Add Contact</h3>
+       <form onSubmit={handleAddTrustedContact} className="space-y-4">
+         <div>
+           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Name</label>
+           <input type="text" required value={newContactName} onChange={e=>setNewContactName(e.target.value)} className="w-full mt-1 p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold" />
+         </div>
+         <div>
+           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+           <input type="tel" required value={newContactPhone} onChange={e=>setNewContactPhone(e.target.value)} className="w-full mt-1 p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold" />
+         </div>
+         <div>
+           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Relation</label>
+           <select value={newContactRelation} onChange={e=>setNewContactRelation(e.target.value)} className="w-full mt-1 p-4 rounded-2xl bg-gray-50 dark:bg-dark-bg border border-transparent focus:border-primary outline-none font-bold">
+             <option>Family</option>
+             <option>Friend</option>
+             <option>Partner</option>
+             <option>Other</option>
+           </select>
+         </div>
+         <div className="pt-4 flex gap-3">
+           <button type="button" onClick={()=>setIsTrustedContactsModalOpen(false)} className="flex-1 py-4 bg-gray-100 dark:bg-dark-bg text-gray-500 rounded-2xl font-black uppercase text-xs">Cancel</button>
+           <button type="submit" className="flex-1 py-4 bg-primary text-white rounded-2xl font-black uppercase text-xs shadow-lg hover:bg-primary-dark">Save</button>
+         </div>
+       </form>
+     </div>
+   </div>
+ )}
+
+ </AnimatePresence>
+ </div>
  );
 };
 

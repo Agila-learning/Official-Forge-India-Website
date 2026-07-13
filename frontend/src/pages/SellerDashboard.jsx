@@ -9,6 +9,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import OrderInvoice from '../components/ui/OrderInvoice';
+import MembershipUpgradeWidget from '../components/ui/MembershipUpgradeWidget';
 
 const SellerDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -364,6 +365,13 @@ const SellerDashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Subscription ─────────────────────────────────── */}
+      {activeTab === 'subscription' && (
+        <div className="space-y-8">
+          <MembershipUpgradeWidget userInfo={userInfo} />
         </div>
       )}
 

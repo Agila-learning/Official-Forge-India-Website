@@ -32,7 +32,9 @@ export default function RegisterScreen() {
     pricingMin: '',
     pricingMax: '',
     exactLocation: null,
-    address: ''
+    address: '',
+    driverType: 'Bike',
+    vehicleOwnership: 'Own Vehicle'
   });
   const [loading, setLoading] = useState(false);
   const [mapModalVisible, setMapModalVisible] = useState(false);
@@ -45,22 +47,33 @@ export default function RegisterScreen() {
       return;
     }
     
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Allow location access to pin your shop.');
-      return;
-    }
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Allow location access to pin your shop.');
+        return;
+      }
 
-    setMapModalVisible(true);
-    let location = await Location.getCurrentPositionAsync({});
-    const region = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-    setCurrentLocation(region);
-    setMapRegion(region);
+      setMapModalVisible(true);
+      
+      let location = await Location.getLastKnownPositionAsync({});
+      if (!location) {
+        location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      }
+      
+      const region = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      };
+      setCurrentLocation(region);
+      setMapRegion(region);
+    } catch (e: any) {
+      console.warn("Location error:", e);
+      Alert.alert('Location Error', 'Could not fetch your location. Please ensure your device GPS is enabled.');
+      setMapModalVisible(false);
+    }
   };
 
   const pickDocument = async () => {
@@ -324,6 +337,41 @@ export default function RegisterScreen() {
                       <Text className="text-xs font-bold text-slate-400">Select PDF Document</Text>
                     </View>
                   </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {['Driver', 'Delivery Partner'].includes(formData.role) && (
+              <View className="space-y-5 pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
+                <View className="space-y-1">
+                  <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle Type</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {['Bike', 'Auto', 'Taxi', 'Cab', 'Delivery Partner', 'Logistics Driver'].map(type => (
+                      <TouchableOpacity 
+                        key={type} onPress={() => setFormData({...formData, driverType: type})}
+                        className={`py-2 px-3 rounded-xl border items-center ${formData.driverType === type ? 'border-primary bg-primary' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg'}`}
+                      >
+                        <Text className={`text-[10px] font-black uppercase tracking-widest ${formData.driverType === type ? 'text-white' : 'text-slate-500'}`}>
+                          {type}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+                <View className="space-y-1">
+                  <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle Ownership</Text>
+                  <View className="flex-row gap-2">
+                    {['Own Vehicle', 'Company Assigned Vehicle'].map(type => (
+                      <TouchableOpacity 
+                        key={type} onPress={() => setFormData({...formData, vehicleOwnership: type})}
+                        className={`flex-1 py-3 px-3 rounded-xl border items-center ${formData.vehicleOwnership === type ? 'border-primary bg-primary' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg'}`}
+                      >
+                        <Text className={`text-[10px] font-black uppercase tracking-widest text-center ${formData.vehicleOwnership === type ? 'text-white' : 'text-slate-500'}`}>
+                          {type === 'Company Assigned Vehicle' ? 'Company Assigned' : 'Own Vehicle'}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
               </View>
             )}

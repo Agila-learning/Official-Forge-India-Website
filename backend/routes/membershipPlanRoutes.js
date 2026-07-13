@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getPlans, createPlan, updatePlan, deletePlan } = require('../controllers/membershipPlanController');
+const { getPlans, getAllPlans, createPlan, updatePlan, deletePlan } = require('../controllers/membershipPlanController');
 const { protect, admin } = require('../middleware/authMiddleware');
+
+router.route('/all').get(protect, admin, getAllPlans);   // Admin sees inactive too
 
 router.route('/')
   .get(getPlans)

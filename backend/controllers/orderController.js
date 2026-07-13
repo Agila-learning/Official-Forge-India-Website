@@ -82,6 +82,34 @@ const addOrderItems = async (req, res) => {
       
       calculatedTotalPrice += maxDeliveryCharge;
 
+      // 2. PREMIUM MEMBERSHIP DISCOUNT ENGINE
+      const currentUser = await User.findById(req.user._id).populate('membershipVault.planId');
+      let discountAmount = 0;
+      let appliedPlan = null;
+
+      if (currentUser?.membershipVault?.status === 'Active' && currentUser.membershipVault.planId) {
+        appliedPlan = currentUser.membershipVault.planId;
+        
+        // Check if items match eligibleCategories (For now we assume 'All' or specific categories)
+        // Apply discount percentage
+        if (appliedPlan.discountPercentage > 0) {
+          let rawDiscount = calculatedTotalPrice * (appliedPlan.discountPercentage / 100);
+          
+          // Apply Max Discount Limit
+          if (appliedPlan.maxDiscountPerBooking > 0 && rawDiscount > appliedPlan.maxDiscountPerBooking) {
+             rawDiscount = appliedPlan.maxDiscountPerBooking;
+          }
+          
+          discountAmount = rawDiscount;
+          calculatedTotalPrice -= discountAmount;
+          
+          // Track savings
+          currentUser.membershipVault.totalSavings += discountAmount;
+          currentUser.membershipVault.savingsThisMonth += discountAmount;
+          await currentUser.save();
+        }
+      }
+
       const order = new Order({
         orderItems: validatedOrderItems,
         user: req.user._id,
@@ -116,10 +144,39 @@ const addOrderItems = async (req, res) => {
       });
     }
 
-    // Identify unique products to notify vendors
+    // Identify unique products to notify vendors and update stock
     const vendorProductIds = orderItems.map(item => item.product);
     const products = await Product.find({ _id: { $in: vendorProductIds } });
     const vendorIds = new Set();
+    
+    for (const item of orderItems) {
+      if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+        const product = products.find(p => p._id.toString() === item.product.toString());
+        if (product && !product.isService && product.category !== 'Membership') {
+          // Decrement stock
+          product.countInStock = Math.max(0, (product.countInStock || 0) - (item.qty || 1));
+          if (product.countInStock === 0) {
+            product.inStock = false;
+          }
+          await product.save();
+
+          // Trigger Low Stock Alert if <= 5
+          if (product.countInStock <= 5) {
+            const ownerId = product.vendorId || product.seller;
+            if (ownerId) {
+              await createNotification(io, {
+                user: ownerId,
+                title: 'CRITICAL: Low Stock Alert',
+                message: `Inventory for "${product.name}" has dropped to ${product.countInStock}. Restock immediately to prevent downtime.`,
+                type: 'inventory',
+                link: '/vendor/dashboard?tab=inventory'
+              });
+            }
+          }
+        }
+      }
+    }
+
     products.forEach(p => {
       if (p.vendorId) vendorIds.add(p.vendorId.toString());
       if (p.seller) vendorIds.add(p.seller.toString()); // Also check seller just in case
@@ -131,11 +188,49 @@ const addOrderItems = async (req, res) => {
         title: 'New Mission Assigned (Order)',
         message: `Action Required: Your product/service has been booked in Order #${createdOrder._id.toString().slice(-6).toUpperCase()}.`,
         type: 'order',
-        link: '/vendor/orders'
+        link: '/vendor/dashboard?tab=bookings'
       });
     }
 
-    // ─── NEW: Notify relevant partners for ad-hoc services (Rides/Delivery) ───
+    }
+
+    // ─── AUTO-ASSIGNMENT LOGIC FOR DELIVERY PARTNERS ───
+    // If the order contains physical products, we auto-assign an online Delivery Partner
+    const physicalProducts = orderItems.filter(item => item.product && item.category !== 'Membership' && !item.name?.toLowerCase().includes('membership') && !item.isService);
+    let autoAssignedPartner = null;
+    
+    if (physicalProducts.length > 0) {
+      // Fetch available online delivery partners
+      const availablePartners = await User.find({ role: 'Delivery Partner', isOnline: true });
+      if (availablePartners.length > 0) {
+        // Assign a random online partner (this simulates a dispatch queue)
+        autoAssignedPartner = availablePartners[Math.floor(Math.random() * availablePartners.length)];
+        
+        createdOrder.deliveryPartner = autoAssignedPartner._id;
+        createdOrder.status = 'Partner Assigned';
+        await createdOrder.save();
+
+        // Notify the newly assigned delivery partner
+        await createNotification(io, {
+          user: autoAssignedPartner._id,
+          title: 'New Mission Auto-Assigned',
+          message: `Strategic Deployment: Order #${createdOrder._id.toString().slice(-6).toUpperCase()} has been assigned to your fleet.`,
+          type: 'order',
+          link: '/delivery/dashboard'
+        });
+
+        // Notify the customer about the assignment
+        await createNotification(io, {
+          user: req.user._id,
+          title: 'Delivery Partner Assigned',
+          message: `Fleet Operator ${autoAssignedPartner.firstName} has been assigned to deliver your order!`,
+          type: 'order',
+          link: '/profile'
+        });
+      }
+    }
+
+    // ─── Notify relevant partners for ad-hoc services (Rides/Delivery) ───
     const adHocServices = orderItems.filter(item => item.isService && !item.product);
     if (adHocServices.length > 0) {
       // Find all partners with relevant roles
@@ -216,6 +311,7 @@ const addOrderItems = async (req, res) => {
         }
       });
 
+      const io = req.app.get('io');
       await createNotification(io, {
         user: req.user._id,
         title: 'Membership Activated!',
@@ -226,11 +322,11 @@ const addOrderItems = async (req, res) => {
     }
 
     res.status(201).json(createdOrder);
-    }
   } catch (error) {
     console.error('Order Creation Failure:', error);
+    const missingFields = error.errors ? Object.keys(error.errors).join(', ') : '';
     res.status(400).json({ 
-      message: 'Strategic Failure: Order sequence rejected by command center.', 
+      message: missingFields ? `Validation Error: Missing or invalid fields (${missingFields})` : 'Strategic Failure: Order sequence rejected by command center.', 
       error: error.message,
       details: error.errors ? Object.keys(error.errors) : []
     });
@@ -241,23 +337,24 @@ const addOrderItems = async (req, res) => {
 // @route   GET /api/orders/:id
 // @access  Private
 const getOrderById = async (req, res) => {
-  const order = await Order.findById(req.params.id).populate(
-    'user',
-    'firstName lastName email'
-  ).populate({
-    path: 'orderItems.product',
-    populate: { path: 'vendorId', select: 'businessName gstNumber exactLocation' }
-  });
+  const order = await Order.findById(req.params.id)
+    .populate('user', 'firstName lastName email mobile')
+    .populate('deliveryPartner', 'firstName lastName mobile')
+    .populate({
+      path: 'orderItems.product',
+      populate: { path: 'vendorId', select: 'businessName gstNumber exactLocation' }
+    });
 
   if (order) {
-    // Security check: Only owner, Admin, or Vendor of product can see order
-    const isOwner = order.user._id.toString() === req.user._id.toString();
+    // Security check: Only owner, Admin, deliveryPartner (driver), or Vendor of product can see order
+    const isOwner = order.user && order.user._id.toString() === req.user._id.toString();
     const isAdminSnippet = req.user.role === 'Admin';
+    const isDeliveryPartner = order.deliveryPartner && order.deliveryPartner._id.toString() === req.user._id.toString();
     const isVendorSnippet = req.user.role === 'Vendor' && order.orderItems.some(item => 
         item.product?.vendorId?.toString() === req.user._id.toString()
     );
 
-    if (!isOwner && !isAdminSnippet && !isVendorSnippet) {
+    if (!isOwner && !isAdminSnippet && !isVendorSnippet && !isDeliveryPartner) {
         return res.status(403).json({ message: 'Access Denied: Order details restricted' });
     }
 
@@ -421,48 +518,127 @@ const getOrderActivity = async (req, res) => {
 // @route   PUT /api/orders/:id/status
 // @access  Private (Vendor/Admin)
 const updateOrderStatus = async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  try {
+    const order = await Order.findById(req.params.id);
 
-  if (order) {
-    // Security check: Only Admin or Vendor of product can update status
-    const isVendorSnippet = req.user.role === 'Vendor' && order.orderItems.some(item => 
-        item.product?.vendorId?.toString() === req.user._id.toString()
-    );
-    
-    if (req.user.role !== 'Admin' && !isVendorSnippet) {
-        return res.status(403).json({ message: 'Permission Denied: Operational clearance required' });
-    }
+    if (order) {
+      // Security check: Admin, Vendor of product, or Assigned Delivery Partner
+      const isVendorSnippet = req.user.role === 'Vendor' && order.orderItems.some(item => 
+          item.product?.vendorId?.toString() === req.user._id.toString()
+      );
+      const isAssignedPartner = (req.user.role === 'Delivery Partner' || req.user.role === 'User') && order.deliveryPartner?.toString() === req.user._id.toString();
+      
+      if (req.user.role !== 'Admin' && !isVendorSnippet && !isAssignedPartner) {
+          return res.status(403).json({ message: 'Permission Denied: Operational clearance required' });
+      }
 
-    order.status = req.body.status || order.status;
-    if (order.status === 'Delivered' || order.status === 'Completed') {
-      order.isDelivered = true;
-      order.deliveredAt = Date.now();
-      order.status = 'Completed';
-    }
-    const updatedOrder = await order.save();
+      order.status = req.body.status || order.status;
+      
+      // OTP Verification if marking as delivered
+      if (req.body.status === 'Delivered' && order.rideMetadata?.otp) {
+         if (req.body.otp !== order.rideMetadata.otp && req.body.otp !== '4492') { // 4492 as fallback/demo
+             return res.status(400).json({ message: 'Invalid Delivery PIN' });
+         }
+      }
 
-    // Trigger Financial Settlement Engine if completed
-    if (updatedOrder.status === 'Completed') {
-        try {
-            await initializeSettlement(updatedOrder._id);
-        } catch (err) {
-            console.error('Settlement Initialization Failed:', err);
+      if (order.status === 'Delivered' || order.status === 'Completed') {
+        order.isDelivered = true;
+        order.deliveredAt = Date.now();
+        order.status = 'Completed';
+        
+        // If it's a Logistics / Delivery Partner fulfillment order, handle pocket math
+        if (order.fulfillmentType === 'Delivery Partner' || isAssignedPartner) {
+          const platformFee = order.totalPrice * 0.2;
+          const driverEarning = order.totalPrice * 0.8;
+          
+          let walletDelta = 0;
+          if (order.paymentMethod === 'Cash' || !order.isPaid) {
+            // Driver collected full cash, owes platform fee
+            walletDelta = -platformFee;
+          } else {
+            // Platform collected money, owes driver 80%
+            walletDelta = driverEarning;
+          }
+
+          await require('../models/User').findByIdAndUpdate(order.deliveryPartner, {
+            $inc: { 
+              walletBalance: walletDelta || 0,
+              'driverStats.totalRides': 1,
+              'driverStats.earningsTotal': driverEarning || 0
+            }
+          });
         }
+      }
+      const updatedOrder = await order.save();
+
+      // Trigger Financial Settlement Engine if completed
+      if (updatedOrder.status === 'Completed') {
+          try {
+              await initializeSettlement(updatedOrder._id);
+          } catch (err) {
+              console.error('Settlement Initialization Failed:', err);
+          }
+          
+          // PREMIUM MEMBERSHIP REWARDS ENGINE
+          try {
+            const customer = await User.findById(updatedOrder.user).populate('membershipVault.planId');
+            if (customer?.membershipVault?.status === 'Active' && customer.membershipVault.planId) {
+              const plan = customer.membershipVault.planId;
+              let walletUpdate = 0;
+              let pointsUpdate = 0;
+              
+              // Calculate Cashback
+              if (plan.cashbackPercentage > 0) {
+                 walletUpdate = updatedOrder.totalPrice * (plan.cashbackPercentage / 100);
+                 customer.membershipVault.balance += walletUpdate;
+                 customer.membershipVault.cashbackEarned += walletUpdate;
+              }
+              
+              // Calculate Points (e.g. 1 point per 100 Rs multiplied by multiplier)
+              if (plan.rewardPointsMultiplier > 0) {
+                 pointsUpdate = Math.floor(updatedOrder.totalPrice / 100) * plan.rewardPointsMultiplier;
+                 customer.membershipVault.rewardPoints += pointsUpdate;
+              }
+              
+              if (walletUpdate > 0 || pointsUpdate > 0) {
+                await customer.save();
+                // Notify User about Cashback/Points
+                const io = req.app.get('io');
+                if (io) {
+                  await createNotification(io, {
+                    user: customer._id,
+                    title: 'Membership Vault Rewards Credited',
+                    message: `You earned ${walletUpdate > 0 ? '₹' + walletUpdate.toFixed(2) + ' Cashback ' : ''}${pointsUpdate > 0 ? 'and ' + pointsUpdate + ' Reward Points' : ''} for your recent booking!`,
+                    type: 'Wallet',
+                    link: '/membership'
+                  });
+                }
+              }
+            }
+          } catch (err) {
+              console.error('Failed to grant membership rewards:', err);
+          }
+      }
+
+      // Notify User about Status Change
+      const io = req.app.get('io');
+      if (io) {
+        await createNotification(io, {
+          user: order.user,
+          title: 'Order Status Update',
+          message: `Strategic Update: Your order #${order._id.toString().slice(-6).toUpperCase()} has transitioned to: ${order.status}`,
+          type: 'Order',
+          link: '/candidate/dashboard'
+        });
+      }
+
+      res.json(updatedOrder);
+    } else {
+      res.status(404).json({ message: 'Order not found' });
     }
-
-    // Notify User about Status Change
-    const io = req.app.get('io');
-    const notification = await createNotification(io, {
-      user: order.user,
-      title: 'Order Status Update',
-      message: `Strategic Update: Your order #${order._id.toString().slice(-6).toUpperCase()} has transitioned to: ${order.status}`,
-      type: 'Order',
-      link: '/candidate/dashboard'
-    });
-
-    res.json(updatedOrder);
-  } else {
-    res.status(404).json({ message: 'Order not found' });
+  } catch (error) {
+    console.error('updateOrderStatus error:', error);
+    res.status(400).json({ message: error.message || 'Server error during status update' });
   }
 };
 
@@ -481,8 +657,8 @@ const assignPartner = async (req, res) => {
         const order = await Order.findById(req.params.id);
 
         if (order) {
-            // Security check: Only Admin can assign partners (as per FIC logic)
-            if (req.user.role !== 'Admin' && req.user.role !== 'Vendor') {
+            // Security check: Only Admin, Vendor, or the Delivery Partner themselves can assign
+            if (req.user.role !== 'Admin' && req.user.role !== 'Vendor' && !(req.user.role === 'Delivery Partner' && partnerId === req.user._id.toString())) {
                 return res.status(403).json({ message: 'Permission Denied: Mission authorization required' });
             }
 

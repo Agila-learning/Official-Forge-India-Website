@@ -20,6 +20,7 @@ export default function DrawerIndex() {
     case 'Agent':
       return <Redirect href="/(drawer)/agent" />;
     case 'Delivery':
+    case 'Delivery Partner':
       return <Redirect href="/(drawer)/delivery" />;
     case 'Candidate':
       return <Redirect href="/(drawer)/candidate" />;
@@ -27,6 +28,7 @@ export default function DrawerIndex() {
       return <Redirect href="/(drawer)/serviceprovider" />;
     case 'Trainer':
       return <Redirect href="/(drawer)/trainer" />;
+    case 'Rental Provider':
     case 'Stay Partner':
       return <Redirect href="/(drawer)/staypartner" />;
     case 'Seller':

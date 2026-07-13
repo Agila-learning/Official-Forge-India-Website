@@ -72,13 +72,13 @@ const RoleDashboardProfile = ({ user, stats = {} }) => {
  animate={{ opacity: 1, scale: 1 }}
  className="relative p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shadow-2xl"
  >
- <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
- <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -ml-32 -mb-32"></div>
+ <div className="absolute top-0 right-0 w-64 h-64 bg-[#003B73]/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+ <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#F5A623]/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
 
  <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
  <div className="relative group">
- <div className="w-40 h-40 rounded-full border-8 border-gray-50 dark:border-dark-bg p-2 bg-gradient-to-tr from-primary to-secondary shadow-2xl group-hover:rotate-12 transition-transform duration-700">
- <div className="w-full h-full rounded-full bg-white dark:bg-dark-card flex items-center justify-center text-4xl font-black text-primary uppercase">
+ <div className="w-40 h-40 rounded-full border-8 border-gray-50 dark:border-dark-bg p-2 bg-gradient-to-tr from-[#003B73] to-[#F5A623] shadow-2xl group-hover:rotate-12 transition-transform duration-700">
+ <div className="w-full h-full rounded-full bg-white dark:bg-dark-card flex items-center justify-center text-4xl font-black text-[#003B73] uppercase">
  {user?.firstName?.[0]}
  </div>
  </div>

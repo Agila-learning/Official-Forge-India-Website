@@ -8,10 +8,12 @@ import RoleDashboardProfile from '../components/ui/RoleDashboardProfile';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { CalendarDays, Video, Clock } from 'lucide-react';
+import HRDashboardModules from '../components/sections/HRDashboardModules';
 
 const HRDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [allCandidates, setAllCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.view || 'overview');
@@ -43,12 +45,14 @@ const HRDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [jobsRes, appsRes] = await Promise.all([
+      const [jobsRes, appsRes, candRes] = await Promise.all([
         api.get('/jobs').catch(() => ({ data: [] })),
-        api.get('/applications').catch(() => ({ data: [] }))
+        api.get('/applications').catch(() => ({ data: [] })),
+        api.get('/users?role=Candidate').catch(() => ({ data: [] }))
       ]);
       setJobs(jobsRes.data || []);
       setApplications(appsRes.data || []);
+      setAllCandidates(candRes.data || []);
     } catch (err) {
       console.error('HR Dashboard Sync Error:', err);
     } finally {
@@ -316,8 +320,8 @@ const HRDashboard = () => {
             </motion.div>
           )}
 
-          {activeTab === 'applications' && (
-            <motion.div key="applications" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
+          {activeTab === 'candidates' && (
+            <motion.div key="candidates" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
               {/* Search & Status Filters */}
               <div className="glass-card p-6 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-card flex flex-col md:flex-row gap-6 justify-between items-center shadow-lg">
                 <div className="relative w-full md:w-96">
@@ -700,22 +704,37 @@ const HRDashboard = () => {
                         <h3 className="text-2xl font-black uppercase tracking-tighter">Schedule Interview</h3>
                         <button onClick={() => setShowScheduleModal(false)} className="text-gray-400 hover:text-gray-600"><XCircle size={24} /></button>
                       </div>
-                      <form onSubmit={(e) => {
+                      <form onSubmit={async (e) => {
                         e.preventDefault();
                         const fd = new FormData(e.target);
                         const data = Object.fromEntries(fd.entries());
                         const candidate = applications.find(a => a._id === data.candidateId);
-                        setScheduledInterviews([...scheduledInterviews, {
-                          candidateName: candidate ? candidate.fullName : 'External Candidate',
-                          role: candidate ? candidate.jobRole : 'General Interview',
-                          date: data.date,
-                          time: data.time,
-                          duration: data.duration,
-                          link: data.link,
-                          panel: data.panel
-                        }]);
-                        setShowScheduleModal(false);
-                        toast.success('Interview scheduled successfully');
+                        
+                        try {
+                          if (candidate) {
+                            const interviewDateTime = `${data.date}T${data.time}`;
+                            await api.put(`/applications/${candidate._id}/status`, {
+                              status: 'Interview Scheduled',
+                              interviewDate: interviewDateTime,
+                              interviewLink: data.link
+                            });
+                          }
+                          
+                          setScheduledInterviews([...scheduledInterviews, {
+                            candidateName: candidate ? candidate.fullName : 'External Candidate',
+                            role: candidate ? candidate.jobRole : 'General Interview',
+                            date: data.date,
+                            time: data.time,
+                            duration: data.duration,
+                            link: data.link,
+                            panel: data.panel
+                          }]);
+                          setShowScheduleModal(false);
+                          toast.success('Interview scheduled successfully');
+                          fetchData();
+                        } catch (err) {
+                          toast.error(err.response?.data?.message || 'Failed to schedule interview');
+                        }
                       }} className="space-y-4">
                         <div>
                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Candidate</label>
@@ -844,6 +863,18 @@ const HRDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Additional HR Dashboard Tabs */}
+        {['search', 'talent-pool', 'shortlists', 'feedback', 'messages', 'campaigns', 'reports', 'subscription', 'company-profile'].includes(activeTab) && (
+          <HRDashboardModules 
+            activeTab={activeTab} 
+            allCandidates={allCandidates} 
+            applications={applications} 
+            handleUpdateApplicationStatus={handleUpdateApplicationStatus} 
+            getATSMetrics={getATSMetrics} 
+            userInfo={userInfo} 
+          />
+        )}
       </div>
     </DashboardLayout>
   );

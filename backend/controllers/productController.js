@@ -3,12 +3,16 @@ const HomeCategory = require('../models/HomeCategory');
 
 const getProducts = async (req, res) => {
   try {
-    let query = {};
-    const vendorRoles = ['Vendor', 'Seller', 'Service Provider', 'Rental Provider', 'HR'];
-    if (req.user && vendorRoles.includes(req.user.role)) {
-      query = { vendorId: req.user._id };
-    }
-    const products = await Product.find(query).populate('vendorId', 'businessName deliveryAvailable');
+    const products = await Product.find({}).populate('vendorId', 'businessName deliveryAvailable');
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getVendorProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ vendorId: req.user._id }).populate('vendorId', 'businessName deliveryAvailable');
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -169,4 +173,4 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, getProductById, createProduct, updateProduct, deleteProduct };
+module.exports = { getProducts, getVendorProducts, getProductById, createProduct, updateProduct, deleteProduct };

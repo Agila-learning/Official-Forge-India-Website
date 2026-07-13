@@ -381,6 +381,8 @@ const CategoryManager = ({ items, onUpdate, isVendorMode }) => {
  <select value={newItem.type} onChange={e => setNewItem({...newItem, type: e.target.value})} className="px-5 py-4 rounded-xl outline-none font-bold text-sm">
  <option value="product">Product Vertical</option>
  <option value="service">Service Vertical</option>
+ <option value="rental">Rental / Stay Vertical</option>
+ <option value="ride">Ride / Transport Vertical</option>
  </select>
  <div className="flex gap-2 items-center">
  <input type="number" placeholder="Order" value={newItem.order} onChange={e => setNewItem({...newItem, order: Number(e.target.value)})} className="w-full px-5 py-4 rounded-xl outline-none font-bold text-sm" />

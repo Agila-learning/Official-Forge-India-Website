@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Cloud, Server, ShieldCheck, Zap, ArrowRight, Network, Terminal, Settings } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -27,9 +28,13 @@ const CloudServices = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl"
           >
-            <span className="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block">
+            <motion.span 
+              animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(6,182,212,0)", "0 0 20px rgba(6,182,212,0.5)", "0 0 0px rgba(6,182,212,0)"] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block"
+            >
               Multi-Cloud Architecture
-            </span>
+            </motion.span>
             
             <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-tight mb-6">
               Scale <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Infinitely.</span><br />
@@ -64,51 +69,56 @@ const CloudServices = () => {
               icon: Cloud,
               title: "Cloud Migration",
               desc: "Seamless transition of legacy systems to the cloud with zero data loss and minimal downtime.",
-              points: ["AWS / Azure / GCP", "Lift & Shift", "Database Migration"]
+              points: ["AWS / Azure / GCP", "Lift & Shift", "Database Migration"],
+              slug: "cloud-migration"
             },
             {
               icon: Server,
               title: "Managed Hosting",
               desc: "24/7 monitoring and resource optimization to ensure your applications run at peak performance.",
-              points: ["Load Balancing", "Auto-scaling", "Disaster Recovery"]
+              points: ["Load Balancing", "Auto-scaling", "Disaster Recovery"],
+              slug: "managed-hosting"
             },
             {
               icon: Terminal,
               title: "DevOps & CI/CD",
               desc: "Automated deployment pipelines to accelerate your software delivery lifecycle securely.",
-              points: ["Jenkins / GitLab CI", "Infrastructure as Code", "Docker / K8s"]
+              points: ["Jenkins / GitLab CI", "Infrastructure as Code", "Docker / K8s"],
+              slug: "devops-ci-cd"
             },
             {
               icon: ShieldCheck,
               title: "Cloud Security",
               desc: "Enterprise-grade compliance, identity management, and threat detection systems.",
-              points: ["ISO/SOC Compliance", "IAM Configuration", "Vulnerability Scanning"]
+              points: ["ISO/SOC Compliance", "IAM Configuration", "Vulnerability Scanning"],
+              slug: "cloud-security"
             }
           ].map((pillar, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-slate-800/50 border border-slate-700/50 p-10 rounded-[2.5rem] hover:border-cyan-500/30 transition-all"
-            >
-              <div className="flex items-start gap-6">
-                <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center shrink-0">
-                  <pillar.icon size={28} className="text-cyan-400" />
+            <Link to={`/services/sub/${pillar.slug}`} key={idx} className="h-full block">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-slate-800/50 border border-slate-700/50 p-10 rounded-[2.5rem] hover:border-cyan-500/30 transition-all group h-full flex flex-col justify-start"
+              >
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-cyan-500/10">
+                    <pillar.icon size={28} className="text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3 group-hover:text-cyan-400 transition-colors">{pillar.title}</h3>
+                    <p className="text-slate-400 font-medium mb-6 leading-relaxed">{pillar.desc}</p>
+                    <ul className="space-y-2">
+                      {pillar.points.map((pt, i) => (
+                        <li key={i} className="flex items-center gap-2 text-sm font-bold text-slate-300">
+                          <Zap size={14} className="text-cyan-500" /> {pt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-3">{pillar.title}</h3>
-                  <p className="text-slate-400 font-medium mb-6 leading-relaxed">{pillar.desc}</p>
-                  <ul className="space-y-2">
-                    {pillar.points.map((pt, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm font-bold text-slate-300">
-                        <Zap size={14} className="text-cyan-500" /> {pt}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

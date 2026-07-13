@@ -1,45 +1,42 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
-const { RideBooking } = require('../models/BookingExtensions');
+const {
+  estimateFare,
+  requestRide,
+  getNearbyRides,
+  getPendingRides,
+  acceptRide,
+  updateRideStatus,
+  rateRide,
+  getRides,
+  logEmergency,
+  submitSafetyScore,
+  getSafetyReports,
+  getDriverContext,
+  updateDriverLocation,
+  updateDriverStatus,
+} = require('../controllers/rideController');
+const { protect, admin } = require('../middleware/authMiddleware');
+const { validateDriverReadiness } = require('../middleware/driverValidation');
 
-// @desc    Request a ride
-// @route   POST /api/rides/request
-router.post('/request', protect, async (req, res) => {
-  const { pickupLocation, dropLocation, rideType, estimatedFare, distance } = req.body;
-  try {
-    const ride = await RideBooking.create({
-      user: req.user._id,
-      pickupLocation,
-      dropLocation,
-      rideType,
-      estimatedFare,
-      distance,
-      status: 'Searching',
-      otp: Math.floor(1000 + Math.random() * 9000).toString()
-    });
+// Driver context (must be before /:id routes)
+router.get('/driver/context', protect, getDriverContext);
+router.put('/driver/location', protect, updateDriverLocation);
+router.put('/driver/status', protect, updateDriverStatus);
 
-    // In a real app, we would emit a socket event here to nearby providers
-    const io = req.app.get('io');
-    if (io) {
-      io.emit('new-ride-request', ride);
-    }
+router.get('/', protect, validateDriverReadiness, getRides);
+router.get('/mine', protect, getRides);
+router.post('/estimate', protect, estimateFare);
+router.post('/request', protect, requestRide);
+router.get('/nearby', protect, validateDriverReadiness, getNearbyRides);
+router.get('/pending', protect, getPendingRides); // Lighter endpoint - no strict doc validation
+router.put('/:id/accept', protect, validateDriverReadiness, acceptRide);
+router.put('/:id/status', protect, updateRideStatus);  // removed validateDriverReadiness so customer can cancel
+router.put('/:id/rate', protect, rateRide);
 
-    res.status(201).json(ride);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// @desc    Get current user's ride history
-// @route   GET /api/rides/mine
-router.get('/mine', protect, async (req, res) => {
-  try {
-    const rides = await RideBooking.find({ user: req.user._id }).sort({ createdAt: -1 });
-    res.json(rides);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// Phase 2 Routes
+router.post('/:id/emergency', protect, logEmergency);
+router.post('/:id/safety-score', protect, submitSafetyScore);
+router.get('/admin/safety-reports', protect, admin, getSafetyReports);
 
 module.exports = router;

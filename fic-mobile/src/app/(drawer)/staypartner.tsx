@@ -35,24 +35,23 @@ export default function StayPartnerDashboard() {
 
   const fetchStayData = async () => {
     try {
-      const [pgRes, ordRes, userRes] = await Promise.all([
-        api.get('/pg').catch(() => ({ data: [] })),
+      const [prodRes, ordRes, userRes] = await Promise.all([
+        api.get('/products').catch(() => ({ data: [] })),
         api.get('/orders').catch(() => ({ data: [] })),
         api.get('/users').catch(() => ({ data: [] }))
       ]);
 
       // Filter PGs by this owner
-      const myPGs = (pgRes.data || []).filter((p: any) => p.owner === user?._id || p.partner === user?._id);
+      const myPGs = (prodRes.data || []).filter((p: any) => 
+        (p.vendor === user?._id || p.seller === user?._id) && ['PG', 'Hotel', 'Rentals', 'PG / Hostel'].includes(p.propertyType || p.category)
+      );
       
       // Filter Orders that book these PGs
       const myBookings = (ordRes.data || []).filter((o: any) => 
         o.orderItems?.some((item: any) => myPGs.some((pg: any) => pg._id === item.product))
       );
 
-      setProperties(myPGs.length > 0 ? myPGs : [
-        { _id: '1', title: 'Ocean View Hotel', type: 'Hotel', rooms: 20, price: 2500, status: 'Live', location: 'Goa, India' },
-        { _id: '2', title: 'Green Valley PG', type: 'PG', rooms: 15, price: 8000, status: 'Live', location: 'Bangalore, India' },
-      ]);
+      setProperties(myPGs);
       setBookings(myBookings);
 
       const me = userRes.data.find((u: any) => u._id === user?._id);
@@ -77,7 +76,17 @@ export default function StayPartnerDashboard() {
 
   const handleAddProperty = async () => {
     try {
-      await api.post('/pg', { ...propForm, owner: user?._id });
+      const payload = {
+        name: propForm.title,
+        price: propForm.price,
+        countInStock: propForm.rooms,
+        category: 'PG / Hostel',
+        propertyType: propForm.type,
+        location: propForm.location,
+        isService: false,
+        vendor: user?._id
+      };
+      await api.post('/products', payload);
       Alert.alert('Success', 'Property listed successfully!');
       setShowAddModal(false);
       fetchStayData();
@@ -88,7 +97,7 @@ export default function StayPartnerDashboard() {
 
   const handleDeleteProperty = async (id: string) => {
     try {
-      await api.delete(`/pg/${id}`);
+      await api.delete('/products/' + id);
       Alert.alert('Success', 'Property removed');
       fetchStayData();
     } catch (err) {
@@ -219,7 +228,7 @@ export default function StayPartnerDashboard() {
                         <Building color="#3b82f6" size={20} />
                       </View>
                       <View>
-                        <Text className="font-black text-slate-900 dark:text-white uppercase tracking-tight">{prop.title}</Text>
+                        <Text className="font-black text-slate-900 dark:text-white uppercase tracking-tight">{prop.name}</Text>
                         <Text className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex-row items-center">
                           <MapPin size={10} color="#94a3b8" /> {prop.location || 'India'}
                         </Text>
@@ -372,3 +381,5 @@ export default function StayPartnerDashboard() {
     </View>
   );
 }
+
+

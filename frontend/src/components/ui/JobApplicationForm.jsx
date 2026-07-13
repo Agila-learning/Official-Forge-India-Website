@@ -144,7 +144,13 @@ const JobApplicationForm = ({ isOpen, onClose, jobId, onSuccess, jobTitle = "Gen
  </div>
  <button 
  type="button"
- onClick={() => setStep(2)}
+ onClick={() => {
+   if (!formData.fullName || !formData.email || !formData.phone) {
+     toast.error('Please fill all fields before proceeding.');
+     return;
+   }
+   setStep(2);
+ }}
  className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform"
  >
  Next Step

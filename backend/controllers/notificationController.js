@@ -52,9 +52,35 @@ exports.markAllAsRead = async (req, res) => {
 exports.createNotification = async (io, data) => {
     try {
         const notification = await Notification.create(data);
+        
+        // Emit via Socket.io
         if (io && data.user) {
             io.to(data.user.toString()).emit('new-notification', notification);
         }
+        
+        // Also send FCM push notification if user has fcmToken
+        if (data.user) {
+            const User = require('../models/User');
+            const admin = require('../config/firebase');
+            
+            const userData = await User.findById(data.user);
+            if (userData && userData.fcmToken && admin.apps.length > 0) {
+                try {
+                    await admin.messaging().send({
+                        token: userData.fcmToken,
+                        notification: { title: data.title, body: data.message },
+                        data: {
+                            type: data.type || 'general',
+                            payload: JSON.stringify(data.data || {})
+                        },
+                        android: { priority: 'high' }
+                    });
+                } catch (fcmError) {
+                    console.error('FCM Send Error:', fcmError.message);
+                }
+            }
+        }
+
         return notification;
     } catch (error) {
         console.error('Failed to create notification:', error);

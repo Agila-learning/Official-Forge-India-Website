@@ -5,6 +5,7 @@ import { ShoppingBag, ArrowLeft, CheckCircle2, ShieldCheck, MapPin, Truck, Zap, 
 import api from '../../../services/api';
 import { AuthContext } from '../../../context/AuthContext';
 import { openRazorpayCheckout } from '../../../services/razorpay';
+import * as Notifications from 'expo-notifications';
 
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -100,10 +101,55 @@ export default function ServiceDetailScreen() {
           bookingId: bookingId
         });
 
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Booking Confirmed! 🎉",
+            body: `Your booking for ${service.serviceName} has been successfully placed.`,
+          },
+          trigger: null,
+        });
+
         setOrderId(bookingId);
         setShowInvoice(true);
       } else {
-        Alert.alert('Payment Failed', rzpRes.error?.message || rzpRes.error?.description || 'Payment was cancelled or failed.');
+        if (rzpRes.error === 'Native not supported') {
+          Alert.alert(
+            'Development Mode Fallback',
+            'Native Razorpay is not supported in Expo Go. Would you like to simulate a successful payment?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { 
+                text: 'Simulate Success', 
+                onPress: async () => {
+                  try {
+                    await api.post('/payments/verify', {
+                      razorpay_order_id: 'order_mock_' + Date.now(),
+                      razorpay_payment_id: 'pay_mock_' + Date.now(),
+                      razorpay_signature: 'simulated_signature',
+                      bookingId: bookingId,
+                      amount: orderRes.data.amount / 100
+                    });
+
+                    await Notifications.scheduleNotificationAsync({
+                      content: {
+                        title: "Booking Confirmed! 🎉",
+                        body: `Your booking for ${service.serviceName} has been successfully placed (Simulated).`,
+                      },
+                      trigger: null,
+                    });
+
+                    setOrderId(bookingId);
+                    setShowInvoice(true);
+                  } catch (e) {
+                    Alert.alert('Simulation Failed', 'Could not process the simulated payment.');
+                  }
+                } 
+              }
+            ]
+          );
+        } else {
+          Alert.alert('Payment Failed', rzpRes.error?.message || rzpRes.error?.description || 'Payment was cancelled or failed.');
+        }
       }
     } catch (err: any) {
       console.warn(err);

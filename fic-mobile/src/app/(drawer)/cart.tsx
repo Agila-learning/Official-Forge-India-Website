@@ -6,6 +6,17 @@ import { CartContext } from '../../context/CartContext';
 import { AuthContext } from '../../context/AuthContext';
 import RazorpayCheckout from 'react-native-razorpay';
 import * as Linking from 'expo-linking';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  } as Notifications.NotificationBehavior),
+});
 import api from '../../services/api';
 
 export default function CartScreen() {
@@ -19,10 +30,7 @@ export default function CartScreen() {
     if (!user) return Alert.alert('Authentication Required', 'Please log in to checkout.');
 
     if (Platform.OS === ('web' as any)) {
-      const proceed = window.confirm('Web payments require redirect. Proceed?');
-      if (proceed) {
-        Linking.openURL('https://pages.razorpay.com/pl_Snw500bx72cgkb/view');
-      }
+      Alert.alert('Web Payment', 'Web payment flow is not currently supported natively here.');
       return;
     }
 
@@ -66,6 +74,14 @@ export default function CartScreen() {
         totalPrice: amount,
       });
 
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Order Confirmed! 🎉",
+          body: `Your order for ₹${amount} has been successfully placed.`,
+        },
+        trigger: null,
+      });
+
       Alert.alert('Payment Successful', `Order Placed Successfully! Payment ID: ${data.razorpay_payment_id}`);
       clearCart();
       router.canGoBack() ? router.back() : router.replace('/');
@@ -74,15 +90,52 @@ export default function CartScreen() {
          Alert.alert('Payment Cancelled', error.description || 'Transaction was not completed.');
       } else {
          if (Platform.OS === ('web' as any)) {
-           const proceed = window.confirm('Native Razorpay is not supported here. Use direct payment link?');
-           if (proceed) Linking.openURL('https://pages.razorpay.com/pl_Snw500bx72cgkb/view');
+           Alert.alert('Web Error', 'Payment processing failed.');
          } else {
            Alert.alert(
             'Development Mode Fallback',
-            'Native Razorpay is not supported in this environment. Use direct payment link?',
+            'Native Razorpay is not supported in Expo Go. Would you like to simulate a successful payment?',
             [
               { text: 'Cancel', style: 'cancel' },
-              { text: 'Proceed', onPress: () => Linking.openURL('https://pages.razorpay.com/pl_Snw500bx72cgkb/view') }
+              { text: 'Simulate Success', onPress: async () => {
+                  try {
+                    setLoading(true);
+                    const amount = getCartTotal();
+                    const orderItems = cart.map((item: any) => ({
+                      name: item.name,
+                      qty: item.quantity,
+                      image: item.image,
+                      price: item.price,
+                      product: item._id,
+                    }));
+
+                    await api.post('/orders', {
+                      orderItems,
+                      paymentMethod: 'Simulated Razorpay',
+                      paymentResult: { id: 'sim_' + Date.now(), status: 'Completed', update_time: new Date().toISOString() },
+                      itemsPrice: amount,
+                      taxPrice: 0,
+                      shippingPrice: 0,
+                      totalPrice: amount,
+                    });
+
+                    await Notifications.scheduleNotificationAsync({
+                      content: {
+                        title: "Order Confirmed! 🎉",
+                        body: `Your order for ₹${amount} has been successfully placed (Simulated).`,
+                      },
+                      trigger: null,
+                    });
+
+                    Alert.alert('Payment Successful', 'Order Placed Successfully! (Simulated)');
+                    clearCart();
+                    router.canGoBack() ? router.back() : router.replace('/');
+                  } catch (e) {
+                     Alert.alert('Error', 'Simulation failed');
+                  } finally {
+                     setLoading(false);
+                  }
+              } }
             ]
           );
          }

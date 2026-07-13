@@ -5,6 +5,7 @@ import { ShieldCheck, MapPin, Truck, Lock, Building2 } from 'lucide-react-native
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { openRazorpayCheckout } from '../../services/razorpay';
+import * as Notifications from 'expo-notifications';
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -29,9 +30,34 @@ export default function CheckoutScreen() {
       return;
     }
 
-    import('react-native').then(({ Linking }) => {
-      Linking.openURL('https://pages.razorpay.com/pl_Snw500bx72cgkb/view');
-    });
+    Alert.alert(
+      'Development Mode Fallback',
+      'Native Razorpay is not supported in Expo Go. Would you like to simulate a successful payment?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Simulate Success', onPress: async () => {
+            try {
+              setLoading(true);
+              const amount = basePrice + (isProduct ? 50 : 0);
+              
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: "Payment Confirmed! 🎉",
+                  body: `Your payment of ₹${amount} has been successfully processed (Simulated).`,
+                },
+                trigger: null,
+              });
+
+              Alert.alert('Payment Successful', 'Transaction Completed! (Simulated)');
+              router.canGoBack() ? router.back() : router.replace('/');
+            } catch (e) {
+               Alert.alert('Error', 'Simulation failed');
+            } finally {
+               setLoading(false);
+            }
+        } }
+      ]
+    );
   };
 
   return (

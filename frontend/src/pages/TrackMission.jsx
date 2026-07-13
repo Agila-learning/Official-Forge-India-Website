@@ -126,7 +126,7 @@ const TrackMission = () => {
  return <RideTrackingDashboard order={order} onBack={() => navigate(-1)} />;
  }
 
- if (['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(order.serviceType)) {
+ if (['Parcel Delivery', 'Express Delivery', 'Packers & Movers'].includes(order.serviceType) || order.orderItems[0]?.category === 'Logistics' || order.fulfillmentType === 'Delivery Partner') {
  return <LogisticsTrackingDashboard order={order} onBack={() => navigate(-1)} />;
  }
 

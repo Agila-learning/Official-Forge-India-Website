@@ -30,7 +30,8 @@ const admin = (req, res, next) => {
 };
 
 const vendor = (req, res, next) => {
-  if (req.user && (req.user.role === 'Vendor' || req.user.role === 'Admin')) {
+  const vendorRoles = ['Vendor', 'Seller', 'Stay Provider', 'Ride Provider', 'Service Provider', 'Admin'];
+  if (req.user && vendorRoles.includes(req.user.role)) {
     next();
   } else {
     res.status(403).json({ message: 'Access Denied: Vendor privileges required' });

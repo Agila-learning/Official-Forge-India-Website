@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const serviceSchema = mongoose.Schema(
   {
+    vendorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
     serviceName: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     description: { type: String, required: true },
@@ -15,22 +19,30 @@ const serviceSchema = mongoose.Schema(
       default: 'fixed' 
     },
     basePrice: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+    tax: { type: Number, default: 0 },
+    duration: { type: String }, // e.g. "60 mins"
+    tags: { type: [String], default: [] },
+    serviceImages: { type: [String], default: [] },
+    availableCities: { type: [String], default: [] },
+    serviceRadius: { type: Number, default: 10 }, // km
+    requiredDocuments: { type: [String], default: [] },
     bookingFields: { 
       type: Array, 
       default: [] 
-    }, // Array of fields like [{ name: "pickup", label: "Pickup Location", type: "text", required: true }]
+    },
     features: { 
       type: Array, 
       default: [] 
-    }, // Array of features like [{ title: "Verified Riders", description: "...", icon: "Shield" }]
+    },
     stats: { 
       type: Array, 
       default: [] 
-    }, // Array of stats like [{ value: "100+", label: "Riders" }]
+    },
     status: { type: Boolean, default: true },
     serviceColor: {
       type: String,
-      default: '#7C3AED' // Hex color string, or primary HSL tailwind
+      default: '#7C3AED'
     }
   },
   { timestamps: true }

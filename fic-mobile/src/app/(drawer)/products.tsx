@@ -60,96 +60,13 @@ export default function ProductsScreen() {
 
     if (!user) {
       Alert.alert('Authentication Required', 'Please log in to purchase products.');
+      router.push('/login');
       return;
     }
 
-    try {
-      const amount = product.price || 1000;
-      
-      const res = await api.post('/orders/config/razorpay', { amount });
-      const { orderId, keyId, paymentLink } = res.data;
-
-      const options = {
-        description: `Payment for ${product.name}`,
-        image: product.image,
-        currency: 'INR',
-        key: keyId || 'rzp_test_placeholder',
-        amount: amount * 100,
-        name: 'Forge India Connect Store',
-        order_id: orderId || 'order_mock_' + Date.now(),
-        prefill: {
-          email: user?.email || '',
-          contact: user?.mobile || '',
-          name: user?.firstName || ''
-        },
-        theme: { color: '#10b981' }
-      };
-
-      const result: any = await openRazorpayCheckout(options);
-      
-      if (!result.success) {
-        if (result.error === 'Native not supported' && paymentLink) {
-          import('expo-linking').then(Linking => Linking.openURL(paymentLink));
-          return;
-        }
-        throw new Error(result.error?.message || result.error || 'Payment failed');
-      }
-      
-      await api.post('/orders', {
-        orderItems: [{
-          name: product.name,
-          qty: 1,
-          image: product.image,
-          price: product.price,
-          product: product._id,
-        }],
-        shippingAddress: { address: 'Address pending', city: 'City pending', postalCode: '000000', country: 'India' },
-        paymentMethod: 'Razorpay',
-        paymentResult: { id: result.razorpay_payment_id, status: 'Completed', update_time: new Date().toISOString() },
-        itemsPrice: amount,
-        taxPrice: 0,
-        shippingPrice: 0,
-        totalPrice: amount,
-      });
-
-      Alert.alert('Payment Successful', `Order Placed Successfully! Payment ID: ${result.razorpay_payment_id}`);
-      setModalVisible(false);
-    } catch (error: any) {
-      Alert.alert(
-        'Payment Gateway Error',
-        `Payment of ₹${product.price || 1000} could not be completed via Razorpay. Would you like to bypass this payment for testing?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Simulate Success', 
-            onPress: async () => {
-              try {
-                await api.post('/orders', {
-                  orderItems: [{
-                    name: product.name,
-                    qty: 1,
-                    image: product.image,
-                    price: product.price,
-                    product: product._id,
-                  }],
-                  shippingAddress: { address: 'Simulated Address', city: 'Simulated City', postalCode: '000000', country: 'India' },
-                  paymentMethod: 'Razorpay',
-                  paymentResult: { id: 'pay_mock_' + Date.now(), status: 'Completed', update_time: new Date().toISOString() },
-                  itemsPrice: product.price || 1000,
-                  taxPrice: 0,
-                  shippingPrice: 0,
-                  totalPrice: product.price || 1000,
-                });
-                Alert.alert('Success', 'Product ordered successfully! (Simulated)');
-                setModalVisible(false);
-              } catch(e) {
-                 Alert.alert('Simulation Failed', 'Backend rejected the simulated order.');
-              }
-            } 
-          }
-        ]
-      );
-    }
+    addToCart(product);
+    setModalVisible(false);
+    router.push('/(drawer)/cart');
   };
 
   const toggleWishlist = (id: string) => {

@@ -24,16 +24,32 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
  (response) => response,
  (error) => {
- if (error.response && error.response.status === 401) {
- const isAuthRoute = error.config && error.config.url && (error.config.url.includes('/auth/login') || error.config.url.includes('/auth/verify-otp'));
- if (!isAuthRoute) {
- localStorage.removeItem('userInfo');
- localStorage.removeItem('token');
- window.location.href = '/login';
- }
- }
- return Promise.reject(error);
- }
+  if (error.response && error.response.status === 401) {
+  const isAuthRoute = error.config && error.config.url && (error.config.url.includes('/auth/login') || error.config.url.includes('/auth/verify-otp'));
+  if (!isAuthRoute) {
+  localStorage.removeItem('userInfo');
+  localStorage.removeItem('token');
+  window.location.href = '/login';
+  }
+  }
+
+  // Driver Validation Interceptors
+  if (error.response && error.response.status === 403 && error.response.data?.code) {
+    const errorCode = error.response.data.code;
+    const currentPath = window.location.pathname;
+
+    // Prevent redirect loop if already on the onboarding screens
+    if (!currentPath.includes('/driver/onboarding')) {
+      if (errorCode === 'ACCOUNT_SETUP_PENDING') window.location.href = '/driver/onboarding/setup';
+      if (errorCode === 'DOCS_PENDING') window.location.href = '/driver/onboarding/documents';
+      if (errorCode === 'VEHICLE_UNASSIGNED') window.location.href = '/driver/onboarding/vehicle';
+      if (errorCode === 'LICENSE_EXPIRED' || errorCode === 'RC_EXPIRED' || errorCode === 'INSURANCE_EXPIRED') window.location.href = '/driver/onboarding/renew';
+      if (errorCode === 'ACCOUNT_SUSPENDED') window.location.href = '/driver/onboarding/suspended';
+    }
+  }
+
+  return Promise.reject(error);
+  }
 );
 
 export const authService = {

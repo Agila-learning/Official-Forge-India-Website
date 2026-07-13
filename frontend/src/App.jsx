@@ -58,7 +58,8 @@ const JobPortal = lazy(() => import('./pages/JobPortal/JobPortal'));
 const HomeServices = lazy(() => import('./pages/HomeServices/HomeServices'));
 const EmployerDashboard = lazy(() => import('./pages/JobPortal/EmployerDashboard'));
 const ServiceWizard = lazy(() => import('./components/ui/ServiceWizard'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage'));
+const OrderTrackingPage = lazy(() => import('./pages/OrderTrackingPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
 const JobConsultingPage = lazy(() => import('./pages/JobConsultingPage'));
 const AgentDashboard = lazy(() => import('./pages/AgentDashboard'));
@@ -218,6 +219,7 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/cart" element={<Cart />} />
  <Route path="/wishlist" element={<Wishlist />} />
  <Route path="/checkout" element={<Checkout />} />
+ <Route path="/track-order/:id" element={<OrderTrackingPage />} />
  <Route path="/profile" element={<Profile />} />
  <Route path="/track-mission/:id" element={<TrackMission />} />
  <Route path="/track-mission" element={<TrackMission />} />

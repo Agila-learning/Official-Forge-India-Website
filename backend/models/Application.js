@@ -11,6 +11,10 @@ const applicationSchema = new mongoose.Schema(
     jobRole: { type: String, required: true },
     resumeUrl: { type: String }, // PDF resume URL
     coverLetter: { type: String },
+    atsScore: { type: Number, default: 0 },
+    atsFeedback: { type: String },
+    interviewDate: { type: Date },
+    interviewLink: { type: String },
     status: {
       type: String,
       enum: ['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'],

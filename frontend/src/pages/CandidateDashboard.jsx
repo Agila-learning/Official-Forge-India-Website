@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
   CheckCircle2, Clock, XCircle, Star, MapPin, DollarSign, Send,
   Menu, X, ArrowUpRight, Loader2, AlertCircle, ShoppingCart, LayoutDashboard,
-  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet, ExternalLink, Zap
-} from 'lucide-react';
+  ShieldCheck, CreditCard, Sparkles, Phone, BookOpen, Award, TrendingUp, Wallet, ExternalLink, Zap,
+  Home } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 import RoleDashboardProfile from '../components/ui/RoleDashboardProfile';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import MembershipPopup from '../components/ui/MembershipPopup';
+import MembershipUpgradeWidget from '../components/ui/MembershipUpgradeWidget';
+import QuickDeliveryComponent from '../components/ui/QuickDeliveryComponent';
 
 const statusConfig = {
  Pending: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
@@ -28,6 +30,7 @@ const CandidateDashboard = () => {
  const [activeTab, setActiveTab] = useState(location.state?.view || 'overview');
  const [jobs, setJobs] = useState([]);
  const [myApplications, setMyApplications] = useState([]);
+  const [myBookings, setMyBookings] = useState([]);
  const [myOrders, setMyOrders] = useState([]);
  const [notifications, setNotifications] = useState([]);
  const [loading, setLoading] = useState(true);
@@ -82,17 +85,19 @@ const CandidateDashboard = () => {
 
  const fetchData = async () => {
  try {
- const [jobsRes, appsRes, ordersRes, notesRes, consultingRes] = await Promise.all([
+ const [jobsRes, appsRes, ordersRes, notesRes, consultingRes, bookingsRes] = await Promise.all([
  api.get('/jobs').catch(() => ({ data: [] })),
  api.get('/applications/mine').catch(() => ({ data: [] })),
  api.get('/orders/myorders').catch(() => ({ data: [] })),
  api.get('/notifications').catch(() => ({ data: [] })),
  api.get('/job-consulting/mine').catch(() => ({ data: [] })),
- ]);
+        api.get('/bookings/my-bookings').catch(() => ({ data: [] })),
+      ]);
  setJobs(jobsRes.data || []);
  setMyApplications(appsRes.data || []);
  setMyOrders(ordersRes.data || []);
  setNotifications(notesRes.data || []);
+      setMyBookings(bookingsRes.data || []);
  setConsultingInquiries(consultingRes.data || []);
  } catch (err) {
  console.error('Candidate Dashboard Sync Error:', err);
@@ -349,7 +354,7 @@ const CandidateDashboard = () => {
  <div className="space-y-12">
  <AnimatePresence mode="wait">
  {activeTab === 'overview' && (
- <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+ <motion.div key="overview" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto w-full space-y-12">
  
  {/* --- 🚁 MISSION CONTROL HEADER --- */}
  <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
@@ -380,7 +385,7 @@ const CandidateDashboard = () => {
  <div className="lg:col-span-2 space-y-8">
  {/* Membership Vault Card (Revamped) */}
  {vault && vault.balance > 0 ? (
- <div className="p-10 bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-[3.5rem] text-white shadow-3xl relative overflow-hidden group">
+ <div className="p-10 bg-gradient-to-br from-[#1e1b4b] to-[#312e81] rounded-[2.5rem] text-white shadow-3xl relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 rounded-full blur-[100px] -mr-40 -mt-40 transition-transform group-hover:scale-125" />
  <div className="relative z-10">
  <div className="flex items-center justify-between mb-10">
@@ -416,7 +421,7 @@ const CandidateDashboard = () => {
  <motion.div
  whileHover={{ y: -5 }}
  onClick={() => setShowMembershipPopup(true)}
- className="cursor-pointer p-10 bg-white dark:bg-dark-card border border-dashed border-primary/30 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-8 group transition-all"
+ className="cursor-pointer p-10 bg-white dark:bg-dark-card border border-dashed border-primary/30 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 group transition-all"
  >
  <div className="flex items-center gap-8">
  <div className="w-20 h-20 bg-primary/10 rounded-[2.5rem] flex items-center justify-center shrink-0 border border-primary/10">
@@ -432,7 +437,7 @@ const CandidateDashboard = () => {
  )}
 
  {/* Recent Activity / Applications Feed */}
- <div className="bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 p-10 shadow-xl overflow-hidden">
+ <div className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-10 shadow-xl overflow-hidden">
  <div className="flex items-center justify-between mb-10">
  <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tight">Deployment <span className="text-primary">Pipeline</span></h3>
  <button onClick={() => setActiveTab('applications')} className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">View Full History <ChevronRight size={14} /></button>
@@ -467,7 +472,7 @@ const CandidateDashboard = () => {
 
  <div className="space-y-8">
  {/* Marketplace Quick Access */}
- <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden group">
+ <div className="p-10 bg-slate-900 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
  <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-125 transition-transform" />
  <div className="relative z-10 text-left">
  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary mb-4">Priority Access</p>
@@ -482,7 +487,7 @@ const CandidateDashboard = () => {
  </div>
 
  {/* Resume Sync Status */}
- <div className="p-10 bg-white dark:bg-dark-card rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-center text-left">
+ <div className="p-10 bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl flex flex-col justify-center text-left">
  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4">Identity Synchronization</p>
  {!resumeUrl ? (
  <div className="space-y-6">
@@ -513,7 +518,7 @@ const CandidateDashboard = () => {
 
  {/* BROWSE JOBS */}
  {activeTab === 'browse' && (
- <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+ <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto w-full">
  <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white">Browse Jobs</h1>
  <p className="text-gray-500 font-medium mb-8">{jobs.length} active opportunities</p>
 
@@ -530,7 +535,7 @@ const CandidateDashboard = () => {
  <motion.div 
  whileHover={{ y: -8 }}
  key={job._id} 
- className="bg-white dark:bg-[#111827] rounded-[2rem] md:rounded-[3rem] border border-slate-100 dark:border-white/5 p-6 md:p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden h-full flex flex-col shadow-sm"
+ className="bg-white dark:bg-[#111827] rounded-[2.5rem] border border-slate-100 dark:border-white/5 p-6 md:p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden h-full flex flex-col shadow-sm"
  >
  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors"></div>
  
@@ -594,7 +599,7 @@ const CandidateDashboard = () => {
  );
  })}
  {jobs.length === 0 && (
- <div className="col-span-full py-32 rounded-[3.5rem] border-2 border-dashed border-slate-100 dark:border-white/5 flex flex-col items-center justify-center gap-6">
+ <div className="col-span-full py-32 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-white/5 flex flex-col items-center justify-center gap-6">
  <div className="w-20 h-20 bg-slate-50 dark:bg-white/5 rounded-full flex items-center justify-center text-slate-300">
  <Briefcase size={32} />
  </div>
@@ -606,7 +611,7 @@ const CandidateDashboard = () => {
  </motion.div>
  )} {/* MY APPLICATIONS */}
  {activeTab === 'applications' && (
- <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+ <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto w-full">
  <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white">Track Record</h1>
  <p className="text-gray-500 font-medium mb-8">{myApplications.length} total applications</p>
  <div className="space-y-6">
@@ -614,7 +619,7 @@ const CandidateDashboard = () => {
  const cfg = statusConfig[app.status] || statusConfig.Pending;
  const Icon = cfg.icon;
  return (
- <div key={app._id} className="bg-white dark:bg-dark-card rounded-[2rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm hover:shadow-lg transition-all">
+ <div key={app._id} className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm hover:shadow-lg transition-all">
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
  <div className="flex items-center gap-4">
  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center"><Briefcase size={24} className="text-primary" /></div>
@@ -634,9 +639,35 @@ const CandidateDashboard = () => {
  <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">{app.hrNotes}</p>
  </div>
  )}
+ 
+ {/* ATS & Interview Section */}
+ <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+   <div>
+     <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-2">ATS Compatibility</p>
+     <div className="flex items-center gap-4">
+       <div className="w-12 h-12 rounded-full border-4 flex items-center justify-center font-black text-xs" style={{ borderColor: app.atsScore > 80 ? '#22c55e' : app.atsScore > 60 ? '#eab308' : '#ef4444', color: app.atsScore > 80 ? '#22c55e' : app.atsScore > 60 ? '#eab308' : '#ef4444' }}>
+         {app.atsScore || 0}%
+       </div>
+       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest leading-tight">{app.atsFeedback || 'Pending Analysis'}</p>
+     </div>
+   </div>
+   
+   {app.status === 'Interview Scheduled' && app.interviewDate && (
+     <div className="p-4 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800">
+       <p className="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-1">Scheduled Interview</p>
+       <p className="text-sm font-black text-purple-700 dark:text-purple-300 mb-2">{new Date(app.interviewDate).toLocaleString()}</p>
+       {app.interviewLink && (
+         <a href={app.interviewLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-purple-600/20 hover:scale-105 transition-all">
+           Join Meeting <ExternalLink size={14} />
+         </a>
+       )}
+     </div>
+   )}
+ </div>
+
  {app.resumeUrl && (
  <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer"
- className="mt-4 inline-flex items-center gap-2 text-primary hover:underline text-sm font-bold">
+ className="mt-6 inline-flex items-center gap-2 text-primary hover:underline text-[10px] font-black uppercase tracking-widest">
  <FileText size={14} /> View Submitted Resume
  </a>
  )}
@@ -656,7 +687,7 @@ const CandidateDashboard = () => {
 
  {/* ORDERS & BOOKINGS */}
  {activeTab === 'orders' && (
- <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-5xl">
+ <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-6xl mx-auto w-full">
  <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white uppercase tracking-tight font-poppins">Orders & <span className="text-primary">Bookings</span></h1>
  <p className="text-gray-500 font-medium mb-8">Manage your product purchases and service appointments</p>
 
@@ -710,9 +741,9 @@ const CandidateDashboard = () => {
  Reschedule Protocol
  </button>
  )}
- {order.status === 'In Transit' && (
+ {((order.status === 'In Transit') || (order.fulfillmentType === 'Delivery Partner' && !['Completed', 'Delivered', 'Cancelled'].includes(order.status))) && (
  <button 
- onClick={() => navigate('/track-mission', { state: { order } })}
+ onClick={() => navigate(/track-mission/)}
  className="px-6 py-3 bg-primary text-white font-black rounded-xl text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/20 flex items-center gap-2"
  >
  <MapPin size={12} /> Track Live Service
@@ -721,8 +752,42 @@ const CandidateDashboard = () => {
  </div>
  </div>
  ))}
- {myOrders.length === 0 && (
- <div className="py-20 text-center bg-gray-50 dark:bg-dark-bg border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+ {myBookings && myBookings.length > 0 && (
+  <div className="mt-16 mb-6">
+    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-poppins mb-2">Property & Rental <span className="text-blue-500">Bookings</span></h3>
+    <div className="w-12 h-1 bg-blue-500 rounded-full mb-8"></div>
+    <div className="space-y-6">
+      {myBookings.map(booking => (
+        <div key={booking._id} className="bg-white dark:bg-dark-card border border-blue-100 dark:border-blue-900/30 rounded-[2.5rem] p-8 shadow-sm group hover:shadow-xl transition-all relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors" />
+          <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
+            <div className="flex gap-6">
+              <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-600 shrink-0">
+                <Home size={28} />
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="font-black text-xl text-gray-900 dark:text-white uppercase tracking-tight">{booking.serviceName || 'Property Booking'}</h3>
+                  <span className="px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-100 text-blue-600">{booking.status || 'Pending'}</span>
+                </div>
+                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{new Date(booking.createdAt).toLocaleDateString()} � {booking.bookingData?.roomType || 'Room'} � {booking.bookingData?.duration || 'Duration'}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1">?{booking.totalPrice?.toLocaleString() || 0}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-green-500">Move-In: {booking.bookingData?.moveInDate || 'N/A'}</p>
+            </div>
+          </div>
+          <div className="mt-6 pt-6 border-t border-gray-50 dark:border-gray-800">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Location: {booking.bookingData?.location || 'TBA'}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+ {myOrders.length === 0 && myBookings.length === 0 && (
+ <div className="py-20 text-center bg-gray-50 dark:bg-dark-bg border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-[2.5rem]">
  <ShoppingCart size={48} className="mx-auto text-gray-300 mb-4" />
  <p className="text-gray-400 font-bold uppercase tracking-widest">No orders found in your vault</p>
  </div>
@@ -733,8 +798,8 @@ const CandidateDashboard = () => {
 
  {/* CHAT WITH QUIPPY */}
  {activeTab === 'quippy' && (
- <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto">
- <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-[3rem] p-12 text-center border border-white/5 shadow-2xl relative overflow-hidden">
+ <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-6xl mx-auto w-full">
+ <div className="bg-gradient-to-br from-gray-900 to-slate-900 rounded-[2.5rem] p-12 text-center border border-white/5 shadow-2xl relative overflow-hidden">
  <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
  <div className="relative z-10">
  <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-white/10 rotate-12">
@@ -778,7 +843,7 @@ const CandidateDashboard = () => {
 
  {/* SUPPORT MESSAGES (MESSAGES) */}
  {activeTab === 'messages' && (
- <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[75vh] flex flex-col">
+ <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto w-full h-[75vh] flex flex-col">
  <div className="flex items-center justify-between mb-8">
  <div>
  <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Support <span className="text-primary">Chat</span></h1>
@@ -797,8 +862,7 @@ const CandidateDashboard = () => {
  <div className="flex gap-4">
  <button 
  onClick={() => {
- const chatBtn = document.querySelector('button[aria-label="Open Chat"]');
- if (chatBtn) chatBtn.click();
+ window.dispatchEvent(new CustomEvent('open-chat-widget'));
  }}
  className="px-8 py-4 bg-primary text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:-translate-y-1 transition-all"
  >
@@ -811,7 +875,7 @@ const CandidateDashboard = () => {
 
  {/* ALERTS */}
  {activeTab === 'notifications' && (
- <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl">
+ <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-6xl mx-auto w-full">
  <h1 className="text-3xl font-black mb-2 text-gray-900 dark:text-white uppercase tracking-tight">Mission <span className="text-primary">Updates</span></h1>
  <p className="text-gray-500 font-medium mb-8">Critical communications from command center</p>
 
@@ -850,7 +914,7 @@ const CandidateDashboard = () => {
  </div>
  ))}
  {notifications.length === 0 && (
- <div className="py-20 text-center bg-gray-50 dark:bg-dark-bg border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-[3rem]">
+ <div className="py-20 text-center bg-gray-50 dark:bg-dark-bg border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-[2.5rem]">
  <Bell size={48} className="mx-auto text-gray-300 mb-4" />
  <p className="text-gray-400 font-bold uppercase tracking-widest">All communication lines quiet</p>
  </div>
@@ -861,7 +925,7 @@ const CandidateDashboard = () => {
 
  {/* IDENTITY & CV */}
  {activeTab === 'profile' && (
- <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-4xl mx-auto space-y-12">
+ <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-6xl mx-auto w-full space-y-12">
  <div className="relative z-10 text-center">
  <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center text-primary mx-auto mb-10 rotate-12">
  <ShieldCheck size={48} />
@@ -921,7 +985,7 @@ const CandidateDashboard = () => {
 
  {/* ── JOB CONSULTING ────────────────────────────────────── */}
  {activeTab === 'consulting' && (
- <motion.div key="consulting" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl mx-auto space-y-10">
+ <motion.div key="consulting" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-6xl mx-auto w-full space-y-10">
 
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -1170,6 +1234,19 @@ const CandidateDashboard = () => {
  </AnimatePresence>
  </div>
 
+ {/* Additional Candidate Modules */}
+ {['saved-jobs', 'interview-prep', 'resume-hub', 'assessments'].includes(activeTab) && (
+   <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-32 bg-white/50 dark:bg-dark-card/50 rounded-[4rem] border border-gray-100 dark:border-gray-800">
+     <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 text-primary">
+       <Sparkles size={40} />
+     </div>
+     <h2 className="text-3xl font-black uppercase tracking-tighter mb-2 capitalize">{activeTab.replace('-', ' ')} <span className="text-primary">Module</span></h2>
+     <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest max-w-md text-center">
+       This strategic candidate module is currently being calibrated. The advanced interface and automated workflows will be online shortly.
+     </p>
+   </motion.div>
+ )}
+
  {/* Reschedule Modal */}
  <AnimatePresence>
  {reschedulingOrder && (
@@ -1233,9 +1310,20 @@ const CandidateDashboard = () => {
  </motion.div>
  </motion.div>
  )}
+ {activeTab === 'subscription' && (
+   <motion.div key="subscription" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+     <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl mt-8">
+       <MembershipUpgradeWidget userInfo={userInfo} />
+     </div>
+   </motion.div>
+ )}
  </AnimatePresence>
  </DashboardLayout>
  );
 };
 
 export default CandidateDashboard;
+
+
+
+

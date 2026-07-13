@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Image, Modal } from 'react-native';
-import { User, Mail, Phone, MapPin, Save, ShieldCheck, ChevronLeft, Edit2 } from 'lucide-react-native';
+import { User, Mail, Phone, MapPin, Save, ShieldCheck, ChevronLeft, Edit2, FileText } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../../context/AuthContext';

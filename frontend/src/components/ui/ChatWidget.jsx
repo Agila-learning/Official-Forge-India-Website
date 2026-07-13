@@ -82,7 +82,13 @@ const ChatWidget = () => {
 
   // Listen for programmatic open requests (e.g. from RoleGuide)
   useEffect(() => {
-    const handleOpen = () => setIsOpen(true);
+    const handleOpen = (e) => {
+      setIsOpen(true);
+      if (e.detail?.contact) {
+        setActiveContact(e.detail.contact);
+        setTab('threads');
+      }
+    };
     window.addEventListener('open-chat-widget', handleOpen);
     return () => window.removeEventListener('open-chat-widget', handleOpen);
   }, []);

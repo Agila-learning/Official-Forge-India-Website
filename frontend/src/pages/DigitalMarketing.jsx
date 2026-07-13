@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Megaphone, Search, BarChart, Users, ArrowRight, TrendingUp, Target, Globe } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -28,9 +29,13 @@ const DigitalMarketing = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center border border-orange-200">
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(249,115,22,0)", "0 0 20px rgba(249,115,22,0.5)", "0 0 0px rgba(249,115,22,0)"] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center border border-orange-200"
+                >
                   <Megaphone size={24} className="text-orange-500" />
-                </div>
+                </motion.div>
                 <span className="text-orange-600 font-black uppercase tracking-[0.3em] text-xs">Growth Agency</span>
               </div>
               
@@ -94,25 +99,26 @@ const DigitalMarketing = () => {
       <section className="container-xl px-6 relative z-20 mt-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { icon: Search, title: "SEO Optimization", desc: "Rank higher on search engines and drive organic traffic." },
-            { icon: Users, title: "Social Media", desc: "Build community and brand loyalty across platforms." },
-            { icon: Target, title: "Paid Advertising", desc: "Targeted PPC campaigns that maximize your ROI." },
-            { icon: Globe, title: "Brand Identity", desc: "Logo, guidelines, and visual identity that stands out." }
+            { icon: Search, title: "SEO Optimization", desc: "Rank higher on search engines and drive organic traffic.", slug: "seo-optimization" },
+            { icon: Users, title: "Social Media", desc: "Build community and brand loyalty across platforms.", slug: "social-media" },
+            { icon: Target, title: "Paid Advertising", desc: "Targeted PPC campaigns that maximize your ROI.", slug: "paid-advertising" },
+            { icon: Globe, title: "Brand Identity", desc: "Logo, guidelines, and visual identity that stands out.", slug: "brand-identity" }
           ].map((service, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-orange-200 transition-all group text-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-orange-50 mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <service.icon size={28} className="text-orange-500" />
-              </div>
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-3">{service.title}</h3>
-              <p className="text-sm text-slate-500 font-medium leading-relaxed">{service.desc}</p>
-            </motion.div>
+            <Link to={`/services/sub/${service.slug}`} key={idx}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-orange-200 transition-all group text-center h-full flex flex-col items-center justify-center cursor-pointer"
+              >
+                <div className="w-16 h-16 rounded-full bg-orange-50 mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <service.icon size={28} className="text-orange-500" />
+                </div>
+                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-3 group-hover:text-orange-500 transition-colors">{service.title}</h3>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">{service.desc}</p>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

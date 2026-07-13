@@ -55,7 +55,10 @@ const Register = () => {
  propertyName: '',
  propertyType: 'None',
  amenities: [],
- pricingRange: { min: 0, max: 0, unit: 'Month' }
+ pricingRange: { min: 0, max: 0, unit: 'Month' },
+ // Driver Specifics
+ driverType: 'Bike',
+ vehicleOwnership: 'Own Vehicle'
  });
 
  const [error, setError] = useState('');
@@ -212,7 +215,9 @@ const Register = () => {
  'Delivery Partner': '/delivery',
  'Candidate': '/candidate/dashboard',
  'Trainer': '/trainer-dashboard',
- 'Customer': '/profile'
+ 'Customer': '/profile',
+ 'Agent': '/agent-dashboard',
+ 'Driver': '/driver-dashboard'
  };
  window.location.href = roleMap[data.role] || '/';
  }
@@ -231,7 +236,9 @@ const Register = () => {
  'Service Provider': Wrench,
  HR: Network,
  'Delivery Partner': Truck,
- 'Rental Provider': Building2
+ 'Rental Provider': Building2,
+ Agent: ShieldCheck,
+ Driver: Truck
  };
 
  const RoleIcon = roleIcons[formData.role] || UserCircle;
@@ -372,6 +379,8 @@ const Register = () => {
  <option value="HR" className="text-slate-900 bg-white">HR / Recruiter</option>
  <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
  <option value="Rental Provider" className="text-slate-900 bg-white">Rental Provider (PG/Hotel/Villas)</option>
+ <option value="Agent" className="text-slate-900 bg-white">Sales Agent / Partner</option>
+ <option value="Driver" className="text-slate-900 bg-white">Ride Provider (Driver/Cab)</option>
  </select>
  <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
  </div>
@@ -466,6 +475,51 @@ const Register = () => {
  </motion.div>
  )}
 
+ {(formData.role === 'Driver' || formData.role === 'Delivery Partner') && (
+  <motion.div key="driver-setup" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vehicle Type</label>
+        <div className="relative">
+          <select 
+            required 
+            value={formData.driverType} 
+            onChange={e => setFormData({...formData, driverType: e.target.value})} 
+            className="form-input !rounded-2xl py-4 appearance-none cursor-pointer pr-12 dark:bg-dark-bg dark:text-white"
+          >
+            <option value="Bike" className="text-slate-900 bg-white">Bike</option>
+            <option value="Auto" className="text-slate-900 bg-white">Auto</option>
+            <option value="Taxi" className="text-slate-900 bg-white">Taxi</option>
+            <option value="Cab" className="text-slate-900 bg-white">Cab</option>
+            <option value="Delivery Partner" className="text-slate-900 bg-white">Delivery Partner</option>
+            <option value="Logistics Driver" className="text-slate-900 bg-white">Logistics Driver</option>
+          </select>
+          <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Ownership</label>
+        <div className="flex p-1 bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-slate-800 gap-1">
+          <button 
+            type="button" 
+            onClick={() => setFormData({...formData, vehicleOwnership: 'Own Vehicle'})}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.vehicleOwnership === 'Own Vehicle' ? 'bg-white dark:bg-dark-card text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Own Vehicle
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setFormData({...formData, vehicleOwnership: 'Company Assigned Vehicle'})}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${formData.vehicleOwnership === 'Company Assigned Vehicle' ? 'bg-white dark:bg-dark-card text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Company Assigned
+          </button>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+ )}
+
  {(formData.role === 'Vendor' || formData.role === 'Seller' || formData.role === 'Service Provider') && (
  <motion.div key="biz" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-6 overflow-hidden pt-4 border-t border-slate-100 dark:border-slate-800">
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -509,8 +563,8 @@ const Register = () => {
  </div>
  </div>
 
- {/* Ride Provider Specific Fields */}
- {formData.role === 'Service Provider' && (
+ {/* Ride/Driver Provider Specific Fields */}
+ {(formData.role === 'Service Provider' || formData.role === 'Driver') && (
  <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800">
  <h3 className="text-sm font-black text-primary uppercase tracking-widest flex items-center gap-2"><Truck size={16}/> Vehicle & License Specs</h3>
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

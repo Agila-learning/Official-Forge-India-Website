@@ -13,6 +13,8 @@ const orderSchema = mongoose.Schema(
         qty: { type: Number, required: true },
         image: { type: String, required: true },
         price: { type: Number, required: true },
+        isService: { type: Boolean, default: false },
+        category: { type: String },
         product: {
           type: mongoose.Schema.Types.ObjectId,
           required: false,
@@ -25,8 +27,7 @@ const orderSchema = mongoose.Schema(
         selectedConfig: {
             type: mongoose.Schema.Types.Mixed,
             default: {}
-        },
-        isService: { type: Boolean, default: false }
+        }
       },
     ],
     shippingAddress: {
@@ -82,25 +83,19 @@ const orderSchema = mongoose.Schema(
     status: {
         type: String,
         enum: [
-          'Searching Driver',
-          'Driver Assigned',
-          'Driver Arriving',
-          'Ride Started',
-          'Reached Destination',
           'Order Confirmed', 
+          'Partner Assigned',
           'Paid',
           'Packed', 
           'Packing Started',
           'Ready for Pickup', 
           'Picked Up', 
-          'Partner Assigned', 
           'In Transit', 
           'Reached Hub',
           'Out for Delivery', 
           'Delivered', 
           'Completed',
           'Cancelled',
-          'Rescheduled',
           'Refund Processing',
           'Refunded',
           'Return Requested',
@@ -108,54 +103,9 @@ const orderSchema = mongoose.Schema(
           'Return Rejected',
           'Returned',
           'Settlement Pending',
-          'Settled',
-          'Survey Scheduled',
-          'Packing Team Assigned',
-          'Loading Completed',
-          'Moving In Transit',
-          'Unloading Started'
+          'Settled'
         ],
         default: 'Order Confirmed'
-    },
-    serviceType: {
-      type: String,
-      enum: ['Bike Taxi', 'Car Taxi', 'Parcel Delivery', 'Express Delivery', 'Packers & Movers', 'Rental', 'General'],
-      default: 'General'
-    },
-    rideMetadata: {
-      otp: { type: String },
-      driverRating: { type: Number },
-      vehicleNumber: { type: String },
-      vehicleModel: { type: String },
-      estimatedArrival: { type: Date }
-    },
-    logisticsMetadata: {
-      weight: { type: String },
-      inventory: [{ name: String, qty: Number }],
-      insuranceStatus: { type: String, enum: ['Active', 'None'], default: 'None' },
-      deliveryPriority: { type: String, enum: ['Standard', 'Express', 'Critical'], default: 'Standard' },
-      currentHub: { type: String }
-    },
-    liveTracking: {
-      currentLat: { type: Number },
-      currentLng: { type: Number },
-      lastUpdate: { type: Date }
-    },
-    settlementStatus: {
-      type: String,
-      enum: ['None', 'Pending', 'Approved', 'Processing', 'Settled', 'Failed', 'On Hold'],
-      default: 'None'
-    },
-    commissionApplied: {
-      type: Number,
-      default: 0
-    },
-    rescheduledAt: {
-      type: Date
-    },
-    previousSlot: {
-        date: String,
-        time: String
     },
     fulfillmentType: { 
       type: String, 

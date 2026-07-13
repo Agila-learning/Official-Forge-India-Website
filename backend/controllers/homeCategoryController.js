@@ -18,7 +18,10 @@ const getHomeCategories = asyncHandler(async (req, res) => {
 // @route   POST /api/home-categories
 // @access  Private/Admin
 const createHomeCategory = asyncHandler(async (req, res) => {
-  const { name, slug, order, isActive, type } = req.body;
+  let { name, slug, order, isActive, type } = req.body;
+  if (!slug && name) {
+    slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  }
   const category = await HomeCategory.create({ name, slug, order, isActive, type: type || 'product' });
   res.status(201).json(category);
 });

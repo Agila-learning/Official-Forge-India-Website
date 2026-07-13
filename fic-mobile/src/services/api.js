@@ -30,4 +30,23 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 403 && error.response.data?.code) {
+      const errorCode = error.response.data.code;
+      // Using setTimeout to ensure router is mounted
+      setTimeout(() => {
+        const { router } = require('expo-router');
+        if (errorCode === 'ACCOUNT_SETUP_PENDING') router.replace('/onboarding/setup');
+        if (errorCode === 'DOCS_PENDING') router.replace('/onboarding/documents');
+        if (errorCode === 'VEHICLE_UNASSIGNED') router.replace('/onboarding/vehicle');
+        if (errorCode === 'LICENSE_EXPIRED' || errorCode === 'RC_EXPIRED' || errorCode === 'INSURANCE_EXPIRED') router.replace('/onboarding/renew');
+        if (errorCode === 'ACCOUNT_SUSPENDED') router.replace('/onboarding/suspended');
+      }, 100);
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

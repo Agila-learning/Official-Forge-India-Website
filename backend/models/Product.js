@@ -82,11 +82,15 @@ const productSchema = mongoose.Schema(
     teamSize: { type: Number, default: 0 },
     equipmentProvided: { type: Boolean, default: false },
     safetyMeasures: [{ type: String }],
+    fulfillmentMode: { type: String, enum: ['Delivery Included', 'Direct Pickup'], default: 'Delivery Included' },
     serviceTerms: { type: String },
     perKmRate: { type: Number, default: 0 },
     isOnline: { type: Boolean, default: false },
     vehicleType: { type: String, enum: ['Auto', 'Car', 'Bike', 'Truck', 'None'], default: 'None' },
-    location: { type: String }
+    location: { type: String },
+    sharingType: { type: String, enum: ['Single', 'Double', 'Triple', 'Quad', 'None'], default: 'None' },
+    amenities: [{ type: String }],
+    bookingDuration: { type: String, enum: ['Hourly', 'Daily', 'Nightly', 'Weekly', 'Monthly', 'Yearly', 'None'], default: 'None' }
   },
   { timestamps: true }
 );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Code, Monitor, Globe, Layout, ArrowRight, CheckCircle2, Server, Database } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -28,9 +29,13 @@ const WebAppDevelopment = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-indigo-600/20 rounded-xl flex items-center justify-center backdrop-blur-md border border-indigo-500/30">
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(99,102,241,0)", "0 0 20px rgba(99,102,241,0.5)", "0 0 0px rgba(99,102,241,0)"] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-12 h-12 bg-indigo-600/20 rounded-xl flex items-center justify-center backdrop-blur-md border border-indigo-500/30"
+                >
                   <Monitor size={24} className="text-indigo-400" />
-                </div>
+                </motion.div>
                 <span className="text-indigo-400 font-black uppercase tracking-[0.3em] text-xs">Web Engineering</span>
               </div>
               
@@ -74,35 +79,39 @@ const WebAppDevelopment = () => {
               icon: Globe,
               title: "Corporate Websites",
               desc: "Professional, SEO-optimized websites that establish your digital presence and capture leads.",
-              color: "from-blue-500 to-indigo-500"
+              color: "from-blue-500 to-indigo-500",
+              slug: "corporate-websites"
             },
             {
               icon: Layout,
               title: "Web Applications",
               desc: "Complex, data-driven web apps built with modern frameworks like React and Next.js.",
-              color: "from-indigo-500 to-purple-500"
+              color: "from-indigo-500 to-purple-500",
+              slug: "custom-web-apps"
             },
             {
               icon: Code,
               title: "E-Commerce Solutions",
               desc: "Scalable online stores with seamless payment integrations and inventory management.",
-              color: "from-purple-500 to-pink-500"
+              color: "from-purple-500 to-pink-500",
+              slug: "ecommerce-solutions"
             }
           ].map((service, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 p-8 rounded-[2rem] hover:bg-slate-800 transition-colors group"
-            >
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
-                <service.icon size={24} className="text-white" />
-              </div>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3">{service.title}</h3>
-              <p className="text-slate-400 font-medium leading-relaxed">{service.desc}</p>
-            </motion.div>
+            <Link to={`/services/sub/${service.slug}`} key={idx} className="h-full block">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-slate-800/50 backdrop-blur-xl border border-slate-700 p-8 rounded-[2rem] hover:bg-slate-800 hover:border-indigo-500/50 transition-all group h-full flex flex-col justify-start"
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+                  <service.icon size={24} className="text-white" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3 group-hover:text-indigo-400 transition-colors">{service.title}</h3>
+                <p className="text-slate-400 font-medium leading-relaxed">{service.desc}</p>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

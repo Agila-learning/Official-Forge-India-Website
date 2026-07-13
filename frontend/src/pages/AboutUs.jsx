@@ -6,7 +6,7 @@ import {
   Target, Users, Award, Briefcase, Zap, Rocket, Globe,
   ArrowRight, ShieldCheck, Building2, Heart, CheckCircle2,
   Code2, Cpu, Layers, TrendingUp, MapPin, Phone, Star,
-  ChevronRight, Play, Pause
+  ChevronRight, Play, Pause, Linkedin
 } from 'lucide-react';
 import CTA from '../components/sections/CTA';
 import { Link } from 'react-router-dom';
@@ -226,6 +226,38 @@ const AboutUs = () => {
 
         {/* ── Pipeline Section ── */}
         <PipelineProcess />
+
+        {/* ── Leadership / CEO Section ── */}
+        <section className="py-24 bg-white dark:bg-dark-card border-y border-gray-100 dark:border-gray-800">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-full mb-6">
+                  <Star size={12} /> Leadership
+                </span>
+                <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
+                  Meet Our Visionary, <br/>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-primary">Mr. Sandeep</span>
+                </h2>
+                <h3 className="text-xl font-bold text-gray-500 mb-8 uppercase tracking-widest text-[13px]">CEO & Founder</h3>
+                
+                <div className="space-y-6 text-gray-600 dark:text-gray-400 text-lg leading-relaxed font-medium">
+                  <p>
+                    As the driving force behind Forge India Connect, Mr. Sandeep envisioned an ecosystem that breaks the traditional barriers of recruitment, services, and digital infrastructure in India. 
+                  </p>
+                  <p>
+                    Under his leadership, FIC has transformed from a localized consultancy hub into South India's premier B2B and B2C operational powerhouse, standardizing the gig economy and elevating enterprise solutions.
+                  </p>
+                  <div className="flex gap-4 pt-4">
+                    <a href="https://www.linkedin.com/in/sandeep-v-991a91412/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-[#0077b5] hover:bg-[#006097] text-white rounded-xl font-bold transition-all shadow-xl shadow-blue-500/20">
+                      <Linkedin size={20} /> Connect on LinkedIn
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
 
         {/* ── Our Divisions ── */}
         <section className="py-28 px-6">

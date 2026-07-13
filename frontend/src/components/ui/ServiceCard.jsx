@@ -91,7 +91,7 @@ const ServiceCard = ({ product, onBook }) => {
  <div className="flex flex-col">
  <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Valuation</span>
  <span className={`text-2xl font-black tracking-tighter ${isIncluded ? 'text-primary' : 'text-white'}`}>
- {isIncluded ? 'ELITE' : `₹${product.price.toLocaleString()}`}
+ {isIncluded ? 'ELITE' : `₹${(product.price || 0).toLocaleString()}`}
  </span>
  </div>
  <button 

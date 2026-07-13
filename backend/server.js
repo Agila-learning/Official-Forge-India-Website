@@ -4,6 +4,9 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 
+// Initialize Firebase Admin (FCM)
+require('./config/firebase');
+
 const http = require('http');
 const { Server } = require('socket.io');
 const helmet = require('helmet');
@@ -40,13 +43,18 @@ const jobConsultingRoutes = require('./routes/jobConsultingRoutes');
 const trainingRoutes = require('./routes/trainingRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
 const rideRoutes = require('./routes/rideRoutes');
+const fareConfigRoutes = require('./routes/fareConfigRoutes');
 const settlementRoutes = require('./routes/settlementRoutes');
 const serviceRegistrationRoutes = require('./routes/serviceRegistrationRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const membershipPlanRoutes = require('./routes/membershipPlanRoutes');
+const companyUpdateRoutes = require('./routes/companyUpdateRoutes');
+const marketplaceRoutes = require('./routes/marketplaceRoutes');
+const vehicleRoutes = require('./routes/vehicleRoutes');
 const { initializeServices } = require('./controllers/serviceController');
 const { initializePlans } = require('./controllers/membershipPlanController');
+const { initializeFareConfigs } = require('./controllers/fareConfigController');
 const Message = require('./models/Message');
 const path = require('path');
 
@@ -57,6 +65,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/forge_india
         initializeCandidates();
         initializeServices();
         initializePlans();
+        initializeFareConfigs();
     })
     .catch(err => console.error('❌ MongoDB Connection Error:', err.message));
 
@@ -70,10 +79,13 @@ const io = new Server(httpServer, {
       "https://www.forgeindiaconnect.com", 
       "https://forgeindiaconnect.com",
       "http://localhost:5173", 
+      "http://localhost:5174",
+      "http://localhost:5175",
       "http://localhost:3000", 
       "http://localhost:5001",
       "http://localhost:5000",
-      "http://localhost:8081"
+      "http://localhost:8081",
+      "http://localhost:8082"
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -105,9 +117,11 @@ app.use(express.json());
 app.use(cors({
   origin: [
     process.env.CORS_ORIGIN || 'http://localhost:5173',
+    'http://localhost:5174',
     'https://www.forgeindiaconnect.com',
     'https://forgeindiaconnect.com',
-    'http://localhost:8081'
+    'http://localhost:8081',
+    'http://localhost:8082'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -116,10 +130,10 @@ app.use(cors({
 
 // ─── Rate Limiters ────────────────────────────────────────────────────────────
 
-// General API limiter — 1000 req per 15 min
+// General API limiter — 10000 req per 15 min
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1000,
+  max: 10000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests from this IP. Please try again after 15 minutes.' },
@@ -186,10 +200,14 @@ app.use('/api/job-consulting', jobConsultingRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/rides', rideRoutes);
+app.use('/api/fare-config', fareConfigRoutes);
 app.use('/api/settlements', settlementRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/membership-plans', membershipPlanRoutes);
+app.use('/api/company-updates', companyUpdateRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();
@@ -207,9 +225,10 @@ const onlineUsers = new Map(); // userId -> socketId
 io.on('connection', (socket) => {
   socket.on('user-online', (userId) => {
     if (userId) {
-      onlineUsers.set(userId, socket.id);
-      socket.userId = userId;
-      socket.join(userId.toString()); // Join room for targeted notifications
+      const uId = userId.toString();
+      onlineUsers.set(uId, socket.id);
+      socket.userId = uId;
+      socket.join(uId); // Join room for targeted notifications
       io.emit('online-users', Array.from(onlineUsers.keys()));
     }
   });
@@ -231,7 +250,7 @@ io.on('connection', (socket) => {
         .populate('sender', 'firstName lastName role')
         .populate('receiver', 'firstName lastName role');
 
-      const receiverSocketId = onlineUsers.get(targetReceiverId);
+      const receiverSocketId = onlineUsers.get(targetReceiverId.toString());
       if (receiverSocketId) {
         io.to(receiverSocketId).emit('receive-message', populated);
       }
@@ -242,17 +261,24 @@ io.on('connection', (socket) => {
   });
 
   socket.on('typing', ({ senderId, receiverId }) => {
-    const receiverSocketId = onlineUsers.get(receiverId);
+    const receiverSocketId = onlineUsers.get(receiverId ? receiverId.toString() : '');
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('user-typing', { senderId });
     }
   });
 
   socket.on('stop-typing', ({ senderId, receiverId }) => {
-    const receiverSocketId = onlineUsers.get(receiverId);
+    const receiverSocketId = onlineUsers.get(receiverId ? receiverId.toString() : '');
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('user-stopped-typing', { senderId });
     }
+  });
+
+  
+  socket.on('location_update', ({ driverId, lat, lng }) => {
+    // Broadcast location to anyone tracking this driver. 
+    // We can emit to a specific ride room, or broadcast globally and let frontend filter.
+    io.emit('driver_location_updated', { driverId, lat, lng });
   });
 
   socket.on('disconnect', () => {

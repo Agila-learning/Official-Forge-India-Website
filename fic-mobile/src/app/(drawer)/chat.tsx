@@ -59,7 +59,9 @@ export default function ChatScreen() {
 
     try {
       // Find Admin user ID or default receiver to send to
-      await api.post('/chat', { receiverRole: 'Admin', content: inputText });
+      // Instead of receiverRole: 'Admin', we send a system default receiverId
+      // The backend handles 'system' or expects a valid Object ID.
+      await api.post('/chat', { receiverId: 'system_admin', content: inputText });
     } catch (err) {
       console.error("Failed to send message", err);
     }

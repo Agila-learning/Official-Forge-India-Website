@@ -13,6 +13,11 @@ const EmployerDashboard = () => {
  const [activeTab, setActiveTab] = useState('overview');
  const [isAddingJob, setIsAddingJob] = useState(false);
  const [editingJob, setEditingJob] = useState(null);
+ 
+ // Interview Scheduling State
+ const [interviewModalData, setInterviewModalData] = useState(null);
+ const [interviewForm, setInterviewForm] = useState({ date: '', time: '', link: '' });
+
  const navigate = useNavigate();
 
  // Check location properly
@@ -76,14 +81,27 @@ const EmployerDashboard = () => {
  }
  };
 
- const handleUpdateStatus = async (appId, status) => {
+ const handleUpdateStatus = async (appId, status, extraData = {}) => {
  try {
- await api.put(`/applications/${appId}/status`, { status });
+ await api.put(`/applications/${appId}/status`, { status, ...extraData });
  toast.success(`Candidate ${status}`);
  fetchData();
  } catch (err) {
  toast.error('Status sync failed');
  }
+ };
+
+ const handleScheduleInterview = async (e) => {
+   e.preventDefault();
+   if (!interviewModalData) return;
+   
+   const dateTimeStr = `${interviewForm.date}T${interviewForm.time}:00`;
+   await handleUpdateStatus(interviewModalData._id, 'Interview Scheduled', {
+     interviewDate: dateTimeStr,
+     interviewLink: interviewForm.link
+   });
+   setInterviewModalData(null);
+   setInterviewForm({ date: '', time: '', link: '' });
  };
 
  if (loading) {
@@ -247,7 +265,7 @@ const EmployerDashboard = () => {
  <div className="flex gap-4">
  <button onClick={() => { setEditingJob(job); setIsAddingJob(true); }} className="w-14 h-14 rounded-2xl bg-primary/5 text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-all"><Edit size={22} /></button>
  <button onClick={() => handleDeleteJob(job._id)} className="w-14 h-14 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all"><Trash2 size={22} /></button>
- <button onClick={() => setActiveTab('applicants')} className="px-8 py-4 bg-purple-600/10 text-purple-600 hover:bg-purple-600 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">View {applications.filter(a => a.jobRole === job.title).length} Applicants</button>
+ <button onClick={() => setActiveTab('candidates')} className="px-8 py-4 bg-purple-600/10 text-purple-600 hover:bg-purple-600 hover:text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">View {applications.filter(a => a.jobRole === job.title).length} Candidates</button>
  </div>
  </div>
  ))}
@@ -262,8 +280,8 @@ const EmployerDashboard = () => {
  </motion.div>
  )}
 
- {activeTab === 'applicants' && (
- <motion.div key="applicants" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+ {activeTab === 'candidates' && (
+ <motion.div key="candidates" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
  <h3 className="text-3xl font-black uppercase tracking-tighter mb-8">Talent <span className="text-purple-600 font-poppins">Dossiers</span></h3>
  <div className="grid grid-cols-1 gap-6">
  {applications.map(app => (
@@ -275,9 +293,20 @@ const EmployerDashboard = () => {
  <div>
  <h4 className="text-3xl font-black uppercase tracking-tighter leading-none mb-2">{app.fullName}</h4>
  <p className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-4">Target: {app.jobRole}</p>
- <div className="flex gap-6">
+ <div className="flex gap-6 mb-4">
  <span className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest"><FileText size={14} className="text-purple-600" /> Resume.pdf</span>
  <span className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest"><Calendar size={14} className="text-purple-600" /> Applied {new Date(app.createdAt).toLocaleDateString()}</span>
+ </div>
+ {/* ATS Visualizer */}
+ <div className="space-y-1">
+   <div className="flex justify-between items-center">
+     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ATS Compatibility</span>
+     <span className={`text-[10px] font-black ${app.atsScore > 80 ? 'text-green-500' : app.atsScore > 60 ? 'text-yellow-500' : 'text-red-500'}`}>{app.atsScore}%</span>
+   </div>
+   <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+     <div className={`h-full ${app.atsScore > 80 ? 'bg-green-500' : app.atsScore > 60 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${app.atsScore}%` }}></div>
+   </div>
+   {app.atsFeedback && <p className="text-[8px] font-bold text-gray-500 mt-1 uppercase tracking-wider">{app.atsFeedback}</p>}
  </div>
  </div>
  </div>
@@ -285,9 +314,11 @@ const EmployerDashboard = () => {
  <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1 text-center">Status Control</p>
  <div className="flex gap-2">
  <button onClick={() => handleUpdateStatus(app._id, 'Shortlisted')} className={`flex-1 py-3 rounded-xl border font-black text-[9px] uppercase tracking-widest transition-all ${app.status === 'Shortlisted' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white dark:bg-dark-bg text-gray-500 border-gray-100 dark:border-gray-800 hover:border-blue-500/50'}`}>Shortlist</button>
- <button onClick={() => handleUpdateStatus(app._id, 'Hired')} className={`flex-1 py-3 rounded-xl border font-black text-[9px] uppercase tracking-widest transition-all ${app.status === 'Hired' ? 'bg-green-500 text-white border-green-500' : 'bg-white dark:bg-dark-bg text-gray-500 border-gray-100 dark:border-gray-800 hover:border-green-500/50'}`}>Hire</button>
+ <button onClick={() => handleUpdateStatus(app._id, 'Selected')} className={`flex-1 py-3 rounded-xl border font-black text-[9px] uppercase tracking-widest transition-all ${app.status === 'Selected' ? 'bg-green-500 text-white border-green-500' : 'bg-white dark:bg-dark-bg text-gray-500 border-gray-100 dark:border-gray-800 hover:border-green-500/50'}`}>Hire</button>
  </div>
- <button onClick={() => handleUpdateStatus(app._id, 'Interview')} className="w-full py-4 bg-purple-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-purple-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all">Schedule Interview</button>
+ <button onClick={() => setInterviewModalData(app)} className={`w-full py-4 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all ${app.status === 'Interview Scheduled' ? 'bg-blue-600 shadow-blue-600/20' : 'bg-purple-600 shadow-purple-600/20'}`}>
+   {app.status === 'Interview Scheduled' ? 'Interview Set' : 'Schedule Interview'}
+ </button>
  </div>
  </div>
  </div>
@@ -297,6 +328,50 @@ const EmployerDashboard = () => {
  )}
  </AnimatePresence>
  </div>
+
+ {/* Additional HR Dashboard Tabs */}
+ {['search', 'talent-pool', 'shortlists', 'interviews', 'feedback', 'messages', 'campaigns', 'analytics', 'reports', 'subscription', 'company-profile', 'settings', 'profile'].includes(activeTab) && (
+   <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-32 bg-white/50 dark:bg-dark-card/50 rounded-[4rem] border border-gray-100 dark:border-gray-800">
+     <div className="w-24 h-24 bg-purple-600/10 rounded-full flex items-center justify-center mb-6 text-purple-600">
+       <Sparkles size={40} />
+     </div>
+     <h2 className="text-3xl font-black uppercase tracking-tighter mb-2 capitalize">{activeTab.replace('-', ' ')} <span className="text-purple-600">Module</span></h2>
+     <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest max-w-md text-center">
+       This module is currently being initialized by the strategic deployment team. The visual interface and API connections will be available shortly.
+     </p>
+   </motion.div>
+ )}
+
+ {/* Interview Scheduling Modal */}
+ {interviewModalData && (
+   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+     <div className="bg-white dark:bg-dark-card w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative border border-gray-100 dark:border-gray-800">
+       <button onClick={() => setInterviewModalData(null)} className="absolute top-6 right-6 w-10 h-10 bg-gray-100 dark:bg-dark-bg rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all">
+         <X size={20} />
+       </button>
+       <h3 className="text-2xl font-black uppercase tracking-tighter mb-2 text-gray-900 dark:text-white">Schedule <span className="text-purple-600">Interview</span></h3>
+       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8">Candidate: {interviewModalData.fullName}</p>
+       
+       <form onSubmit={handleScheduleInterview} className="space-y-4">
+         <div className="space-y-2">
+           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Date</label>
+           <input type="date" required value={interviewForm.date} onChange={e => setInterviewForm({...interviewForm, date: e.target.value})} className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:border-purple-600 transition-all outline-none font-bold text-sm" />
+         </div>
+         <div className="space-y-2">
+           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Time</label>
+           <input type="time" required value={interviewForm.time} onChange={e => setInterviewForm({...interviewForm, time: e.target.value})} className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:border-purple-600 transition-all outline-none font-bold text-sm" />
+         </div>
+         <div className="space-y-2">
+           <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Meeting Link (GMeet / Zoom / Teams)</label>
+           <input type="url" required value={interviewForm.link} onChange={e => setInterviewForm({...interviewForm, link: e.target.value})} placeholder="https://meet.google.com/..." className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-dark-bg focus:border-purple-600 transition-all outline-none font-bold text-sm" />
+         </div>
+         <button type="submit" className="w-full mt-4 py-4 bg-purple-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-purple-600/30 hover:bg-purple-700 transition-all">
+           Confirm Deployment
+         </button>
+       </form>
+     </div>
+   </div>
+ )}
  </DashboardLayout>
  );
 };

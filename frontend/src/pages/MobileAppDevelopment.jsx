@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Smartphone, Zap, Apple, Compass, ArrowRight, Layers, LayoutGrid } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -28,9 +29,13 @@ const MobileAppDevelopment = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center">
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(2,132,199,0)", "0 0 20px rgba(2,132,199,0.5)", "0 0 0px rgba(2,132,199,0)"] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center"
+                >
                   <Smartphone size={24} className="text-sky-600" />
-                </div>
+                </motion.div>
                 <span className="text-sky-600 font-black uppercase tracking-[0.3em] text-xs">Mobile Engineering</span>
               </div>
               
@@ -75,37 +80,41 @@ const MobileAppDevelopment = () => {
               title: "Native iOS Apps",
               desc: "High-performance applications built specifically for the Apple ecosystem using Swift.",
               bg: "bg-slate-100",
-              color: "text-slate-900"
+              color: "text-slate-900",
+              slug: "ios-development"
             },
             {
               icon: Layers,
               title: "Cross-Platform",
               desc: "Reach both iOS and Android users simultaneously with React Native or Flutter.",
               bg: "bg-sky-50",
-              color: "text-sky-600"
+              color: "text-sky-600",
+              slug: "cross-platform-apps"
             },
             {
-              icon: LayoutGrid,
-              title: "UI/UX Design",
-              desc: "Intuitive, engaging, and beautiful app interfaces that drive user retention.",
-              bg: "bg-indigo-50",
-              color: "text-indigo-600"
+              icon: Apple, // You could change this to an Android icon if available, but Apple/Android mix or generic is fine.
+              title: "Android Development",
+              desc: "Robust native Android applications built with Kotlin to reach billions of users.",
+              bg: "bg-emerald-50",
+              color: "text-emerald-600",
+              slug: "android-development"
             }
           ].map((service, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group"
-            >
-              <div className={`w-14 h-14 rounded-2xl ${service.bg} flex items-center justify-center mb-6`}>
-                <service.icon size={24} className={service.color} />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-3">{service.title}</h3>
-              <p className="text-slate-500 font-medium leading-relaxed">{service.desc}</p>
-            </motion.div>
+            <Link to={`/services/sub/${service.slug}`} key={idx} className="h-full block">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group h-full flex flex-col justify-start"
+              >
+                <div className={`w-14 h-14 rounded-2xl ${service.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                  <service.icon size={24} className={service.color} />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-3 group-hover:text-sky-600 transition-colors">{service.title}</h3>
+                <p className="text-slate-500 font-medium leading-relaxed">{service.desc}</p>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

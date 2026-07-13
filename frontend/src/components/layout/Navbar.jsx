@@ -71,6 +71,14 @@ const Navbar = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showActions, setShowActions] = useState(true);
+  const [forceClose, setForceClose] = useState(false);
+
+  useEffect(() => {
+    if (forceClose) {
+      const timer = setTimeout(() => setForceClose(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [forceClose]);
 
   const userInfoStr = localStorage.getItem('userInfo');
   const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
@@ -99,6 +107,7 @@ const Navbar = () => {
           navigate('/stay-partner');
           break;
         case 'Ride Provider':
+        case 'Driver':
           navigate('/ride-partner');
           break;
         case 'HR': 
@@ -175,20 +184,20 @@ const Navbar = () => {
             title: 'Marketing & Branding',
             items: [
               { name: 'Digital Marketing', path: '/digital-marketing', icon: <Paintbrush size={16} /> },
-              { name: 'SEO Services', path: '/digital-marketing', icon: <Search size={16} /> },
-              { name: 'Social Media Management', path: '/digital-marketing', icon: <Globe size={16} /> },
-              { name: 'Branding & Design', path: '/digital-marketing', icon: <Sparkles size={16} /> },
-              { name: 'Advertising Services', path: '/digital-marketing', icon: <Rocket size={16} /> },
+              { name: 'SEO Services', path: '/services/sub/seo-optimization', icon: <Search size={16} /> },
+              { name: 'Social Media Management', path: '/services/sub/social-media', icon: <Globe size={16} /> },
+              { name: 'Branding & Design', path: '/services/sub/brand-identity', icon: <Sparkles size={16} /> },
+              { name: 'Advertising Services', path: '/services/sub/advertising-services', icon: <Rocket size={16} /> },
             ]
           },
           {
             title: 'Insurance & Business Support',
             items: [
               { name: 'Insurance Services', path: '/insurance-services', icon: <Shield size={16} /> },
-              { name: 'Financial Assistance', path: '/insurance-services', icon: <FileText size={16} /> },
-              { name: 'Documentation Support', path: '/insurance-services', icon: <FileText size={16} /> },
-              { name: 'Business Registration', path: '/insurance-services', icon: <Building2 size={16} /> },
-              { name: 'Business Compliance', path: '/insurance-services', icon: <CheckSquare size={16} /> },
+              { name: 'Financial Assistance', path: '/services/sub/financial-assistance', icon: <FileText size={16} /> },
+              { name: 'Documentation Support', path: '/services/sub/documentation-support', icon: <FileText size={16} /> },
+              { name: 'Business Registration', path: '/services/sub/business-registration', icon: <Building2 size={16} /> },
+              { name: 'Business Compliance', path: '/services/sub/business-compliance', icon: <CheckSquare size={16} /> },
             ]
           }
         ]
@@ -205,9 +214,11 @@ const Navbar = () => {
             title: 'Customer Services',
             items: [
               { name: 'Product Ordering', path: '/explore-shop', icon: <ShoppingBag size={16} /> },
+              { name: 'Job Openings', path: '/explore-jobs', icon: <Briefcase size={16} /> },
+              { name: 'Ride Booking', path: '/rides/book', icon: <Truck size={16} /> },
+              { name: 'Stay Bookings', path: '/pg-stays', icon: <Home size={16} /> },
               { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={16} /> },
               { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={16} /> },
-              { name: 'Hotel Bookings', path: '/explore-shop', state: { viewType: 'Rentals', propertyFilter: 'Hotel' }, icon: <Building2 size={16} /> },
               { name: 'Service Tracking', path: '/track-mission', icon: <Zap size={16} /> }
             ]
           },
@@ -273,14 +284,14 @@ const Navbar = () => {
               <React.Fragment key={link.name}>
                 {link.isMega ? (
                   <div className="group py-4 flex items-center h-full">
-                    <button className="flex items-center text-gray-600 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] transition-all relative hover:scale-105 active:scale-95 whitespace-nowrap">
+                    <button className="group relative flex items-center h-full py-4 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] transition-all whitespace-nowrap">
                       {link.icon}
                       {link.name} 
                       <ChevronDown className="w-2.5 h-2.5 lg:w-2.5 lg:h-2.5 xl:w-3 xl:h-3 group-hover:rotate-180 transition-transform duration-300 ml-0.5 xl:ml-1" />
                       <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></span>
                     </button>
                     
-                    <div className={`absolute top-[85%] ${link.alignClass || 'left-1/2 -translate-x-1/2'} mt-4 ${link.widthClass} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-500 border border-gray-100 dark:border-gray-800 translate-y-4 group-hover:translate-y-0 text-left z-50 max-h-[85vh] overflow-y-auto`}>
+                    <div className={`absolute top-[85%] ${link.alignClass || 'left-1/2 -translate-x-1/2'} mt-4 ${link.widthClass} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-8 transition-all duration-500 border border-gray-100 dark:border-gray-800 text-left z-50 max-h-[85vh] overflow-y-auto ${forceClose ? 'opacity-0 invisible pointer-events-none' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-4 group-hover:translate-y-0'}`}>
                       <div className={`grid ${link.gridClass} gap-8`}>
                         {link.categories.map((cat) => (
                           <div key={cat.title} className="space-y-4">
@@ -297,6 +308,7 @@ const Navbar = () => {
                                 <LinkComponent 
                                   key={item.name} 
                                   {...linkProps}
+                                  onClick={() => setForceClose(true)}
                                   className="flex items-center gap-3 p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-2xl transition-all group/item border border-transparent hover:border-gray-100/50 dark:hover:border-gray-800"
                                 >
                                   <div className="w-8 h-8 bg-primary/10 text-primary dark:text-primary/90 rounded-xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all shrink-0">
@@ -379,17 +391,19 @@ const Navbar = () => {
               {/* Location, Cart, Notifications (Moved out of dropdown) */}
               <button 
                 onClick={() => setShowModal(true)}
-                className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 hover:bg-white dark:hover:bg-dark-card border border-gray-200/50 dark:border-gray-800/50 rounded-full transition-all group/loc shadow-sm"
+                className="flex items-center gap-1.5 h-8 lg:h-9 px-3 bg-white/60 dark:bg-dark-card/60 hover:bg-white dark:hover:bg-dark-card border border-gray-200/50 dark:border-gray-800/50 rounded-full transition-all group/loc shadow-sm shrink-0"
                 title="Location"
               >
-                <div className="flex items-center justify-center text-primary group-hover/loc:scale-110 transition-transform">
-                  <MapPin size={16} />
-                </div>
+                <MapPin size={16} className="text-primary group-hover/loc:scale-110 transition-transform" />
+                <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 truncate max-w-[80px] hidden md:block">
+                  {appLocation?.city || 'Location'}
+                </span>
               </button>
 
               {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
-                <Link to="/cart" className="relative flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
-                  <ShoppingCart size={16} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
+                <Link to="/cart" className="relative flex items-center justify-center h-8 lg:h-9 px-3 lg:px-4 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
+                  <ShoppingCart size={16} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors mr-1 lg:mr-2" />
+                  <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 hidden sm:block">Cart</span>
                   {cartItems.length > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
                       {cartItems.length}
@@ -612,9 +626,23 @@ const Navbar = () => {
                       <LayoutDashboard size={20} className="text-primary" />
                       <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Command Hub</span>
                     </button>
+                    
+                    <button 
+                      onClick={() => { navigate('/notifications'); setIsOpen(false); }}
+                      className="flex flex-col items-center gap-3 p-5 bg-white dark:bg-dark-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm active:scale-95 transition-all relative"
+                    >
+                      <Bell size={20} className="text-secondary" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="absolute top-4 right-4 w-4 h-4 bg-secondary text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+
                     <button 
                       onClick={handleLogout}
-                      className="flex flex-col items-center gap-3 p-5 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-100 dark:border-red-900/30 text-red-500 shadow-sm active:scale-95 transition-all"
+                      className="flex flex-col items-center gap-3 p-5 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-100 dark:border-red-900/30 text-red-500 shadow-sm active:scale-95 transition-all col-span-2"
                     >
                       <LogOut size={20} />
                       <span className="text-[9px] font-black uppercase tracking-widest">Logout</span>

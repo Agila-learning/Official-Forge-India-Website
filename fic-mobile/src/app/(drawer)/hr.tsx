@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Image, Platfo
 import { Briefcase, Users, Plus, ChevronRight, Activity, Cloud, PieChart, LayoutDashboard, Settings, Menu, Bell, TrendingUp, X, Edit3, Trash2 } from 'lucide-react-native';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
+import HRDashboardModules from '../../components/HRDashboardModules';
 import { useRouter, useNavigation, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 
@@ -41,6 +42,11 @@ export default function HRDashboard() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [editingJob, setEditingJob] = useState<any>(null);
   const [formData, setFormData] = useState({ title: '', location: '' });
+
+  // Interview Modal State
+  const [interviewModalVisible, setInterviewModalVisible] = useState(false);
+  const [schedulingApp, setSchedulingApp] = useState<any>(null);
+  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', link: '' });
 
   const fetchData = async () => {
     try {
@@ -112,13 +118,25 @@ export default function HRDashboard() {
     }
   };
 
-  const updateAppStatus = async (id: string, status: string) => {
+  const updateAppStatus = async (id: string, status: string, extraData = {}) => {
     try {
-      await api.put(`/applications/${id}/status`, { status });
+      await api.put(`/applications/${id}/status`, { status, ...extraData });
       fetchData();
     } catch (err) {
       Alert.alert('Error', 'Failed to update status');
     }
+  };
+
+  const handleScheduleInterview = async () => {
+    if (!schedulingApp) return;
+    const dateTimeStr = `${interviewForm.date}T${interviewForm.time}:00`;
+    await updateAppStatus(schedulingApp._id, 'Interview Scheduled', {
+      interviewDate: dateTimeStr,
+      interviewLink: interviewForm.link
+    });
+    setInterviewModalVisible(false);
+    setSchedulingApp(null);
+    setInterviewForm({ date: '', time: '', link: '' });
   };
 
   const openJobModal = (job: any = null) => {
@@ -374,11 +392,29 @@ export default function HRDashboard() {
                   </TouchableOpacity>
                 )}
 
+                {/* ATS Visualizer */}
+                <View className="mb-4">
+                  <View className="flex-row justify-between items-center mb-1">
+                    <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-[9px] text-slate-500 uppercase tracking-widest">ATS Match</Text>
+                    <Text style={{ fontFamily: 'Outfit_900Black' }} className={`text-[10px] ${app.atsScore > 80 ? 'text-green-500' : app.atsScore > 60 ? 'text-yellow-500' : 'text-red-500'}`}>{app.atsScore || 0}%</Text>
+                  </View>
+                  <View className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <View className={`h-full ${app.atsScore > 80 ? 'bg-green-500' : app.atsScore > 60 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${app.atsScore || 0}%` }} />
+                  </View>
+                </View>
+
                 <View className="flex-row flex-wrap gap-2">
                   {['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'].map(status => (
                     <TouchableOpacity 
                       key={status}
-                      onPress={() => updateAppStatus(app._id, status)}
+                      onPress={() => {
+                        if (status === 'Interview Scheduled') {
+                          setSchedulingApp(app);
+                          setInterviewModalVisible(true);
+                        } else {
+                          updateAppStatus(app._id, status);
+                        }
+                      }}
                       className={`px-2 py-1 rounded border ${app.status === status ? 'bg-slate-800 border-slate-800' : 'bg-slate-50 border-slate-200'}`}
                     >
                       <Text className={`text-[8px] uppercase font-bold ${app.status === status ? 'text-white' : 'text-slate-500'}`}>{status}</Text>
@@ -388,6 +424,10 @@ export default function HRDashboard() {
               </View>
             ))}
           </View>
+        )}
+
+        {['search', 'talent-pool', 'shortlists', 'interviews', 'feedback', 'messages', 'campaigns', 'analytics', 'reports', 'subscription', 'company-profile', 'settings', 'profile'].includes(activeTab) && (
+          <HRDashboardModules activeTab={activeTab} applications={applications} userInfo={user} />
         )}
       </ScrollView>
 
@@ -437,6 +477,56 @@ export default function HRDashboard() {
               className="bg-blue-600 p-4 rounded-xl items-center shadow-lg shadow-blue-600/30 active:bg-blue-700"
             >
               <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-white text-sm uppercase tracking-widest">{editingJob ? 'Save Changes' : 'Publish Requisition'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Schedule Interview Modal */}
+      <Modal visible={interviewModalVisible} animationType="slide" transparent={true}>
+        <View className="flex-1 justify-end bg-slate-900/50">
+          <View className="bg-white p-6 rounded-t-3xl shadow-2xl border-t border-slate-200">
+            <View className="flex-row justify-between items-center mb-6">
+              <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-lg text-slate-900 uppercase">Schedule Interview</Text>
+              <TouchableOpacity onPress={() => setInterviewModalVisible(false)} className="p-2 bg-slate-100 rounded-full">
+                <X size={20} color="#64748b" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView className="mb-4">
+              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-500 mb-1 ml-1 uppercase">Date (YYYY-MM-DD)</Text>
+              <TextInput 
+                value={interviewForm.date} 
+                onChangeText={t => setInterviewForm({...interviewForm, date: t})}
+                className="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4"
+                style={{ fontFamily: 'Outfit_500Medium' }}
+                placeholder="2024-12-01"
+              />
+
+              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-500 mb-1 ml-1 uppercase">Time (HH:MM)</Text>
+              <TextInput 
+                value={interviewForm.time} 
+                onChangeText={t => setInterviewForm({...interviewForm, time: t})}
+                className="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4"
+                style={{ fontFamily: 'Outfit_500Medium' }}
+                placeholder="14:30"
+              />
+              
+              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-500 mb-1 ml-1 uppercase">Meeting Link</Text>
+              <TextInput 
+                value={interviewForm.link} 
+                onChangeText={t => setInterviewForm({...interviewForm, link: t})}
+                className="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4"
+                style={{ fontFamily: 'Outfit_500Medium' }}
+                placeholder="https://meet.google.com/..."
+              />
+            </ScrollView>
+
+            <TouchableOpacity 
+              onPress={handleScheduleInterview} 
+              className="bg-purple-600 p-4 rounded-xl items-center shadow-lg shadow-purple-600/30 active:bg-purple-700"
+            >
+              <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-white text-sm uppercase tracking-widest">Confirm Schedule</Text>
             </TouchableOpacity>
           </View>
         </View>

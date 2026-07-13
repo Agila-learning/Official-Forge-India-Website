@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, Navigation, Clock, ShieldCheck, MapPin, Wallet, Zap, User, Settings, Bell, CheckCircle2, XCircle, ArrowRight, Loader2, Phone } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import MembershipUpgradeWidget from '../components/ui/MembershipUpgradeWidget';
 
 const ServiceProviderDashboard = () => {
  const [user, setUser] = useState(JSON.parse(localStorage.getItem('userInfo') || '{}'));
@@ -77,7 +78,7 @@ const ServiceProviderDashboard = () => {
  <div className="grid grid-cols-1 lg:grid-cols-[1fr,2.5fr] gap-10">
  {/* Sidebar Nav */}
  <div className="space-y-4">
- {['Overview', 'Rides', 'Earnings', 'Profile', 'Settings'].map(tab => (
+ {['Overview', 'Rides', 'Earnings', 'Profile', 'Settings', 'Subscription'].map(tab => (
  <button
  key={tab}
  onClick={() => setActiveTab(tab)}
@@ -135,6 +136,11 @@ const ServiceProviderDashboard = () => {
  </div>
  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Ride History</h3>
  <p className="text-slate-500 font-medium text-sm">You haven't completed any rides today.</p>
+ </motion.div>
+ )}
+ {activeTab === 'Subscription' && (
+ <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="subscription">
+ <MembershipUpgradeWidget userInfo={user} />
  </motion.div>
  )}
  </AnimatePresence>

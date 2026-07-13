@@ -133,6 +133,24 @@ const ProductDetailsModal = ({ product, isOpen, onClose, onAddToCart, onToggleFa
  <p className="font-bold text-sm">{product.warranty}</p>
  </div>
  )}
+ {product.fulfillmentMode && (
+ <div className="p-6 bg-gray-50 dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800">
+ <div className="flex items-center gap-3 text-green-500 mb-2">
+ <Truck size={20} />
+ <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Fulfillment</span>
+ </div>
+ <p className="font-bold text-sm">{product.fulfillmentMode}</p>
+ </div>
+ )}
+ {product.isService && product.serviceMode && (
+ <div className="p-6 bg-gray-50 dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800">
+ <div className="flex items-center gap-3 text-purple-500 mb-2">
+ <Zap size={20} />
+ <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Execution</span>
+ </div>
+ <p className="font-bold text-sm">{product.serviceMode === 'at_home' ? 'Home Service' : 'Center Visit'}</p>
+ </div>
+ )}
  {product.estimatedDeliveryTime && (
  <div className="p-6 bg-gray-50 dark:bg-dark-card rounded-3xl border border-gray-100 dark:border-gray-800">
  <div className="flex items-center gap-3 text-secondary mb-2">

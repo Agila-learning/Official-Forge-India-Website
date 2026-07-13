@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Car, MapPin, Clock, Star, ArrowRight, Loader2, Bike, Download, Plus } from 'lucide-react';
 import api from '../services/api';
 import SEOMeta from '../components/ui/SEOMeta';
+import InvoiceModal from '../components/ui/InvoiceModal';
 
 const STATUS_COLORS = {
   Completed: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -24,6 +25,7 @@ const RideHistoryPage = () => {
   const navigate = useNavigate();
   const [rides, setRides] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
   useEffect(() => {
@@ -32,9 +34,33 @@ const RideHistoryPage = () => {
       try {
         const token = localStorage.getItem('token');
         const { data } = await api.get('/rides/mine', { headers: { Authorization: `Bearer ${token}` } });
-        setRides(data.length > 0 ? data : DEMO_HISTORY);
-      } catch {
-        setRides(DEMO_HISTORY);
+        
+        const formatted = data.map(item => {
+          let localStatus = item.status;
+          if (item.status === 'Searching Driver') localStatus = 'Searching';
+          else if (item.status === 'Driver Assigned') localStatus = 'Accepted';
+          else if (item.status === 'Driver Reached Pickup') localStatus = 'Arrived';
+          else if (item.status === 'Ride Started') localStatus = 'InRide';
+          else if (item.status === 'Completed') localStatus = 'Completed';
+          else if (item.status === 'Cancelled') localStatus = 'Cancelled';
+
+          return {
+            _id: item._id,
+            rideType: item.serviceType || 'Car',
+            pickupLocation: { address: item.pickupDetails?.location || 'Pickup' },
+            dropLocation: { address: item.shippingAddress?.address || 'Dropoff' },
+            estimatedFare: item.totalPrice,
+            actualFare: item.totalPrice,
+            status: localStatus,
+            paymentStatus: item.isPaid ? 'Paid' : 'Unpaid',
+            createdAt: item.createdAt
+          };
+        });
+
+        setRides(formatted);
+      } catch (err) {
+        console.error('Error fetching ride history:', err);
+        setRides([]);
       } finally {
         setLoading(false);
       }
@@ -139,7 +165,36 @@ const RideHistoryPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           {ride.status === 'Completed' && (
-                            <button className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 dark:bg-dark-bg text-slate-600 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                            <button
+                              onClick={() => {
+                                const mockOrder = {
+                                  _id: ride._id,
+                                  totalPrice: ride.actualFare || ride.estimatedFare || 0,
+                                  isPaid: ride.paymentStatus === 'Paid',
+                                  paymentStatus: ride.paymentStatus || 'Paid',
+                                  createdAt: ride.createdAt,
+                                  user: {
+                                    name: `${userInfo?.firstName || 'Customer'} ${userInfo?.lastName || ''}`.trim(),
+                                    firstName: userInfo?.firstName || 'Customer',
+                                    lastName: userInfo?.lastName || '',
+                                    email: userInfo?.email || ''
+                                  },
+                                  shippingAddress: {
+                                    address: `Ride: ${ride.pickupLocation?.address || 'Pickup'} to ${ride.dropLocation?.address || 'Drop-off'}`,
+                                    city: 'N/A',
+                                    postalCode: 'N/A',
+                                    country: 'India'
+                                  },
+                                  orderItems: [{
+                                    name: `${ride.rideType} Ride`,
+                                    qty: 1,
+                                    price: ride.actualFare || ride.estimatedFare || 0
+                                  }]
+                                };
+                                setSelectedInvoiceOrder(mockOrder);
+                              }}
+                              className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 dark:bg-dark-bg text-slate-600 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                            >
                               <Download size={12} /> Invoice
                             </button>
                           )}
@@ -156,6 +211,12 @@ const RideHistoryPage = () => {
           </div>
         )}
       </div>
+
+      <InvoiceModal
+        isOpen={!!selectedInvoiceOrder}
+        onClose={() => setSelectedInvoiceOrder(null)}
+        order={selectedInvoiceOrder || {}}
+      />
     </div>
   );
 };

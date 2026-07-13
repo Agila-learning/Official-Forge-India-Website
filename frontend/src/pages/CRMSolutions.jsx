@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Users, BarChart3, Workflow, Search, Zap, CheckCircle2, ArrowRight } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -26,9 +27,13 @@ const CRMSolutions = () => {
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.8 }}
             >
-              <span className="px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block">
+              <motion.span 
+                animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(16,185,129,0)", "0 0 20px rgba(16,185,129,0.5)", "0 0 0px rgba(16,185,129,0)"] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-[0.3em] mb-6 inline-block"
+              >
                 Customer Intelligence
-              </span>
+              </motion.span>
               
               <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase tracking-tighter leading-tight mb-6">
                 Turn Data Into <br />
@@ -75,18 +80,25 @@ const CRMSolutions = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="order-2 md:order-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { icon: Users, title: "Customer 360", desc: "Unified view of every client interaction." },
-              { icon: Workflow, title: "Sales Automation", desc: "Automate follow-ups and lead scoring." },
-              { icon: BarChart3, title: "Advanced Analytics", desc: "Custom dashboards and revenue forecasting." },
-              { icon: Search, title: "Integration Ops", desc: "Connect with ERP, Email, and Marketing tools." }
+              { icon: Users, title: "Salesforce Integration", desc: "Seamless setup and integration.", slug: "salesforce-integration" },
+              { icon: Workflow, title: "HubSpot CRM Setup", desc: "Inbound marketing and CRM configuration.", slug: "hubspot-crm" },
+              { icon: Search, title: "Custom CRM Dev", desc: "Bespoke CRM solutions.", slug: "custom-crm" },
+              { icon: BarChart3, title: "Advanced Analytics", desc: "Custom dashboards and forecasting.", slug: "custom-crm" }
             ].map((f, i) => (
-              <div key={i} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4">
-                  <f.icon size={24} className="text-emerald-500" />
-                </div>
-                <h4 className="text-lg font-black text-slate-900 mb-2">{f.title}</h4>
-                <p className="text-sm text-slate-500">{f.desc}</p>
-              </div>
+              <Link to={`/services/sub/${f.slug}`} key={i}>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:border-emerald-200 transition-all group h-full flex flex-col justify-start"
+                >
+                  <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <f.icon size={24} className="text-emerald-500" />
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">{f.title}</h4>
+                  <p className="text-sm text-slate-500">{f.desc}</p>
+                </motion.div>
+              </Link>
             ))}
           </div>
           

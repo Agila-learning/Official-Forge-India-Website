@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Linking } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { AuthContext } from '../../context/AuthContext';
-import { LogOut, User, Home, Briefcase, Info, Phone, Search, Play, MessageSquare, X, ChevronRight, ShieldCheck, LayoutDashboard, ShoppingBag, ShoppingCart, Box, Calendar, Tag, Star, CreditCard, Zap, Users, TrendingUp, Settings, Bell, MessageCircle, HelpCircle, Edit3, Package } from 'lucide-react-native';
+import { LogOut, User, Home, Briefcase, Info, Phone, Search, Play, MessageSquare, X, ChevronRight, ShieldCheck, LayoutDashboard, ShoppingBag, ShoppingCart, Box, Calendar, Tag, Star, CreditCard, Zap, Users, TrendingUp, Settings, Bell, MessageCircle, HelpCircle, Edit3, Package, Navigation2, MapPin, Target, Truck, FileText } from 'lucide-react-native';
 import { useRouter, usePathname, useGlobalSearchParams } from 'expo-router';
 
 function CustomDrawerContent(props: any) {
@@ -45,12 +45,13 @@ function CustomDrawerContent(props: any) {
           <VendorDrawerLink icon={<Star color="#e2e8f0" size={22} strokeWidth={1.5} />} label="Reviews" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/vendor', params: { tab: 'reviews' } }); }} active={pathname === '/(drawer)/vendor' && tab === 'reviews'} />
           <VendorDrawerLink icon={<CreditCard color="#e2e8f0" size={22} strokeWidth={1.5} />} label="Payouts" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/vendor', params: { tab: 'payouts' } }); }} active={pathname === '/(drawer)/vendor' && tab === 'payouts'} />
           <VendorDrawerLink icon={<User color="#e2e8f0" size={22} strokeWidth={1.5} />} label="Profile" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/profile'); }} active={pathname === '/(drawer)/profile'} />
+          <VendorDrawerLink icon={<MessageSquare color="#e2e8f0" size={22} strokeWidth={1.5} />} label="Support Chat" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/chat'); }} active={pathname === '/(drawer)/chat'} />
 
           {/* Footer Actions */}
           <View className="pt-6 space-y-4 mt-8">
             <TouchableOpacity 
               className="flex-row items-center p-4 bg-white/5 border border-white/10 rounded-xl"
-              onPress={() => { props.navigation.closeDrawer(); router.push('/'); }}
+              onPress={() => { props.navigation.closeDrawer(); Linking.openURL('https://forgeindiaconnect.com'); }}
             >
               <Zap color="#475569" size={20} strokeWidth={1.5} className="mr-4" />
               <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-500 text-sm">Landing Hub</Text>
@@ -147,18 +148,19 @@ function CustomDrawerContent(props: any) {
           <CandidateDrawerLink icon={<Briefcase color="#eab308" size={20} />} label="JOB CONSULTING 🌟" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/jobs'); }} active={pathname === '/(drawer)/jobs'} />
           <CandidateDrawerLink icon={<ShoppingCart color="#64748b" size={20} />} label="BUY PRODUCTS" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/products'); }} active={pathname === '/(drawer)/products'} />
           <CandidateDrawerLink icon={<ShoppingBag color="#64748b" size={20} />} label="BOOK SERVICES" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/services'); }} active={pathname === '/(drawer)/services'} />
+          <CandidateDrawerLink icon={<Box color="#64748b" size={20} />} label="QUICK DELIVERY" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'quick-delivery' } }); }} active={pathname === '/(drawer)/customer' && tab === 'quick-delivery'} />
+          <CandidateDrawerLink icon={<MapPin color="#64748b" size={20} />} label="BOOK RIDE" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'ride' } }); }} active={pathname === '/(drawer)/customer' && tab === 'ride'} />
           <CandidateDrawerLink icon={<Box color="#64748b" size={20} />} label="MY BOOKINGS" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'orders' } }); }} active={pathname === '/(drawer)/customer' && tab === 'orders'} />
           <CandidateDrawerLink icon={<Briefcase color="#64748b" size={20} />} label="JOB MARKETPLACE" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'browse' } }); }} active={pathname === '/(drawer)/customer' && tab === 'browse'} />
           <CandidateDrawerLink icon={<Users color="#64748b" size={20} />} label="MY APPLICATIONS" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'applications' } }); }} active={pathname === '/(drawer)/customer' && tab === 'applications'} />
           <CandidateDrawerLink icon={<Bell color="#64748b" size={20} />} label="ALERTS" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'alerts' } }); }} active={pathname === '/(drawer)/customer' && tab === 'alerts'} />
           <CandidateDrawerLink icon={<MessageSquare color="#64748b" size={20} />} label="SUPPORT CHAT" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/chat'); }} active={pathname === '/(drawer)/chat'} />
-          <CandidateDrawerLink icon={<MessageCircle color="#64748b" size={20} />} label="CHAT WITH QUIPPY" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/chat'); }} active={pathname === '/(drawer)/chat'} />
           <CandidateDrawerLink icon={<User color="#64748b" size={20} />} label="MY PROFILE" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/customer', params: { tab: 'profile' } }); }} active={pathname === '/(drawer)/customer' && tab === 'profile'} />
 
           <View className="pt-6 mt-4 border-t border-slate-100 space-y-3">
             <TouchableOpacity 
               className="flex-row items-center p-4 bg-white rounded-xl active:bg-slate-50"
-              onPress={() => { props.navigation.closeDrawer(); router.push('/'); }}
+              onPress={() => { props.navigation.closeDrawer(); Linking.openURL('https://forgeindiaconnect.com'); }}
             >
               <Zap color="#94a3b8" size={20} className="mr-4" />
               <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-slate-500 text-xs tracking-wider">LANDING HUB</Text>
@@ -213,14 +215,13 @@ function CustomDrawerContent(props: any) {
           <CandidateDrawerLink icon={<Users color="#64748b" size={20} />} label="MY APPLICATIONS" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/candidate', params: { tab: 'applications' } }); }} active={pathname === '/(drawer)/candidate' && tab === 'applications'} />
           <CandidateDrawerLink icon={<Bell color="#64748b" size={20} />} label="ALERTS" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/candidate', params: { tab: 'alerts' } }); }} active={pathname === '/(drawer)/candidate' && tab === 'alerts'} />
           <CandidateDrawerLink icon={<MessageSquare color="#64748b" size={20} />} label="SUPPORT CHAT" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/chat'); }} active={pathname === '/(drawer)/chat'} />
-          <CandidateDrawerLink icon={<MessageCircle color="#64748b" size={20} />} label="CHAT WITH QUIPPY" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/chat'); }} active={pathname === '/(drawer)/chat'} />
           <CandidateDrawerLink icon={<User color="#64748b" size={20} />} label="STRATEGY PROFILE" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/candidate', params: { tab: 'profile' } }); }} active={pathname === '/(drawer)/candidate' && tab === 'profile'} />
 
           {/* Footer Actions */}
           <View className="pt-6 mt-4 border-t border-slate-100 space-y-3">
             <TouchableOpacity 
               className="flex-row items-center p-4 bg-white rounded-xl active:bg-slate-50"
-              onPress={() => { props.navigation.closeDrawer(); router.push('/'); }}
+              onPress={() => { props.navigation.closeDrawer(); Linking.openURL('https://forgeindiaconnect.com'); }}
             >
               <Zap color="#94a3b8" size={20} className="mr-4" />
               <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-slate-500 text-xs tracking-wider">LANDING HUB</Text>
@@ -234,6 +235,76 @@ function CustomDrawerContent(props: any) {
                 <LogOut color="#ef4444" size={16} />
               </View>
               <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-red-500 text-xs tracking-wider">SECURE EXIT</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (user?.role === 'Delivery Partner') {
+    return (
+      <View className="flex-1 bg-white">
+        <View className="relative items-center pt-14 pb-8 border-b border-slate-100">
+          <TouchableOpacity onPress={() => props.navigation.closeDrawer()} className="absolute top-12 right-6 w-10 h-10 bg-white rounded-full items-center justify-center border border-slate-200 z-50 shadow-sm">
+            <X color="#64748b" size={20} />
+          </TouchableOpacity>
+          <View className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-orange-100 p-2">
+            <Image source={require('../../../assets/images/logo.jpg')} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+          </View>
+          <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-slate-900 text-xl tracking-tighter uppercase">Forge India <Text className="text-orange-500">Connect</Text></Text>
+          <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-orange-500 text-[10px] mt-1 uppercase tracking-[0.2em]">Logistics Partner</Text>
+        </View>
+
+        <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+          <CandidateDrawerLink icon={<LayoutDashboard color="#64748b" size={20} />} label="Overview" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'overview' } }); }} active={pathname === '/(drawer)/delivery' && (!tab || tab === 'overview')} />
+          <CandidateDrawerLink icon={<Target color="#64748b" size={20} />} label="Active Missions" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'missions' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'missions'} />
+          <CandidateDrawerLink icon={<Truck color="#64748b" size={20} />} label="Fleet Status" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'fleet' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'fleet'} />
+          <CandidateDrawerLink icon={<CreditCard color="#64748b" size={20} />} label="My Pocket" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'pocket' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'pocket'} />
+          <CandidateDrawerLink icon={<Bell color="#64748b" size={20} />} label="Alerts" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'alerts' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'alerts'} />
+          <CandidateDrawerLink icon={<FileText color="#64748b" size={20} />} label="KYC / Docs" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'kyc' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'kyc'} />
+          <CandidateDrawerLink icon={<User color="#64748b" size={20} />} label="My Profile" onPress={() => { props.navigation.closeDrawer(); router.push({ pathname: '/(drawer)/delivery', params: { tab: 'profile' } }); }} active={pathname === '/(drawer)/delivery' && tab === 'profile'} />
+
+          <View className="pt-6 mt-4 border-t border-slate-100 space-y-3">
+            <TouchableOpacity className="flex-row items-center p-4 bg-white rounded-xl active:bg-slate-50" onPress={() => { props.navigation.closeDrawer(); Linking.openURL('https://forgeindiaconnect.com'); }}>
+              <Zap color="#94a3b8" size={20} className="mr-4" />
+              <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-slate-500 text-xs tracking-wider">LANDING HUB</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity className="flex-row items-center p-4 bg-red-50 rounded-[2rem] shadow-sm shadow-red-500/10" onPress={() => logout()}>
+              <View className="w-8 h-8 rounded-full bg-white items-center justify-center mr-4"><LogOut color="#ef4444" size={16} /></View>
+              <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-red-500 text-xs tracking-wider">SECURE EXIT</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  if (user?.role === 'Driver') {
+    return (
+      <View className="flex-1 bg-[#0a0f1e]">
+        <View className="relative items-start px-6 pt-14 pb-8 border-b border-white/5">
+          <TouchableOpacity onPress={() => props.navigation.closeDrawer()} className="absolute top-12 right-6 w-10 h-10 bg-white/5 rounded-full items-center justify-center border border-white/10 z-50">
+            <X color="#94a3b8" size={20} />
+          </TouchableOpacity>
+          <View className="flex-row items-center gap-3 mb-2">
+            <View className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+              <Navigation2 color="white" size={20} />
+            </View>
+            <View>
+              <Text className="text-white font-black text-xs tracking-widest leading-tight uppercase">Driver Console</Text>
+              <Text className="text-blue-500 text-[8px] font-bold tracking-[0.2em] leading-tight uppercase">FIC Driver Network</Text>
+            </View>
+          </View>
+        </View>
+        <ScrollView className="flex-1 px-4 pt-6">
+          <VendorDrawerLink icon={<Navigation2 color="#3b82f6" size={22} />} label="Mission Control" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/driver'); }} active={pathname === '/(drawer)/driver'} />
+          <VendorDrawerLink icon={<User color="#e2e8f0" size={22} />} label="Profile" onPress={() => { props.navigation.closeDrawer(); router.push('/(drawer)/profile'); }} active={pathname === '/(drawer)/profile'} />
+          <View className="pt-6 mt-8">
+            <TouchableOpacity className="flex-row items-center p-4 bg-red-900/30 rounded-xl" onPress={() => logout()}>
+              <LogOut color="#ef4444" size={20} className="mr-4" />
+              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-red-500 text-sm">Secure Exit</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -669,6 +740,7 @@ export default function DrawerLayout() {
       <Drawer.Screen name="serviceprovider" options={{ title: 'Service Provider', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="staypartner" options={{ title: 'Stay Partner', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="trainer" options={{ title: 'Trainer Dashboard', drawerItemStyle: { display: 'none' } }} />
+      <Drawer.Screen name="driver" options={{ title: 'Driver Console', drawerItemStyle: { display: 'none' } }} />
     </Drawer>
   );
 }

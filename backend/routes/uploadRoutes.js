@@ -1,45 +1,26 @@
-const path = require('path');
 const express = require('express');
-const multer = require('multer');
-const fs = require('fs');
+const { uploadLocal, validateDocumentOCR } = require('../middleware/ocrValidator');
 
 const router = express.Router();
 
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename(req, file, cb) {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-  },
-});
-
-function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png|pdf|doc|docx/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    return cb(null, true);
+// The standard upload route, optionally takes ?documentType=aadhaar for OCR validation
+router.post('/', uploadLocal.single('file'), validateDocumentOCR, (req, res) => {
+  if (req.file) {
+    // Generate a full URL for the frontend based on the local path
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({ message: 'File Uploaded', url: fileUrl });
   } else {
-    cb('Images and Documents only!');
+    res.status(400).json({ message: 'File upload failed' });
   }
-}
-
-const upload = multer({
-  storage,
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
 });
 
-router.post('/', upload.single('file'), (req, res) => {
-  res.send(`/${req.file.path.replace(/\\/g, '/')}`);
+router.post('/multiple', uploadLocal.array('files', 10), (req, res) => {
+  if (req.files && req.files.length > 0) {
+    const urls = req.files.map(f => `/uploads/${f.filename}`);
+    res.json({ message: 'Files Uploaded', urls: urls });
+  } else {
+    res.status(400).json({ message: 'File uploads failed' });
+  }
 });
 
 module.exports = router;

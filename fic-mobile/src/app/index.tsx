@@ -53,6 +53,10 @@ export default function HomeScreen() {
     return <Redirect href="/(drawer)/agent" />;
   }
 
+  if (role === 'driver') {
+    return <Redirect href="/(drawer)/driver" />;
+  }
+
   if (role === 'serviceprovider' || role === 'service provider') {
     return <Redirect href="/(drawer)/serviceprovider" />;
   }

@@ -5,7 +5,7 @@ import {
  MessageSquare, Star, Link as LinkIcon, MapPin, Image, 
  MessageCircle as ReviewIcon, LogOut, ShieldCheck, Mail, Phone, 
  Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, Upload, UserPlus, ClipboardList, XCircle, CheckCircle2,
- Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck, ChevronRight, Globe, Target, ArrowRight, TrendingUp, CreditCard, Home
+ Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck, ChevronRight, Globe, Target, ArrowRight, TrendingUp, CreditCard, Home, Navigation, IndianRupee, Save, RefreshCw, ChevronLeft
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,9 +19,92 @@ import TrainingManager from '../components/admin/TrainingManager';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import NoDataFound from '../components/ui/NoDataFound';
 import MissionMap from '../components/ui/MissionMap';
+import AdminTripsManager from '../components/admin/AdminTripsManager';
+import AdminDriverVerification from '../components/admin/AdminDriverVerification';
+import CompanyFeedManager from '../components/admin/CompanyFeedManager';
+
+// ─── Fare Config Editor ───────────────────────────────────────────────────────
+const FareConfigEditor = () => {
+  const [configs, setConfigs] = useState([]);
+  const [editing, setEditing] = useState({});
+  const [saving, setSaving] = useState(null);
+
+  useEffect(() => {
+    api.get('/fare-config/all').then(r => {
+      setConfigs(r.data || []);
+      const init = {};
+      (r.data || []).forEach(c => { init[c.vehicleType] = { ...c }; });
+      setEditing(init);
+    }).catch(() => toast.error('Failed to load fare configs'));
+  }, []);
+
+  const save = async (vehicleType) => {
+    try {
+      setSaving(vehicleType);
+      await api.put(`/fare-config/${vehicleType}`, editing[vehicleType]);
+      toast.success(`${vehicleType} fare updated`);
+    } catch { toast.error('Save failed'); }
+    finally { setSaving(null); }
+  };
+
+  const field = (type, key, label, step = 1, prefix = '') => (
+    <div>
+      <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">{prefix}{label}</label>
+      <input type="number" step={step} value={editing[type]?.[key] ?? ''}
+        onChange={e => setEditing(p => ({ ...p, [type]: { ...p[type], [key]: Number(e.target.value) } }))}
+        className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-sm text-gray-900 dark:text-white" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Fare Configuration</h3>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Admin-controlled pricing per vehicle type · Real-time fare engine</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {configs.map(c => (
+          <div key={c.vehicleType} className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-7 shadow-sm space-y-5">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{c.iconEmoji}</span>
+              <div className="flex-1">
+                <p className="font-black text-gray-900 dark:text-white">{c.displayName || c.vehicleType}</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Commission: {editing[c.vehicleType]?.commissionPct || c.commissionPct}%</p>
+              </div>
+              <div className={`w-3 h-3 rounded-full ${c.isActive ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {field(c.vehicleType, 'baseFare', 'Base Fare (₹)')}
+              {field(c.vehicleType, 'perKmRate', 'Per Km (₹)')}
+              {field(c.vehicleType, 'perMinRate', 'Per Min (₹)', 0.5)}
+              {field(c.vehicleType, 'minimumFare', 'Minimum Fare (₹)')}
+              {field(c.vehicleType, 'waitingChargePerMin', 'Waiting/Min (₹)', 0.5)}
+              {field(c.vehicleType, 'commissionPct', 'Commission %')}
+              {field(c.vehicleType, 'peakSurge', 'Peak Surge ×', 0.1)}
+              {field(c.vehicleType, 'nightSurge', 'Night Surge ×', 0.1)}
+            </div>
+            <button onClick={() => save(c.vehicleType)} disabled={saving === c.vehicleType}
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              {saving === c.vehicleType ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+              Save {c.vehicleType}
+            </button>
+          </div>
+        ))}
+      </div>
+      {configs.length === 0 && (
+        <div className="text-center py-20 text-gray-400 font-black uppercase tracking-widest text-xs">
+          No fare configs found. Restart backend to auto-seed.
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 const AdminDashboard = () => {
- const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [] });
+ const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [], companyUpdates: [], safetyReports: [] });
  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
  const [locationRequests, setLocationRequests] = useState([]);
  const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
@@ -168,12 +251,14 @@ const AdminDashboard = () => {
         tickets: '/tickets',
         inquiries: '/inquiries',
         contacts: '/contacts',
+        companyUpdates: '/company-updates',
         settlements: '/settlements/pending',
         serviceRegistrations: '/service-registrations',
         bookings: '/bookings',
         homeCategories: '/home-categories',
         homeSubCategories: '/home-categories/sub',
-        membershipPlans: '/membership-plans'
+        membershipPlans: '/membership-plans/all',
+        safetyReports: '/rides/admin/safety-reports'
       };
 
       const results = {};
@@ -199,7 +284,10 @@ const AdminDashboard = () => {
         homeCategories: finalCats,
         productCategories: prodCats,
         serviceCategories: svcCats,
-        homeSubCategories: Array.isArray(results.homeSubCategories) ? results.homeSubCategories : []
+        homeSubCategories: Array.isArray(results.homeSubCategories) ? results.homeSubCategories : [],
+        bookings: results.bookings || [],
+        companyUpdates: results.companyUpdates || [],
+        safetyReports: results.safetyReports || [],
       }));
 
       setReviews(results.reviews || []);
@@ -266,16 +354,11 @@ const AdminDashboard = () => {
  if (activeTab === 'atomy') payload.category = 'Atomy';
  }
  
- // Auto-derive category name from selected categoryRef for products/services
+  // Auto-derive category name from selected categoryRef for products/services
   if (payload.categoryRef) {
-    const svcCat = data.serviceCategories?.find(c => c._id === payload.categoryRef);
-    if (svcCat) {
-      payload.category = svcCat.name;
-    } else {
-      const homeCat = data.homeCategories?.find(c => c._id === payload.categoryRef);
-      if (homeCat) {
-        payload.category = homeCat.name;
-      }
+    const matchedCat = data.homeCategories?.find(c => c._id === payload.categoryRef);
+    if (matchedCat) {
+      payload.category = matchedCat.name;
     }
   };
  
@@ -453,11 +536,13 @@ const AdminDashboard = () => {
   { id: 'orders', icon: ShoppingBag, label: 'Customer Orders' },
   { id: 'logistics', icon: Package, label: 'Logistics Hub' },
   { id: 'fleet', icon: Navigation, label: 'Live Fleet Monitor' },
+  { id: 'fare-config', icon: IndianRupee, label: 'Fare Configuration' },
   { id: 'events', icon: Calendar, label: 'Events' },
  { id: 'atomy', icon: Package, label: 'Product Catalog' },
  { id: 'services', icon: Wrench, label: 'Services' },
  { id: 'rentals', icon: Building2, label: 'Rentals' },
- { id: 'rides', icon: Truck, label: 'Rides' },
+ { id: 'rides', icon: Truck, label: 'Rides (Catalog Onboarding)' },
+ { id: 'trips', icon: Navigation, label: 'Active Rides / Trips' },
  { id: 'stays', icon: Home, label: 'Hotels & PG' },
  { id: 'ride-stay-bookings', icon: Building2, label: 'Ride & Stay Bookings' },
  { id: 'home-cms', icon: LayoutDashboard, label: 'Home Service CMS' },
@@ -469,9 +554,11 @@ const AdminDashboard = () => {
  { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
  { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
  { id: 'media', icon: Image, label: 'Media Manager' },
+ { id: 'company-updates', icon: Image, label: 'Company Updates' },
  { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
  { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
  { id: 'contacts', icon: Mail, label: 'Contact Queries' },
+ { id: 'safety-reports', icon: ShieldCheck, label: 'Safety Reports' },
  { id: 'settlements', icon: CreditCard, label: 'Marketplace Treasury' },
  { id: 'service-leads', icon: UserPlus, label: 'Service Leads (Guests)' },
  { id: 'messages', icon: Send, label: 'Messages' },
@@ -514,105 +601,14 @@ const AdminDashboard = () => {
  </div>
  </div>
 
- {activeTab === 'overview' && (
- <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12 mt-12">
- <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl min-h-[400px]">
- <h3 className="text-2xl font-black mb-8">Recent <span className="text-primary">Activity</span></h3>
- <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2 custom-scrollbar">
- {orders.filter(order => !searchQuery || order._id.toLowerCase().includes(searchQuery.toLowerCase()) || (order.user?.firstName || '').toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 20).map(order => (
- <div key={order._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
- <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary"><ShoppingBag size={20} /></div>
- <div>
- <p className="font-bold text-sm">Order #{order._id.slice(-6).toUpperCase()}</p>
- <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">{order.user?.firstName} • ₹{order.totalPrice}</p>
- </div>
- </div>
- <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${order.isPaid ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>{order.isPaid ? 'Paid' : 'Unpaid'}</span>
- </div>
- ))}
- {orders.length === 0 && <p className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-[10px]">No recent activity logged</p>}
- </div>
- </div>
- <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <h3 className="text-2xl font-black mb-6">New Partnerships</h3>
- <div className="space-y-4">
- {data.users.filter(u => u.approvalStatus === 'Pending').slice(0, 5).map(user => (
- <div key={user._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800">
- <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary"><UserPlus size={20} /></div>
- <div>
- <p className="font-bold text-sm">{user.firstName} {user.lastName}</p>
- <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase">{user.role}</p>
- </div>
- </div>
- <button onClick={() => { setActiveTab('users'); setSelectedUserKYC(user); }} className="px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl">Review</button>
- </div>
- ))}
- {data.users.filter(u => u.approvalStatus === 'Pending').length === 0 && (
- <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No pending applications</div>
- )}
- </div>
- </div>
+   {activeTab === 'overview' && (
+    <AdminOverviewHub setActiveTab={setActiveTab} data={data} orders={orders} />
+  )}
 
- <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
- <h3 className="text-2xl font-black mb-6">Recent Job Applications</h3>
- <div className="space-y-4">
- {data.applications?.filter(a => !searchQuery || a.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) || a.jobRole?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5).map(app => (
- <div key={app._id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
- <div className="flex items-center gap-4">
- <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600"><ClipboardList size={20} /></div>
- <div>
- <p className="font-bold text-sm">{app.fullName}</p>
- <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">{app.jobRole}</p>
- </div>
- </div>
- <button onClick={() => setActiveTab('applications')} className="px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-105 transition-all">Track</button>
- </div>
- ))}
- {(data.applications?.length || 0) === 0 && <div className="py-10 text-center text-gray-500 dark:text-gray-400 font-bold">No recent applications</div>}
- {data.applications?.length > 5 && (
- <button onClick={() => setActiveTab('applications')} className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">View All Applications ({data.applications.length})</button>
- )}
- </div>
- </div>
-
- <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-dark-card dark:to-dark-bg mt-12">
- <div className="flex items-center gap-3 mb-6">
- <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
- <ShieldCheck size={24} />
- </div>
- <div>
- <h3 className="text-2xl font-black uppercase tracking-tighter">Support <span className="text-primary">Hub</span></h3>
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Administrative Assistance</p>
- </div>
- </div>
- <div className="space-y-4">
- <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
- Encountering technical issues or need strategic assistance with platform management? Reach out to our global ops center.
- </p>
- <div className="grid grid-cols-1 gap-3 pt-4">
- <a href="mailto:ops-center@forgeindiaconnect.com?subject=Admin Technical Support" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
- <div className="flex items-center gap-3">
- <Mail className="text-primary" size={18} />
- <span className="text-[10px] font-black uppercase tracking-widest">Global Ops Center</span>
- </div>
- <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
- </a>
- <a href="mailto:it-support@forgeindiaconnect.com?subject=Dashboard Bug Report" className="flex items-center justify-between p-4 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/40 transition-all group">
- <div className="flex items-center gap-3">
- <Zap className="text-secondary" size={18} />
- <span className="text-[10px] font-black uppercase tracking-widest">IT Emergency Line</span>
- </div>
- <ArrowRight size={14} className="text-gray-300 group-hover:text-primary transition-colors" />
- </a>
- </div>
- </div>
- </div>
- </div>
- )}
-
- {activeTab !== 'overview' && activeTab !== 'messages' && (
+  {['operations', 'business', 'finance', 'support', 'system'].includes(activeTab) && (
+    <AdminLevelTwoHub activeTab={activeTab} setActiveTab={setActiveTab} />
+  )}
+{activeTab !== 'overview' && activeTab !== 'messages' && (
  <header className="mb-8">
  <h1 className="text-3xl font-extrabold capitalize">
  <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">Manage</span>{' '}
@@ -719,6 +715,53 @@ const AdminDashboard = () => {
     </div>
   )}
 
+  {activeTab === 'safety-reports' && (
+    <div className="space-y-8">
+      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <h3 className="text-3xl font-black mb-6 text-red-500 uppercase flex items-center gap-2"><ShieldCheck size={32} /> Safety Reports</h3>
+        <p className="text-sm font-bold text-gray-500 mb-8">Real-time emergency alerts and SOS triggers from Rides.</p>
+        <div className="mobile-table-scroll">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                <th className="pb-5 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Ride Info</th>
+                <th className="pb-5 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Driver & Customer</th>
+                <th className="pb-5 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">Emergency Events</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+              {data.safetyReports?.map(report => (
+                <tr key={report._id} className="hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                  <td className="py-5 px-4">
+                    <p className="font-bold text-sm">#{report._id.slice(-6).toUpperCase()}</p>
+                    <p className="text-xs font-black text-gray-500">{new Date(report.createdAt).toLocaleString()}</p>
+                    <p className="text-[10px] font-bold mt-1 text-primary">{report.serviceType}</p>
+                  </td>
+                  <td className="py-5 px-4">
+                    <p className="font-bold text-sm">Customer: {report.user?.firstName}</p>
+                    <p className="font-bold text-sm mt-1">Driver: {report.deliveryPartner?.firstName || 'None'}</p>
+                  </td>
+                  <td className="py-5 px-4">
+                    {report.rideMetadata?.emergencyEvents?.map((evt, idx) => (
+                      <div key={idx} className="mb-2 p-3 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-xl border border-red-200 dark:border-red-800">
+                        <p className="font-black text-xs uppercase tracking-widest flex items-center gap-1"><AlertCircle size={14}/> {evt.eventType}</p>
+                        <p className="text-[10px] font-bold">{new Date(evt.timestamp).toLocaleString()}</p>
+                        {evt.location && <p className="text-[10px] font-bold mt-1">Lat: {evt.location.lat}, Lng: {evt.location.lng}</p>}
+                      </div>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+              {(!data.safetyReports || data.safetyReports.length === 0) && (
+                 <tr><td colSpan="3" className="py-10 text-center text-[10px] font-black uppercase text-gray-400 tracking-widest">No emergency reports found</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )}
+
   {activeTab === 'settlements' && (
     <div className="space-y-8">
       <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
@@ -766,40 +809,21 @@ const AdminDashboard = () => {
     </div>
   )}
 
-  {activeTab === 'fleet' && (
-    <div className="space-y-8">
-      <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden h-[700px] relative">
-        <div className="absolute top-10 left-10 z-20 glass-premium p-6 rounded-[2rem] border border-white/20">
-           <h3 className="text-xl font-black uppercase tracking-tighter mb-1">Live <span className="text-primary">Fleet</span> Monitor</h3>
-           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Real-time Deployment across India</p>
-           <div className="space-y-4">
-              <div className="flex items-center justify-between gap-8">
-                 <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Active Partners</span>
-                 <span className="text-sm font-black text-green-500">{deliveryPartners.filter(p => p.isOnline).length}</span>
-              </div>
-              <div className="flex items-center justify-between gap-8">
-                 <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">Occupied</span>
-                 <span className="text-sm font-black text-orange-500">12</span>
-              </div>
-           </div>
-        </div>
-        
-        <div className="absolute inset-0 z-0">
-          <MissionMap />
-        </div>
+  {activeTab === 'trips' && (
+    <AdminTripsManager />
+  )}
 
-        <div className="absolute bottom-10 right-10 z-20 flex gap-3">
-           {['Taxi', 'Delivery', 'Logistics'].map(type => (
-              <button key={type} className="px-6 py-3 bg-white/90 dark:bg-dark-card/90 backdrop-blur-xl rounded-2xl text-[9px] font-black uppercase tracking-widest border border-white/20 shadow-xl hover:scale-105 transition-all">
-                {type}
-              </button>
-           ))}
-        </div>
-      </div>
-    </div>
+  {activeTab === 'driver-kyc' && (
+    <AdminDriverVerification />
+  )}
+
+  {/* ── FARE CONFIGURATION ── */}
+  {activeTab === 'fare-config' && (
+    <FareConfigEditor />
   )}
 
  {activeTab === 'events' && (
+
  <div className="space-y-12">
  <div className="glass-card p-4 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl">
  <div className="flex justify-between items-center mb-8">
@@ -928,7 +952,7 @@ const AdminDashboard = () => {
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">Active Job Openings</h3>
  <div className="space-y-4">
- {data.jobs.filter(j => !searchQuery || j.title?.toLowerCase().includes(searchQuery.toLowerCase()) || j.companyName?.toLowerCase().includes(searchQuery.toLowerCase())).map(job => (
+ {data.jobs.filter(j => ((j.hrId?._id || j.hrId) === userInfo._id || j.hrId?.role === 'Admin') && (!searchQuery || j.title?.toLowerCase().includes(searchQuery.toLowerCase()) || j.companyName?.toLowerCase().includes(searchQuery.toLowerCase()))).map(job => (
  <div key={job._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group">
  <div>
  <h4 className="font-black text-lg group-hover:text-primary transition-colors">{job.title}</h4>
@@ -977,8 +1001,13 @@ const AdminDashboard = () => {
  <label className="block text-sm font-bold mb-2 uppercase text-primary">Marketplace Category</label>
  <select name="categoryRef" defaultValue={editingItem.products?.categoryRef?._id || editingItem.products?.categoryRef || ''} required className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold">
  <option value="">Select Category</option>
- {data.homeCategories?.map(cat => (
- <option key={cat._id} value={cat._id}>{cat.name} ({cat.type || 'product'})</option>
+ {(data.homeCategories || []).filter(c => {
+   if (activeTab === 'atomy') return c.type === 'product';
+   if (activeTab === 'rentals' || activeTab === 'stays') return c.type === 'rental';
+   if (activeTab === 'rides') return c.type === 'ride';
+   return true;
+ }).map(cat => (
+ <option key={cat._id} value={cat._id}>{cat.name}</option>
  ))}
  {(!data.homeCategories || data.homeCategories.length === 0) && (
  <option disabled>No categories — add in Home Service CMS</option>
@@ -1137,11 +1166,11 @@ const AdminDashboard = () => {
  <div className="flex justify-between items-center mb-10">
  <h3 className="text-2xl font-black">Live <span className="text-primary">Inventory</span></h3>
  <div className="px-5 py-2 bg-gray-50 dark:bg-dark-bg rounded-xl border border-gray-100 dark:border-gray-800 text-[10px] font-black uppercase text-gray-500 tracking-widest">
- Total Assets: {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides').length}
+ Total Assets: {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides' && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin')).length}
  </div>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(product => (
+ {data.products.filter(p => !p.isService && !p.propertyType && p.category !== 'Rides' && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(product => (
  <div key={product._id} className="group p-5 bg-gray-50 dark:bg-dark-bg rounded-[2rem] border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 flex items-center justify-between gap-4">
  <div className="flex items-center gap-5 min-w-0">
  <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 shrink-0">
@@ -1219,7 +1248,7 @@ const AdminDashboard = () => {
  className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold"
  >
  <option value="">Select Service Category</option>
- {data.serviceCategories?.map(cat => (
+ {(data.homeCategories || []).filter(c => c.type === (activeTab === 'rides' ? 'ride' : 'service')).map(cat => (
  <option key={cat._id} value={cat._id}>{cat.name}</option>
  ))}
  </select>
@@ -1411,11 +1440,90 @@ const AdminDashboard = () => {
  </div>
  )}
 
+  {activeTab === 'company-updates' && (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center mb-8">
+         <div>
+            <h3 className="text-3xl font-black mb-1 text-primary">Company Updates</h3>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Manage internal announcements & feeds</p>
+         </div>
+         <button onClick={() => { setEditingItem(prev => ({...prev, companyUpdates: null})); setShowServiceForm(true); }} className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+            <Plus size={16} /> New Update
+         </button>
+      </div>
+
+      {showServiceForm && (
+         <div className="glass-card p-8 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-2xl mb-8">
+            <h4 className="text-xl font-black mb-6 uppercase tracking-tighter">Publish New Update</h4>
+            <form onSubmit={(e) => handleSubmit(e, 'company-updates')} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="md:col-span-2">
+                  <label className="block text-[10px] font-black mb-2 uppercase tracking-widest text-gray-400">Title</label>
+                  <input type="text" name="title" required className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg focus:border-primary outline-none" placeholder="Update Title" />
+               </div>
+               <div className="md:col-span-2">
+                  <label className="block text-[10px] font-black mb-2 uppercase tracking-widest text-gray-400">Description / Post Content</label>
+                  <textarea name="description" required rows="4" className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg focus:border-primary outline-none" placeholder="Write your post content here..."></textarea>
+               </div>
+               <div>
+                  <label className="block text-[10px] font-black mb-2 uppercase tracking-widest text-gray-400">Type</label>
+                  <select name="type" className="w-full px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg focus:border-primary outline-none">
+                     <option value="Company Photo">Company Photo</option>
+                     <option value="Celebration">Celebration</option>
+                     <option value="CEO Update">CEO Update</option>
+                     <option value="General">General</option>
+                  </select>
+               </div>
+               <div>
+                  <label className="block text-[10px] font-black mb-2 uppercase tracking-widest text-gray-400">Image URL</label>
+                  <div className="flex gap-2">
+                     <input type="text" name="image" required className="flex-1 px-5 py-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-dark-bg focus:border-primary outline-none" placeholder="https://..." value={uploadStatus.url || undefined} />
+                     <label className="px-6 py-4 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-gray-800 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-center">
+                        <Upload size={18} className="text-gray-400" />
+                        <input type="file" onChange={handleFileUpload} className="hidden" accept="image/*" />
+                     </label>
+                  </div>
+                  {uploadStatus.loading && <p className="text-[10px] text-blue-500 font-bold mt-1 uppercase">Uploading...</p>}
+               </div>
+               <div className="md:col-span-2 flex justify-end gap-4 mt-4">
+                  <button type="button" onClick={() => setShowServiceForm(false)} className="px-6 py-3 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Cancel</button>
+                  <button type="submit" className="px-8 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">Publish Post</button>
+               </div>
+            </form>
+         </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+         {data.companyUpdates?.map(update => (
+            <div key={update._id} className="glass-card rounded-[2rem] border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-xl transition-all">
+               <div className="aspect-video relative overflow-hidden">
+                  <img src={update.image} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute top-4 right-4 px-3 py-1 bg-white/90 backdrop-blur text-[8px] font-black uppercase rounded-full border border-gray-100 text-primary">{update.type}</div>
+               </div>
+               <div className="p-6">
+                  <h4 className="font-black text-lg mb-2 truncate">{update.title}</h4>
+                  <p className="text-xs text-gray-500 line-clamp-3 mb-4">{update.description}</p>
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-gray-800">
+                     <span className="text-[9px] font-bold text-gray-400">{new Date(update.createdAt).toLocaleDateString()}</span>
+                     <button onClick={() => handleDelete('company-updates', update._id)} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"><Trash2 size={16} /></button>
+                  </div>
+               </div>
+            </div>
+         ))}
+         {(!data.companyUpdates || data.companyUpdates.length === 0) && (
+            <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
+               <Image size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
+               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No company updates published yet.</p>
+            </div>
+         )}
+      </div>
+    </div>
+  )}
+
  {activeTab === 'services' && (
  <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-y-auto max-h-[60vh]">
  <h3 className="text-2xl font-black mb-8 text-purple-600 uppercase tracking-tighter">Live Service Portfolio</h3>
  <div className="space-y-4">
- {data.products.filter(p => p.isService && p.category !== 'Rides' && p.serviceType !== 'Ride' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(service => (
+ {data.products.filter(p => p.isService && p.category !== 'Rides' && p.serviceType !== 'Ride' && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(service => (
  <div key={service._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group border-l-4 border-l-purple-500">
  <div className="flex items-center gap-4">
  <div className="w-16 h-16 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
@@ -1456,7 +1564,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(prop => (
+ {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(prop => (
  <div key={prop._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={prop.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -1479,7 +1587,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
+ {data.products.filter(p => (p.category === 'Rentals' || p.category === 'Villas' || p.category === 'Hotels' || p.category === 'PG / Hostels' || (p.propertyType && p.propertyType !== 'None')) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No property assets detected in the global registry.</p>
@@ -1502,7 +1610,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(ride => (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).map(ride => (
  <div key={ride._id} className="glass-card p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group border-b-4 border-b-primary">
  <div className="flex items-center gap-6 mb-8">
  <div className="w-20 h-20 bg-primary/5 rounded-[2rem] flex items-center justify-center text-primary border border-primary/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
@@ -1532,7 +1640,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
+ {data.products.filter(p => (p.category === 'Rides' || p.serviceType === 'Ride' || (p.vehicleType && p.vehicleType !== 'None')) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Truck size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No fleet assets registered in the global operations map.</p>
@@ -1555,7 +1663,7 @@ const AdminDashboard = () => {
  </header>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(stay => (
+ {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).map(stay => (
  <div key={stay._id} className="glass-card p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all group">
  <div className="aspect-video rounded-2xl overflow-hidden mb-6 relative">
  <img src={stay.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
@@ -1578,7 +1686,7 @@ const AdminDashboard = () => {
  </div>
  </div>
  ))}
- {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
+ {data.products.filter(p => (p.category === 'PG / Hostels' || p.category === 'Hotels' || p.category === 'Stays' || (p.propertyType && ['PG', 'Hotel', 'Room', 'Villa'].includes(p.propertyType))) && ((p.vendorId?._id || p.vendorId) === userInfo._id || p.vendorId?.role === 'Admin') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || (p.location || '').toLowerCase().includes(searchQuery.toLowerCase()))).length === 0 && (
  <div className="col-span-full py-20 text-center glass-card rounded-[3rem]">
  <Building2 size={48} className="mx-auto mb-4 text-gray-200 grayscale opacity-40" />
  <p className="text-xs font-black text-gray-400 uppercase tracking-widest">No stay assets detected in the global registry.</p>
@@ -1899,16 +2007,16 @@ const AdminDashboard = () => {
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
  <div>
  <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">Membership <span className="text-primary">Vault Hub</span></h3>
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">Authorize & Manage Digital Identity Cards</p>
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">Authorize & Manage Digital Subscription Plans</p>
  </div>
  <div className="flex gap-4">
  <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-center min-w-[120px]">
- <p className="text-2xl font-black text-primary tracking-tighter">{data.users.filter(u => u.membershipId).length}</p>
- <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Active IDs</p>
+ <p className="text-2xl font-black text-primary tracking-tighter">{data.users.filter(u => u.membershipVault?.status === 'Active').length}</p>
+ <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Active Vaults</p>
  </div>
- <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-center min-w-[120px]">
- <p className="text-2xl font-black text-orange-500 tracking-tighter">{data.users.filter(u => !u.membershipId).length}</p>
- <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Pending Issuance</p>
+ <div className="p-4 bg-gray-500/10 border border-gray-500/20 rounded-2xl text-center min-w-[120px]">
+ <p className="text-2xl font-black text-gray-500 tracking-tighter">{data.users.filter(u => !u.membershipVault || u.membershipVault.status !== 'Active').length}</p>
+ <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Standard Users</p>
  </div>
  </div>
  </div>
@@ -1930,45 +2038,30 @@ const AdminDashboard = () => {
 
  <div className="space-y-4 relative z-10">
  <div className="p-4 bg-gray-50 dark:bg-dark-card rounded-2xl border border-gray-100 dark:border-gray-800">
- <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Identity Status</p>
+ <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Vault Status</p>
  <div className="flex items-center justify-between">
- {user.membershipId ? (
+ {user.membershipVault?.status === 'Active' ? (
  <div className="flex items-center gap-2">
  <ShieldCheck size={14} className="text-green-500" />
- <span className="text-sm font-mono font-black text-gray-900 dark:text-white tracking-widest">{user.membershipId}</span>
+ <span className="text-sm font-black text-green-600 tracking-widest uppercase">{user.membershipVault.planTier || 'Active'}</span>
  </div>
  ) : (
  <div className="flex items-center gap-2">
- <AlertCircle size={14} className="text-orange-500" />
- <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Unassigned</span>
+ <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No Active Plan</span>
  </div>
  )}
  </div>
  </div>
 
- {user.membershipId ? (
+ {user.membershipVault?.status === 'Active' ? (
  <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-600 rounded-xl border border-green-500/20">
  <QrCode size={16} />
- <span className="text-[9px] font-black uppercase tracking-widest">Digital Scanner Active</span>
+ <span className="text-[9px] font-black uppercase tracking-widest">Vault Active</span>
  </div>
  ) : (
- <button 
- onClick={async () => {
- try {
- const newId = 'FIC-PLT-' + Math.floor(1000 + Math.random() * 9000);
- await api.put(`/users/${user._id}`, { membershipId: newId, membershipStatus: 'Active' });
- toast.success(`Success: Generated ${newId}`);
- // Refresh user list
- const { data: usersRes } = await api.get('/users');
- setData(prev => ({ ...prev, users: Array.isArray(usersRes) ? usersRes : (usersRes.data || []) }));
- } catch (err) {
- toast.error('Strategic Failure: Could not assign ID');
- }
- }}
- className="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
- >
- <PlusCircle size={16} /> Auto-Generate ID
- </button>
+ <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-xl border border-gray-200 dark:border-gray-700">
+ <span className="text-[9px] font-black uppercase tracking-widest">Customer Managed</span>
+ </div>
  )}
  </div>
  </div>
@@ -4024,84 +4117,159 @@ const AdminDashboard = () => {
         </div>
 
         {editingItem.membership && (
-          <div className="p-8 bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 mb-8">
-            <h4 className="text-sm font-black uppercase tracking-widest mb-6">{editingItem.membership._id ? 'Edit Plan' : 'New Plan'}</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input placeholder="Plan Name (e.g. Premium)" value={editingItem.membership.name} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, name: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-              <input type="number" placeholder="Price (₹)" value={editingItem.membership.price} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, price: Number(e.target.value)}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-              <input placeholder="Period (e.g. /month)" value={editingItem.membership.period} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, period: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
-              <select value={editingItem.membership.color} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, color: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
-                <option value="gray">Gray</option>
-                <option value="blue">Blue</option>
-                <option value="purple">Purple</option>
-                <option value="yellow">Yellow</option>
-                <option value="green">Green</option>
-                <option value="red">Red</option>
-              </select>
-              <textarea placeholder="Features (comma separated)" value={Array.isArray(editingItem.membership.features) ? editingItem.membership.features.join(', ') : editingItem.membership.features} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, features: e.target.value}})} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm md:col-span-2" rows="3"></textarea>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-xs font-bold text-gray-500">
-                  <input type="checkbox" checked={editingItem.membership.popular} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, popular: e.target.checked}})} className="w-4 h-4 text-primary" />
-                  Mark as Popular
-                </label>
-              </div>
-              <div className="flex items-center gap-4">
-                <select value={editingItem.membership.status} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, status: e.target.value}})} className="px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
+          <div className="p-8 bg-gray-50 dark:bg-dark-bg rounded-[2.5rem] border border-gray-100 dark:border-gray-800 mb-8 space-y-8">
+            <h4 className="text-sm font-black uppercase tracking-widest text-gray-700 dark:text-gray-300">
+              {editingItem.membership._id ? '✏️ Edit Plan' : '🆕 New Plan'}
+            </h4>
+            {/* Basic Info */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Basic Info</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                <input placeholder="Plan Name (e.g. Elite)" value={editingItem.membership.name || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, name: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                <input placeholder="Plan Code (e.g. elite)" value={editingItem.membership.planCode || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, planCode: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                <input type="number" placeholder="Price (₹)" value={editingItem.membership.price || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, price: Number(e.target.value)}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                <input placeholder="Period (e.g. /month)" value={editingItem.membership.period || '/month'} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, period: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                <input type="number" placeholder="Validity Days (30)" value={editingItem.membership.validityDays || 30} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, validityDays: Number(e.target.value)}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                <select value={editingItem.membership.color || 'blue'} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, color: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
+                  <option value="blue">Blue (Starter)</option>
+                  <option value="purple">Purple (Premium)</option>
+                  <option value="yellow">Gold (Elite)</option>
+                  <option value="gray">Gray</option>
+                  <option value="green">Green</option>
+                </select>
+                <select value={editingItem.membership.status || 'Active'} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, status: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
+                <textarea placeholder="Short description..." value={editingItem.membership.description || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, description: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" rows="2" />
               </div>
             </div>
-            <div className="flex gap-4 mt-6">
+            {/* Category Discounts & Limits */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Category Discounts &amp; Usage Limits</p>
+              <p className="text-xs text-gray-400 font-bold mb-4">Set <code>-1</code> for unlimited usage. <code>0</code> = not included in plan.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                {[{key:'cabDiscount',icon:'🚕',label:'Cab / Taxi'},{key:'bikeDiscount',icon:'🛵',label:'Bike Taxi'},{key:'hotelDiscount',icon:'🏨',label:'Hotel / Stay'},{key:'cleaningDiscount',icon:'🧹',label:'Home Cleaning'}].map(({key,icon,label}) => (
+                  <div key={key} className="p-5 bg-white dark:bg-dark-card rounded-2xl border border-gray-200 dark:border-gray-700 space-y-3">
+                    <p className="text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">{icon} {label}</p>
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Discount %</label>
+                      <input type="number" min="0" max="100" placeholder="e.g. 10" value={editingItem.membership[key]?.percentage || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, [key]: {...(editingItem.membership[key]||{}), percentage: Number(e.target.value)}}})} className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Usage Limit (-1=∞)</label>
+                      <input type="number" min="-1" placeholder="e.g. 5 or -1" value={editingItem.membership[key]?.limit ?? ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, [key]: {...(editingItem.membership[key]||{}), limit: Number(e.target.value)}}})} className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-bg outline-none font-bold text-sm" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Bonuses & Rewards */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Bonuses &amp; Rewards</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Welcome Points</label>
+                  <input type="number" placeholder="e.g. 100" value={editingItem.membership.welcomeBonusPoints || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, welcomeBonusPoints: Number(e.target.value)}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Referral Bonus (₹)</label>
+                  <input type="number" placeholder="e.g. 50" value={editingItem.membership.referralBonus || ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, referralBonus: Number(e.target.value)}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Free Cancellations (-1=∞)</label>
+                  <input type="number" min="-1" placeholder="e.g. 3" value={editingItem.membership.freeCancellationCount ?? ''} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, freeCancellationCount: Number(e.target.value)}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Exclusive Offers</label>
+                  <select value={editingItem.membership.exclusiveOffers || 'None'} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, exclusiveOffers: e.target.value}})} className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm">
+                    <option value="None">None</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Weekly">Weekly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            {/* Feature Toggles */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Feature Toggles</p>
+              <div className="flex flex-wrap gap-4">
+                {[{key:'popular',label:'Mark as Popular'},{key:'prioritySupport',label:'Priority Support'},{key:'premiumPartnerAccess',label:'Premium Partner Access'},{key:'instantBooking',label:'Instant Booking'},{key:'priorityBooking',label:'Priority Booking'},{key:'premiumSupport',label:'Premium Support'}].map(({key,label}) => (
+                  <label key={key} className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card hover:border-primary transition-colors">
+                    <input type="checkbox" checked={!!editingItem.membership[key]} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, [key]: e.target.checked}})} className="w-4 h-4 accent-primary" />
+                    <span className="text-xs font-black text-gray-600 dark:text-gray-300">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            {/* Features List */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Features List (comma-separated)</p>
+              <textarea placeholder="e.g. 10% off on 15 cab rides, Priority Support..." value={Array.isArray(editingItem.membership.features) ? editingItem.membership.features.join(', ') : (editingItem.membership.features || '')} onChange={e => setEditingItem({...editingItem, membership: {...editingItem.membership, features: e.target.value}})} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-card outline-none font-bold text-sm" rows="3" />
+            </div>
+            <div className="flex gap-4 pt-2">
               <button onClick={async () => {
                 try {
-                  const payload = {
-                    ...editingItem.membership,
-                    features: typeof editingItem.membership.features === 'string' 
-                      ? editingItem.membership.features.split(',').map(f => f.trim()).filter(Boolean)
-                      : editingItem.membership.features
-                  };
+                  const payload = {...editingItem.membership, features: typeof editingItem.membership.features === 'string' ? editingItem.membership.features.split(',').map(f => f.trim()).filter(Boolean) : editingItem.membership.features};
                   if (editingItem.membership._id) {
                     await api.put(`/membership-plans/${editingItem.membership._id}`, payload);
-                    toast.success('Plan updated');
+                    toast.success('Plan updated successfully');
                   } else {
                     await api.post('/membership-plans', payload);
-                    toast.success('Plan created');
+                    toast.success('Plan created successfully');
                   }
                   fetchData();
                   setEditingItem({...editingItem, membership: null});
                 } catch (err) {
-                  toast.error('Failed to save plan');
+                  toast.error(err.response?.data?.message || 'Failed to save plan');
                 }
-              }} className="px-6 py-3 bg-primary text-white font-black rounded-xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Save Plan</button>
+              }} className="px-8 py-3 bg-primary text-white font-black rounded-xl text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all">Save Plan</button>
               <button onClick={() => setEditingItem({...editingItem, membership: null})} className="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-black rounded-xl text-[10px] uppercase tracking-widest hover:text-red-500 transition-all">Cancel</button>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {(data.membershipPlans || []).map(plan => (
-            <div key={plan._id} className={`relative p-8 rounded-[2.5rem] border ${plan.popular ? 'border-primary shadow-2xl shadow-primary/20' : 'border-gray-100 dark:border-gray-800'} bg-white dark:bg-dark-card`}>
+            <div key={plan._id} className={`relative p-7 rounded-[2.5rem] border ${plan.popular ? 'border-primary shadow-2xl shadow-primary/20' : 'border-gray-100 dark:border-gray-800'} bg-white dark:bg-dark-card`}>
               {plan.popular && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-t-[2.5rem]" />}
               {plan.status === 'Inactive' && <div className="absolute top-4 right-4 px-3 py-1 bg-gray-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Inactive</div>}
               {plan.popular && plan.status !== 'Inactive' && <div className="absolute top-4 right-4 px-3 py-1 bg-purple-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">Popular</div>}
-              
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{plan.name}</p>
-              <div className="flex items-end gap-1 mb-6">
+
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{plan.planCode || plan.name}</p>
+              <div className="flex items-end gap-1 mb-4">
                 <span className="text-4xl font-black text-gray-900 dark:text-white">₹{plan.price}</span>
                 <span className="text-sm font-bold text-gray-400 mb-1">{plan.period}</span>
+                <span className="text-xs font-bold text-gray-400 mb-1 ml-1">· {plan.validityDays || 30}d</span>
               </div>
-              
-              <ul className="space-y-2 mb-8 h-32 overflow-y-auto pr-2 custom-scrollbar">
-                {plan.features.map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
-                    <CheckCircle2 size={12} className="text-primary shrink-0" /> <span className="line-clamp-2 leading-tight">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              
+
+              {/* Category Discounts grid */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {[
+                  { key: 'cabDiscount', icon: '🚕', label: 'Cab' },
+                  { key: 'bikeDiscount', icon: '🛵', label: 'Bike' },
+                  { key: 'hotelDiscount', icon: '🏨', label: 'Hotel' },
+                  { key: 'cleaningDiscount', icon: '🧹', label: 'Cleaning' },
+                ].map(({ key, icon, label }) => {
+                  const rule = plan[key] || {};
+                  return (
+                    <div key={key} className={`p-2 rounded-xl text-[10px] font-black ${rule.percentage > 0 ? 'bg-primary/10 text-primary' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
+                      {icon} {label}: {rule.percentage > 0 ? `${rule.percentage}% · ${rule.limit === -1 ? '∞' : rule.limit || 0}x` : '—'}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Feature flags */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {plan.prioritySupport && <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[9px] font-black rounded-full">Priority Support</span>}
+                {plan.premiumPartnerAccess && <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[9px] font-black rounded-full">Premium Partners</span>}
+                {plan.freeCancellationCount !== 0 && <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[9px] font-black rounded-full">{plan.freeCancellationCount === -1 ? '∞' : plan.freeCancellationCount} Cancels</span>}
+                {plan.referralBonus > 0 && <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-black rounded-full">₹{plan.referralBonus} Referral</span>}
+              </div>
+
               <div className="flex items-center justify-between border-t border-gray-50 dark:border-gray-800/50 pt-4">
-                <button onClick={() => setEditingItem({...editingItem, membership: plan})} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"><Edit size={16} /></button>
+                <button onClick={() => setEditingItem({...editingItem, membership: plan})} className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors"><Edit size={14} className="inline mr-1"/>Edit Plan</button>
                 <button onClick={async () => {
                   if(window.confirm('Delete this membership plan?')) {
                     try {
@@ -4117,10 +4285,100 @@ const AdminDashboard = () => {
             </div>
           ))}
           {(data.membershipPlans || []).length === 0 && (
-            <div className="col-span-full py-20 text-center text-gray-400 font-black uppercase tracking-widest text-xs">No plans found</div>
+            <div className="col-span-full py-20 text-center text-gray-400 font-black uppercase tracking-widest text-xs">No plans found. Click "Create New Plan" to seed defaults.</div>
           )}
         </div>
       </div>
+    </div>
+  )}
+
+  {activeTab === 'fleet' && (
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex justify-between items-center bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl">
+        <div>
+          <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
+            <Navigation className="text-blue-500" size={28} /> Live Fleet Monitor
+          </h2>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Real-time tracking & KYC Oversight</p>
+        </div>
+        <div className="flex gap-4">
+          <div className="text-right">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Drivers</p>
+            <p className="text-2xl font-black text-green-400">{data.users.filter(u => u.role === 'Driver' && u.isOnline).length}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending KYC</p>
+            <p className="text-2xl font-black text-yellow-400">{data.users.filter(u => u.role === 'Driver' && u.approvalStatus === 'Pending').length}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800">
+          <h3 className="text-lg font-black uppercase tracking-widest mb-6">Pending Driver Approvals</h3>
+          <div className="space-y-4">
+            {data.users.filter(u => u.role === 'Driver' && u.approvalStatus === 'Pending').map(driver => (
+              <div key={driver._id} className="p-4 bg-gray-50 dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 text-blue-600 rounded-xl flex items-center justify-center font-black">
+                    {driver.firstName?.[0] || 'D'}
+                  </div>
+                  <div>
+                    <p className="font-bold">{driver.firstName} {driver.lastName}</p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{driver.mobile}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setActiveTab('users'); setSelectedUserKYC(driver); }} className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
+                    Review KYC
+                  </button>
+                </div>
+              </div>
+            ))}
+            {data.users.filter(u => u.role === 'Driver' && u.approvalStatus === 'Pending').length === 0 && (
+              <p className="text-center py-8 text-gray-400 font-bold text-xs uppercase tracking-widest">No pending driver approvals</p>
+            )}
+          </div>
+        </div>
+
+        <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800">
+          <h3 className="text-lg font-black uppercase tracking-widest mb-6">Fleet Map Simulation</h3>
+          <div className="relative h-64 bg-[#0d1a2e] rounded-3xl overflow-hidden border border-slate-700">
+            <svg className="absolute inset-0 w-full h-full opacity-20">
+              <defs><pattern id="admin-fleet-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#3b82f6" strokeWidth="0.5"/></pattern></defs>
+              <rect width="100%" height="100%" fill="url(#admin-fleet-grid)"/>
+            </svg>
+            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+              <span className="bg-green-500/20 text-green-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-green-500/30">
+                🟢 {data.users.filter(u => u.role === 'Driver' && u.isOnline).length} Online
+              </span>
+              <span className="bg-slate-800 text-slate-400 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-slate-700">
+                🔴 {data.users.filter(u => u.role === 'Driver' && !u.isOnline).length} Offline
+              </span>
+            </div>
+            {data.users.filter(u => u.role === 'Driver' && u.isOnline).map((d, i) => (
+              <motion.div key={d._id} className="absolute w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-[#0d1a2e] shadow-lg shadow-blue-600/50" 
+                style={{ top: `${20 + (i * 15)}%`, left: `${30 + (i * 20)}%` }}
+                animate={{ y: [0, -5, 0] }} transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}>
+                <Navigation size={12} className="text-white" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {activeTab === 'safety-reports' && (
+    <div className="bg-white dark:bg-dark-card rounded-[3rem] p-10 border border-gray-100 dark:border-gray-800 shadow-sm animate-fade-in">
+      <h2 className="text-2xl font-black mb-6 flex items-center gap-2"><ShieldCheck className="text-red-500"/> Trust & Safety Hub</h2>
+      <p className="text-gray-500">Live feed of all emergency triggers and low safety scores...</p>
+    </div>
+  )}
+
+  {activeTab === 'company-updates' && (
+    <div className="animate-fade-in">
+      <CompanyFeedManager />
     </div>
   )}
  </motion.div>
@@ -4340,6 +4598,192 @@ const SlotManager = ({ slots, setSlots }) => {
  </div>
  </div>
  );
+};
+
+
+// ── DASHBOARD NAVIGATION HUBS ──
+const AdminOverviewHub = ({ setActiveTab, data, orders }) => {
+  const widgets = [
+    { label: 'Total Users', value: data.stats?.users || 0, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { label: 'Active Vendors', value: data.stats?.vendors || 0, icon: Store, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    { label: 'Orders Today', value: data.stats?.orders || 0, icon: ShoppingBag, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { label: 'Total Revenue', value: `₹${(data.stats?.revenue || 0).toLocaleString()}`, icon: IndianRupee, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
+  ];
+
+  const modules = [
+    { id: 'operations', title: 'Operations', desc: 'Users, Vendors, Logistics & Fleet', icon: Target, color: 'from-blue-600 to-indigo-600' },
+    { id: 'business', title: 'Business', desc: 'Services, Products, Events & Jobs', icon: Briefcase, color: 'from-indigo-600 to-violet-600' },
+    { id: 'finance', title: 'Finance', desc: 'Revenue, Payments & Settlements', icon: CreditCard, color: 'from-emerald-500 to-teal-500' },
+    { id: 'support', title: 'Support', desc: 'Tickets, Inquiries & Moderation', icon: LifeBuoy, color: 'from-orange-500 to-red-500' },
+    { id: 'system', title: 'System', desc: 'Settings, Roles & Notifications', icon: Settings, color: 'from-gray-600 to-slate-700' }
+  ];
+
+  return (
+    <div className="space-y-12 mt-10">
+      {/* Live Widgets */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {widgets.map((w, i) => (
+          <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{delay: i*0.1}} key={i} className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-xl flex items-center gap-4">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${w.bg} ${w.color}`}>
+              <w.icon size={24} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{w.label}</p>
+              <h4 className="text-2xl font-black text-gray-900 dark:text-white leading-none mt-1">{w.value}</h4>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Quick Access Modules */}
+      <div>
+        <h3 className="text-2xl font-black uppercase tracking-tighter mb-8 text-gray-900 dark:text-white">Primary <span className="text-primary">Navigation Hub</span></h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          {modules.map((m, i) => (
+            <motion.div 
+              initial={{opacity: 0, scale: 0.9}} animate={{opacity: 1, scale: 1}} transition={{delay: i*0.1 + 0.2}}
+              key={m.id}
+              onClick={() => setActiveTab(m.id)}
+              className="relative group cursor-pointer h-56 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${m.color} opacity-90 group-hover:opacity-100 transition-opacity duration-500`}></div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
+                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                  <m.icon size={28} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2 group-hover:-translate-y-1 transition-transform">{m.title}</h4>
+                  <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-relaxed group-hover:-translate-y-1 transition-transform delay-75">{m.desc}</p>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Quick Actions FAB - Bottom Right */}
+      <div className="fixed bottom-10 right-10 z-[100] group flex flex-col items-end">
+        <div className="flex flex-col gap-3 mb-4 scale-0 opacity-0 origin-bottom group-hover:scale-100 group-hover:opacity-100 transition-all duration-300">
+          {[
+            { label: 'Add Vendor', icon: Store, action: () => setActiveTab('vendors') },
+            { label: 'Create Service', icon: Wrench, action: () => setActiveTab('services') },
+            { label: 'Create Product', icon: Package, action: () => setActiveTab('atomy') }
+          ].map((action, i) => (
+            <button key={i} onClick={action.action} className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl hover:scale-105 transition-transform group/btn">
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover/btn:text-primary">{action.label}</span>
+              <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><action.icon size={14} /></div>
+            </button>
+          ))}
+        </div>
+        <button className="w-16 h-16 bg-primary text-white rounded-[2rem] shadow-2xl flex items-center justify-center hover:scale-110 transition-transform group-hover:rotate-45 relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/20 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <Plus size={24} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AdminLevelTwoHub = ({ activeTab, setActiveTab }) => {
+  const levelTwoConfig = {
+    'operations': {
+      title: 'Operations Hub',
+      icon: Target,
+      color: 'text-blue-500',
+      items: [
+        { id: 'users', label: 'Users & Partners', icon: Users, desc: 'Manage user profiles and roles' },
+        { id: 'vendors', label: 'Vendor Management', icon: Store, desc: 'Onboarding and vendor stats' },
+        { id: 'orders', label: 'Customer Orders', icon: ShoppingBag, desc: 'Track and fulfill orders' },
+        { id: 'logistics', label: 'Logistics Hub', icon: Package, desc: 'Delivery and fulfillment' },
+        { id: 'fleet', label: 'Live Fleet Monitor', icon: Navigation, desc: 'Track active delivery vehicles' },
+        { id: 'trips', label: 'Active Rides / Trips', icon: Truck, desc: 'Monitor ongoing rides' },
+        { id: 'driver-kyc', label: 'Driver KYC', icon: ShieldCheck, desc: 'Verify driver documents' }
+      ]
+    },
+    'business': {
+      title: 'Business Engine',
+      icon: Briefcase,
+      color: 'text-indigo-500',
+      items: [
+        { id: 'services', label: 'Services Catalog', icon: Wrench, desc: 'Manage central service list' },
+        { id: 'atomy', label: 'Product Catalog', icon: Package, desc: 'Manage physical products' },
+        { id: 'rentals', label: 'Rentals', icon: Building2, desc: 'Manage property rentals' },
+        { id: 'rides', label: 'Rides Setup', icon: Truck, desc: 'Configure ride offerings' },
+        { id: 'stays', label: 'Hotels & PG', icon: Home, desc: 'Manage accommodation' },
+        { id: 'events', label: 'Events', icon: Calendar, desc: 'Upcoming events and bookings' },
+        { id: 'jobs', label: 'Job Postings', icon: Briefcase, desc: 'Manage employment listings' }
+      ]
+    },
+    'finance': {
+      title: 'Finance & Treasury',
+      icon: CreditCard,
+      color: 'text-emerald-500',
+      items: [
+        { id: 'fare-config', label: 'Fare Configuration', icon: IndianRupee, desc: 'Set pricing rules and rates' },
+        { id: 'settlements', label: 'Marketplace Treasury', icon: CreditCard, desc: 'Manage payouts and commission' },
+        { id: 'membership', label: 'Membership Program', icon: ShieldCheck, desc: 'Manage tier subscriptions' }
+      ]
+    },
+    'support': {
+      title: 'Support Center',
+      icon: LifeBuoy,
+      color: 'text-orange-500',
+      items: [
+        { id: 'tickets', label: 'Support Tickets', icon: MessageSquare, desc: 'Resolve customer issues' },
+        { id: 'inquiries', label: 'Service Inquiries', icon: ClipboardList, desc: 'B2B and bulk queries' },
+        { id: 'contacts', label: 'Contact Queries', icon: Mail, desc: 'General contact form' },
+        { id: 'faqs', label: 'Manage FAQs', icon: MessageCircle, desc: 'Knowledge base articles' }
+      ]
+    },
+    'system': {
+      title: 'System Administration',
+      icon: Settings,
+      color: 'text-gray-500',
+      items: [
+        { id: 'locations', label: 'Service Areas', icon: MapPin, desc: 'Manage geofenced zones' },
+        { id: 'location-requests', label: 'Integration Requests', icon: Target, desc: 'Monitor area expansion' },
+        { id: 'media', label: 'Media Manager', icon: Image, desc: 'Centralized asset storage' }
+      ]
+    }
+  };
+
+  const config = levelTwoConfig[activeTab];
+  if (!config) return null;
+
+  return (
+    <div className="mt-10">
+      <div className="flex items-center gap-4 mb-12">
+        <button onClick={() => setActiveTab('overview')} className="w-12 h-12 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-2xl flex items-center justify-center hover:scale-105 transition-transform shadow-xl">
+          <ChevronLeft size={20} />
+        </button>
+        <div>
+          <h2 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-3">
+            <config.icon className={config.color} size={32} />
+            {config.title}
+          </h2>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-2">Level 2 Sub-System</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {config.items.map((item, i) => (
+          <motion.div 
+            initial={{opacity: 0, scale: 0.95}} animate={{opacity: 1, scale: 1}} transition={{delay: i * 0.05}}
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className="group cursor-pointer p-8 bg-white dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:border-primary/30 transition-all duration-300"
+          >
+            <div className="w-16 h-16 bg-gray-50 dark:bg-dark-bg rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
+              <item.icon size={28} className="text-gray-400 group-hover:text-primary transition-colors" />
+            </div>
+            <h4 className="text-lg font-black uppercase tracking-tighter mb-2">{item.label}</h4>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">{item.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default AdminDashboard;

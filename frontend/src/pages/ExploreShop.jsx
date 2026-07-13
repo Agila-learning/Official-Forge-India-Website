@@ -54,13 +54,14 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  const [priceRange, setPriceRange] = useState(200000);
  const [shopFilter, setShopFilter] = useState('');
  const [pincodeFilter, setPincodeFilter] = useState(location.state?.pincode || '');
+ const [hasManuallyClearedPincode, setHasManuallyClearedPincode] = useState(false);
 
  // Sync from app-wide location context (GPS auto-detect)
  useEffect(() => {
- if (appLocation?.pincode && !pincodeFilter) {
+ if (appLocation?.pincode && !pincodeFilter && !hasManuallyClearedPincode) {
  setPincodeFilter(appLocation.pincode);
  }
- }, [appLocation, pincodeFilter]);
+ }, [appLocation, pincodeFilter, hasManuallyClearedPincode]);
 
  // Sync pincode input to filter on change
  useEffect(() => {
@@ -93,7 +94,10 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  fetchProducts();
  }, []);
 
- useEffect(() => {
+  useEffect(() => {
+    if (location.pathname === '/services') {
+      setViewType('Services');
+    }
     if (location.state) {
       if (location.state.viewType) setViewType(location.state.viewType);
       if (location.state.propertyFilter) setPropertyFilter(location.state.propertyFilter);
@@ -101,7 +105,7 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
       if (location.state.category) setCategory(location.state.category);
       if (location.state.searchQuery) setSearchQuery(location.state.searchQuery);
     }
-  }, [location.state]);
+  }, [location.state, location.pathname]);
 
  const fetchProducts = async () => {
  try {
@@ -143,14 +147,39 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
      viewType === 'Rides' ? isRide :
      (!product.isService && !isRental && !isRide);
 
-  const matchesCategory = category === 'All' || product.category === category || (category === 'Home Services' && product.isService);
+    const matchesCategory = (() => {
+      if (category === 'All') return true;
+      if (viewType === 'Products') {
+        return product.category?.toLowerCase() === category.toLowerCase();
+      }
+      if (viewType === 'Services') {
+        if (category === 'Home Services') return product.isService;
+        return product.category?.toLowerCase() === category.toLowerCase();
+      }
+      if (viewType === 'Rentals') {
+        if (category === 'PG Stays') return product.propertyType === 'PG' || product.category?.toLowerCase().includes('pg');
+        if (category === 'Commercial') return product.propertyType === 'Commercial' || product.category?.toLowerCase().includes('commercial');
+        if (category === 'Residential') return product.propertyType === 'Residential' || product.category?.toLowerCase().includes('residential');
+        if (category === 'Event Spaces') return product.propertyType === 'Event Spaces' || product.category?.toLowerCase().includes('event');
+        return product.category?.toLowerCase() === category.toLowerCase();
+      }
+      if (viewType === 'Rides') {
+        if (category === 'Bike') return product.vehicleType === 'Bike' || product.category?.toLowerCase().includes('bike');
+        if (category === 'Auto') return product.vehicleType === 'Auto' || product.category?.toLowerCase().includes('auto');
+        if (category === 'Car') return product.vehicleType === 'Car' || product.category?.toLowerCase().includes('car') || product.category?.toLowerCase().includes('cab');
+        if (category === 'Truck') return product.vehicleType === 'Truck' || product.category?.toLowerCase().includes('delivery') || product.category?.toLowerCase().includes('logistics');
+        return product.category?.toLowerCase() === category.toLowerCase();
+      }
+      return true;
+    })();
   const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
   const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
 
   const matchesPincode = !pincodeFilter ||
     !product.pincode ||
     product.pincode.length === 0 ||
-    (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter));
+    (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter)) ||
+    (product.serviceableArea && product.serviceableArea.some(area => area.includes(pincodeFilter)));
 
   const matchesPrice = (product.price || 0) <= priceRange;
 
@@ -176,7 +205,22 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  return new Date(b.createdAt) - new Date(a.createdAt);
  });
 
- const categories = ['All', 'Health', 'Beauty', 'Home', 'Home Services', 'Electronics'];
+  const getCategoriesForView = () => {
+    switch (viewType) {
+      case 'Products':
+        return ['All', 'Health', 'Beauty', 'Home', 'Electronics'];
+      case 'Services':
+        return ['All', 'Home Services', 'Cleaning', 'Repairs', 'Expert Consulting'];
+      case 'Rentals':
+        return ['All', 'PG Stays', 'Commercial', 'Residential', 'Event Spaces'];
+      case 'Rides':
+        return ['All', 'Bike', 'Auto', 'Car', 'Truck'];
+      default:
+        return ['All'];
+    }
+  };
+
+  const categories = getCategoriesForView();
 
  const navigate = useNavigate();
  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -226,7 +270,16 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  {['Products', 'Services', 'Rentals', 'Rides'].map(t => (
  <button
  key={t}
- onClick={() => { setViewType(t); setPropertyFilter('All'); setVehicleFilter('All'); }}
+ onClick={() => {
+   if (t === 'Rides') {
+     navigate('/rides/book');
+     return;
+   }
+    setViewType(t);
+    setCategory('All');
+    setPropertyFilter('All');
+    setVehicleFilter('All');
+ }}
  className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewType === t ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
  >
  {t === 'Products' ? <ShoppingBag size={14} /> : t === 'Rentals' ? <Building2 size={14} /> : t === 'Rides' ? <Truck size={14} /> : <Zap size={14} />}
@@ -307,7 +360,7 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  <MapPin size={12} className="text-primary" />
  Showing availability for: {pincodeFilter}
  <button 
- onClick={() => setPincodeFilter('')}
+ onClick={() => { setPincodeFilter(''); setPincode(''); setHasManuallyClearedPincode(true); }}
  className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full p-0.5 transition-colors"
  >
  <X size={12} />
@@ -361,6 +414,12 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  return;
  }
  
+ if ((userInfo.subscriptionLevel || 'Free') === 'Free') {
+ toast.error('Membership Required. Upgrade to book this service.');
+ navigate('/profile');
+ return;
+ }
+ 
  const isHighValue = ['it-solutions', 'website-development', 'app-development', 'insurance-services', 'software-development', 'ui-ux-design', 'digital-marketing'].includes(product.serviceType || product.category?.toLowerCase().replace(' ', '-'));
  
  if (isHighValue) {
@@ -384,6 +443,13 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  navigate('/login');
  return;
  }
+ 
+ if (p.isService && (userInfo.subscriptionLevel || 'Free') === 'Free') {
+ toast.error('Membership Required to add services. Upgrade your plan.');
+ navigate('/profile');
+ return;
+ }
+ 
  addToCart(p, 1);
  toast.success(`${p.name} added to cart!`, {
  icon: '🛒',

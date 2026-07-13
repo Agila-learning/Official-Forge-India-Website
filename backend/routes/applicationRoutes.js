@@ -96,6 +96,11 @@ router.post('/apply', async (req, res) => {
       }
     }
 
+    // Simulate an ATS Score based on domain match or randomness for demonstration
+    // In a real AI implementation, this would parse the resume text against job requirements.
+    const atsScore = Math.floor(Math.random() * (98 - 65 + 1)) + 65; // Random score between 65-98%
+    const atsFeedback = atsScore > 85 ? "High Keyword Match" : (atsScore > 75 ? "Moderate Keyword Match" : "Missing key competencies");
+
     const application = new Application({
       user: cleanUserId,
       job: cleanJobId,
@@ -106,6 +111,8 @@ router.post('/apply', async (req, res) => {
       jobRole,
       coverLetter,
       resumeUrl,
+      atsScore,
+      atsFeedback,
       status: 'Pending',
       statusHistory: [{ status: 'Pending', note: 'Application submitted' }],
     });
@@ -128,6 +135,10 @@ router.post('/apply', async (req, res) => {
     res.status(201).json({ message: 'Application submitted successfully!', data: saved });
   } catch (error) {
     console.error('Job Application Error:', error);
+    if (error.name === 'ValidationError') {
+      const missingFields = Object.keys(error.errors).join(', ');
+      return res.status(400).json({ message: `Validation Error: Missing or invalid fields (${missingFields})`, error: error.message });
+    }
     res.status(500).json({ message: 'Server error during submission', error: error.message });
   }
 });
@@ -137,15 +148,39 @@ router.post('/apply', async (req, res) => {
 // @access Private (HR/Admin)
 router.put('/:id/status', protect, hr, async (req, res) => {
   try {
-    const { status, hrNotes } = req.body;
+    const { status, hrNotes, interviewDate, interviewLink } = req.body;
     const application = await Application.findById(req.params.id);
     if (!application) return res.status(404).json({ message: 'Application not found' });
 
     application.status = status;
     if (hrNotes) application.hrNotes = hrNotes;
-    application.statusHistory.push({ status, note: hrNotes || `Status changed to ${status}` });
+    
+    // Handle Interview Scheduling
+    if (status === 'Interview Scheduled') {
+      if (interviewDate) application.interviewDate = interviewDate;
+      if (interviewLink) application.interviewLink = interviewLink;
+      application.statusHistory.push({ 
+        status, 
+        note: `Interview Scheduled for ${new Date(interviewDate).toLocaleString()}. Link: ${interviewLink || 'N/A'}` 
+      });
+    } else {
+      application.statusHistory.push({ status, note: hrNotes || `Status changed to ${status}` });
+    }
 
     await application.save();
+
+    // Notify the candidate about the status update
+    if (application.user) {
+      const io = req.app.get('io');
+      await createNotification(io, {
+        user: application.user,
+        title: 'Application Status Update',
+        message: `Your application for ${application.jobRole || 'a job'} is now marked as ${status}.`,
+        type: 'application',
+        link: '/candidate'
+      });
+    }
+
     res.json({ message: `Application marked as ${status}`, application });
   } catch (err) {
     res.status(500).json({ message: err.message });

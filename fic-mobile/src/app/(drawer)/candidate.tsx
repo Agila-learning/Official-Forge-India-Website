@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Image, Linking, Alert, Modal, TextInput } from 'react-native';
-import { Briefcase, BookOpen, Clock, Send, MapPin, DollarSign, ShoppingCart, Star, ShieldCheck, Zap, Wallet, Search, Trash2, FileText, CheckCircle, X, Bell } from 'lucide-react-native';
+import { Briefcase, BookOpen, Clock, Send, MapPin, DollarSign, ShoppingCart, Star, ShieldCheck, Zap, Wallet, Search, Trash2, FileText, CheckCircle, X, Bell, Sparkles } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams, useNavigation, useFocusEffect } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import api from '../../services/api';
@@ -205,6 +205,12 @@ export default function CandidateDashboard() {
   };
 
   const bookConsulting = async () => {
+    const fee = parseInt(customConsultingFee || '0');
+    if (fee < 1500) {
+      Alert.alert('Invalid Amount', 'The minimum custom payment for job consulting is ₹1500.');
+      return;
+    }
+
     if (!user?.email || !user?.mobile) {
       Alert.alert(
         'Profile Incomplete', 
@@ -220,10 +226,11 @@ export default function CandidateDashboard() {
     try {
       const res = await api.post('/job-consulting/submit', {
         consultingType: 'Career Guidance',
-        specificRequirement: 'General career counseling',
+        specificRequirement: `General career counseling (Custom Fee: ₹${fee})`,
         contactNumber: user?.mobile || '9999999999',
         domain: 'General',
-        experience: 'Fresher (0-1 yr)'
+        experience: 'Fresher (0-1 yr)',
+        customAmount: fee
       });
 
       const { razorpayOrderId, keyId, paymentLink, inquiryId, amount } = res.data;
@@ -541,6 +548,34 @@ export default function CandidateDashboard() {
                     </Text>
                   </View>
                 </View>
+
+                {/* ATS Visualizer */}
+                <View className="bg-slate-50 p-4 rounded-xl border border-slate-100 mt-2">
+                  <View className="flex-row justify-between items-center mb-1">
+                    <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-[9px] text-slate-500 uppercase tracking-widest">ATS Compatibility</Text>
+                    <Text style={{ fontFamily: 'Outfit_900Black' }} className={`text-[10px] ${app.atsScore > 80 ? 'text-green-500' : app.atsScore > 60 ? 'text-yellow-500' : 'text-red-500'}`}>{app.atsScore || 0}%</Text>
+                  </View>
+                  <View className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+                    <View className={`h-full ${app.atsScore > 80 ? 'bg-green-500' : app.atsScore > 60 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${app.atsScore || 0}%` }} />
+                  </View>
+                  <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-[8px] text-slate-400 uppercase tracking-widest mt-1">{app.atsFeedback || 'Pending Analysis'}</Text>
+                </View>
+
+                {/* Interview Details */}
+                {app.status === 'Interview Scheduled' && app.interviewDate && (
+                  <View className="bg-purple-50 p-4 rounded-xl border border-purple-100 mt-2">
+                    <Text className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Scheduled Interview</Text>
+                    <Text className="text-sm font-black text-purple-700 mb-2">{new Date(app.interviewDate).toLocaleString()}</Text>
+                    {app.interviewLink && (
+                      <TouchableOpacity 
+                        onPress={() => import('expo-linking').then(Linking => Linking.openURL(app.interviewLink))}
+                        className="bg-purple-600 px-4 py-2 rounded-xl items-center"
+                      >
+                        <Text className="text-white text-[10px] font-black uppercase tracking-widest">Join Meeting</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
               </View>
             ))}
             {myApplications.length === 0 && (
@@ -665,8 +700,19 @@ export default function CandidateDashboard() {
           </View>
         )}
 
-      </ScrollView>
+        {['saved-jobs', 'interview-prep', 'resume-hub', 'assessments'].includes(activeTab) && (
+          <View className="flex-1 items-center justify-center py-20 bg-white rounded-[2rem] border border-slate-100 mt-4">
+            <View className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+              <Sparkles size={24} color="#2563eb" />
+            </View>
+            <Text style={{ fontFamily: 'Outfit_900Black' }} className="text-xl text-slate-900 uppercase tracking-tighter mb-2 capitalize">{activeTab.replace('-', ' ')}</Text>
+            <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-[10px] text-slate-500 text-center px-8 uppercase tracking-widest leading-relaxed">
+              This module is actively being calibrated by the strategic deployment team. Advanced metrics and data feeds will be online shortly.
+            </Text>
+          </View>
+        )}
 
+      </ScrollView>
       {/* Premium Membership Vault Modal */}
       <Modal visible={isMembershipModalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-end bg-black/60">
@@ -713,7 +759,7 @@ export default function CandidateDashboard() {
             </View>
 
             {/* Bottom White Section - Plans */}
-            <View className="flex-1 bg-white px-6 -mt-10 rounded-t-[2rem]">
+            <ScrollView className="flex-1 bg-white px-6 -mt-10 rounded-t-[2rem]" contentContainerStyle={{ paddingBottom: 40 }}>
               <Text className="text-center text-[9px] font-black text-slate-400 uppercase tracking-widest mt-6 mb-1">Choose Your Plan</Text>
               <Text className="text-center text-xl font-black text-slate-900 tracking-tighter mb-1">Prepaid Service Vault</Text>
               <Text className="text-center text-[10px] font-bold text-slate-500 mb-6">Valid for services only • Monthly cycle • Multi-use</Text>
@@ -793,7 +839,7 @@ export default function CandidateDashboard() {
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>

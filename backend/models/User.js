@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema(
     industry: { type: String }, // Optional now since some roles might not need it
     role: { 
       type: String, 
-      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Trainer', 'Rental Provider'], 
+      enum: ['Admin', 'Sub-Admin', 'Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Trainer', 'Rental Provider', 'Agent', 'Driver'], 
       default: 'Customer' 
     },
     address: { type: String },
@@ -24,8 +24,10 @@ const userSchema = mongoose.Schema(
       enum: ['Pending', 'Approved', 'Rejected'],
       default: 'Approved'
     },
+    fcmToken: { type: String }, // For Firebase Cloud Messaging
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     // Onboarding Request Metadata
+    agentCode: { type: String, unique: true, sparse: true }, // For Agents to refer others
     businessName: { type: String },
     shopCode: { type: String, unique: true, sparse: true },
     hrCode: { type: String, unique: true, sparse: true },
@@ -45,6 +47,7 @@ const userSchema = mongoose.Schema(
       enum: ['Product Seller', 'Service Provider', 'Both'],
       default: 'Product Seller'
     },
+    assignedCategories: [{ type: String }], // Restricts which categories a vendor can create services in
     businessMotive: { type: String }, // For Vendors - "What products they sell"
     otp: { type: String },
     otpExpires: { type: Date },
@@ -81,12 +84,25 @@ const userSchema = mongoose.Schema(
     isMember: { type: Boolean, default: false },
     membershipId: { type: String }, // FIC-CAND-YYYY-XXXX
     membershipVault: {
+      status: { type: String, enum: ['Active', 'Expired', 'Pending', 'None'], default: 'None' },
+      membershipNumber: { type: String }, // e.g., FIC-STR-1234
+      planId: { type: mongoose.Schema.Types.ObjectId, ref: 'MembershipPlan' },
+      planTier: { type: String, default: 'None' },     // 'Starter' | 'Premium' | 'Elite'
+      planName: { type: String, default: 'None' },
+      planValue: { type: Number, default: 0 },
       balance: { type: Number, default: 0 },
+      rewardPoints: { type: Number, default: 0 },
+      cashbackEarned: { type: Number, default: 0 },
+      totalSavings: { type: Number, default: 0 },
+      savingsThisMonth: { type: Number, default: 0 },
       cycleStartDate: { type: Date },
       cycleEndDate: { type: Date },
-      planTier: { type: String, default: 'None' },
-      planValue: { type: Number, default: 0 },
-      savingsThisMonth: { type: Number, default: 0 }
+      // ── Usage counters (reset each cycle) ─────────────────────────────
+      cabRidesUsed:          { type: Number, default: 0 },
+      bikeBookingsUsed:      { type: Number, default: 0 },
+      hotelBookingsUsed:     { type: Number, default: 0 },
+      cleaningServicesUsed:  { type: Number, default: 0 },
+      freeCancellationsUsed: { type: Number, default: 0 },
     },
     paymentStatus: { type: String, enum: ['Unpaid', 'Paid'], default: 'Unpaid' },
     registrationFee: { type: Number, default: 0 },
@@ -100,12 +116,7 @@ const userSchema = mongoose.Schema(
     additionalComments: { type: String },
     isSubscribed: { type: Boolean, default: false },
     // ─── Ride / Service Provider Fields ───────────────────────────────
-    isOnline: { type: Boolean, default: false },
-    drivingLicense: { type: String },
-    vehicleRC: { type: String },
-    vehicleInsurance: { type: String },
-    vehicleType: { type: String, enum: ['Bike', 'Car', 'Scooter', 'Truck', 'None'], default: 'None' },
-    vehicleModel: { type: String },
+    // Note: Driver-specific fields (vehicle, license, isOnline) have been moved to the normalized Driver and Vehicle models.
     bankDetails: {
       accountNumber: { type: String },
       ifscCode: { type: String },
@@ -121,12 +132,6 @@ const userSchema = mongoose.Schema(
       default: 'Not Started' 
     },
     walletBalance: { type: Number, default: 0 },
-    currentLiveLocation: {
-      lat: { type: Number },
-      lng: { type: Number },
-      lastUpdated: { type: Date }
-    },
-
     // ─── Rental Provider Fields ──────────────────────────────────────
     propertyName: { type: String },
     propertyType: { 
@@ -140,12 +145,19 @@ const userSchema = mongoose.Schema(
       max: { type: Number },
       unit: { type: String, default: 'Month' }
     },
-    driverStats: {
-      totalRides: { type: Number, default: 0 },
-      totalDeliveries: { type: Number, default: 0 },
-      averageRating: { type: Number, default: 5.0 },
-      earningsTotal: { type: Number, default: 0 }
-    },
+    
+    // ─── Phase 2: Safety & Real-time Integration ─────────────────────
+    trustedContacts: [{
+      name: { type: String },
+      phone: { type: String },
+      relation: { type: String },
+      notifyOnEmergency: { type: Boolean, default: true }
+    }],
+    safetyScore: { type: Number, default: 100 }, // For Drivers
+    moodLogs: [{
+      mood: { type: String },
+      timestamp: { type: Date, default: Date.now }
+    }],
 
     // ─── Sub-Admin Configuration ─────────────────────────────────────
     isSubAdmin: { type: Boolean, default: false },

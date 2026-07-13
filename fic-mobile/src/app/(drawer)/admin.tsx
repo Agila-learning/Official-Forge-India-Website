@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { 
   Users, Briefcase, Mail, Package, TrendingUp, ShieldCheck, ShoppingBag, 
   Bell, Search, MapPin, Ticket, CreditCard, ChevronLeft, Truck, ChevronRight, LayoutDashboard,
-  Calendar, MessageSquare, ClipboardList, BookOpen, MessageCircle, Link, Star, Home, Box, Plus, X, FolderSearch, Trash2, CheckCircle, Store, FileText, Edit3, Wrench
+  Calendar, MessageSquare, ClipboardList, BookOpen, MessageCircle, Link, Star, Home, Box, Plus, X, FolderSearch, Trash2, CheckCircle, Store, FileText, Edit3, Wrench, Menu, Clock
 } from 'lucide-react-native';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-  
+  const [tripFilter, setTripFilter] = useState('All Trips');
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -453,12 +453,55 @@ export default function AdminDashboard() {
 
   const crudModules = Object.keys(formFields);
 
+  // ─── Status chip helper ───────────────────────────────────────────────────────
+  const StatusChip = ({ status }: { status: string }) => {
+    const s = (status || 'Pending').toLowerCase();
+    const config: Record<string, { bg: string; text: string; dot: string }> = {
+      approved:   { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+      verified:   { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+      hired:      { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+      active:     { bg: '#DBEAFE', text: '#1E40AF', dot: '#2563EB' },
+      available:  { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+      paid:       { bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+      pending:    { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
+      processing: { bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
+      rejected:   { bg: '#FEE2E2', text: '#991B1B', dot: '#EF4444' },
+      cancelled:  { bg: '#FEE2E2', text: '#991B1B', dot: '#EF4444' },
+      occupied:   { bg: '#FEE2E2', text: '#991B1B', dot: '#EF4444' },
+      offline:    { bg: '#F3F4F6', text: '#6B7280', dot: '#9CA3AF' },
+      inactive:   { bg: '#F3F4F6', text: '#6B7280', dot: '#9CA3AF' },
+    };
+    const c = config[s] || config['pending'];
+    return (
+      <View style={{ backgroundColor: c.bg, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c.dot, marginRight: 5 }} />
+        <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, color: c.text, textTransform: 'uppercase', letterSpacing: 0.8 }}>{status || 'Pending'}</Text>
+      </View>
+    );
+  };
+
+  // ─── Icon box helper ──────────────────────────────────────────────────────────
+  const IconBox = ({ icon: Icon, bg, iconColor, size = 22 }: any) => (
+    <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', shadowColor: iconColor, shadowOpacity: 0.15, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } }}>
+      <Icon size={size} color={iconColor} />
+    </View>
+  );
+
+  // ─── Action button helper ─────────────────────────────────────────────────────
+  const ActionBtn = ({ onPress, icon: Icon, color, bg }: any) => (
+    <TouchableOpacity onPress={onPress} style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: bg, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon size={15} color={color} />
+    </TouchableOpacity>
+  );
+
   if (user?.role !== 'Admin' && user?.role !== 'Sub-Admin') {
     return (
-      <View className="flex-1 bg-slate-50 items-center justify-center p-6">
-        <ShieldCheck size={64} color="#ef4444" className="mb-4" />
-        <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-900 text-3xl text-center tracking-tighter">Access Denied</Text>
-        <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-slate-500 text-center mt-2">Administrator privileges required.</Text>
+      <View style={{ flex: 1, backgroundColor: '#F7F9FC', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <View style={{ width: 80, height: 80, borderRadius: 24, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+          <ShieldCheck size={40} color="#EF4444" />
+        </View>
+        <Text style={{ fontFamily: 'Outfit_700Bold', color: '#1F2937', fontSize: 24, textAlign: 'center', letterSpacing: -0.5 }}>Access Denied</Text>
+        <Text style={{ fontFamily: 'Outfit_500Medium', color: '#6B7280', textAlign: 'center', marginTop: 8, fontSize: 14 }}>Administrator privileges required.</Text>
       </View>
     );
   }
@@ -531,54 +574,66 @@ export default function AdminDashboard() {
   });
 
   const renderEmptyState = (moduleName: string) => (
-    <View className="py-24 items-center justify-center opacity-70">
-      <View className="w-24 h-24 bg-slate-200/50 rounded-full items-center justify-center mb-6">
-        <FolderSearch size={48} color="#94a3b8" />
+    <View style={{ paddingVertical: 80, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 80, height: 80, borderRadius: 24, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+        <FolderSearch size={36} color="#CBD5E1" />
       </View>
-      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xl text-slate-400 uppercase tracking-tighter mb-2">No Data Found</Text>
-      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-400 uppercase tracking-widest text-center px-10 leading-tight">
+      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 16, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: -0.3, marginBottom: 8 }}>No Data Found</Text>
+      <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center', paddingHorizontal: 40, lineHeight: 18 }}>
         There are currently no {moduleName} matching this criteria.
       </Text>
     </View>
   );
 
-  return (
-    <View className="flex-1 bg-slate-50 relative">
-      <View className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-300/10 rounded-full blur-[120px]"></View>
-      <View className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-300/10 rounded-full blur-[120px]"></View>
+  // Color maps for grid categories
+  const catColors: Record<string, { icon: string; iconBg: string }> = {
+    blue:    { icon: '#2563EB', iconBg: '#EFF6FF' },
+    emerald: { icon: '#059669', iconBg: '#ECFDF5' },
+    indigo:  { icon: '#4F46E5', iconBg: '#EEF2FF' },
+    amber:   { icon: '#D97706', iconBg: '#FFFBEB' },
+  };
 
-      <View className="pt-14 pb-4 px-6 bg-white/70 backdrop-blur-2xl border-b border-white/60 shadow-sm z-20">
-        <View className="flex-row justify-between items-center mb-4">
+  return (
+    <View style={{ flex: 1, backgroundColor: '#F7F9FC' }}>
+      {/* Ambient blobs */}
+      <View style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(37,99,235,0.05)' }} />
+      <View style={{ position: 'absolute', bottom: -60, left: -60, width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(79,70,229,0.04)' }} />
+
+      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      <View style={{ paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: 'rgba(255,255,255,0.94)', borderBottomWidth: 1, borderBottomColor: '#F1F5F9', zIndex: 20 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: activeTab !== 'hub' ? 14 : 0 }}>
           {activeTab !== 'hub' ? (
-            <TouchableOpacity onPress={() => { setActiveTab('hub'); setSearchQuery(''); }} className="w-12 h-12 bg-white rounded-2xl items-center justify-center shadow-sm border border-slate-100 mr-4 active:scale-95">
-              <ChevronLeft size={24} color="#0f172a" />
+            <TouchableOpacity
+              onPress={() => { setActiveTab('hub'); setSearchQuery(''); }}
+              style={{ width: 40, height: 40, backgroundColor: '#F8FAFC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E5E7EB', marginRight: 12 }}
+            >
+              <ChevronLeft size={22} color="#1F2937" />
             </TouchableOpacity>
           ) : (
-            <View>
-              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Central Command</Text>
-              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-3xl text-slate-900 uppercase tracking-tighter">Admin <Text className="text-[#2563eb]">Hub</Text></Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 2 }}>Central Command</Text>
+              <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 28, color: '#1F2937', letterSpacing: -1 }}>
+                Admin <Text style={{ color: '#2563EB' }}>Hub</Text>
+              </Text>
             </View>
           )}
 
           {activeTab !== 'hub' && (
-            <View className="flex-1">
-              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xl text-slate-900 uppercase tracking-tighter capitalize" numberOfLines={1}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 20, color: '#1F2937', letterSpacing: -0.5, textTransform: 'uppercase' }} numberOfLines={1}>
                 {activeTab.replace(/([A-Z])/g, ' $1').trim()}
               </Text>
             </View>
           )}
-          
-          <TouchableOpacity 
-            onPress={() => {
-              setUnreadCount(0);
-              setShowNotifications(true);
-            }} 
-            className="w-12 h-12 bg-white rounded-2xl items-center justify-center shadow-sm border border-slate-100 relative active:scale-95"
+
+          <TouchableOpacity
+            onPress={() => { setUnreadCount(0); setShowNotifications(true); }}
+            style={{ width: 40, height: 40, backgroundColor: '#F8FAFC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E5E7EB' }}
           >
-            <Bell color={unreadCount > 0 ? "#ef4444" : "#2563eb"} size={22} />
+            <Bell color={unreadCount > 0 ? '#EF4444' : '#2563EB'} size={20} />
             {(unreadCount > 0 || notifications.length > 0) && (
-              <View className="absolute -top-1 -right-1 bg-red-500 w-5 h-5 rounded-full items-center justify-center shadow-md border-2 border-white">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] text-white">{unreadCount > 0 ? unreadCount : notifications.length}</Text>
+              <View style={{ position: 'absolute', top: -4, right: -4, backgroundColor: '#EF4444', width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 8, color: '#fff' }}>{unreadCount > 0 ? unreadCount : notifications.length}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -586,19 +641,18 @@ export default function AdminDashboard() {
 
         {/* UNIVERSAL SEARCH BAR */}
         {activeTab !== 'hub' && (
-          <View className="flex-row items-center bg-slate-100/80 rounded-2xl px-4 py-3 border border-slate-200">
-            <Search color="#94a3b8" size={18} />
-            <TextInput 
-              style={{ fontFamily: 'Outfit_500Medium' }}
-              className="flex-1 ml-3 text-slate-900"
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 11, borderWidth: 1, borderColor: '#E5E7EB' }}>
+            <Search color="#9CA3AF" size={17} />
+            <TextInput
+              style={{ fontFamily: 'Outfit_500Medium', flex: 1, marginLeft: 10, color: '#1F2937', fontSize: 14 }}
               placeholder={`Search ${activeTab.replace(/([A-Z])/g, ' $1').toLowerCase()}...`}
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#9CA3AF"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <X color="#94a3b8" size={16} />
+                <X color="#9CA3AF" size={15} />
               </TouchableOpacity>
             )}
           </View>
@@ -606,174 +660,164 @@ export default function AdminDashboard() {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#2563eb" />
-          <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-400 mt-4 uppercase tracking-widest text-xs">Syncing Database...</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color="#2563EB" />
+          <Text style={{ fontFamily: 'Outfit_700Bold', color: '#9CA3AF', marginTop: 16, textTransform: 'uppercase', letterSpacing: 1.5, fontSize: 11 }}>Syncing Database...</Text>
         </View>
       ) : (
-        <ScrollView 
-          className="flex-1 px-4 pt-6"
-          contentContainerStyle={{ paddingBottom: 120 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />}
+        <ScrollView
+          style={{ flex: 1, paddingHorizontal: 16 }}
+          contentContainerStyle={{ paddingTop: 24, paddingBottom: 120 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563EB" />}
         >
           {activeTab === 'hub' && (
             <View>
-              <View className="bg-white rounded-[2rem] p-6 mb-8 shadow-sm relative overflow-hidden border border-slate-100">
-                <View className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl"></View>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-2">Net Platform Revenue</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-3xl text-slate-900 tracking-tighter mb-6">₹{revenue.toLocaleString()}</Text>
-                
-                <View className="flex-row justify-between border-t border-slate-100 pt-5">
+              {/* Revenue hero card */}
+              <View style={{ backgroundColor: '#1E3A8A', borderRadius: 24, padding: 24, marginBottom: 28, overflow: 'hidden', position: 'relative' }}>
+                <View style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,255,255,0.06)' }} />
+                <View style={{ position: 'absolute', bottom: -20, left: -20, width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.04)' }} />
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Net Platform Revenue</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 36, color: '#fff', letterSpacing: -1.5, marginBottom: 24 }}>₹{revenue.toLocaleString()}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.12)', paddingTop: 18 }}>
                   <View>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Total Users</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-lg text-slate-800">{data.users.length}</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Total Users</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#fff', letterSpacing: -0.5 }}>{data.users.length}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Pending Treasury</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-lg text-amber-500">₹{pendingSettlements.toLocaleString()}</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Pending Treasury</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#FCD34D', letterSpacing: -0.5 }}>₹{pendingSettlements.toLocaleString()}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Candidates</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-lg text-emerald-500">{hiredCount}</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Placed</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#6EE7B7', letterSpacing: -0.5 }}>{hiredCount}</Text>
                   </View>
                 </View>
               </View>
 
-              {gridCategories.map((cat, i) => (
-                <View key={i} className="mb-8">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[11px] text-slate-400 uppercase tracking-[0.2em] mb-4 ml-4">{cat.title}</Text>
-                  <View className="flex-row flex-wrap justify-between gap-y-4">
-                    {cat.items.map((item, j) => (
-                      <TouchableOpacity 
-                        key={j}
-                        onPress={() => { setActiveTab(item.id); setSearchQuery(''); }}
-                        className="w-[48%] bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] border border-white shadow-xl shadow-slate-200/40 active:scale-95 transition-transform"
-                      >
-                        <View className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 shadow-inner ${
-                          cat.color === 'blue' ? 'bg-blue-50' : 
-                          cat.color === 'emerald' ? 'bg-emerald-50' : 
-                          cat.color === 'amber' ? 'bg-amber-50' : 'bg-indigo-50'
-                        }`}>
-                          {React.createElement(item.icon as any, { 
-                            color: cat.color === 'blue' ? '#3b82f6' : cat.color === 'emerald' ? '#10b981' : cat.color === 'amber' ? '#f59e0b' : '#6366f1',
-                            size: 24 
-                          })}
-                        </View>
-                        <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">{item.count > 0 ? `${item.count} Records` : 'Manage'}</Text>
-                        <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 leading-tight uppercase tracking-tighter" numberOfLines={1}>{item.label}</Text>
-                      </TouchableOpacity>
-                    ))}
+              {gridCategories.map((cat, i) => {
+                const cc = catColors[cat.color] || catColors.blue;
+                return (
+                  <View key={i} style={{ marginBottom: 28 }}>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14, marginLeft: 4 }}>{cat.title}</Text>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                      {cat.items.map((item, j) => (
+                        <TouchableOpacity
+                          key={j}
+                          onPress={() => { setActiveTab(item.id); setSearchQuery(''); }}
+                          style={{ width: '47.5%', backgroundColor: '#FFFFFF', padding: 18, borderRadius: 20, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.07, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, marginBottom: 12 }}
+                        >
+                          <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: cc.iconBg, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                            {React.createElement(item.icon as any, { color: cc.icon, size: 22 })}
+                          </View>
+                          <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
+                            {item.count > 0 ? `${item.count} Records` : 'Manage'}
+                          </Text>
+                          <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', letterSpacing: -0.3, lineHeight: 18 }} numberOfLines={2}>{item.label}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </View>
-                </View>
-              ))}
+                );
+              })}
             </View>
           )}
 
           {/* DYNAMIC LIST RENDERER WITH CRUD SUPPORT */}
 
           {activeTab === 'users' && filteredList.map((u: any) => (
-            <View key={u._id} className="bg-blue-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-blue-500/10 mb-4 flex-row items-center gap-4">
-              <View className="w-14 h-14 bg-white rounded-full overflow-hidden shadow-sm">
-                <Image source={{ uri: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.firstName || 'U')}&background=random` }} className="w-full h-full" />
+            <View key={u._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ width: 52, height: 52, borderRadius: 16, overflow: 'hidden', backgroundColor: '#EFF6FF', marginRight: 14 }}>
+                <Image source={{ uri: u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.firstName || 'U')}&background=random` }} style={{ width: '100%', height: '100%' }} />
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{u.firstName} {u.lastName}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{u.email}</Text>
-                <View className="bg-blue-500 self-start px-2 py-1 rounded-md">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[8px] text-white uppercase tracking-widest">{u.role}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{u.firstName} {u.lastName}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2, marginBottom: 6 }} numberOfLines={1}>{u.email}</Text>
+                <View style={{ backgroundColor: '#EFF6FF', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start' }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, color: '#2563EB', textTransform: 'uppercase', letterSpacing: 0.8 }}>{u.role}</Text>
                 </View>
               </View>
-              <TouchableOpacity onPress={() => deleteRecord(u._id)} className="p-2 bg-white rounded-full shadow-sm">
-                <Trash2 color="#ef4444" size={16} />
-              </TouchableOpacity>
+              <ActionBtn onPress={() => deleteRecord(u._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
             </View>
           ))}
 
           {activeTab === 'kyc' && data.users.filter((u: any) => u.profileDocuments && u.profileDocuments.length > 0).map((u: any) => (
-            <View key={u._id} className="bg-orange-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-500/10 mb-4 flex-row items-center gap-4">
-              <View className="flex-1">
-                <View className="flex-row justify-between">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{u.firstName} {u.lastName}</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-[10px] uppercase ${u.approvalStatus === 'Approved' ? 'text-emerald-500' : u.approvalStatus === 'Rejected' ? 'text-red-500' : 'text-amber-500'}`}>{u.approvalStatus || 'Pending'}</Text>
+            <View key={u._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#FEF3C7', shadowColor: '#D97706', shadowOpacity: 0.07, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase' }} numberOfLines={1}>{u.firstName} {u.lastName}</Text>
+                  <StatusChip status={u.approvalStatus || 'Pending'} />
                 </View>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{u.email} | {u.role}</Text>
-                <View className="mt-2 space-y-2">
-                  {u.profileDocuments.map((doc: any, i: number) => (
-                    <View key={i} className="flex-row items-center gap-2 mb-1">
-                      <FileText size={12} color="#ea580c" />
-                      <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-xs text-slate-700">{doc.name || 'Document'}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginBottom: 10 }} numberOfLines={1}>{u.email} · {u.role}</Text>
+                {u.profileDocuments.map((doc: any, i: number) => (
+                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                    <View style={{ width: 24, height: 24, borderRadius: 7, backgroundColor: '#FEF3C7', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+                      <FileText size={11} color="#D97706" />
                     </View>
-                  ))}
-                </View>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#374151' }}>{doc.name || 'Document'}</Text>
+                  </View>
+                ))}
               </View>
-              <View className="flex-col gap-2">
-                <TouchableOpacity onPress={() => handleApproveKYC(u._id)} className="px-4 py-2 bg-emerald-500 rounded-xl items-center shadow-sm">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-white uppercase tracking-widest">Approve</Text>
+              <View style={{ gap: 8, marginLeft: 12 }}>
+                <TouchableOpacity onPress={() => handleApproveKYC(u._id)} style={{ paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#ECFDF5', borderRadius: 12, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#065F46', textTransform: 'uppercase' }}>Approve</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleRejectKYC(u._id)} className="px-4 py-2 bg-red-500 rounded-xl items-center shadow-sm">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-white uppercase tracking-widest">Reject</Text>
+                <TouchableOpacity onPress={() => handleRejectKYC(u._id)} style={{ paddingHorizontal: 14, paddingVertical: 8, backgroundColor: '#FEF2F2', borderRadius: 12, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#991B1B', textTransform: 'uppercase' }}>Reject</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
 
           {activeTab === 'products' && filteredList.map((p: any) => (
-            <View key={p._id} className="bg-emerald-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-500/10 mb-4 flex-row items-center gap-4">
-              <View className="w-16 h-16 bg-white rounded-2xl overflow-hidden shadow-sm">
-                <Image source={{ uri: p.image || p.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.title || 'Product')}&background=random` }} className="w-full h-full" />
+            <View key={p._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ width: 60, height: 60, borderRadius: 16, overflow: 'hidden', backgroundColor: '#ECFDF5', marginRight: 14 }}>
+                <Image source={{ uri: p.image || p.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.title || 'Product')}&background=random` }} style={{ width: '100%', height: '100%' }} />
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{p.title || p.name}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{p.category}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-emerald-600">₹{p.price}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{p.title || p.name}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2, marginBottom: 4 }} numberOfLines={1}>{p.category}</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 14, color: '#059669' }}>₹{p.price}</Text>
               </View>
-              <View className="flex-row gap-2">
-                <TouchableOpacity onPress={() => openEditModal(p)} className="p-2 bg-white rounded-full shadow-sm">
-                  <Edit3 color="#2563eb" size={16} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(p._id)} className="p-2 bg-white rounded-full shadow-sm">
-                  <Trash2 color="#ef4444" size={16} />
-                </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <ActionBtn onPress={() => openEditModal(p)} icon={Edit3} color="#2563EB" bg="#EFF6FF" />
+                <ActionBtn onPress={() => deleteRecord(p._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
             </View>
           ))}
 
           {/* Orders WITH FULL CRUD ACTION BUTTONS */}
           {activeTab === 'orders' && filteredList.map((o: any) => (
-            <TouchableOpacity 
-              key={o._id} 
+            <TouchableOpacity
+              key={o._id}
               onPress={() => setSelectedOrder(o)}
-              className="bg-white/80 backdrop-blur-xl p-6 rounded-[2rem] shadow-sm border border-white mb-4"
+              style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}
             >
-              <View className="flex-row justify-between mb-2 items-center">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest">#{o._id.slice(-8)}</Text>
-                <View className="flex-row gap-2">
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>#{o._id.slice(-8)}</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
                   {!o.isPaid && (
-                    <TouchableOpacity onPress={() => markOrderPaid(o._id)} className="bg-emerald-100 p-1.5 rounded-full flex-row items-center z-10">
-                      <CheckCircle color="#10b981" size={12} />
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[8px] text-emerald-700 ml-1 uppercase">Mark Paid</Text>
+                    <TouchableOpacity onPress={() => markOrderPaid(o._id)} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+                      <CheckCircle color="#10B981" size={12} />
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, color: '#065F46', textTransform: 'uppercase', marginLeft: 4 }}>Mark Paid</Text>
                     </TouchableOpacity>
                   )}
-                  <TouchableOpacity onPress={() => deleteRecord(o._id)} className="bg-red-50 p-1.5 rounded-full z-10">
-                    <Trash2 color="#ef4444" size={12} />
-                  </TouchableOpacity>
+                  <ActionBtn onPress={() => deleteRecord(o._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
                 </View>
               </View>
-              
-              <View className="flex-row justify-between items-end mt-2">
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <View>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1">{o.user?.firstName || o.user?.email || 'Guest'}</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-2xl tracking-tighter">₹{o.totalPrice}</Text>
+                  <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginBottom: 4 }}>{o.user?.firstName || o.user?.email || 'Guest'}</Text>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 26, color: '#1F2937', letterSpacing: -1 }}>₹{o.totalPrice}</Text>
                 </View>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-xs uppercase ${o.isPaid ? 'text-emerald-500' : 'text-amber-500'}`} numberOfLines={1}>{o.status || (o.isPaid ? 'Paid' : 'Pending')}</Text>
+                <StatusChip status={o.status || (o.isPaid ? 'Paid' : 'Pending')} />
               </View>
               {o.status === 'Return Requested' && (
-                <View className="mt-3 flex-row gap-2">
-                  <TouchableOpacity onPress={() => api.put(`/orders/${o._id}/status`, { status: 'Return Approved' }).then(fetchData)} className="flex-1 bg-orange-100 py-2 rounded-xl items-center">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-orange-600 text-[10px] uppercase">Approve Return</Text>
+                <View style={{ marginTop: 14, flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity onPress={() => api.put(`/orders/${o._id}/status`, { status: 'Return Approved' }).then(fetchData)} style={{ flex: 1, backgroundColor: '#FEF3C7', paddingVertical: 10, borderRadius: 12, alignItems: 'center' }}>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#92400E', textTransform: 'uppercase' }}>Approve Return</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => api.put(`/orders/${o._id}/status`, { status: 'Delivered' }).then(fetchData)} className="flex-1 bg-slate-100 py-2 rounded-xl items-center">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-500 text-[10px] uppercase">Reject</Text>
+                  <TouchableOpacity onPress={() => api.put(`/orders/${o._id}/status`, { status: 'Delivered' }).then(fetchData)} style={{ flex: 1, backgroundColor: '#F1F5F9', paddingVertical: 10, borderRadius: 12, alignItems: 'center' }}>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#6B7280', textTransform: 'uppercase' }}>Reject</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -782,40 +826,33 @@ export default function AdminDashboard() {
 
           {/* Contacts / Inquiries */}
           {['contacts', 'inquiries', 'locationRequests'].includes(activeTab) && filteredList.map((item: any, idx: number) => (
-            <View key={item._id || idx} className="bg-amber-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-amber-500/10 mb-4">
-              <View className="flex-row justify-between items-start">
-                <View className="flex-1">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{item.name || item.fullName || item.firstName}</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mt-1 mb-2" numberOfLines={1}>{item.email || item.phone}</Text>
+            <View key={item._id || idx} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#FEF3C7', shadowColor: '#D97706', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase' }} numberOfLines={1}>{item.name || item.fullName || item.firstName}</Text>
+                  <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 3 }} numberOfLines={1}>{item.email || item.phone}</Text>
                 </View>
-                <TouchableOpacity onPress={() => deleteRecord(item._id)} className="p-2 bg-white rounded-full shadow-sm ml-2">
-                  <Trash2 color="#ef4444" size={14} />
-                </TouchableOpacity>
+                <ActionBtn onPress={() => deleteRecord(item._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
-              <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-xs text-slate-600" numberOfLines={4}>{item.message || item.details || item.locationDetails}</Text>
+              <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#374151', lineHeight: 18 }} numberOfLines={4}>{item.message || item.details || item.locationDetails}</Text>
             </View>
           ))}
 
           {/* Bookings */}
           {activeTab === 'bookings' && filteredList.map((b: any) => (
-            <TouchableOpacity 
-              key={b._id} 
-              className="bg-emerald-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-500/10 mb-4"
+            <TouchableOpacity
+              key={b._id}
+              style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}
               onPress={() => Alert.alert("Booking Details", `Service: ${b.service?.title || 'Service Booking'}\nCustomer: ${b.customer?.firstName || ''} ${b.customer?.lastName || ''} (${b.customer?.email || 'Guest'})\nDate: ${new Date(b.createdAt).toLocaleString()}\nStatus: ${b.status}\nTotal: ₹${b.totalPrice || b.amount}`)}
             >
-              <View className="flex-row justify-between items-start">
-                <View className="flex-1">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{b.service?.title || 'Service Booking'}</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mt-1 mb-2" numberOfLines={1}>{b.customer?.email || 'Guest'}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase' }} numberOfLines={1}>{b.service?.title || 'Service Booking'}</Text>
+                  <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 3 }} numberOfLines={1}>{b.customer?.email || 'Guest'}</Text>
                 </View>
-                <View className="items-end flex-row gap-3">
-                   <View className="items-end">
-                     <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-emerald-600">₹{b.totalPrice || b.amount}</Text>
-                     <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] text-slate-400 uppercase mt-1">{b.status}</Text>
-                   </View>
-                   <TouchableOpacity onPress={() => deleteRecord(b._id)} className="p-2 bg-white rounded-full shadow-sm">
-                     <Trash2 color="#ef4444" size={14} />
-                   </TouchableOpacity>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 16, color: '#059669', marginBottom: 6 }}>₹{b.totalPrice || b.amount}</Text>
+                  <StatusChip status={b.status} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -823,104 +860,167 @@ export default function AdminDashboard() {
 
           {/* Services */}
           {activeTab === 'services' && filteredList.map((service: any) => (
-            <View key={service._id} className="bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] shadow-sm border-l-4 border-l-purple-500 mb-4 flex-row items-center gap-4">
-              <View className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 border border-purple-100">
+            <View key={service._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3, borderLeftColor: '#9333EA', borderTopWidth: 1, borderTopColor: '#F1F5F9', borderRightWidth: 1, borderRightColor: '#F1F5F9', borderBottomWidth: 1, borderBottomColor: '#F1F5F9', shadowColor: '#9333EA', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ width: 56, height: 56, borderRadius: 16, backgroundColor: '#F5F3FF', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginRight: 14 }}>
                 {service.image ? (
-                  <Image source={{ uri: service.image }} className="w-full h-full rounded-2xl" />
+                  <Image source={{ uri: service.image }} style={{ width: '100%', height: '100%' }} />
                 ) : (
-                  <Wrench size={24} color="#9333ea" />
+                  <Wrench size={22} color="#9333EA" />
                 )}
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase tracking-tight" numberOfLines={1}>{service.name}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{service.category} • {service.serviceMode === 'at_home' ? 'At Home' : 'Center'}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-purple-600">Avg ₹{service.price}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{service.name}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2, marginBottom: 4 }} numberOfLines={1}>{service.category} · {service.serviceMode === 'at_home' ? 'At Home' : 'Center'}</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#9333EA' }}>₹{service.price}</Text>
               </View>
-              <View className="flex-row gap-2">
-                <TouchableOpacity onPress={() => openEditModal(service)} className="p-2 bg-purple-50 rounded-full shadow-sm">
-                  <Edit3 color="#9333ea" size={16} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(service._id)} className="p-2 bg-red-50 rounded-full shadow-sm">
-                  <Trash2 color="#ef4444" size={16} />
-                </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <ActionBtn onPress={() => openEditModal(service)} icon={Edit3} color="#9333EA" bg="#F5F3FF" />
+                <ActionBtn onPress={() => deleteRecord(service._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
             </View>
           ))}
 
-          {/* Rides */}
-          {activeTab === 'rides' && filteredList.map((ride: any) => (
-            <View key={ride._id} className="bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] shadow-sm border-b-4 border-b-blue-500 mb-4">
-              <View className="flex-row items-center gap-4 mb-3">
-                <View className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100">
-                  <Truck size={24} color="#3b82f6" />
+          {/* Trips Management (Overhauled to match Screenshot 5) */}
+          {activeTab === 'rides' && (
+            <View>
+              {/* Header & Export */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                <View style={{ flex: 1, paddingRight: 16 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 24, color: '#0F172A', letterSpacing: -0.5, marginBottom: 4 }}>Trips Management</Text>
+                  <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 13, color: '#475569', lineHeight: 18 }}>Monitor, filter, and audit your fleet's active and historical routes.</Text>
                 </View>
-                <View className="flex-1">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase tracking-tight" numberOfLines={1}>{ride.name}</Text>
-                  <View className="flex-row items-center mt-1">
-                    <View className={`w-2 h-2 rounded-full mr-1.5 ${ride.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-[10px] uppercase tracking-widest ${ride.isOnline ? 'text-emerald-600' : 'text-slate-400'}`}>
-                      {ride.isOnline ? 'Active on Mission' : 'Idle / Offline'}
-                    </Text>
+              </View>
+
+              <TouchableOpacity style={{ backgroundColor: '#EFF6FF', alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 24 }}>
+                <Text style={{ fontSize: 16, marginRight: 8 }}>📥</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', color: '#2563EB', fontSize: 13 }}>Export Report</Text>
+              </TouchableOpacity>
+
+              {/* Filters Block */}
+              <View style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: '#F1F5F9' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                  <Menu size={16} color="#64748B" style={{ marginRight: 8 }} />
+                  <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 13, color: '#64748B' }}>Filter by:</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+                  {['All Trips', 'Completed', 'In-Progress', 'Cancelled'].map(filter => (
+                    <TouchableOpacity 
+                      key={filter} 
+                      onPress={() => setTripFilter(filter)}
+                      style={{ 
+                        backgroundColor: tripFilter === filter ? '#1D4ED8' : '#F1F5F9', 
+                        paddingHorizontal: 16, 
+                        paddingVertical: 10, 
+                        borderRadius: 20,
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                      }}
+                    >
+                      {filter === 'Completed' && <CheckCircle size={14} color="#64748B" style={{ marginRight: 6 }} />}
+                      {filter === 'In-Progress' && <Clock size={14} color="#64748B" style={{ marginRight: 6 }} />}
+                      {filter === 'Cancelled' && <X size={14} color="#64748B" style={{ marginRight: 6 }} />}
+                      <Text style={{ 
+                        fontFamily: 'Outfit_500Medium', 
+                        fontSize: 13, 
+                        color: tripFilter === filter ? '#FFFFFF' : '#475569' 
+                      }}>
+                        {filter}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12 }}>
+                  <Calendar size={16} color="#475569" style={{ marginRight: 8 }} />
+                  <Text style={{ fontFamily: 'Outfit_500Medium', color: '#475569', fontSize: 13, marginRight: 8 }}>Last 30 Days</Text>
+                  <ChevronRight size={14} color="#475569" style={{ transform: [{ rotate: '90deg' }] }} />
+                </View>
+              </View>
+
+              {/* Revenue Card */}
+              <View style={{ backgroundColor: '#2563EB', borderRadius: 24, padding: 24, marginBottom: 24, shadowColor: '#2563EB', shadowOpacity: 0.3, shadowRadius: 15, shadowOffset: { width: 0, height: 8 } }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>TODAY'S REVENUE</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 40, color: '#FFFFFF', letterSpacing: -1.5, marginBottom: 12 }}>$12,840.50</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TrendingUp size={16} color="#4ADE80" style={{ marginRight: 6 }} />
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#FFFFFF' }}>+12.4% from yesterday</Text>
+                </View>
+              </View>
+
+              {/* Trips List Header */}
+              <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12 }}>
+                <Text style={{ flex: 1, fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1 }}>Fare</Text>
+                <Text style={{ flex: 1, fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>Status</Text>
+                <Text style={{ flex: 1, fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'right' }}>Action</Text>
+              </View>
+
+              {/* Fake List using existing data length or generic items */}
+              {(data.orders.slice(0, 8)).map((o: any, idx: number) => {
+                const fare = o.totalPrice || Math.floor(Math.random() * 500) + 100;
+                let status = o.status || 'Completed';
+                
+                // For demonstration, map order statuses to our filters if possible
+                if (tripFilter === 'Completed' && status !== 'Completed' && status !== 'Delivered') return null;
+                if (tripFilter === 'In-Progress' && (status === 'Completed' || status === 'Delivered' || status === 'Cancelled')) return null;
+                if (tripFilter === 'Cancelled' && status !== 'Cancelled' && status !== 'Return Requested') return null;
+
+                const isCompleted = status === 'Completed' || status === 'Delivered';
+                const isCancelled = status === 'Cancelled' || status === 'Return Requested';
+                
+                const chipBg = isCompleted ? '#ECFDF5' : (isCancelled ? '#FEF2F2' : '#EFF6FF');
+                const chipText = isCompleted ? '#059669' : (isCancelled ? '#DC2626' : '#2563EB');
+
+                return (
+                  <View key={o._id || idx} style={{ backgroundColor: '#F8FAFC', borderRadius: 16, padding: 16, marginBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 15, color: '#0F172A', marginBottom: 2 }}>₹{fare.toFixed(2)}</Text>
+                      <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 10, color: '#64748B', textTransform: 'uppercase' }}>{new Date(o.createdAt || Date.now()).toLocaleDateString()}</Text>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                      <View style={{ backgroundColor: chipBg, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 }}>
+                        <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 10, color: chipText }}>{isCompleted ? 'Completed' : (isCancelled ? 'Cancelled' : 'In-Progress')}</Text>
+                      </View>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                      <TouchableOpacity style={{ width: 32, height: 32, backgroundColor: '#FFFFFF', borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                        <ChevronRight size={16} color="#64748B" />
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              </View>
-              <View className="flex-row justify-between bg-slate-50 p-3 rounded-xl mb-3 border border-slate-100">
-                <View>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[8px] text-slate-400 uppercase tracking-widest">Base Fare</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900">₹{ride.price}</Text>
-                </View>
-                <View className="items-end">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[8px] text-slate-400 uppercase tracking-widest">Rate/KM</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900">₹{ride.perKmRate || 12}</Text>
-                </View>
-              </View>
-              <View className="flex-row gap-2">
-                <TouchableOpacity onPress={() => openEditModal(ride)} className="flex-1 bg-blue-600 py-3 rounded-xl items-center shadow-md shadow-blue-500/20">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-white uppercase tracking-widest">Command Asset</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(ride._id)} className="p-3 bg-red-50 rounded-xl items-center justify-center">
-                  <Trash2 color="#ef4444" size={16} />
-                </TouchableOpacity>
-              </View>
+                );
+              })}
             </View>
-          ))}
+          )}
 
           {/* Rentals & Stays */}
           {['rentals', 'stays'].includes(activeTab) && filteredList.map((prop: any) => (
-            <View key={prop._id} className="bg-white/90 backdrop-blur-xl p-5 rounded-[2.5rem] shadow-sm border border-slate-100 mb-4">
-              <View className="h-40 rounded-2xl overflow-hidden mb-4 bg-slate-100 relative">
+            <View key={prop._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 24, padding: 16, marginBottom: 14, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.07, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}>
+              <View style={{ height: 148, borderRadius: 18, overflow: 'hidden', marginBottom: 14, backgroundColor: '#F1F5F9', position: 'relative' }}>
                 {prop.image ? (
-                  <Image source={{ uri: prop.image }} className="w-full h-full" />
+                  <Image source={{ uri: prop.image }} style={{ width: '100%', height: '100%' }} />
                 ) : (
-                  <View className="w-full h-full items-center justify-center"><Home color="#cbd5e1" size={48} /></View>
+                  <View style={{ width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}><Home color="#CBD5E1" size={44} /></View>
                 )}
-                <View className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-100">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[8px] uppercase tracking-widest text-slate-900">{prop.propertyType || prop.category}</Text>
+                <View style={{ position: 'absolute', top: 10, right: 10, backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, color: '#1F2937', textTransform: 'uppercase', letterSpacing: 0.8 }}>{prop.propertyType || prop.category}</Text>
                 </View>
               </View>
-              <View className="flex-row justify-between items-start mb-2">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase truncate flex-1" numberOfLines={1}>{prop.name}</Text>
-                <View className={`px-2 py-1 rounded-md ml-2 ${prop.isAvailable || prop.countInStock > 0 ? 'bg-emerald-100' : 'bg-red-100'}`}>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-[8px] uppercase ${prop.isAvailable || prop.countInStock > 0 ? 'text-emerald-700' : 'text-red-700'}`}>
-                    {prop.isAvailable || prop.countInStock > 0 ? 'Available' : 'Occupied'}
-                  </Text>
-                </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 14, color: '#1F2937', textTransform: 'uppercase', flex: 1, letterSpacing: -0.3 }} numberOfLines={1}>{prop.name}</Text>
+                <StatusChip status={prop.isAvailable || prop.countInStock > 0 ? 'Available' : 'Occupied'} />
               </View>
-              <View className="flex-row items-center mb-4">
-                <MapPin size={10} color="#2563eb" />
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 uppercase tracking-widest ml-1">{prop.location || 'Location Pending'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                <MapPin size={11} color="#2563EB" />
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.8, marginLeft: 5 }}>{prop.location || 'Location Pending'}</Text>
               </View>
-              <View className="flex-row items-center justify-between pt-4 border-t border-slate-50">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-lg text-blue-600">
-                  ₹{prop.price}<Text className="text-[9px] text-slate-400">/mo</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14, borderTopWidth: 1, borderTopColor: '#F8FAFC' }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 20, color: '#2563EB', letterSpacing: -0.5 }}>
+                  ₹{prop.price}<Text style={{ fontSize: 11, color: '#9CA3AF' }}>/mo</Text>
                 </Text>
-                <View className="flex-row gap-2">
-                  <TouchableOpacity onPress={() => openEditModal(prop)} className="p-2.5 bg-slate-50 rounded-xl">
-                    <Edit3 color="#64748b" size={16} />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => deleteRecord(prop._id)} className="p-2.5 bg-slate-50 rounded-xl">
-                    <Trash2 color="#ef4444" size={16} />
-                  </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <ActionBtn onPress={() => openEditModal(prop)} icon={Edit3} color="#6B7280" bg="#F8FAFC" />
+                  <ActionBtn onPress={() => deleteRecord(prop._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
                 </View>
               </View>
             </View>
@@ -928,62 +1028,50 @@ export default function AdminDashboard() {
 
           {/* Generic Fallback for remaining lists */}
           {['locations', 'applications', 'candidates', 'events', 'faqs', 'testimonials', 'settlements', 'homeCategories', 'serviceRegistrations'].includes(activeTab) && filteredList.map((item: any, idx: number) => (
-            <View key={item._id || idx} className="bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] shadow-sm border border-slate-100 mb-4 flex-row justify-between items-center">
-              <View className="flex-1 mr-4">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{item.title || item.name || item.subject || item.question || item.fullName || item.firstName || item.categoryName || 'Record Item'}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mt-1" numberOfLines={2}>
+            <View key={item._id || idx} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+              <View style={{ flex: 1, marginRight: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{item.title || item.name || item.subject || item.question || item.fullName || item.firstName || item.categoryName || 'Record Item'}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 4, lineHeight: 16 }} numberOfLines={2}>
                   {item.description || item.answer || item.message || item.email || item.jobRole || JSON.stringify(item).slice(0, 50)}
                 </Text>
               </View>
-              <View className="flex-row gap-2">
+              <View style={{ flexDirection: 'row', gap: 8 }}>
                 {crudModules.includes(activeTab) && (
-                  <TouchableOpacity onPress={() => openEditModal(item)} className="p-2 bg-blue-50 rounded-full">
-                    <Edit3 color="#2563eb" size={14} />
-                  </TouchableOpacity>
+                  <ActionBtn onPress={() => openEditModal(item)} icon={Edit3} color="#2563EB" bg="#EFF6FF" />
                 )}
-                  <TouchableOpacity onPress={() => deleteRecord(item._id)} className="p-2 bg-red-50 rounded-full">
-                  <Trash2 color="#ef4444" size={14} />
-                </TouchableOpacity>
+                <ActionBtn onPress={() => deleteRecord(item._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
             </View>
           ))}
 
           {/* Users & KYC Verification */}
           {activeTab === 'users' && filteredList.map((userObj: any) => (
-            <View key={userObj._id} className="bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] shadow-sm border border-slate-100 mb-4 flex-row items-center gap-4">
-              <View className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100">
-                <Text className="font-black text-blue-600 text-lg">{userObj.firstName?.charAt(0)}</Text>
+            <View key={`u2-${userObj._id}`} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+              <View style={{ width: 46, height: 46, borderRadius: 14, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 18, color: '#2563EB' }}>{userObj.firstName?.charAt(0)}</Text>
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{userObj.firstName} {userObj.lastName}</Text>
-                <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{userObj.email} • {userObj.role}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{userObj.firstName} {userObj.lastName}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>{userObj.email} · {userObj.role}</Text>
                 {userObj.kycStatus && (
-                  <View className="flex-row items-center mt-1">
-                    <ShieldCheck size={10} color={userObj.kycStatus === 'Verified' ? '#10b981' : userObj.kycStatus === 'Pending' ? '#f59e0b' : '#ef4444'} />
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-[8px] uppercase ml-1 ${userObj.kycStatus === 'Verified' ? 'text-emerald-600' : userObj.kycStatus === 'Pending' ? 'text-amber-600' : 'text-red-600'}`}>
-                      KYC: {userObj.kycStatus}
-                    </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                    <ShieldCheck size={11} color={userObj.kycStatus === 'Verified' ? '#10B981' : userObj.kycStatus === 'Pending' ? '#F59E0B' : '#EF4444'} />
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.8, marginLeft: 4, color: userObj.kycStatus === 'Verified' ? '#059669' : userObj.kycStatus === 'Pending' ? '#D97706' : '#DC2626' }}>KYC: {userObj.kycStatus}</Text>
                   </View>
                 )}
               </View>
-              <View className="flex-row gap-2">
+              <View style={{ flexDirection: 'row', gap: 8 }}>
                 {userObj.kycStatus === 'Pending' && (
-                  <TouchableOpacity onPress={() => {
+                  <ActionBtn onPress={() => {
                     api.put(`/users/${userObj._id}/approval`, { approvalStatus: 'Approved' });
                     // To do full KYC verify we can create a specific endpoint, but for now we'll do this
                     api.put(`/users/profile`, { ...userObj, kycStatus: 'Verified' });
                     Alert.alert('Success', 'User KYC Verified');
                     fetchData();
-                  }} className="p-2 bg-emerald-50 rounded-full">
-                    <CheckCircle color="#10b981" size={16} />
-                  </TouchableOpacity>
+                  }} icon={CheckCircle} color="#10B981" bg="#ECFDF5" />
                 )}
-                <TouchableOpacity onPress={() => openEditModal(userObj)} className="p-2 bg-blue-50 rounded-full">
-                  <Edit3 color="#2563eb" size={16} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(userObj._id)} className="p-2 bg-red-50 rounded-full">
-                  <Trash2 color="#ef4444" size={16} />
-                </TouchableOpacity>
+                <ActionBtn onPress={() => openEditModal(userObj)} icon={Edit3} color="#2563EB" bg="#EFF6FF" />
+                <ActionBtn onPress={() => deleteRecord(userObj._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
             </View>
           ))}
@@ -992,97 +1080,77 @@ export default function AdminDashboard() {
           {activeTab !== 'hub' && filteredList.length === 0 && renderEmptyState(activeTab.replace(/([A-Z])/g, ' $1').trim())}
         
           {activeTab === 'jobs' && filteredList.map((job: any) => (
-            <View key={job._id} className="bg-indigo-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-indigo-500/10 mb-4 flex-row items-center gap-4">
-              <View className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
-                <Briefcase size={20} color="#4f46e5" />
+            <View key={job._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#EEF2FF', shadowColor: '#4F46E5', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <IconBox icon={Briefcase} bg="#EEF2FF" iconColor="#4F46E5" />
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{job.title}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>{job.companyName} · {job.location}</Text>
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{job.title}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{job.companyName} • {job.location}</Text>
-              </View>
-              <View className="flex-row gap-2">
-                <TouchableOpacity onPress={() => openEditModal(job)} className="p-2 bg-white rounded-full shadow-sm">
-                  <Edit3 color="#2563eb" size={16} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(job._id)} className="p-2 bg-white rounded-full shadow-sm">
-                  <Trash2 color="#ef4444" size={16} />
-                </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <ActionBtn onPress={() => openEditModal(job)} icon={Edit3} color="#4F46E5" bg="#EEF2FF" />
+                <ActionBtn onPress={() => deleteRecord(job._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
               </View>
             </View>
           ))}
 
           {activeTab === 'applications' && filteredList.map((app: any) => (
-            <View key={app._id} className="bg-indigo-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-indigo-500/10 mb-4 flex-row items-center gap-4">
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{app.fullName}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{app.jobRole} • {app.email}</Text>
+            <View key={app._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#EEF2FF', shadowColor: '#4F46E5', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{app.fullName}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>{app.jobRole} · {app.email}</Text>
               </View>
-              <View className="bg-white px-3 py-1.5 rounded-full border border-slate-100">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] uppercase text-indigo-600">{app.status || 'Pending'}</Text>
-              </View>
-              <TouchableOpacity onPress={() => deleteRecord(app._id)} className="p-2 bg-white rounded-full shadow-sm">
-                <Trash2 color="#ef4444" size={16} />
-              </TouchableOpacity>
+              <View style={{ marginRight: 10 }}><StatusChip status={app.status || 'Pending'} /></View>
+              <ActionBtn onPress={() => deleteRecord(app._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
             </View>
           ))}
 
           {activeTab === 'serviceRegistrations' && filteredList.map((vendor: any) => (
-            <View key={vendor._id} className="bg-emerald-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-emerald-500/10 mb-4 flex-row items-center gap-4">
-              <View className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                <Store size={20} color="#10b981" />
+            <View key={vendor._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ECFDF5', shadowColor: '#059669', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <IconBox icon={Store} bg="#ECFDF5" iconColor="#059669" />
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{vendor.businessName}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>{vendor.contactPerson} · {vendor.mobile}</Text>
               </View>
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{vendor.businessName}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{vendor.contactPerson} • {vendor.mobile}</Text>
-              </View>
-              <View className="bg-white px-3 py-1.5 rounded-full border border-slate-100">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] uppercase text-emerald-600">{vendor.status || 'Pending'}</Text>
-              </View>
-              <TouchableOpacity onPress={() => deleteRecord(vendor._id)} className="p-2 bg-white rounded-full shadow-sm">
-                <Trash2 color="#ef4444" size={16} />
-              </TouchableOpacity>
+              <View style={{ marginRight: 10 }}><StatusChip status={vendor.status || 'Pending'} /></View>
+              <ActionBtn onPress={() => deleteRecord(vendor._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
             </View>
           ))}
 
           {activeTab === 'tickets' && filteredList.map((t: any) => (
-            <View key={t._id} className="bg-orange-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-orange-500/10 mb-4 flex-row items-center gap-4">
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>{t.subject || 'Support Ticket'}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>{t.email} • {t.status}</Text>
+            <View key={t._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#FEF3C7', shadowColor: '#D97706', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <IconBox icon={Ticket} bg="#FEF3C7" iconColor="#D97706" />
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={1}>{t.subject || 'Support Ticket'}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>{t.email} · {t.status}</Text>
               </View>
-              <TouchableOpacity onPress={() => deleteRecord(t._id)} className="p-2 bg-white rounded-full shadow-sm">
-                <Trash2 color="#ef4444" size={16} />
-              </TouchableOpacity>
+              <ActionBtn onPress={() => deleteRecord(t._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
             </View>
           ))}
 
           {activeTab === 'faqs' && filteredList.map((f: any) => (
-            <View key={f._id} className="bg-slate-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-slate-200 mb-4">
-              <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase mb-1">{f.question}</Text>
-              <Text style={{ fontFamily: 'Outfit_500Medium' }} className="text-[10px] text-slate-600 mb-3" numberOfLines={2}>{f.answer}</Text>
-              <View className="flex-row gap-2">
-                <TouchableOpacity onPress={() => openEditModal(f)} className="px-4 py-2 bg-white rounded-xl shadow-sm">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] uppercase">Edit</Text>
+            <View key={f._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: '#F1F5F9', shadowColor: '#64748B', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+              <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2, marginBottom: 6 }}>{f.question}</Text>
+              <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280', lineHeight: 18, marginBottom: 14 }} numberOfLines={2}>{f.answer}</Text>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <TouchableOpacity onPress={() => openEditModal(f)} style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#EFF6FF', borderRadius: 12 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#2563EB', textTransform: 'uppercase', letterSpacing: 0.5 }}>Edit</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteRecord(f._id)} className="px-4 py-2 bg-white rounded-xl shadow-sm">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] uppercase text-red-500">Delete</Text>
+                <TouchableOpacity onPress={() => deleteRecord(f._id)} style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#FEF2F2', borderRadius: 12 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#EF4444', textTransform: 'uppercase', letterSpacing: 0.5 }}>Delete</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
 
           {activeTab === 'settlements' && filteredList.map((s: any) => (
-            <View key={s._id} className="bg-blue-500/5 backdrop-blur-md p-5 rounded-[2rem] shadow-sm border border-blue-500/10 mb-4 flex-row items-center gap-4">
-              <View className="flex-1">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={1}>₹{s.amount}</Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 mb-1" numberOfLines={1}>For: {s.providerId}</Text>
+            <View key={s._id} style={{ backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, marginBottom: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#DBEAFE', shadowColor: '#2563EB', shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+              <IconBox icon={CreditCard} bg="#EFF6FF" iconColor="#2563EB" />
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 16, color: '#1F2937', letterSpacing: -0.5 }}>₹{s.amount}</Text>
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#6B7280', marginTop: 2 }} numberOfLines={1}>For: {s.providerId}</Text>
               </View>
-              <View className="bg-white px-3 py-1.5 rounded-full border border-slate-100">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] uppercase text-blue-600">{s.status || 'Pending'}</Text>
-              </View>
-              <TouchableOpacity onPress={() => deleteRecord(s._id)} className="p-2 bg-white rounded-full shadow-sm">
-                <Trash2 color="#ef4444" size={16} />
-              </TouchableOpacity>
+              <View style={{ marginRight: 10 }}><StatusChip status={s.status || 'Pending'} /></View>
+              <ActionBtn onPress={() => deleteRecord(s._id)} icon={Trash2} color="#EF4444" bg="#FEF2F2" />
             </View>
           ))}
 
@@ -1091,61 +1159,58 @@ export default function AdminDashboard() {
 
       {/* FLOATING ACTION BUTTON (FAB) FOR CRUD */}
       {crudModules.includes(activeTab) && (
-        <TouchableOpacity 
-          className="absolute bottom-8 right-6 w-16 h-16 bg-[#2563eb] rounded-2xl items-center justify-center shadow-2xl shadow-blue-500/50 z-50 border border-blue-400/50 active:scale-95"
+        <TouchableOpacity
+          style={{ position: 'absolute', bottom: 32, right: 24, width: 58, height: 58, backgroundColor: '#2563EB', borderRadius: 18, alignItems: 'center', justifyContent: 'center', shadowColor: '#2563EB', shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, zIndex: 50 }}
           onPress={openCreateModal}
         >
-          <Plus color="#fff" size={28} />
+          <Plus color="#fff" size={26} />
         </TouchableOpacity>
       )}
 
       {/* CRUD Form Modal — Module-Aware */}
       <Modal visible={showAddModal} animationType="slide" transparent={true}>
-        <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-white h-[85%] rounded-t-[3rem] p-8 border-t border-slate-100">
-            <View className="flex-row justify-between items-center mb-6">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFFFFF', height: '87%', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 28 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
               <View>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-2xl text-slate-900 uppercase tracking-tighter">
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#1F2937', letterSpacing: -0.5, textTransform: 'uppercase' }}>
                   {editingItem ? 'Edit' : 'Create'} {activeTab.replace(/s$/, '').replace(/([A-Z])/g, ' $1').trim()}
                 </Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">
+                <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 11, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>
                   {editingItem ? 'Modify existing record' : 'Add a new record'}
                 </Text>
               </View>
-              <TouchableOpacity onPress={() => { setShowAddModal(false); setEditingItem(null); setFormData({}); }} className="w-10 h-10 bg-slate-100 rounded-2xl items-center justify-center">
-                <X color="#64748b" size={20} />
+              <TouchableOpacity onPress={() => { setShowAddModal(false); setEditingItem(null); setFormData({}); }} style={{ width: 38, height: 38, backgroundColor: '#F1F5F9', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                <X color="#6B7280" size={18} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
               {(formFields[activeTab] || []).map((field) => (
-                <View key={field.key} className="mb-4">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 uppercase tracking-widest mb-2 ml-1">
+                <View key={field.key} style={{ marginBottom: 16 }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 8, marginLeft: 2 }}>
                     {field.label}{field.required ? ' *' : ''}
                   </Text>
                   {field.type === 'select' ? (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mb-2">
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', marginBottom: 4 }}>
                       {field.options?.map((opt, i) => {
                         const isSelected = String(formData[field.key]) === String(opt.value);
                         return (
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             key={i}
                             onPress={() => updateField(field.key, opt.value)}
-                            className={`px-4 py-3 rounded-xl mr-2 border ${isSelected ? 'bg-blue-600 border-blue-600' : 'bg-slate-50 border-slate-200'}`}
+                            style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, marginRight: 8, borderWidth: 1.5, backgroundColor: isSelected ? '#2563EB' : '#F8FAFC', borderColor: isSelected ? '#2563EB' : '#E5E7EB' }}
                           >
-                            <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-xs ${isSelected ? 'text-white' : 'text-slate-600'}`}>
-                              {opt.label}
-                            </Text>
+                            <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: isSelected ? '#fff' : '#6B7280' }}>{opt.label}</Text>
                           </TouchableOpacity>
                         );
                       })}
                     </ScrollView>
                   ) : (
                     <TextInput
-                      style={{ fontFamily: 'Outfit_700Bold', ...(field.multiline ? { height: 100, textAlignVertical: 'top' } : {}) }}
-                      className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-slate-900"
+                      style={{ fontFamily: 'Outfit_500Medium', backgroundColor: '#F8FAFC', padding: 14, borderRadius: 14, borderWidth: 1, borderColor: '#E5E7EB', color: '#1F2937', fontSize: 14, ...(field.multiline ? { height: 96, textAlignVertical: 'top' } : {}) }}
                       placeholder={field.placeholder}
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor="#9CA3AF"
                       value={String(formData[field.key] || '')}
                       onChangeText={(v) => updateField(field.key, v)}
                       multiline={field.multiline}
@@ -1157,17 +1222,17 @@ export default function AdminDashboard() {
               ))}
 
               {(!formFields[activeTab] || formFields[activeTab].length === 0) && (
-                <View className="py-10 items-center">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-400 text-center">This module doesn't support create/edit from mobile yet.</Text>
+                <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: 'Outfit_500Medium', color: '#9CA3AF', textAlign: 'center', fontSize: 14 }}>This module doesn't support create/edit from mobile yet.</Text>
                 </View>
               )}
 
               {formFields[activeTab] && formFields[activeTab].length > 0 && (
-                <TouchableOpacity 
-                  className="w-full bg-[#2563eb] py-4 rounded-2xl items-center mt-4 shadow-xl shadow-blue-500/30 active:scale-95"
+                <TouchableOpacity
+                  style={{ backgroundColor: '#2563EB', paddingVertical: 16, borderRadius: 16, alignItems: 'center', marginTop: 8, shadowColor: '#2563EB', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }}
                   onPress={handleSave}
                 >
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-white uppercase tracking-widest text-xs">
+                  <Text style={{ fontFamily: 'Outfit_700Bold', color: '#fff', textTransform: 'uppercase', letterSpacing: 1.5, fontSize: 12 }}>
                     {editingItem ? 'Update Record' : 'Save Record'}
                   </Text>
                 </TouchableOpacity>
@@ -1179,34 +1244,35 @@ export default function AdminDashboard() {
 
       {/* Notifications Modal */}
       <Modal visible={showNotifications} animationType="slide" transparent={true}>
-        <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-white/90 backdrop-blur-3xl h-[80%] rounded-t-[3rem] p-6 border-t border-white/50">
-            <View className="flex-row justify-between items-center mb-6 pb-4 border-b border-slate-200/50">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: '#FFFFFF', height: '80%', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
               <View>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-2xl text-slate-900 uppercase tracking-tighter">Live <Text className="text-red-500">Alerts</Text></Text>
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Platform Activity</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#1F2937', letterSpacing: -0.5 }}>Live <Text style={{ color: '#EF4444' }}>Alerts</Text></Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.2, marginTop: 4 }}>Platform Activity</Text>
               </View>
-              <TouchableOpacity onPress={() => setShowNotifications(false)} className="w-10 h-10 bg-white rounded-full items-center justify-center shadow-sm border border-slate-100">
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-500">X</Text>
+              <TouchableOpacity onPress={() => setShowNotifications(false)} style={{ width: 38, height: 38, backgroundColor: '#F1F5F9', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                <X color="#6B7280" size={18} />
               </TouchableOpacity>
             </View>
-            
             <ScrollView showsVerticalScrollIndicator={false}>
               {notifications.length === 0 ? (
-                <View className="py-20 items-center">
-                  <Bell color="#cbd5e1" size={48} className="mb-4" />
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-slate-400 uppercase tracking-widest">All caught up</Text>
+                <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+                  <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                    <Bell color="#CBD5E1" size={28} />
+                  </View>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 1.2, fontSize: 13 }}>All caught up</Text>
                 </View>
               ) : (
                 notifications.map((n: any, idx: number) => (
-                  <View key={idx} className="bg-white p-5 rounded-[2rem] border border-slate-100 mb-3 flex-row items-start gap-4 shadow-sm">
-                    <View className="w-10 h-10 bg-blue-50 rounded-2xl items-center justify-center border border-blue-100">
-                      <Bell size={18} color="#2563eb" />
+                  <View key={idx} style={{ backgroundColor: '#F8FAFC', borderRadius: 18, padding: 16, marginBottom: 10, flexDirection: 'row', alignItems: 'flex-start', borderWidth: 1, borderColor: '#F1F5F9' }}>
+                    <View style={{ width: 40, height: 40, backgroundColor: '#EFF6FF', borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                      <Bell size={18} color="#2563EB" />
                     </View>
-                    <View className="flex-1">
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900" numberOfLines={1}>{n.title || 'Notification'}</Text>
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[11px] text-slate-500 mt-1" numberOfLines={2}>{n.body || n.message}</Text>
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] text-slate-400 uppercase tracking-widest mt-3">Just now</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', letterSpacing: -0.2 }} numberOfLines={1}>{n.title || 'Notification'}</Text>
+                      <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280', marginTop: 3, lineHeight: 17 }} numberOfLines={2}>{n.body || n.message}</Text>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 9, color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 1, marginTop: 10 }}>Just now</Text>
                     </View>
                   </View>
                 ))
@@ -1219,72 +1285,72 @@ export default function AdminDashboard() {
       {/* Order Details Modal */}
       {selectedOrder && (
         <Modal visible={!!selectedOrder} animationType="fade" transparent={true}>
-          <View className="flex-1 bg-black/60 justify-center items-center p-4">
-            <View className="bg-white w-full rounded-[2.5rem] p-6 max-h-[85%] border border-slate-100">
-              <View className="flex-row justify-between items-start mb-6">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+            <View style={{ backgroundColor: '#FFFFFF', width: '100%', borderRadius: 28, padding: 24, maxHeight: '88%', borderWidth: 1, borderColor: '#F1F5F9' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
                 <View>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-2xl text-slate-900 uppercase tracking-tighter">Order <Text className="text-primary">Details</Text></Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Invoice: #{selectedOrder._id.slice(-8)}</Text>
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest">Date: {new Date(selectedOrder.createdAt).toLocaleDateString()}</Text>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 22, color: '#1F2937', letterSpacing: -0.5 }}>Order <Text style={{ color: '#2563EB' }}>Details</Text></Text>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4 }}>Invoice: #{selectedOrder._id.slice(-8)}</Text>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Date: {new Date(selectedOrder.createdAt).toLocaleDateString()}</Text>
                 </View>
-                <TouchableOpacity onPress={() => setSelectedOrder(null)} className="w-10 h-10 bg-slate-100 rounded-full items-center justify-center shadow-sm">
-                  <X color="#64748b" size={20} />
+                <TouchableOpacity onPress={() => setSelectedOrder(null)} style={{ width: 38, height: 38, backgroundColor: '#F1F5F9', borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                  <X color="#6B7280" size={18} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false}>
-                <View className="bg-slate-50 rounded-2xl p-4 mb-4 border border-slate-100">
-                  <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Status & Delivery</Text>
-                  <View className="flex-row justify-between mb-2">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Payment Status:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className={`text-xs uppercase ${selectedOrder.isPaid ? 'text-emerald-500' : 'text-amber-500'}`}>{selectedOrder.isPaid ? 'Paid' : 'Pending'}</Text>
+                <View style={{ backgroundColor: '#F8FAFC', borderRadius: 18, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#F1F5F9' }}>
+                  <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 12 }}>Status & Delivery</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Payment Status:</Text>
+                    <StatusChip status={selectedOrder.isPaid ? 'Paid' : 'Pending'} />
                   </View>
-                  <View className="flex-row justify-between mb-2">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Fulfillment Type:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900 uppercase">{selectedOrder.fulfillmentType || 'Standard'}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Fulfillment Type:</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#1F2937', textTransform: 'uppercase' }}>{selectedOrder.fulfillmentType || 'Standard'}</Text>
                   </View>
-                  <View className="flex-row justify-between mb-2">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Order Status:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900 uppercase">{selectedOrder.status || (selectedOrder.isDelivered ? 'Delivered' : 'Processing')}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Order Status:</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#1F2937', textTransform: 'uppercase' }}>{selectedOrder.status || (selectedOrder.isDelivered ? 'Delivered' : 'Processing')}</Text>
                   </View>
                   {selectedOrder.deliveryPartner && (
-                    <View className="flex-row justify-between mt-2 pt-2 border-t border-slate-200">
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Delivery Partner:</Text>
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-blue-600">{selectedOrder.deliveryPartner.firstName} {selectedOrder.deliveryPartner.lastName}</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9' }}>
+                      <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Delivery Partner:</Text>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#2563EB' }}>{selectedOrder.deliveryPartner.firstName} {selectedOrder.deliveryPartner.lastName}</Text>
                     </View>
                   )}
                 </View>
 
-                <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 ml-1">Items Ordered</Text>
+                <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10, marginLeft: 2 }}>Items Ordered</Text>
                 {selectedOrder.orderItems?.map((item: any, idx: number) => (
-                  <View key={idx} className="bg-white border border-slate-100 rounded-2xl p-4 mb-3 flex-row items-center shadow-sm">
+                  <View key={idx} style={{ backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#F1F5F9', borderRadius: 18, padding: 14, marginBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
                     {item.image ? (
-                      <Image source={{ uri: item.image }} className="w-12 h-12 rounded-xl bg-slate-100 mr-3" />
+                      <Image source={{ uri: item.image }} style={{ width: 48, height: 48, borderRadius: 13, backgroundColor: '#F1F5F9', marginRight: 14 }} />
                     ) : (
-                      <View className="w-12 h-12 rounded-xl bg-slate-100 items-center justify-center mr-3"><Package size={20} color="#94a3b8" /></View>
+                      <View style={{ width: 48, height: 48, borderRadius: 13, backgroundColor: '#F1F5F9', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}><Package size={20} color="#9CA3AF" /></View>
                     )}
-                    <View className="flex-1">
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase" numberOfLines={2}>{item.name}</Text>
-                      <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Qty: {item.qty} • ₹{item.price}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 13, color: '#1F2937', textTransform: 'uppercase', letterSpacing: -0.2 }} numberOfLines={2}>{item.name}</Text>
+                      <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 11, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>Qty: {item.qty} · ₹{item.price}</Text>
                       {item.vendor && (
-                        <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-[9px] text-indigo-500 uppercase mt-1">Vendor: {item.vendor.firstName || item.vendor}</Text>
+                        <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 10, color: '#4F46E5', textTransform: 'uppercase', marginTop: 3 }}>Vendor: {item.vendor.firstName || item.vendor}</Text>
                       )}
                     </View>
                   </View>
                 ))}
 
-                <View className="bg-primary/5 rounded-2xl p-4 mt-2 border border-primary/20">
-                  <View className="flex-row justify-between mb-1">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Items Total:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900">₹{selectedOrder.itemsPrice}</Text>
+                <View style={{ backgroundColor: '#EFF6FF', borderRadius: 18, padding: 16, marginTop: 8, borderWidth: 1, borderColor: '#DBEAFE' }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Items Total:</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#1F2937' }}>₹{selectedOrder.itemsPrice}</Text>
                   </View>
-                  <View className="flex-row justify-between mb-2">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-600">Shipping:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-xs text-slate-900">₹{selectedOrder.shippingPrice}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <Text style={{ fontFamily: 'Outfit_500Medium', fontSize: 12, color: '#6B7280' }}>Shipping:</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 12, color: '#1F2937' }}>₹{selectedOrder.shippingPrice}</Text>
                   </View>
-                  <View className="flex-row justify-between pt-2 border-t border-primary/10">
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-sm text-slate-900 uppercase">Grand Total:</Text>
-                    <Text style={{ fontFamily: 'Outfit_700Bold' }} className="text-lg text-primary tracking-tighter">₹{selectedOrder.totalPrice}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 12, borderTopWidth: 1, borderTopColor: '#BFDBFE' }}>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 14, color: '#1F2937', textTransform: 'uppercase' }}>Grand Total:</Text>
+                    <Text style={{ fontFamily: 'Outfit_700Bold', fontSize: 20, color: '#2563EB', letterSpacing: -0.5 }}>₹{selectedOrder.totalPrice}</Text>
                   </View>
                 </View>
               </ScrollView>

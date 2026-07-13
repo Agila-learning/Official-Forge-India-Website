@@ -10,7 +10,7 @@ const FIC_CITY = 'Krishnagiri – 635 002, Tamil Nadu, IN';
 const GST_RATE = 0.18;
 
 const InvoiceModal = ({ isOpen, onClose, order }) => {
- if (!order) return null;
+ if (!order || !order._id) return null;
 
  // ── Price Calculations ──────────────────────────────────────────────
  const grandTotal = order.totalPrice || 0;
@@ -46,6 +46,7 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  <AnimatePresence>
  {isOpen && (
  <motion.div
+ key="invoice-modal-overlay"
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
@@ -188,8 +189,8 @@ const InvoiceModal = ({ isOpen, onClose, order }) => {
  </tr>
  </thead>
  <tbody className="divide-y divide-gray-50">
- {order.orderItems.map((item, idx) => (
- <tr key={idx}>
+ {(order.orderItems || []).map((item, idx) => (
+ <tr key={`item-${idx}-${item.name}`}>
  <td className="py-5">
  <p className="font-black text-gray-900 uppercase text-sm">{item.name}</p>
  <div className="flex flex-wrap gap-2 mt-1">

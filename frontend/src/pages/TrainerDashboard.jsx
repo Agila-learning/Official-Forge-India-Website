@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import LectureManager from '../components/admin/LectureManager';
 import MaterialSharingComponent from '../components/ui/MaterialSharingComponent';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import MembershipUpgradeWidget from '../components/ui/MembershipUpgradeWidget';
 
 const TrainerDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -245,6 +246,13 @@ const TrainerDashboard = () => {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Settings ─────────────────────────────────────────── */}
+      {activeTab === 'subscription' && (
+        <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <MembershipUpgradeWidget userInfo={userInfo} />
         </div>
       )}
 

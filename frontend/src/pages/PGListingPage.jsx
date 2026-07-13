@@ -23,7 +23,7 @@ const AmenityBadge = ({ label }) => {
 };
 
 const PropertyCard = ({ property, onClick }) => {
-  const amenities = (property.amenities || '').split(',').filter(Boolean).slice(0, 3);
+  const amenities = Array.isArray(property.amenities) ? property.amenities.slice(0, 3) : (typeof property.amenities === 'string' ? property.amenities.split(',') : []).filter(Boolean).slice(0, 3);
   const rating = property.rating || (4 + Math.random()).toFixed(1);
 
   return (

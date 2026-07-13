@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Image, Linking, Alert, Modal, TextInput } from 'react-native';
-import { Briefcase, BookOpen, Clock, Send, MapPin, DollarSign, ShoppingCart, Star, ShieldCheck, Zap, Wallet, Search, Trash2, FileText, CheckCircle, X, Bell } from 'lucide-react-native';
+import { Briefcase, BookOpen, Clock, Send, MapPin, DollarSign, ShoppingCart, Star, ShieldCheck, Zap, Wallet, Search, Trash2, FileText, CheckCircle, X, Bell, Box, Menu } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams, useNavigation, useFocusEffect } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import api from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
+import { NotificationContext } from '../../context/NotificationContext';
 import { openRazorpayCheckout } from '../../services/razorpay';
 import { Platform, BackHandler, Keyboard } from 'react-native';
 
 export default function CustomerDashboard() {
   const { user } = useContext(AuthContext);
+  const { socket } = useContext(NotificationContext);
   const router = useRouter();
   const navigation = useNavigation();
   const params = useLocalSearchParams();
@@ -44,6 +46,178 @@ export default function CustomerDashboard() {
   const [customConsultingFee, setCustomConsultingFee] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Ride Booking State
+  const [pickupLocation, setPickupLocation] = useState('');
+  
+  // Delivery State
+  const [deliveryPickup, setDeliveryPickup] = useState('');
+  const [deliveryDrop, setDeliveryDrop] = useState('');
+  const [deliveryPackage, setDeliveryPackage] = useState('Document');
+  const [deliveryWeight, setDeliveryWeight] = useState('Up to 1kg');
+  const [deliveryPaymentMethod, setDeliveryPaymentMethod] = useState('Cash');
+  const [dropLocation, setDropLocation] = useState('');
+  const [selectedVehicle, setSelectedVehicle] = useState('Bike Ride');
+  const [rideEstimate, setRideEstimate] = useState<any>(null);
+  const [activeRide, setActiveRide] = useState<any>(null);
+  
+  // Rating Modal State
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
+  const [ratingRideId, setRatingRideId] = useState<string | null>(null);
+  const [driverRating, setDriverRating] = useState(5);
+  const [ratingComment, setRatingComment] = useState('');
+
+  // Socket listeners for Ride Tracking
+  useEffect(() => {
+    if (!socket || !activeRide) return;
+
+    const handleRideAccepted = (data: any) => {
+      if (data.rideId === activeRide._id) {
+        setActiveRide({ ...activeRide, status: 'Accepted', driver: data.driver, otp: data.otp });
+        Alert.alert('Ride Accepted', `Driver ${data.driver?.firstName} is on the way!`);
+      }
+    };
+
+    const handleRideStatusUpdated = (data: any) => {
+      if (data.rideId === activeRide._id) {
+        if (data.status === 'Completed') {
+           setRatingRideId(activeRide._id);
+           setActiveRide(null);
+           setIsRatingModalVisible(true);
+           Alert.alert('Trip Completed', 'You have arrived at your destination.');
+        } else {
+           setActiveRide({ ...activeRide, status: data.status });
+        }
+      }
+    };
+
+    socket.on('ride_accepted', handleRideAccepted);
+    socket.on('ride_status_updated', handleRideStatusUpdated);
+
+    return () => {
+      socket.off('ride_accepted', handleRideAccepted);
+      socket.off('ride_status_updated', handleRideStatusUpdated);
+    };
+  }, [socket, activeRide]);
+
+  const submitRating = async () => {
+    if (!ratingRideId) return;
+    try {
+      await api.post(`/rides/${ratingRideId}/rate`, { rating: driverRating, comment: ratingComment });
+      Alert.alert('Thank you!', 'Your feedback has been submitted.');
+      setIsRatingModalVisible(false);
+      setRatingRideId(null);
+      setDriverRating(5);
+      setRatingComment('');
+      fetchData();
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to book ride');
+    }
+  };
+
+  const bookDelivery = async () => {
+    if (!deliveryPickup || !deliveryDrop) {
+      Alert.alert('Error', 'Pickup and Dropoff locations are required');
+      return;
+    }
+    try {
+      const deliveryOrder = {
+        orderItems: [{
+          name: `Quick Delivery - ${deliveryPackage} (${deliveryWeight})`,
+          price: 150,
+          qty: 1,
+          isService: true,
+          category: 'Logistics',
+        }],
+        shippingAddress: {
+          address: deliveryDrop,
+          city: 'Local',
+          postalCode: '000000',
+          country: 'India',
+        },
+        paymentMethod: deliveryPaymentMethod,
+        totalPrice: 150,
+        instructions: `Pickup: ${deliveryPickup}`,
+        fulfillmentType: 'Delivery Partner'
+      };
+
+      const { data } = await api.post('/orders', deliveryOrder);
+
+      if (deliveryPaymentMethod === 'Online') {
+        const rzpResponse = await api.post('/payments/create-order', { orderId: data._id });
+        const options = {
+          description: 'Quick Delivery Payment',
+          image: 'https://i.imgur.com/3g7nmJC.png',
+          currency: 'INR',
+          key: rzpResponse.data.keyId || 'rzp_test_placeholder',
+          amount: rzpResponse.data.amount,
+          name: 'Forge India Connect',
+          order_id: rzpResponse.data.id || 'order_mock_' + Date.now(),
+          prefill: {
+            email: user?.email || '',
+            contact: user?.mobile || '',
+            name: user?.firstName || ''
+          },
+          theme: { color: '#3b82f6' }
+        };
+
+        const result: any = await openRazorpayCheckout(options);
+        
+        if (!result.success) {
+          throw new Error(result.error?.message || result.error || 'Payment failed');
+        }
+
+        await api.post('/payments/verify', {
+          razorpay_order_id: result.razorpay_order_id,
+          razorpay_payment_id: result.razorpay_payment_id,
+          razorpay_signature: result.razorpay_signature,
+          orderId: data._id
+        });
+        
+        Alert.alert('Success', 'Quick Delivery booked & paid successfully! Agent assigned soon.');
+      } else {
+        Alert.alert('Success', 'Quick Delivery booked successfully! A Delivery Partner will be assigned soon.');
+      }
+
+      setDeliveryPickup('');
+      setDeliveryDrop('');
+      setDeliveryPaymentMethod('Cash');
+      fetchData();
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to book delivery');
+    }
+  };
+
+  const getRideEstimate = async () => {
+    if (!pickupLocation || !dropLocation) return Alert.alert('Missing Info', 'Please enter pickup and drop locations.');
+    try {
+      const res = await api.post('/rides/estimate', { origin: pickupLocation, destination: dropLocation, vehicleType: selectedVehicle });
+      setRideEstimate(res.data);
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to estimate fare');
+    }
+  };
+
+  const bookRide = async () => {
+    if (!rideEstimate) return;
+    try {
+      const res = await api.post('/rides/request', {
+        origin: pickupLocation,
+        destination: dropLocation,
+        vehicleType: selectedVehicle,
+        estimatedFare: rideEstimate.estimatedFare,
+        paymentMethod: 'Cash'
+      });
+      setActiveRide(res.data);
+      Alert.alert('Searching...', 'We are looking for a driver nearby. Stay on this screen.');
+      fetchData(); // Refresh orders
+      setPickupLocation('');
+      setDropLocation('');
+      setRideEstimate(null);
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to book ride');
+    }
+  };
+
   // Modal State
   const [isMembershipModalVisible, setMembershipModalVisible] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -56,14 +230,13 @@ export default function CustomerDashboard() {
 
     if (!user?.email || !user?.mobile) {
       Alert.alert(
-        'Profile Incomplete', 
-        'Please update your profile with a valid email and a 10-digit mobile number before making a payment.',
+        'Profile Information Needed', 
+        'A valid email and mobile number are required for Razorpay to process the transaction. Please add them in the Consumer Profile tab.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Update Profile', onPress: () => router.push('/(drawer)/profile') }
+          { text: 'Go to Profile', onPress: () => { setMembershipModalVisible(false); setActiveTab('profile'); } }
         ]
       );
-      setMembershipModalVisible(false);
       return;
     }
 
@@ -173,11 +346,11 @@ export default function CustomerDashboard() {
   const bookConsulting = async () => {
     if (!user?.email || !user?.mobile) {
       Alert.alert(
-        'Profile Incomplete', 
-        'Please update your profile with a valid email and a 10-digit mobile number before making a payment.',
+        'Profile Information Needed', 
+        'A valid email and mobile number are required for Razorpay to process the transaction. Please add them in the Consumer Profile tab.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Update Profile', onPress: () => router.push('/(drawer)/profile') }
+          { text: 'Go to Profile', onPress: () => setActiveTab('profile') }
         ]
       );
       return;
@@ -248,11 +421,11 @@ export default function CustomerDashboard() {
                 // Let's just create a new simulated inquiry.
                 const res = await api.post('/job-consulting/submit', {
                   consultingType: 'Career Guidance',
-                  specificRequirement: `General career counseling (Custom Fee: ₹${fee})`,
+                  specificRequirement: `General career counseling (Simulated)`,
                   contactNumber: user?.mobile || '9999999999',
                   domain: 'General',
                   experience: 'Fresher (0-1 yr)',
-                  customAmount: fee
+                  customAmount: 1000
                 });
                 await api.post('/job-consulting/verify-payment', {
                   razorpay_order_id: 'order_mock_' + Date.now(),
@@ -331,7 +504,7 @@ export default function CustomerDashboard() {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Submit Request', 
-          onPress: async (reason) => {
+          onPress: async (reason: string | undefined) => {
             if (!reason) {
               Alert.alert('Error', 'A reason is required to process your return.');
               return;
@@ -664,55 +837,282 @@ export default function CustomerDashboard() {
         {activeTab === 'orders' && (
           <View className="mb-8">
             <Text className="text-lg font-black text-slate-900 mb-6 uppercase tracking-tighter ml-2">My <Text className="text-orange-500">Bookings</Text></Text>
-            {myOrders.map((order: any) => (
-              <View key={order._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl mb-4">
-                <View className="flex-row justify-between items-start mb-4">
-                  <View className="flex-1 pr-2">
-                    <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Order #{order._id.slice(-8)}</Text>
-                    <Text className="text-xl font-black text-slate-900 tracking-tighter">₹{order.totalPrice}</Text>
+            {(() => {
+              const activeOrders = myOrders.filter((o: any) => !['Delivered', 'Completed', 'Cancelled', 'Returned'].includes(o.status));
+              const pastOrders = myOrders.filter((o: any) => ['Delivered', 'Completed', 'Cancelled', 'Returned'].includes(o.status));
+
+              const renderOrder = (order: any) => (
+                <View key={order._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl mb-4">
+                  <View className="flex-row justify-between items-start mb-4">
+                    <View className="flex-1 pr-2">
+                      <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                        {order.serviceType === 'Bike Ride' || order.serviceType === 'Car' ? 'Ride' : 'Order'} #{order._id.slice(-8)}
+                      </Text>
+                      <Text className="text-xl font-black text-slate-900 tracking-tighter">₹{order.totalPrice}</Text>
+                      {order.rideMetadata?.otp && order.status !== 'Completed' && (
+                        <View className="bg-slate-100 self-start px-3 py-1 rounded-full mt-2">
+                          <Text className="text-slate-600 font-black text-[10px] tracking-widest">OTP: {order.rideMetadata.otp}</Text>
+                        </View>
+                      )}
+                    </View>
+                    <View className={`px-3 py-1.5 rounded-full ${['Delivered', 'Completed'].includes(order.status) ? 'bg-emerald-500/10' : order.status === 'Cancelled' ? 'bg-red-500/10' : 'bg-orange-500/10'}`}>
+                      <Text className={`text-[9px] uppercase font-black tracking-widest ${['Delivered', 'Completed'].includes(order.status) ? 'text-emerald-500' : order.status === 'Cancelled' ? 'text-red-500' : 'text-orange-600'}`}>
+                        {order.status || 'Pending'}
+                      </Text>
+                    </View>
                   </View>
-                  <View className={`px-3 py-1.5 rounded-full ${order.status === 'Delivered' || order.status === 'Completed' ? 'bg-emerald-500/10' : order.status === 'Cancelled' ? 'bg-red-500/10' : 'bg-orange-500/10'}`}>
-                    <Text className={`text-[9px] uppercase font-black tracking-widest ${order.status === 'Delivered' || order.status === 'Completed' ? 'text-emerald-500' : order.status === 'Cancelled' ? 'text-red-500' : 'text-orange-600'}`}>
-                      {order.status || 'Pending'}
-                    </Text>
+
+                  {order.fulfillmentType === 'Delivery Partner' && !['Delivered', 'Completed', 'Cancelled', 'Returned'].includes(order.status) && (
+                    <View className="mt-4 pt-4 border-t border-slate-100">
+                      <Text className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Live Mission Progress</Text>
+                      <View className="flex-row items-center justify-between mb-2">
+                        {['Pending', 'Assigned', 'Picked Up', 'Delivering'].map((step, idx) => {
+                          const stages = ['Pending', 'Partner Assigned', 'Reached Hub', 'Picked Up', 'Out for Delivery', 'Delivered'];
+                          const currentStageIdx = stages.findIndex(s => s === order.status) !== -1 ? stages.findIndex(s => s === order.status) : 0;
+                          const mappedIdx = currentStageIdx >= 4 ? 3 : currentStageIdx >= 2 ? 2 : currentStageIdx >= 1 ? 1 : 0;
+                          const isActive = idx <= mappedIdx;
+                          return (
+                            <View key={step} className="items-center flex-1">
+                              <View className={`w-3 h-3 rounded-full mb-1 ${isActive ? 'bg-blue-500' : 'bg-slate-200'}`} />
+                              <Text className={`text-[8px] font-black uppercase tracking-widest text-center ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>{step}</Text>
+                            </View>
+                          )
+                        })}
+                      </View>
+                      <View className="absolute left-6 right-6 top-[40px] h-0.5 bg-slate-100 -z-10" />
+                    </View>
+                  )}
+
+                  {order.status === 'Pending' && (
+                    <TouchableOpacity 
+                      onPress={() => cancelOrder(order._id)}
+                      className="mt-2 py-3 bg-red-50 rounded-xl border border-red-100 items-center"
+                    >
+                      <Text className="text-[10px] font-black text-red-500 uppercase tracking-widest">Cancel Request</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {order.status === 'Cancelled' && (
+                    <View className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                        {order.isPaid ? 'Refund Processing (3-5 Days)' : 'No Refund Required'}
+                      </Text>
+                    </View>
+                  )}
+
+                  {order.status === 'Delivered' && (
+                    <TouchableOpacity 
+                      onPress={() => requestReturn(order._id)}
+                      className="mt-2 py-3 bg-orange-50 rounded-xl border border-orange-100 items-center"
+                    >
+                      <Text className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Request Return</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {['Return Requested', 'Return Approved', 'Returned'].includes(order.status) && (
+                    <View className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                        {order.status === 'Return Requested' ? 'Return Under Review' : order.status === 'Return Approved' ? 'Return Approved - Courier Assigned' : 'Return Completed & Refunded'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              );
+
+              return (
+                <>
+                  {activeOrders.length > 0 && (
+                    <View className="mb-6">
+                      <Text className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2 bg-slate-100 self-start px-3 py-1 rounded-full">Active Bookings</Text>
+                      {activeOrders.map(renderOrder)}
+                    </View>
+                  )}
+                  {pastOrders.length > 0 && (
+                    <View>
+                      <Text className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2 bg-slate-100 self-start px-3 py-1 rounded-full">Past History</Text>
+                      {pastOrders.map(renderOrder)}
+                    </View>
+                  )}
+                  {myOrders.length === 0 && (
+                    <View className="items-center py-10 opacity-50">
+                      <Box size={40} color="#94a3b8" className="mb-4" />
+                      <Text className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">No Bookings Found</Text>
+                    </View>
+                  )}
+                </>
+              );
+            })()}
+          </View>
+        )}
+
+        {activeTab === 'quick-delivery' && (
+          <View className="mb-8">
+            <Text className="text-lg font-black text-slate-900 mb-6 uppercase tracking-tighter ml-2">Quick <Text className="text-blue-500">Delivery</Text></Text>
+            
+            <View className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl mb-6">
+              <View className="mb-4">
+                <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Pickup Location</Text>
+                <View className="flex-row items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                  <MapPin color="#3b82f6" size={16} className="mr-3" />
+                  <TextInput
+                    placeholder="Enter pickup address"
+                    value={deliveryPickup}
+                    onChangeText={setDeliveryPickup}
+                    className="flex-1 font-bold text-slate-700"
+                  />
+                </View>
+              </View>
+              
+              <View className="mb-6">
+                <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Drop Location</Text>
+                <View className="flex-row items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                  <MapPin color="#f97316" size={16} className="mr-3" />
+                  <TextInput
+                    placeholder="Enter destination"
+                    value={deliveryDrop}
+                    onChangeText={setDeliveryDrop}
+                    className="flex-1 font-bold text-slate-700"
+                  />
+                </View>
+              </View>
+
+              <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Package Info</Text>
+              <View className="flex-row gap-3 mb-6 flex-wrap">
+                {['Document', 'Electronics', 'Food', 'Other'].map((type) => (
+                  <TouchableOpacity 
+                    key={type}
+                    onPress={() => setDeliveryPackage(type)}
+                    className={`flex-1 min-w-[40%] py-3 rounded-xl border items-center ${deliveryPackage === type ? 'bg-blue-50 border-blue-500' : 'bg-slate-50 border-slate-100'}`}
+                  >
+                    <Text className={`text-[10px] font-black uppercase tracking-widest ${deliveryPackage === type ? 'text-blue-600' : 'text-slate-400'}`}>{type}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <View className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                <View className="flex-row justify-between items-center mb-4">
+                  <View>
+                    <Text className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Standard Rate</Text>
+                    <Text className="text-sm font-black text-blue-900">Local Delivery</Text>
+                  </View>
+                  <View className="items-end">
+                    <Text className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Estimated Fare</Text>
+                    <Text className="text-2xl font-black text-blue-600 tracking-tighter">₹150</Text>
                   </View>
                 </View>
 
-                {order.status === 'Pending' && (
-                  <TouchableOpacity 
-                    onPress={() => cancelOrder(order._id)}
-                    className="mt-2 py-3 bg-red-50 rounded-xl border border-red-100 items-center"
-                  >
-                    <Text className="text-[10px] font-black text-red-500 uppercase tracking-widest">Cancel Request</Text>
+                <Text className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Payment Method</Text>
+                <View className="flex-row gap-3">
+                  <TouchableOpacity onPress={() => setDeliveryPaymentMethod('Cash')} className={`flex-1 py-3 rounded-lg items-center border ${deliveryPaymentMethod === 'Cash' ? 'bg-white border-blue-500 shadow-sm' : 'border-blue-200'}`}>
+                    <Text className={`text-[10px] font-black uppercase tracking-widest ${deliveryPaymentMethod === 'Cash' ? 'text-blue-600' : 'text-blue-400'}`}>Cash (COD)</Text>
                   </TouchableOpacity>
-                )}
-
-                {order.status === 'Cancelled' && (
-                  <View className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
-                      {order.isPaid ? 'Refund Processing (3-5 Days)' : 'No Refund Required'}
-                    </Text>
-                  </View>
-                )}
-
-                {order.status === 'Delivered' && (
-                  <TouchableOpacity 
-                    onPress={() => requestReturn(order._id)}
-                    className="mt-2 py-3 bg-orange-50 rounded-xl border border-orange-100 items-center"
-                  >
-                    <Text className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Request Return</Text>
+                  <TouchableOpacity onPress={() => setDeliveryPaymentMethod('Online')} className={`flex-1 py-3 rounded-lg items-center border ${deliveryPaymentMethod === 'Online' ? 'bg-white border-blue-500 shadow-sm' : 'border-blue-200'}`}>
+                    <Text className={`text-[10px] font-black uppercase tracking-widest ${deliveryPaymentMethod === 'Online' ? 'text-blue-600' : 'text-blue-400'}`}>Pay Online</Text>
                   </TouchableOpacity>
-                )}
-
-                {['Return Requested', 'Return Approved', 'Returned'].includes(order.status) && (
-                  <View className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <Text className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">
-                      {order.status === 'Return Requested' ? 'Return Under Review' : order.status === 'Return Approved' ? 'Return Approved - Courier Assigned' : 'Return Completed & Refunded'}
-                    </Text>
-                  </View>
-                )}
+                </View>
               </View>
-            ))}
+
+              <TouchableOpacity onPress={bookDelivery} className="bg-blue-600 py-4 rounded-xl items-center shadow-lg shadow-blue-600/30">
+                <Text className="text-white font-black text-sm uppercase tracking-widest">Book Agent Now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {activeTab === 'ride' && (
+          <View className="mb-8">
+            <Text className="text-lg font-black text-slate-900 mb-6 uppercase tracking-tighter ml-2">Book a <Text className="text-blue-500">Ride</Text></Text>
+            
+            {/* Premium Simulated Map Component */}
+            <View className="w-full h-48 bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-900/20 mb-6 relative border border-slate-800">
+              <View className="absolute inset-0">
+                {[...Array(12)].map((_, i) => (
+                  <View key={`h-${i}`} className="absolute w-full h-[1px] bg-blue-500/10" style={{ top: i * 20 }} />
+                ))}
+                {[...Array(20)].map((_, i) => (
+                  <View key={`v-${i}`} className="absolute h-full w-[1px] bg-blue-500/10" style={{ left: i * 20 }} />
+                ))}
+              </View>
+              {pickupLocation && dropLocation ? (
+                <View className="absolute inset-0">
+                  <View className="absolute top-[40%] left-[20%] right-[30%] h-[2px] bg-blue-500/80 border-dashed border-2 border-blue-500 -rotate-[15deg] transform origin-left" />
+                  <View className="absolute top-[38%] left-[18%] w-5 h-5 bg-blue-500 rounded-full border-4 border-white shadow-xl" />
+                  <View className="absolute top-[18%] left-[70%] w-5 h-5 bg-orange-500 rounded-full border-4 border-white shadow-xl" />
+                </View>
+              ) : (
+                <View className="absolute inset-0 items-center justify-center">
+                  <View className="w-16 h-16 bg-blue-500/10 rounded-full absolute animate-ping" />
+                  <MapPin size={24} color="#3b82f6" />
+                </View>
+              )}
+              <View className="absolute bottom-4 left-1/2 -ml-16 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
+                <Text className="text-white text-[10px] font-black uppercase tracking-widest">FIC Live Tracking</Text>
+              </View>
+            </View>
+
+            <View className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl mb-6">
+              <View className="mb-4">
+                <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Pickup Location</Text>
+                <View className="flex-row items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                  <MapPin color="#3b82f6" size={16} className="mr-3" />
+                  <TextInput
+                    placeholder="Enter pickup address"
+                    value={pickupLocation}
+                    onChangeText={setPickupLocation}
+                    className="flex-1 font-bold text-slate-700"
+                  />
+                </View>
+              </View>
+              
+              <View className="mb-6">
+                <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Drop Location</Text>
+                <View className="flex-row items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                  <MapPin color="#f97316" size={16} className="mr-3" />
+                  <TextInput
+                    placeholder="Enter destination"
+                    value={dropLocation}
+                    onChangeText={setDropLocation}
+                    className="flex-1 font-bold text-slate-700"
+                  />
+                </View>
+              </View>
+
+              <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Select Vehicle</Text>
+              <View className="flex-row gap-3 mb-6">
+                {['Bike Ride', 'Auto', 'Car'].map((type) => (
+                  <TouchableOpacity 
+                    key={type}
+                    onPress={() => { setSelectedVehicle(type); setRideEstimate(null); }}
+                    className={`flex-1 py-3 rounded-xl border items-center ${selectedVehicle === type ? 'bg-blue-50 border-blue-500' : 'bg-slate-50 border-slate-100'}`}
+                  >
+                    <Text className={`text-[10px] font-black uppercase tracking-widest ${selectedVehicle === type ? 'text-blue-600' : 'text-slate-400'}`}>{type}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {!rideEstimate ? (
+                <TouchableOpacity onPress={getRideEstimate} className="bg-blue-600 py-4 rounded-xl items-center shadow-lg shadow-blue-600/30">
+                  <Text className="text-white font-black text-sm uppercase tracking-widest">Estimate Fare</Text>
+                </TouchableOpacity>
+              ) : (
+                <View className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <View className="flex-row justify-between items-center mb-4 border-b border-blue-200/50 pb-3">
+                    <View>
+                      <Text className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Estimated Distance</Text>
+                      <Text className="text-sm font-black text-blue-900">{rideEstimate.distance} ({rideEstimate.duration})</Text>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Fare (Cash)</Text>
+                      <Text className="text-2xl font-black text-blue-600 tracking-tighter">₹{rideEstimate.estimatedFare}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity onPress={bookRide} className="bg-blue-600 py-4 rounded-xl items-center shadow-lg shadow-blue-600/30">
+                    <Text className="text-white font-black text-sm uppercase tracking-widest">Confirm Booking</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
           </View>
         )}
 
@@ -743,6 +1143,122 @@ export default function CustomerDashboard() {
 
       </ScrollView>
 
+      {/* FULL-SCREEN RIDE TRACKING OVERLAY */}
+      {activeRide && (
+        <View className="absolute inset-0 bg-slate-100 z-50">
+          {/* Simulated Map Background */}
+          <View className="absolute inset-0 bg-sky-50 opacity-80" />
+          <View className="absolute inset-0">
+            {/* Grid Map Pattern */}
+            {[...Array(20)].map((_, i) => (
+              <View key={`h-${i}`} className="absolute w-full h-[1px] bg-sky-200/40" style={{ top: i * 40 }} />
+            ))}
+            {[...Array(10)].map((_, i) => (
+              <View key={`v-${i}`} className="absolute h-full w-[1px] bg-sky-200/40" style={{ left: i * 40 }} />
+            ))}
+            {/* Highlighted Route / Markers */}
+            <View className="absolute top-[30%] left-[20%] w-6 h-6 bg-blue-500 rounded-full border-4 border-white shadow-xl items-center justify-center z-10" />
+            {activeRide.status !== 'Searching' && (
+              <View className="absolute top-[45%] left-[60%] w-8 h-8 bg-black rounded-full border-2 border-white shadow-xl items-center justify-center z-10">
+                <Text className="text-white text-[10px]">🚗</Text>
+              </View>
+            )}
+            <View className="absolute top-[32%] left-[23%] right-[38%] h-[2px] bg-blue-500/50 -rotate-12 transform origin-left" />
+          </View>
+
+          {/* Top Nav Overlay */}
+          <View className="pt-14 px-6 flex-row justify-between items-center z-20">
+            <TouchableOpacity onPress={() => setActiveTab('overview')} className="w-12 h-12 bg-white rounded-full items-center justify-center shadow-lg">
+              <Menu color="#0f172a" size={24} />
+            </TouchableOpacity>
+            <View className="bg-white px-6 py-3 rounded-full shadow-lg">
+              <Text className="text-blue-600 font-black text-sm uppercase tracking-widest">EliteRide</Text>
+            </View>
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center shadow-lg border-2 border-blue-100 overflow-hidden">
+              <Image source={{uri: user?.avatar || 'https://ui-avatars.com/api/?name=Customer'}} className="w-full h-full" />
+            </View>
+          </View>
+
+          {/* Bottom Sheet Modal Container */}
+          <View className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] px-6 pt-3 pb-8">
+            <View className="w-12 h-1.5 bg-slate-200 rounded-full self-center mb-8" />
+            
+            {/* STATE 1: SEARCHING */}
+            {(!activeRide.status || activeRide.status === 'Searching') && (
+              <View className="items-center pb-8">
+                <View className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-8">
+                  <View className="w-1/3 h-full bg-blue-600 rounded-full" />
+                </View>
+                <Text className="text-2xl font-black text-slate-900 tracking-tighter mb-2 text-center">Searching for nearby drivers...</Text>
+                <Text className="text-slate-500 font-medium text-sm mb-10">Estimated wait: 2-3 mins</Text>
+                <TouchableOpacity onPress={() => setActiveRide(null)} className="w-full py-5 bg-red-50 rounded-2xl border border-red-100 items-center">
+                  <Text className="text-red-600 font-black text-sm uppercase tracking-widest">Cancel Ride</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* STATE 2: DRIVER ARRIVING / IN TRANSIT */}
+            {activeRide.status && activeRide.status !== 'Searching' && (
+              <View>
+                <View className="bg-blue-600 -mx-6 -mt-3 pt-6 pb-4 px-6 flex-row justify-between items-center rounded-t-[2.5rem] mb-6">
+                  <Text className="text-white font-black text-lg">
+                    {activeRide.status === 'Trip Started' ? 'En Route to Destination' : 'Driver is arriving'}
+                  </Text>
+                  {activeRide.otp && activeRide.status !== 'Trip Started' && (
+                    <View className="bg-blue-500 px-4 py-2 rounded-xl border border-blue-400">
+                      <Text className="text-white font-bold text-xs uppercase tracking-widest">OTP: {activeRide.otp}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Driver Identity */}
+                <View className="flex-row items-center justify-between mb-8 px-2">
+                  <View className="flex-row items-center gap-4">
+                    <Image source={{uri: activeRide.driver?.avatar || 'https://ui-avatars.com/api/?name=Driver'}} className="w-16 h-16 rounded-2xl bg-slate-200" />
+                    <View>
+                      <Text className="text-xl font-black text-slate-900">{activeRide.driver?.firstName || 'Vikram'} {activeRide.driver?.lastName || 'Singh'}</Text>
+                      <View className="flex-row items-center gap-1 mt-1">
+                        <Star color="#f59e0b" size={14} fill="#f59e0b" />
+                        <Text className="text-slate-600 font-bold text-xs">{activeRide.driver?.rating || '4.98'} (2k+ rides)</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View className="items-end">
+                    <Text className="text-blue-700 font-black text-sm uppercase tracking-widest">{activeRide.driver?.vehicleNumber || 'DL 1C AC 9924'}</Text>
+                    <Text className="text-slate-500 font-medium text-[10px] text-right max-w-[80px]">{activeRide.driver?.vehicleModel || 'White Honda City'}</Text>
+                  </View>
+                </View>
+
+                {/* Metrics */}
+                <View className="flex-row items-center justify-center gap-8 mb-8 pb-8 border-b border-slate-100">
+                  <View className="items-center">
+                    <Text className="text-[3rem] leading-[3rem] font-black text-blue-700 tracking-tighter mb-1">2</Text>
+                    <Text className="text-[9px] font-black text-slate-500 uppercase tracking-widest">MINS AWAY</Text>
+                  </View>
+                  <View className="w-[1px] h-12 bg-slate-200" />
+                  <View className="items-center">
+                    <Text className="text-[3rem] leading-[3rem] font-black text-blue-700 tracking-tighter mb-1">1.8</Text>
+                    <Text className="text-[9px] font-black text-slate-500 uppercase tracking-widest">KM DISTANCE</Text>
+                  </View>
+                </View>
+
+                {/* Communication */}
+                <View className="flex-row gap-4 mb-2">
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${activeRide.driver?.mobile || '9999999999'}`)} className="flex-1 py-4 bg-emerald-500 rounded-2xl items-center flex-row justify-center gap-2 shadow-lg shadow-emerald-500/30">
+                    <Text className="text-white text-lg">📞</Text>
+                    <Text className="text-white font-black text-sm uppercase tracking-widest">Call</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity className="flex-1 py-4 bg-purple-600 rounded-2xl items-center flex-row justify-center gap-2 shadow-lg shadow-purple-600/30">
+                    <Text className="text-white text-lg">💬</Text>
+                    <Text className="text-white font-black text-sm uppercase tracking-widest">Chat</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
+
       {/* Premium Membership Vault Modal - Same as Candidate */}
       <Modal visible={isMembershipModalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-end bg-black/60">
@@ -769,7 +1285,7 @@ export default function CustomerDashboard() {
             </View>
 
             {/* Bottom White Section - Plans */}
-            <View className="flex-1 bg-white px-6 -mt-10 rounded-t-[2rem]">
+            <ScrollView className="flex-1 bg-white px-6 -mt-10 rounded-t-[2rem]" contentContainerStyle={{ paddingBottom: 40 }}>
               <Text className="text-center text-[9px] font-black text-slate-400 uppercase tracking-widest mt-6 mb-1">Choose Your Plan</Text>
               <Text className="text-center text-xl font-black text-slate-900 tracking-tighter mb-6">Prepaid Service Vault</Text>
               
@@ -839,7 +1355,79 @@ export default function CustomerDashboard() {
                   </Text>
                 </TouchableOpacity>
               </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* STATE 3: RIDE COMPLETED (Rating Modal) */}
+      <Modal visible={isRatingModalVisible} animationType="slide" transparent={true}>
+        {/* Absolute Map Background Overlay */}
+        <View className="absolute inset-0 bg-slate-100 z-0">
+          <View className="absolute inset-0 bg-sky-50 opacity-80" />
+          <View className="absolute inset-0">
+            {[...Array(20)].map((_, i) => (
+              <View key={`h-${i}`} className="absolute w-full h-[1px] bg-sky-200/40" style={{ top: i * 40 }} />
+            ))}
+            {[...Array(10)].map((_, i) => (
+              <View key={`v-${i}`} className="absolute h-full w-[1px] bg-sky-200/40" style={{ left: i * 40 }} />
+            ))}
+          </View>
+          <View className="absolute top-[40%] left-[50%] w-6 h-6 bg-red-500 rounded-full border-4 border-white shadow-xl z-10" />
+        </View>
+
+        <View className="flex-1 justify-center items-center bg-black/40 p-6 relative z-10 pt-20">
+          <View className="w-full bg-white rounded-[2.5rem] p-8 items-center shadow-[0_10px_50px_rgba(0,0,0,0.2)]">
+            
+            {/* Green Checkmark */}
+            <View className="w-20 h-20 bg-emerald-50 rounded-full items-center justify-center mb-6 border-4 border-emerald-100/50 shadow-sm shadow-emerald-500/20">
+              <CheckCircle color="#10b981" size={40} />
             </View>
+            
+            <Text className="text-3xl font-black text-slate-900 tracking-tighter mb-2 text-center">Ride Completed!</Text>
+            <Text className="text-slate-500 text-sm font-medium text-center mb-8">You've reached your destination safely.</Text>
+            
+            {/* Fare Summary Card */}
+            <View className="w-full bg-slate-50 rounded-3xl p-6 mb-8 border border-slate-100">
+              <View className="flex-row justify-between items-center mb-6 pb-6 border-b border-slate-200/50">
+                <Text className="text-sm font-bold text-slate-600">Total Fare</Text>
+                <Text className="text-3xl font-black text-blue-600 tracking-tighter">₹{rideEstimate?.estimatedFare || '324.50'}</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <View>
+                  <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Distance</Text>
+                  <Text className="text-sm font-black text-slate-900">{rideEstimate?.distance || '14.2 km'}</Text>
+                </View>
+                <View className="items-end">
+                  <Text className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</Text>
+                  <Text className="text-sm font-black text-slate-900">{rideEstimate?.duration || '32 mins'}</Text>
+                </View>
+              </View>
+            </View>
+            
+            <Text className="text-slate-900 font-bold text-sm mb-4">Rate your driver</Text>
+            <View className="flex-row gap-4 mb-8">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity key={star} onPress={() => setDriverRating(star)}>
+                  <Star size={36} color={star <= driverRating ? '#f59e0b' : '#e2e8f0'} fill={star <= driverRating ? '#f59e0b' : 'transparent'} />
+                </TouchableOpacity>
+              ))}
+            </View>
+            
+            <TouchableOpacity onPress={submitRating} className="w-full bg-blue-700 py-4 rounded-2xl items-center shadow-lg shadow-blue-700/30 mb-4">
+              <Text className="text-white font-black text-sm uppercase tracking-widest">Tip Driver & Submit</Text>
+            </TouchableOpacity>
+
+            <View className="w-full flex-row gap-4">
+              <TouchableOpacity onPress={() => setIsRatingModalVisible(false)} className="flex-1 bg-blue-50 py-4 rounded-2xl items-center flex-row justify-center gap-2 border border-blue-100">
+                <FileText color="#3b82f6" size={16} />
+                <Text className="text-blue-700 font-black text-[11px] uppercase tracking-widest">Invoice</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsRatingModalVisible(false)} className="flex-1 bg-blue-600 py-4 rounded-2xl items-center flex-row justify-center gap-2 shadow-sm shadow-blue-600/30">
+                <Text className="text-white font-black text-[11px] uppercase tracking-widest">Book Again</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
         </View>
       </Modal>
@@ -847,3 +1435,4 @@ export default function CustomerDashboard() {
     </View>
   );
 }
+

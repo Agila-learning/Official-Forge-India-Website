@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
-import { LayoutDashboard, ShoppingBag, Package, Users, Star, Plus, Edit, Trash2, LogOut, FileText, CheckCircle, XCircle, Menu, X, Trash, Image, LifeBuoy, Bell, ShieldCheck, Mail, Phone, MapPin, Search, Wrench, Calendar, Clock, ChevronRight, PanelLeftClose, PanelLeftOpen, Tag, Percent, Box, Info, TrendingUp, Settings, User, Sparkles, CheckCircle2, CreditCard } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, Users, Star, Plus, Edit, Trash2, LogOut, FileText, CheckCircle, XCircle, Menu, X, Trash, Image, LifeBuoy, Bell, ShieldCheck, Mail, Phone, MapPin, Search, Wrench, Calendar, Clock, ChevronRight, PanelLeftClose, PanelLeftOpen, Tag, Percent, Box, Info, TrendingUp, Settings, User, Sparkles, CheckCircle2, CreditCard, Upload, AlertTriangle, Truck, Megaphone, Gift, MessageCircle, Filter, Download, RefreshCw, Eye, BarChart2 } from 'lucide-react';
+
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,8 @@ import NoDataFound from '../components/ui/NoDataFound';
 import HomeServiceCMS from '../components/admin/HomeServiceCMS';
 import InvoiceModal from '../components/ui/InvoiceModal';
 import { useCart } from '../context/CartContext';
+import MembershipUpgradeWidget from '../components/ui/MembershipUpgradeWidget';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 const VendorDashboard = () => {
  const [userInfo, setUserInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo') || '{}'));
@@ -64,6 +67,12 @@ const VendorDashboard = () => {
   const [isSavingBank, setIsSavingBank] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [selectedAvailabilityProduct, setSelectedAvailabilityProduct] = useState('');
+  const [inquiries, setInquiries] = useState([]);
+  const [uploadingDoc, setUploadingDoc] = useState({});
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [offerSearchTerm, setOfferSearchTerm] = useState('');
+  const [selectedOfferProduct, setSelectedOfferProduct] = useState(null);
+  const [discountVal, setDiscountVal] = useState('');
 
   const fetchReviews = async () => {
     try {
@@ -181,6 +190,7 @@ const VendorDashboard = () => {
     fetchCategories();
     fetchTickets();
     fetchReviews();
+    fetchInquiries();
 
     const fetchPlans = async () => {
       try {
@@ -237,6 +247,31 @@ const VendorDashboard = () => {
  }
  };
 
+ const fetchInquiries = async () => {
+ try {
+ const { data } = await api.get('/inquiries').catch(() => ({ data: [] }));
+ setInquiries(Array.isArray(data) ? data : []);
+ } catch (err) { console.error('Failed to fetch inquiries'); }
+ };
+
+ const uploadDocFile = async (file, docName) => {
+ if (!file) return null;
+ setUploadingDoc(prev => ({ ...prev, [docName]: true }));
+ try {
+ const fd = new FormData();
+ fd.append('file', file);
+ const { data: url } = await api.post('/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+ toast.success(`${docName} uploaded successfully`);
+ return url;
+ } catch (err) {
+ toast.error(`Failed to upload ${docName}`);
+ return null;
+ } finally {
+ setUploadingDoc(prev => ({ ...prev, [docName]: false }));
+ }
+ };
+
+
  const fetchOrders = async (currentProducts) => {
  try {
  const res = await api.get('/orders');
@@ -251,28 +286,33 @@ const VendorDashboard = () => {
  };
 
  const fetchProducts = async () => {
- try {
- const { data } = await api.get('/products');
- const vendorProducts = Array.isArray(data) ? data.filter(p => (p.vendorId?._id || p.vendorId) === userInfo?._id) : [];
- setProducts(vendorProducts);
- 
- // Categorize for specific views
- const rentalAssets = vendorProducts.filter(p => p.propertyType && p.propertyType !== 'None');
- const rideAssets = vendorProducts.filter(p => p.category === 'Rides' || p.serviceType === 'Ride');
- 
- // Generate Stock Report
- const lowStock = vendorProducts.filter(p => !p.isService && p.countInStock < 10);
- setStockReport(lowStock);
- 
- fetchOrders(vendorProducts);
- setLoading(false);
- } catch (err) {
- console.error('Failed to fetch products');
- setLoading(false);
- }
- };
+    try {
+      const [prodRes, servRes] = await Promise.all([
+        api.get('/products').catch(() => ({ data: [] })),
+        api.get('/services').catch(() => ({ data: [] }))
+      ]);
+      
+      const vendorProducts = Array.isArray(prodRes.data) ? prodRes.data.filter(p => (p.vendorId?._id || p.vendorId) === userInfo?._id) : [];
+      const vendorServices = Array.isArray(servRes.data) ? servRes.data.filter(s => (s.vendorId?._id || s.vendorId) === userInfo?._id).map(s => ({...s, isService: true, name: s.serviceName, price: s.basePrice})) : [];
+      
+      const combined = [...vendorProducts, ...vendorServices];
+      setProducts(combined);
+      
+      const rentalAssets = combined.filter(p => p.propertyType && p.propertyType !== 'None');
+      const rideAssets = combined.filter(p => p.category === 'Rides' || p.serviceType === 'Ride');
+      
+      const lowStock = vendorProducts.filter(p => !p.isService && p.countInStock < 10);
+      setStockReport(lowStock);
+      
+      fetchOrders(combined);
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to fetch inventory', err);
+      setLoading(false);
+    }
+  };
 
- const generateReports = (vendorOrders) => {
+  const generateReports = (vendorOrders) => {
  const totalRevenue = vendorOrders.filter(o => o.isPaid).reduce((acc, o) => acc + o.totalPrice, 0);
  const totalOrders = vendorOrders.length;
  const successRate = totalOrders > 0 ? ((vendorOrders.filter(o => o.status === 'Delivered').length / totalOrders) * 100).toFixed(1) : 0;
@@ -331,7 +371,9 @@ const VendorDashboard = () => {
 
  useEffect(() => {
  if (view === 'payouts') fetchSettlements();
+ if (view === 'leads') fetchInquiries();
  }, [view]);
+
 
  const handleSubmit = async (e) => {
   e.preventDefault();
@@ -346,6 +388,7 @@ const VendorDashboard = () => {
   if (data.highlights) data.highlights = data.highlights.split(',').map(s => s.trim());
   if (data.whatsIncluded) data.whatsIncluded = data.whatsIncluded.split(',').map(s => s.trim());
   if (data.whatsExcluded) data.whatsExcluded = data.whatsExcluded.split(',').map(s => s.trim());
+  if (data.amenities) data.amenities = data.amenities.split(',').map(s => s.trim());
   if (data.pricingRules) {
     try { data.pricingRules = JSON.parse(data.pricingRules); } catch { data.pricingRules = {}; }
   }
@@ -572,7 +615,7 @@ const VendorDashboard = () => {
  {!isServiceDefault ? (
    <>
      <div className="space-y-2">
-     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Stock</label>
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Capacity (Beds/Rooms/Stock)</label>
      <input name="countInStock" type="number" defaultValue={editingProduct?.countInStock || 0} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
      </div>
      <div className="space-y-2">
@@ -590,6 +633,13 @@ const VendorDashboard = () => {
      <div className="space-y-2">
      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Estimated Delivery</label>
      <input name="estimatedDeliveryTime" defaultValue={editingProduct?.estimatedDeliveryTime || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 3-5 Business Days" />
+     </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Fulfillment Mode</label>
+     <select name="fulfillmentMode" defaultValue={editingProduct?.fulfillmentMode || 'Delivery Included'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+       <option value="Delivery Included">Delivery Included</option>
+       <option value="Direct Pickup">Direct Pickup</option>
+     </select>
      </div>
    </>
  ) : (
@@ -610,11 +660,23 @@ const VendorDashboard = () => {
      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Team Size / Equipment</label>
      <input name="teamSize" defaultValue={editingProduct?.teamSize || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 2 Professionals, All tools provided" />
      </div>
+     <div className="space-y-2">
+     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Service Execution Mode</label>
+     <select name="serviceMode" defaultValue={editingProduct?.serviceMode || 'at_home'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+       <option value="at_home">Home Service</option>
+       <option value="at_center">Store / Center Visit</option>
+     </select>
+     </div>
    </>
  )}
 
+ <div className="md:col-span-2 space-y-2">
+ <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Serviceable Areas (Comma Separated Pincodes/Cities)</label>
+ <input name="serviceableArea" defaultValue={editingProduct?.serviceableArea?.join(', ') || ''} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 641601, Tiruppur, 641602" />
+ </div>
+
  {/* Dynamic Rental/Ride Fields */}
- {(categories.find(c => c._id === selectedCategory)?.name === 'Rentals' || editingProduct?.propertyType !== 'None') && (
+ {(categories.find(c => c._id === selectedCategory)?.name === 'Rentals' || (editingProduct?.propertyType && editingProduct.propertyType !== 'None')) && (
  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-primary/5 rounded-[2.5rem] border border-primary/10">
  <div className="space-y-2">
  <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Property Type</label>
@@ -644,6 +706,31 @@ const VendorDashboard = () => {
  <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Total Sqft</label>
  <input name="sqft" type="number" defaultValue={editingProduct?.sqft} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. 1200" />
  </div>
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Sharing Type</label>
+ <select name="sharingType" defaultValue={editingProduct?.sharingType || 'None'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="None">Not Applicable</option>
+ <option value="Single">Single Sharing</option>
+ <option value="Double">Double Sharing</option>
+ <option value="Triple">Triple Sharing</option>
+ <option value="Quad">Quad Sharing</option>
+ </select>
+ </div>
+ <div className="space-y-2">
+ <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Booking Duration</label>
+ <select name="bookingDuration" defaultValue={editingProduct?.bookingDuration || 'None'} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="None">Standard Sale</option>
+ <option value="Nightly">Per Night (Hotels)</option>
+ <option value="Monthly">Per Month (PG/Rentals)</option>
+ <option value="Daily">Per Day</option>
+ <option value="Weekly">Per Week</option>
+ <option value="Yearly">Per Year</option>
+ </select>
+ </div>
+ <div className="md:col-span-2 space-y-2">
+ <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Amenities (Comma Separated)</label>
+ <input name="amenities" defaultValue={editingProduct?.amenities?.join(', ')} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="e.g. WiFi, AC, Food Included, Laundry" />
+ </div>
  <div className="md:col-span-2 space-y-2">
  <label className="text-[10px] font-black text-primary uppercase tracking-widest ml-1">Property Location</label>
  <input name="location" defaultValue={editingProduct?.location} className="w-full px-6 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" placeholder="Enter full address of the property" />
@@ -651,7 +738,7 @@ const VendorDashboard = () => {
  </div>
  )}
 
- {(categories.find(c => c._id === selectedCategory)?.name === 'Rides' || editingProduct?.vehicleType !== 'None') && (
+ {(categories.find(c => c._id === selectedCategory)?.name === 'Rides' || (editingProduct?.vehicleType && editingProduct.vehicleType !== 'None')) && (
  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 p-6 bg-secondary/5 rounded-[2.5rem] border border-secondary/10">
  <div className="space-y-2">
  <label className="text-[10px] font-black text-secondary uppercase tracking-widest ml-1">Vehicle Category</label>
@@ -716,18 +803,76 @@ const VendorDashboard = () => {
   </motion.div>
   )}
 
-  <AnimatePresence>
-  {isAddingCategory && (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-dark-bg w-full max-w-6xl rounded-[2.5rem] p-8 shadow-2xl relative my-auto">
-        <button onClick={() => { setIsAddingCategory(false); fetchCategories(); }} className="absolute top-8 right-8 w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all z-[210]">
-          <X size={20} />
-        </button>
-        <HomeServiceCMS isVendorMode={true} />
-      </div>
-    </div>
+
+
+  {view === 'kyc' && (
+   <motion.div key="kyc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+     <div className="glass-card p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+       <h3 className="text-3xl font-black mb-2 uppercase tracking-tighter">Verification & <span className="text-primary">Documents</span></h3>
+       <p className="text-sm text-gray-500 font-bold mb-8">Upload your KYC documents to get verified and unlock full vendor capabilities.</p>
+       <div className={`flex items-center gap-4 mb-8 p-5 rounded-2xl border ${userInfo?.kycStatus === 'Verified' ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : userInfo?.kycStatus === 'Pending' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200' : 'bg-gray-50 dark:bg-dark-card border-gray-200'}`}>
+         <ShieldCheck className={userInfo?.kycStatus === 'Verified' ? 'text-green-500' : 'text-amber-500'} size={32} />
+         <div>
+           <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">KYC Status</p>
+           <p className={`text-xl font-black uppercase tracking-tighter ${userInfo?.kycStatus === 'Verified' ? 'text-green-600' : 'text-amber-600'}`}>{userInfo?.kycStatus || 'Not Started'}</p>
+           {userInfo?.kycStatus === 'Pending' && <p className="text-xs text-amber-500 font-bold mt-1">Under review by our team. Usually takes 24-48 hours.</p>}
+         </div>
+       </div>
+       {/* Existing docs */}
+       {userInfo?.profileDocuments?.length > 0 && (
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+           {userInfo.profileDocuments.map((doc, i) => (
+             <a key={i} href={doc.url?.startsWith('http') ? doc.url : `${window.location.origin}/${doc.url}`} target="_blank" rel="noreferrer"
+               className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-2xl hover:border-green-400 transition-all">
+               <CheckCircle size={18} className="text-green-500 shrink-0" />
+               <div className="min-w-0"><p className="text-xs font-black text-green-700 dark:text-green-300 truncate">{doc.name}</p><p className="text-[9px] text-green-500 font-bold">Uploaded ✓</p></div>
+             </a>
+           ))}
+         </div>
+       )}
+       {/* File upload form */}
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         {[
+           { key: 'PAN Card', label: 'PAN Card', required: true },
+           { key: 'GST Certificate', label: 'GST Certificate', required: false },
+           { key: 'Business License', label: 'Business License', required: false },
+           { key: 'Address Proof', label: 'Address Proof', required: true },
+         ].map(({ key, label, required }) => {
+           const existing = userInfo?.profileDocuments?.find(d => d.name === key);
+           return (
+             <div key={key} className="space-y-2">
+               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                 {label} {required && <span className="text-red-400">*</span>}
+                 {existing && <span className="text-green-500 font-bold">✓ Uploaded</span>}
+               </label>
+               <label className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 border-dashed cursor-pointer transition-all ${uploadingDoc[key] ? 'border-primary bg-primary/5' : 'border-gray-200 dark:border-gray-700 hover:border-primary hover:bg-primary/5'}`}>
+                 {uploadingDoc[key] ? <><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="text-xs font-bold text-primary">Uploading...</span></> :
+                   <><Upload size={18} className="text-gray-400" /><span className="text-sm font-bold text-gray-500">Click to upload {label}</span></>}
+                 <input type="file" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" className="hidden" onChange={async (e) => {
+                   const file = e.target.files?.[0];
+                   if (!file) return;
+                   const url = await uploadDocFile(file, key);
+                   if (url) {
+                     const existingDocs = userInfo?.profileDocuments?.filter(d => d.name !== key) || [];
+                     const newDocs = [...existingDocs, { name: key, url, type: 'credential' }];
+                     try {
+                       const { data } = await api.put('/users/profile', { profileDocuments: newDocs, kycStatus: 'Pending' });
+                       setUserInfo(data); localStorage.setItem('userInfo', JSON.stringify(data));
+                     } catch(err) { toast.error('Failed to save document'); }
+                   }
+                 }} />
+               </label>
+             </div>
+           );
+         })}
+       </div>
+       <div className="mt-8 p-5 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-2xl">
+         <p className="text-xs font-bold text-blue-600">📋 Accepted formats: JPG, PNG, PDF, DOC. Max file size: 5MB. All uploads are encrypted and stored securely.</p>
+       </div>
+     </div>
+   </motion.div>
   )}
-  </AnimatePresence>
+
 
  {view === 'missions' && (
  <motion.div key="missions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
@@ -995,62 +1140,7 @@ const VendorDashboard = () => {
  </motion.div>
  )}
 
- {/* SUBSCRIPTION & BILLING TAB */}
- {view === 'subscription' && (
- <motion.div key="subscription" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
- <div>
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Account Upgrade</p>
- <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter font-poppins">Subscription <span className="text-primary">& Billing</span></h2>
- </div>
 
- {/* Current Plan Banner */}
- <div className="p-6 md:p-10 rounded-[2rem] bg-gradient-to-r from-primary to-indigo-600 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
- <div>
- <p className="text-white/70 text-[10px] font-black uppercase tracking-widest mb-1">Current Active Plan</p>
- <h3 className="text-3xl font-black uppercase">{userInfo?.subscriptionLevel || 'Free'} Tier</h3>
- <p className="text-white/70 text-xs font-bold mt-1">{userInfo?.subscriptionLevel === 'Free' ? 'Upgrade to unlock premium features' : 'All features active'}</p>
- </div>
- <div className="px-6 py-3 bg-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/20">Active</div>
- </div>
-
- {/* Plan Comparison Grid */}
- <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
- {membershipPlans.filter(p => p.status === 'Active').map(plan => {
- const isCurrent = (userInfo?.subscriptionLevel || 'Free') === plan.name;
- return (
- <div key={plan.name} className={`relative glass-card rounded-[2.5rem] border ${isCurrent ? 'border-primary shadow-2xl shadow-primary/20 scale-[1.02]' : 'border-gray-100 dark:border-gray-800'} overflow-hidden`}>
- {plan.popular && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500" />}
- {plan.popular && <div className="absolute top-4 right-4 px-3 py-1 bg-purple-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full">Popular</div>}
- <div className="p-8">
- <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{plan.name}</p>
- <div className="flex items-end gap-1 mb-6">
- <span className="text-4xl font-black text-gray-900 dark:text-white">{plan.price}</span>
- <span className="text-sm font-bold text-gray-400 mb-1">{plan.period}</span>
- </div>
- <ul className="space-y-2 mb-8">
- {plan.features.map(f => (
- <li key={f} className="flex items-center gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
- <CheckCircle2 size={14} className="text-primary shrink-0" />{f}
- </li>
- ))}
- </ul>
- <button
- disabled={isCurrent}
- onClick={() => {
- addToCart({ _id: `membership-${plan.name.toLowerCase()}`, name: `FIC ${plan.name} Membership`, price: plan.price, isService: true, qty: 1, image: '/logo.jpg', category: 'Membership' });
- toast.success(`Upgrade initiated! Redirecting to checkout...`);
- setTimeout(() => window.location.href = "/checkout", 1500);
- }}
- className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${isCurrent ? 'bg-green-500 text-white cursor-not-allowed' : 'bg-primary text-white hover:bg-blue-700 shadow-lg shadow-primary/20'}`}
- >
- {isCurrent ? 'Current Plan' : `Upgrade to ${plan.name}`}
- </button>
- </div>
- </div>
- )})}
- </div>
- </motion.div>
- )}
 
  {/* ALERTS TAB */}
  {view === 'alerts' && (
@@ -1448,6 +1538,328 @@ const VendorDashboard = () => {
  </motion.div>
  )}
  </AnimatePresence>
+
+  {/* ── BUSINESS PROFILE ── */}
+  {view === 'business-profile' && (
+    <motion.div key="business-profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div className="glass-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <h3 className="text-3xl font-black mb-2 uppercase tracking-tighter">Business <span className="text-primary">Profile</span></h3>
+        <p className="text-sm text-gray-500 font-bold mb-8">Manage your business details, bank account, and contact information.</p>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const payload = {
+            businessName: fd.get('businessName'), firstName: fd.get('firstName'), lastName: fd.get('lastName'),
+            mobile: fd.get('mobile'), address: fd.get('address'), city: fd.get('city'),
+            pincode: fd.get('pincode'), gstNumber: fd.get('gstNumber'), panNumber: fd.get('panNumber'),
+          };
+          try {
+            const { data } = await api.put('/users/profile', payload);
+            setUserInfo({ ...userInfo, ...data }); localStorage.setItem('userInfo', JSON.stringify({ ...userInfo, ...data }));
+            toast.success('Business profile updated!');
+          } catch(err) { toast.error('Update failed'); }
+        }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[
+            { name: 'businessName', label: 'Business Name', val: userInfo?.businessName },
+            { name: 'firstName', label: 'Owner First Name', val: userInfo?.firstName },
+            { name: 'lastName', label: 'Owner Last Name', val: userInfo?.lastName },
+            { name: 'mobile', label: 'Mobile / WhatsApp', val: userInfo?.mobile },
+            { name: 'address', label: 'Business Address', val: userInfo?.address },
+            { name: 'city', label: 'City', val: userInfo?.city },
+            { name: 'pincode', label: 'Pincode', val: userInfo?.pincode },
+            { name: 'gstNumber', label: 'GST Number', val: userInfo?.gstNumber },
+            { name: 'panNumber', label: 'PAN Number', val: userInfo?.panNumber },
+          ].map(f => (
+            <div key={f.name} className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{f.label}</label>
+              <input name={f.name} defaultValue={f.val || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+            </div>
+          ))}
+          <div className="md:col-span-2">
+            <button type="submit" className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all">Save Business Profile</button>
+          </div>
+        </form>
+      </div>
+      {/* Bank Details */}
+      <div className="glass-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter">Bank Account <span className="text-primary">Details</span></h3>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          try {
+            const { data } = await api.put('/users/bank-details', {
+              accountNumber: fd.get('accountNumber'), ifscCode: fd.get('ifscCode'),
+              bankName: fd.get('bankName'), holderName: fd.get('holderName'), panNumber: fd.get('panNumber'),
+            });
+            toast.success('Bank details saved! KYC status: ' + (data.user?.kycStatus || 'Pending'));
+            const updated = { ...userInfo, bankDetails: data.user?.bankDetails, kycStatus: data.user?.kycStatus };
+            setUserInfo(updated); localStorage.setItem('userInfo', JSON.stringify(updated));
+          } catch(err) { toast.error('Bank update failed'); }
+        }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[
+            { name: 'holderName', label: 'Account Holder Name', val: bankData.holderName },
+            { name: 'accountNumber', label: 'Account Number', val: bankData.accountNumber },
+            { name: 'ifscCode', label: 'IFSC Code', val: bankData.ifscCode },
+            { name: 'bankName', label: 'Bank Name', val: bankData.bankName },
+            { name: 'panNumber', label: 'PAN Number', val: bankData.panNumber },
+          ].map(f => (
+            <div key={f.name} className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{f.label}</label>
+              <input name={f.name} defaultValue={f.val || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" />
+            </div>
+          ))}
+          <div className="md:col-span-2">
+            <button type="submit" className="w-full py-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest hover:opacity-90 shadow-xl transition-all">Sync Bank Details & Verify</button>
+          </div>
+        </form>
+      </div>
+    </motion.div>
+  )}
+
+  {/* ── CUSTOMER LEADS ── */}
+  {view === 'leads' && (
+    <motion.div key="leads" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Incoming</p>
+          <h2 className="text-4xl font-black uppercase tracking-tighter">Customer <span className="text-primary">Leads</span></h2>
+        </div>
+        <button onClick={fetchInquiries} className="flex items-center gap-2 px-5 py-3 bg-primary/10 text-primary rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+          <RefreshCw size={14} /> Refresh
+        </button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Leads', val: inquiries.length, color: 'blue' },
+          { label: 'New Today', val: inquiries.filter(i => new Date(i.createdAt).toDateString() === new Date().toDateString()).length, color: 'green' },
+          { label: 'Pending', val: inquiries.filter(i => !i.status || i.status === 'Pending').length, color: 'amber' },
+          { label: 'Responded', val: inquiries.filter(i => i.status === 'Responded').length, color: 'purple' },
+        ].map(s => (
+          <div key={s.label} className={`glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-lg bg-${s.color}-50/50 dark:bg-${s.color}-900/10`}>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-3xl font-black text-gray-900 dark:text-white">{s.val}</p>
+          </div>
+        ))}
+      </div>
+      <div className="glass-card rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+          <h3 className="font-black uppercase tracking-tighter text-lg">Lead <span className="text-primary">Directory</span></h3>
+        </div>
+        {inquiries.length === 0 ? (
+          <div className="py-20 text-center"><p className="text-sm font-black text-gray-400 uppercase tracking-widest">No customer leads yet.</p></div>
+        ) : (
+          <div className="divide-y divide-gray-50 dark:divide-gray-800">
+            {inquiries.map(inq => (
+              <div key={inq._id} className="p-6 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm">{(inq.name || 'U')[0].toUpperCase()}</div>
+                    <p className="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">{inq.name || 'Anonymous'}</p>
+                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${!inq.status || inq.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>{inq.status || 'Pending'}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 ml-11">{inq.email} • {inq.phone}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 ml-11 line-clamp-2">{inq.message || inq.description}</p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  {inq.phone && <a href={`tel:${inq.phone}`} className="p-3 bg-green-100 text-green-600 rounded-xl hover:bg-green-500 hover:text-white transition-all"><Phone size={14} /></a>}
+                  {inq.email && <a href={`mailto:${inq.email}`} className="p-3 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-500 hover:text-white transition-all"><Mail size={14} /></a>}
+                  {inq.phone && <a href={`https://wa.me/91${inq.phone}`} target="_blank" rel="noreferrer" className="p-3 bg-emerald-100 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white transition-all"><MessageCircle size={14} /></a>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )}
+
+  {/* ── DELIVERY MANAGEMENT ── */}
+  {view === 'delivery' && (
+    <motion.div key="delivery" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Logistics</p>
+        <h2 className="text-4xl font-black uppercase tracking-tighter">Delivery <span className="text-primary">Management</span></h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-lg">
+          <div className="flex items-center gap-3 mb-4"><Truck size={20} className="text-primary" /><p className="font-black uppercase tracking-widest text-xs text-gray-400">Delivery Partners</p></div>
+          <p className="text-4xl font-black">{deliveryPartners.length}</p>
+          <p className="text-xs text-green-500 font-bold mt-1">{deliveryPartners.filter(p => p.isOnline).length} Online Now</p>
+        </div>
+        <div className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-lg">
+          <div className="flex items-center gap-3 mb-4"><Package size={20} className="text-orange-500" /><p className="font-black uppercase tracking-widest text-xs text-gray-400">Pending Pickups</p></div>
+          <p className="text-4xl font-black">{orders.filter(o => o.status === 'Confirmed' || o.status === 'Packed').length}</p>
+        </div>
+        <div className="glass-card p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-lg">
+          <div className="flex items-center gap-3 mb-4"><CheckCircle size={20} className="text-green-500" /><p className="font-black uppercase tracking-widest text-xs text-gray-400">Delivered Today</p></div>
+          <p className="text-4xl font-black">{orders.filter(o => o.status === 'Delivered' && new Date(o.updatedAt).toDateString() === new Date().toDateString()).length}</p>
+        </div>
+      </div>
+      <div className="glass-card rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800"><h3 className="font-black uppercase tracking-tighter text-lg">Active <span className="text-primary">Partners</span></h3></div>
+        <div className="divide-y divide-gray-50 dark:divide-gray-800">
+          {deliveryPartners.length === 0 ? (
+            <div className="py-16 text-center"><p className="text-sm font-black text-gray-400 uppercase tracking-widest">No delivery partners assigned yet.</p></div>
+          ) : deliveryPartners.map(p => (
+            <div key={p._id} className="p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm">{(p.firstName || 'D')[0]}</div>
+                <div>
+                  <p className="font-black text-sm uppercase">{p.firstName} {p.lastName}</p>
+                  <p className="text-[10px] text-gray-400 font-bold">{p.mobile}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase ${p.isOnline ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>{p.isOnline ? 'Online' : 'Offline'}</span>
+                <a href={`tel:${p.mobile}`} className="p-2 bg-green-100 text-green-600 rounded-xl hover:bg-green-500 hover:text-white transition-all"><Phone size={14} /></a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800"><h3 className="font-black uppercase tracking-tighter text-lg">Orders Awaiting <span className="text-primary">Pickup</span></h3></div>
+        <div className="divide-y divide-gray-50 dark:divide-gray-800">
+          {orders.filter(o => ['Confirmed','Packed','Processing'].includes(o.status)).length === 0 ? (
+            <div className="py-12 text-center"><p className="text-sm font-black text-gray-400 uppercase tracking-widest">No pending pickups.</p></div>
+          ) : orders.filter(o => ['Confirmed','Packed','Processing'].includes(o.status)).map(o => (
+            <div key={o._id} className="p-5 flex items-center justify-between">
+              <div>
+                <p className="font-black text-sm uppercase">Order #{o._id.slice(-6).toUpperCase()}</p>
+                <p className="text-xs text-gray-400 font-bold">{o.user?.firstName} {o.user?.lastName} • ₹{o.totalPrice?.toLocaleString()}</p>
+                <p className="text-[10px] text-gray-400 mt-1">{o.shippingAddress?.address}, {o.shippingAddress?.city}</p>
+              </div>
+              <span className="px-4 py-1.5 bg-amber-100 text-amber-700 rounded-full text-[8px] font-black uppercase tracking-widest">{o.status}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )}
+
+  {/* ── OFFERS & PROMOTIONS ── */}
+  {view === 'offers' && (
+    <motion.div key="offers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Marketing</p>
+        <h2 className="text-4xl font-black uppercase tracking-tighter">Offers & <span className="text-primary">Promotions</span></h2>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Discount Builder */}
+        <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <h3 className="text-xl font-black mb-6 uppercase tracking-tighter flex items-center gap-2"><Gift size={20} className="text-primary" /> Set Discount</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Select Product</label>
+              <select value={selectedOfferProduct || ''} onChange={e => setSelectedOfferProduct(e.target.value)}
+                className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+                <option value="">Choose a product...</option>
+                {products.map(p => <option key={p._id} value={p._id}>{p.name} — ₹{p.price}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Discounted Price (₹)</label>
+              <input type="number" value={discountVal} onChange={e => setDiscountVal(e.target.value)}
+                className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm" placeholder="Enter sale price..." />
+            </div>
+            {selectedOfferProduct && discountVal && (() => {
+              const prod = products.find(p => p._id === selectedOfferProduct);
+              const saving = prod ? prod.price - Number(discountVal) : 0;
+              const pct = prod ? Math.round((saving / prod.price) * 100) : 0;
+              return saving > 0 ? (
+                <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 rounded-2xl">
+                  <p className="text-sm font-black text-green-700">🎯 Customer saves ₹{saving} ({pct}% off)</p>
+                </div>
+              ) : null;
+            })()}
+            <button onClick={async () => {
+              if (!selectedOfferProduct || !discountVal) return toast.error('Select a product and enter discount price');
+              const prod = products.find(p => p._id === selectedOfferProduct);
+              if (Number(discountVal) >= prod?.price) return toast.error('Discount must be less than original price');
+              try {
+                await api.put(`/products/${selectedOfferProduct}`, { ...prod, discountPrice: Number(discountVal) });
+                toast.success('Discount applied successfully!');
+                fetchProducts(); setSelectedOfferProduct(null); setDiscountVal('');
+              } catch { toast.error('Failed to apply discount'); }
+            }} className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all">Apply Discount</button>
+          </div>
+        </div>
+        {/* Products with active offers */}
+        <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <h3 className="text-xl font-black mb-6 uppercase tracking-tighter flex items-center gap-2"><Percent size={20} className="text-orange-500" /> Active Offers</h3>
+          <div className="space-y-4">
+            {products.filter(p => p.discountPrice && p.discountPrice < p.price).length === 0 ? (
+              <p className="text-sm font-black text-gray-400 uppercase tracking-widest text-center py-8">No active discounts.</p>
+            ) : products.filter(p => p.discountPrice && p.discountPrice < p.price).map(p => (
+              <div key={p._id} className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl overflow-hidden"><img src={p.image} className="w-full h-full object-cover" alt="" /></div>
+                  <div>
+                    <p className="text-xs font-black uppercase truncate w-28">{p.name}</p>
+                    <p className="text-[10px] text-gray-400"><span className="line-through">₹{p.price}</span> → <span className="text-green-600 font-black">₹{p.discountPrice}</span></p>
+                  </div>
+                </div>
+                <button onClick={async () => {
+                  try { await api.put(`/products/${p._id}`, { ...p, discountPrice: undefined }); toast.success('Offer removed'); fetchProducts(); }
+                  catch { toast.error('Failed'); }
+                }} className="p-2 bg-red-100 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><X size={14} /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )}
+
+  {/* ── SUBSCRIPTION ── */}
+  {view === 'subscription' && (
+    <motion.div key="subscription" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+      <div>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Plans</p>
+        <h2 className="text-4xl font-black uppercase tracking-tighter">Membership & <span className="text-primary">Subscription</span></h2>
+      </div>
+      <div className="glass-card p-8 md:p-10 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+        {/* Current plan status */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6 bg-gradient-to-r from-primary/10 to-indigo-500/10 border border-primary/20 rounded-2xl mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30"><ShieldCheck size={24} className="text-white" /></div>
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Plan</p>
+              <p className="text-2xl font-black text-gray-900 dark:text-white uppercase">{userInfo?.subscriptionLevel || 'Basic'}</p>
+              {userInfo?.isMember && userInfo?.membershipVault?.cycleEndDate && (
+                <p className="text-xs text-primary font-bold mt-1">Renews: {new Date(userInfo.membershipVault.cycleEndDate).toLocaleDateString()}</p>
+              )}
+            </div>
+          </div>
+          {!userInfo?.isMember && (
+            <span className="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl text-xs font-black uppercase tracking-widest">Upgrade to unlock all features</span>
+          )}
+        </div>
+        <MembershipUpgradeWidget userInfo={userInfo} />
+      </div>
+      {/* Membership vault summary */}
+      {userInfo?.membershipVault && (
+        <div className="glass-card p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+          <h3 className="text-xl font-black mb-6 uppercase tracking-tighter">Membership <span className="text-primary">Vault</span></h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Vault Balance', val: `₹${(userInfo.membershipVault.balance || 0).toLocaleString()}` },
+              { label: 'Plan Value', val: `₹${(userInfo.membershipVault.planValue || 0).toLocaleString()}` },
+              { label: 'Savings This Month', val: `₹${(userInfo.membershipVault.savingsThisMonth || 0).toLocaleString()}` },
+              { label: 'Plan Tier', val: userInfo.membershipVault.planTier || 'N/A' },
+            ].map(s => (
+              <div key={s.label} className="p-5 bg-gray-50 dark:bg-dark-card rounded-2xl border border-gray-100 dark:border-gray-800">
+                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">{s.label}</p>
+                <p className="text-xl font-black text-gray-900 dark:text-white">{s.val}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  )}
+
+
 
  </div>
 

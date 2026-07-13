@@ -7,7 +7,7 @@ import {
  CreditCard, Truck, MapPin, CheckCircle, ArrowRight, ShieldCheck, 
  ChevronRight, Calendar, Clock, Smartphone, Building2, Zap, 
  Lock, ArrowLeft, Info, HelpCircle, BadgeCheck, ShieldAlert,
- Loader2, Mail
+ Loader2, Mail, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -34,7 +34,7 @@ const Checkout = () => {
  
  const [addMembership, setAddMembership] = useState(false);
  const membershipPrice = 999;
- const paymentMethod = 'Razorpay'; // Only Razorpay now
+ const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('Razorpay');
  const isDigitalOnly = !isPhysicalFlow;
 
  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
@@ -69,6 +69,11 @@ const Checkout = () => {
  toast.error('Please complete shipping address details');
  return;
  }
+ const pincodeRegex = /^[1-9][0-9]{5}$/;
+ if (!pincodeRegex.test(shippingAddress.postalCode)) {
+   toast.error('Invalid Pincode. Please enter a valid 6-digit Indian pincode.');
+   return;
+ }
  }
 
  if (!contactDetails.email || !contactDetails.contactNumber) {
@@ -86,22 +91,32 @@ const Checkout = () => {
  try {
  // 1. Create Pending Order on Backend
  const orderData = {
- orderItems: isPhysicalFlow ? cartItems : [{
- name: `FIC ${domain} Consulting`,
- qty: 1,
- price: baseTotal,
- image: '/logo.jpg',
- isService: true
- }],
- shippingAddress: isPhysicalFlow ? shippingAddress : { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' },
- paymentMethod: `Razorpay`,
- totalPrice,
- fulfillmentType: isPhysicalFlow ? 'Delivery Partner' : 'Instant Activation',
- instructions: isPhysicalFlow ? 'Handle with care' : `Domain: ${domain}`
+  orderItems: isPhysicalFlow ? cartItems : [{
+  name: `FIC ${domain} Consulting`,
+  qty: 1,
+  price: baseTotal,
+  image: '/logo.jpg',
+  isService: true
+  }],
+  shippingAddress: isPhysicalFlow ? { ...shippingAddress, country: shippingAddress.country || 'India' } : { address: 'DIGITAL_VAULT', city: 'CLOUD', postalCode: '000000', country: 'India' },
+  paymentMethod: selectedPaymentMethod,
+  totalPrice,
+  fulfillmentType: isPhysicalFlow ? 'Delivery Partner' : 'Instant Activation',
+  instructions: isPhysicalFlow ? 'Handle with care' : `Domain: ${domain}`
  };
 
  const { data: finalOrder } = await api.post('/orders', orderData);
  setLastOrder(finalOrder);
+
+ // ── COD Flow: Skip Razorpay, confirm immediately ──
+ if (selectedPaymentMethod === 'Cash on Delivery') {
+  confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 }, colors: ['#2563eb', '#10b981', '#f59e0b'] });
+  clearCart();
+  setStep(4);
+  setPaymentStatus('idle');
+  setLoading(false);
+  return;
+ }
 
  // 2. Create Razorpay Order
  const orderIdForPayment = finalOrder._id || finalOrder.id;
@@ -112,7 +127,8 @@ const Checkout = () => {
 
  const { data: rzpOrder } = await api.post('/payments/create-order', {
  orderId: orderIdForPayment,
- receipt: `order_${(orderIdForPayment).toString().slice(-8)}`
+ receipt: `order_${(orderIdForPayment).toString().slice(-8)}`,
+ type: 'Product'
  });
 
  if (!rzpOrder || !rzpOrder.id) {
@@ -120,6 +136,44 @@ const Checkout = () => {
  }
 
  // 3. Initialize Razorpay Checkout
+ if (rzpOrder.keyId === 'test_mode_bypass') {
+    // --- Test Mode Bypass ---
+    console.log('Bypassing Razorpay for Development Testing');
+    const mockResponse = {
+      razorpay_order_id: rzpOrder.id,
+      razorpay_payment_id: `pay_mock_${Date.now()}`,
+      razorpay_signature: 'mock_signature_for_testing'
+    };
+    
+    setLoading(true);
+    setPaymentStatus('processing');
+    setLoadingText('Verifying Authorization Signature...');
+    
+    // Simulate API delay
+    setTimeout(async () => {
+      try {
+        await api.post('/payments/verify', { ...mockResponse, orderId: finalOrder._id, type: 'Product' });
+        setPaymentStatus('success');
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#2563eb', '#10b981', '#f59e0b'] });
+        setTimeout(() => {
+          clearCart();
+          if (addMembership || isDigitalOnly) {
+            const updatedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            updatedUserInfo.isMember = true;
+            localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+          }
+          setStep(4);
+          setLoading(false);
+        }, 1000);
+      } catch (err) {
+        toast.error('Signature verification failed. Please contact support.');
+        setPaymentStatus('idle');
+        setLoading(false);
+      }
+    }, 1500);
+    return;
+  }
+
  const options = {
  key: rzpOrder.keyId,
  amount: rzpOrder.amount,
@@ -137,7 +191,8 @@ const Checkout = () => {
  razorpay_order_id: response.razorpay_order_id,
  razorpay_payment_id: response.razorpay_payment_id,
  razorpay_signature: response.razorpay_signature,
- orderId: finalOrder._id
+ orderId: finalOrder._id,
+ type: 'Product'
  };
 
  await api.post('/payments/verify', verifyPayload);
@@ -429,12 +484,29 @@ const Checkout = () => {
  </div>
  </div>
 
+ {isPhysicalFlow && (
+ <div className="space-y-2">
+ <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Payment Method</p>
+ <div className="grid grid-cols-2 gap-3">
+ {['Razorpay', 'Cash on Delivery'].map((method) => (
+ <button
+ key={method}
+ onClick={() => setSelectedPaymentMethod(method)}
+ className={`p-4 rounded-2xl border-2 text-left transition-all text-[10px] font-black uppercase tracking-wide ${selectedPaymentMethod === method ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/10 text-blue-600' : 'border-gray-100 dark:border-gray-800 text-gray-500'}`}
+ >
+ {method === 'Razorpay' ? '💳 Pay Online' : '💵 Cash on Delivery'}
+ </button>
+ ))}
+ </div>
+ </div>
+ )}
+
  <button 
  onClick={handlePayment}
  disabled={loading}
- className="w-full py-6 bg-blue-600 text-white font-black rounded-2xl text-[13px] uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4"
+ className={`w-full py-6 font-black rounded-2xl text-[13px] uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 ${selectedPaymentMethod === 'Cash on Delivery' ? 'bg-emerald-600 text-white shadow-emerald-600/30' : 'bg-blue-600 text-white shadow-blue-600/30'}`}
  >
- <Lock size={18} /> PAY SECURELY NOW
+ <Lock size={18} /> {selectedPaymentMethod === 'Cash on Delivery' ? 'PLACE ORDER (COD)' : 'PAY SECURELY NOW'}
  </button>
  </div>
  </div>

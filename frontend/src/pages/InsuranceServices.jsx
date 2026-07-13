@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Shield, ShieldCheck, HeartPulse, Building2, Umbrella, ArrowRight, FileText, CheckCircle2 } from 'lucide-react';
 import SEOMeta from '../components/ui/SEOMeta';
 import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
@@ -28,9 +29,13 @@ const InsuranceServices = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center border border-blue-200">
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], boxShadow: ["0 0 0px rgba(37,99,235,0)", "0 0 20px rgba(37,99,235,0.5)", "0 0 0px rgba(37,99,235,0)"] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center border border-blue-200"
+                >
                   <ShieldCheck size={24} className="text-blue-600" />
-                </div>
+                </motion.div>
                 <span className="text-blue-600 font-black uppercase tracking-[0.3em] text-xs">Risk Management</span>
               </div>
               
@@ -84,24 +89,25 @@ const InsuranceServices = () => {
       <section className="container-xl px-6 relative z-20 mt-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { icon: Umbrella, title: "Life & Health", desc: "Comprehensive health insurance and life coverage for you and your family.", color: "text-rose-500", bg: "bg-rose-50" },
-            { icon: Building2, title: "Corporate Liability", desc: "Protect your business operations with general and professional liability.", color: "text-blue-500", bg: "bg-blue-50" },
-            { icon: FileText, title: "Compliance Support", desc: "Business registration, licensing, and ongoing legal compliance services.", color: "text-emerald-500", bg: "bg-emerald-50" }
+            { icon: HeartPulse, title: "Health Insurance", desc: "Comprehensive health coverage plans tailored for individuals and corporate teams.", color: "text-rose-500", bg: "bg-rose-50", slug: "health-insurance" },
+            { icon: Umbrella, title: "Life Insurance", desc: "Secure your family's future with robust term life and whole life insurance policies.", color: "text-blue-500", bg: "bg-blue-50", slug: "life-insurance" },
+            { icon: Building2, title: "Business Insurance", desc: "Protect your enterprise against operational risks, liabilities, and unforeseen disruptions.", color: "text-emerald-500", bg: "bg-emerald-50", slug: "business-insurance" }
           ].map((service, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group"
-            >
-              <div className={`w-16 h-16 rounded-2xl ${service.bg} flex items-center justify-center mb-6`}>
-                <service.icon size={28} className={service.color} />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-3">{service.title}</h3>
-              <p className="text-slate-500 font-medium leading-relaxed">{service.desc}</p>
-            </motion.div>
+            <Link to={`/services/sub/${service.slug}`} key={idx} className="h-full block">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-white border border-slate-100 p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group h-full flex flex-col justify-start"
+              >
+                <div className={`w-16 h-16 rounded-2xl ${service.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                  <service.icon size={28} className={service.color} />
+                </div>
+                <h3 className={`text-xl font-black text-slate-900 uppercase tracking-tight mb-3 group-hover:${service.color} transition-colors`}>{service.title}</h3>
+                <p className="text-slate-500 font-medium leading-relaxed">{service.desc}</p>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </section>

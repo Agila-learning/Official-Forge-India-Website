@@ -16,7 +16,7 @@ const registerUser = async (req, res) => {
   const email = req.body.email?.toLowerCase().trim();
   
   // Auto-set approvalStatus: Customers and Candidates are instantly Approved. Others are Pending.
-  const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Rental Provider', 'Trainer'];
+  const validRoles = ['Vendor', 'Customer', 'HR', 'Delivery Partner', 'Candidate', 'Seller', 'Service Provider', 'Rental Provider', 'Trainer', 'Driver', 'Agent'];
   const assignedRole = role && validRoles.includes(role) ? role : 'Customer';
   // Auto-approve all roles for development/testing
   const approvalStatus = 'Approved';
@@ -27,6 +27,7 @@ const registerUser = async (req, res) => {
   let registrationFee = 0;
   let shopCode = undefined;
   let hrCode = undefined;
+  let agentCode = undefined;
 
   if (['Vendor', 'Seller', 'Service Provider', 'Rental Provider'].includes(assignedRole)) {
       const year = new Date().getFullYear();
@@ -38,6 +39,12 @@ const registerUser = async (req, res) => {
       const year = new Date().getFullYear();
       const random = Math.floor(1000 + Math.random() * 9000);
       hrCode = `FIC-HR-${year}-${random}`;
+  }
+
+  if (assignedRole === 'Agent') {
+      const year = new Date().getFullYear();
+      const random = Math.floor(1000 + Math.random() * 9000);
+      agentCode = `FIC-AGT-${year}-${random}`;
   }
 
   if (assignedRole === 'Candidate') {
@@ -100,6 +107,7 @@ const registerUser = async (req, res) => {
       registrationFee,
       shopCode,
       hrCode,
+      agentCode,
       address,
       city,
       pincode,
@@ -117,7 +125,18 @@ const registerUser = async (req, res) => {
       pricingRange: req.body.pricingRange
     });
     if (user) {
-      res.status(201).json({
+      if (user.role === 'Driver' || user.role === 'Delivery Partner') {
+        const Driver = require('../models/Driver');
+        await Driver.create({
+          user: user._id,
+          driverType: req.body.driverType || 'Bike',
+          vehicleOwnership: req.body.vehicleOwnership || 'Own Vehicle',
+          verificationStatus: 'Pending',
+          shiftStatus: 'Offline'
+        });
+      }
+
+      const responseData = {
         _id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -127,9 +146,21 @@ const registerUser = async (req, res) => {
         approvalStatus: user.approvalStatus,
         shopCode: user.shopCode,
         hrCode: user.hrCode,
+        agentCode: user.agentCode,
         membershipId: user.membershipId,
         token: generateToken(user._id),
-      });
+      };
+
+      if (user.role === 'Driver' || user.role === 'Delivery Partner') {
+        const Driver = require('../models/Driver');
+        const driverProfile = await Driver.findOne({ user: user._id }).populate('activeVehicle');
+        if (driverProfile) {
+          responseData.driverProfile = driverProfile;
+          responseData.isOnline = driverProfile.shiftStatus === 'Online';
+        }
+      }
+
+      res.status(201).json(responseData);
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
@@ -167,19 +198,38 @@ const authUser = async (req, res) => {
         }
 
         console.log(`Login success for: ${user.email} (Role: ${user.role})`);
-        res.json({
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        approvalStatus: user.approvalStatus,
-        shopCode: user.shopCode,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
-    }
+        const responseData = {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          approvalStatus: user.approvalStatus,
+          shopCode: user.shopCode,
+          hrCode: user.hrCode,
+          agentCode: user.agentCode,
+          token: generateToken(user._id),
+        };
+
+        if (user.role === 'Driver' || user.role === 'Delivery Partner') {
+          const Driver = require('../models/Driver');
+          const driverProfile = await Driver.findOne({ user: user._id }).populate('activeVehicle');
+          if (driverProfile) {
+            responseData.driverProfile = driverProfile;
+            responseData.isOnline = driverProfile.shiftStatus === 'Online';
+            
+            const DriverDocument = require('../models/DriverDocument');
+            const driverDocs = await DriverDocument.findOne({ driverId: driverProfile._id });
+            if (driverDocs) {
+              responseData.driverDocuments = driverDocs;
+            }
+          }
+        }
+
+        res.json(responseData);
+      } else {
+        res.status(401).json({ message: 'Invalid email or password' });
+      }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
