@@ -30,10 +30,9 @@ npm install
 export NODE_OPTIONS="--max-old-space-size=2048"
 npm run build
 
-# 4. Copy built files to nginx web root (adjust path as needed)
+# 4. Copy built files to nginx web root
 echo "📂 Copying build to nginx..."
-# Uncomment the line below and update path to match your nginx root:
-# sudo cp -r $FRONTEND_DIR/dist/* /var/www/html/
+sudo cp -r $FRONTEND_DIR/dist/* /var/www/forge-official/
 
 # 5. Restart backend (PM2)
 echo "🔄 Restarting backend with PM2..."
