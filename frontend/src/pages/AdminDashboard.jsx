@@ -5,7 +5,7 @@ import {
  MessageSquare, Star, Link as LinkIcon, MapPin, Image, 
  MessageCircle as ReviewIcon, LogOut, ShieldCheck, Mail, Phone, 
  Trash2, Edit, AlertCircle, Store, Network, Briefcase, Wrench, Upload, UserPlus, ClipboardList, XCircle, CheckCircle2,
- Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck, ChevronRight, Globe, Target, ArrowRight, TrendingUp, CreditCard, Home, Navigation, IndianRupee, Save, RefreshCw, ChevronLeft, LifeBuoy
+ Search, Plus, FileText, PlusCircle, Zap, Sparkles, Bell, Send, QrCode, Building2, Truck, ChevronRight, Globe, Target, ArrowRight, TrendingUp, CreditCard, Home, Navigation, IndianRupee, Save, RefreshCw, ChevronLeft, LifeBuoy, Settings
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 import { motion, AnimatePresence } from 'framer-motion';
