@@ -6,7 +6,8 @@
 
 set -e
 
-PROJECT_DIR="/var/www/FIC_Official-website"   # ← Change this to your actual server path
+# Determine the directory where this script is located
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
 BACKEND_DIR="$PROJECT_DIR/backend"
 
