@@ -27,6 +27,7 @@ npm install --production
 echo "🔨 Building frontend..."
 cd $FRONTEND_DIR
 npm install
+export NODE_OPTIONS="--max-old-space-size=2048"
 npm run build
 
 # 4. Copy built files to nginx web root (adjust path as needed)
