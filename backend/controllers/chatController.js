@@ -105,15 +105,55 @@ const sendMessage = async (req, res) => {
 // @desc    Get all users current user can chat with (based on role)
 // @route   GET /api/chat/contacts
 // @access  Private
-const getChatContacts = async (req, res) => {
+ const getChatContacts = async (req, res) => {
   try {
     const currentUser = req.user;
-    
-    // Open contacts view so any user can communicate with anyone on the platform, bypassing rigid role blocks
-    const contacts = await User.find({
+    let allowedRoles = [];
+
+    switch (currentUser.role) {
+      case 'Admin':
+      case 'Sub-Admin':
+        // Admins can see everyone
+        break;
+      case 'Customer':
+        allowedRoles = ['Vendor', 'Seller', 'Service Provider', 'Delivery Partner', 'Driver', 'Agent', 'Admin', 'Sub-Admin', 'Rental Provider'];
+        break;
+      case 'Candidate':
+        allowedRoles = ['HR', 'Trainer', 'Admin', 'Sub-Admin'];
+        break;
+      case 'HR':
+        allowedRoles = ['Candidate', 'Admin', 'Sub-Admin'];
+        break;
+      case 'Vendor':
+      case 'Seller':
+      case 'Service Provider':
+      case 'Rental Provider':
+        allowedRoles = ['Customer', 'Delivery Partner', 'Driver', 'Admin', 'Sub-Admin'];
+        break;
+      case 'Delivery Partner':
+      case 'Driver':
+        allowedRoles = ['Customer', 'Vendor', 'Seller', 'Admin', 'Sub-Admin'];
+        break;
+      case 'Trainer':
+        allowedRoles = ['Candidate', 'Admin', 'Sub-Admin'];
+        break;
+      case 'Agent':
+        allowedRoles = ['Customer', 'Vendor', 'Seller', 'Admin', 'Sub-Admin'];
+        break;
+      default:
+        allowedRoles = ['Admin', 'Sub-Admin']; // Default fallback
+    }
+
+    const query = {
       _id: { $ne: currentUser._id },
       approvalStatus: 'Approved',
-    }).select('firstName lastName role businessName companyName');
+    };
+
+    if (currentUser.role !== 'Admin' && currentUser.role !== 'Sub-Admin') {
+      query.role = { $in: allowedRoles };
+    }
+
+    const contacts = await User.find(query).select('firstName lastName role businessName companyName');
 
     res.json(contacts);
   } catch (error) {

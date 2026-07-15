@@ -45,13 +45,14 @@ const createJob = async (req, res) => {
     requirements: Joi.string().optional().allow(''),
     education: Joi.string().optional().allow(''),
     experience: Joi.string().optional().allow(''),
+    type: Joi.string().optional().allow(''),
     openings: Joi.number().integer().min(1).optional().allow('', null),
     expiryDate: Joi.date().optional().allow('', null),
     companyWebsite: Joi.string().uri().optional().allow(''),
     hrId: Joi.string().optional().allow(''),
     recruitmentStatus: Joi.string().optional().allow(''),
     status: Joi.string().optional().allow('')
-  });
+  }).unknown(true);
   const { error, value } = schema.validate(req.body);
   if (error) {
     return res.status(400).json({ message: 'Validation error', details: error.details.map(d => d.message) });
@@ -69,7 +70,8 @@ const createJob = async (req, res) => {
     openings,
     expiryDate,
     companyWebsite,
-    hrId
+    hrId,
+    type
   } = value;
 
   try {
@@ -87,6 +89,7 @@ const createJob = async (req, res) => {
       requirements,
       education,
       experience,
+      type,
       openings: openings || 1,
       companyWebsite,
       expiryDate,

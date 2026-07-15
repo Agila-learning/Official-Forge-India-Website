@@ -534,9 +534,31 @@ const updateOrderStatus = async (req, res) => {
 
       order.status = req.body.status || order.status;
       
+      // Generate OTP when Out for Delivery
+      if (req.body.status === 'Out for Delivery') {
+        const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
+        if (!order.rideMetadata) order.rideMetadata = {};
+        order.rideMetadata.otp = generatedOtp;
+        
+        // Notify user about the OTP
+        const io = req.app.get('io');
+        if (io) {
+          createNotification(io, {
+            user: order.user,
+            title: 'Delivery OTP Generated',
+            message: `Your secure PIN for delivery of Order #${order._id.toString().slice(-6).toUpperCase()} is ${generatedOtp}. Please share this with the delivery partner only upon receiving your package.`,
+            type: 'Order',
+            link: '/profile'
+          }).catch(err => console.error('Failed to send OTP notification:', err));
+        }
+      }
+
       // OTP Verification if marking as delivered
-      if (req.body.status === 'Delivered' && order.rideMetadata?.otp) {
-         if (req.body.otp !== order.rideMetadata.otp && req.body.otp !== '4492') { // 4492 as fallback/demo
+      if (req.body.status === 'Delivered') {
+         if (!order.rideMetadata?.otp) {
+             return res.status(400).json({ message: 'Error: No OTP was generated for this order.' });
+         }
+         if (req.body.otp !== order.rideMetadata.otp) {
              return res.status(400).json({ message: 'Invalid Delivery PIN' });
          }
       }

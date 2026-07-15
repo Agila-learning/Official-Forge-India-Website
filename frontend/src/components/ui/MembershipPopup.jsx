@@ -1,68 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Zap, Crown, Star, CheckCircle2, ArrowRight, Wallet } from 'lucide-react';
+import { X, Sparkles, Zap, Crown, Star, CheckCircle2, ArrowRight, Wallet, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-
-const PLANS = [
- {
- name: 'Starter Vault',
- value: 5000,
- price: '₹5,000',
- color: 'from-blue-500 to-indigo-600',
- border: 'border-blue-200 dark:border-blue-800/30',
- badge: 'bg-blue-100 text-blue-600',
- icon: Zap,
- highlight: false,
- benefits: [
- 'Travel services up to ₹2,000',
- 'PG / Accommodation services',
- 'Food services up to ₹1,300',
- 'Valid for 1 month',
- 'Multi-use within cycle',
- ],
- },
- {
- name: 'Premium Vault',
- value: 10000,
- price: '₹10,000',
- color: 'from-purple-500 to-pink-600',
- border: 'border-purple-200 dark:border-purple-800/30',
- badge: 'bg-purple-100 text-purple-600',
- icon: Star,
- highlight: true,
- benefits: [
- 'All Starter Vault benefits',
- 'Extended travel coverage',
- 'Premium PG stays',
- 'Food & dining perks',
- 'Priority customer support',
- 'Valid for 1 month',
- ],
- },
- {
- name: 'Elite Vault',
- value: 25000,
- price: '₹25,000',
- color: 'from-yellow-500 to-orange-600',
- border: 'border-yellow-200 dark:border-yellow-800/30',
- badge: 'bg-yellow-100 text-yellow-700',
- icon: Crown,
- highlight: false,
- benefits: [
- 'All Premium Vault benefits',
- 'Unlimited service categories',
- 'Exclusive elite services',
- 'Dedicated account manager',
- 'Rollover unused balance (10%)',
- 'Valid for 1 month',
- ],
- },
-];
 
 const MembershipPopup = ({ onClose }) => {
  const [selectedPlan, setSelectedPlan] = useState(null);
  const [loading, setLoading] = useState(false);
+ const [plans, setPlans] = useState([]);
+ const [fetchingPlans, setFetchingPlans] = useState(true);
+
+ useEffect(() => {
+   const fetchPlans = async () => {
+     try {
+       const { data } = await api.get('/membership-plans');
+       const activePlans = data.filter(p => p.status === 'Active');
+       // Map dynamic plans to match the vault structure needed by the UI
+       const mappedPlans = activePlans.map(plan => ({
+         name: plan.name, // e.g., "Premium"
+         value: plan.price,
+         price: `₹${plan.price}`,
+         color: plan.popular ? 'from-purple-500 to-pink-600' : 'from-blue-500 to-indigo-600',
+         border: plan.popular ? 'border-purple-200 dark:border-purple-800/30' : 'border-blue-200 dark:border-blue-800/30',
+         badge: plan.popular ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600',
+         icon: plan.popular ? Star : Zap,
+         highlight: plan.popular,
+         benefits: plan.features
+       }));
+       setPlans(mappedPlans);
+     } catch (err) {
+       console.error('Failed to load membership plans');
+       toast.error('Failed to load dynamic plans');
+     } finally {
+       setFetchingPlans(false);
+     }
+   };
+   fetchPlans();
+ }, []);
 
  const handlePurchase = async (plan) => {
  setLoading(true);
@@ -202,56 +176,63 @@ const MembershipPopup = ({ onClose }) => {
  <p className="text-sm font-bold text-gray-400 mt-2">Valid for services only · Monthly cycle · Multi-use</p>
  </div>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
- {PLANS.map(plan => {
- const Icon = plan.icon;
- const isSelected = selectedPlan?.name === plan.name;
- return (
- <div
- key={plan.name}
- onClick={() => setSelectedPlan(plan)}
- className={`relative cursor-pointer rounded-[2.5rem] border-2 transition-all duration-200 overflow-hidden ${
- isSelected
- ? 'border-primary scale-[1.02] shadow-2xl shadow-primary/20'
- : `${plan.border} hover:border-primary/40 hover:shadow-lg`
- }`}
- >
- {plan.highlight && (
- <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+ {fetchingPlans ? (
+   <div className="flex flex-col items-center justify-center py-12">
+     <Loader2 className="animate-spin text-primary mb-4" size={40} />
+     <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Loading Vault Data...</p>
+   </div>
+ ) : (
+   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+   {plans.map(plan => {
+   const Icon = plan.icon;
+   const isSelected = selectedPlan?.name === plan.name;
+   return (
+   <div
+   key={plan.name}
+   onClick={() => setSelectedPlan(plan)}
+   className={`relative cursor-pointer rounded-[2.5rem] border-2 transition-all duration-200 overflow-hidden ${
+   isSelected
+   ? 'border-primary scale-[1.02] shadow-2xl shadow-primary/20'
+   : `${plan.border} hover:border-primary/40 hover:shadow-lg`
+   }`}
+   >
+   {plan.highlight && (
+   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+   )}
+   {plan.highlight && (
+   <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+   Most Popular
+   </div>
+   )}
+   <div className={`h-2 w-full bg-gradient-to-r ${plan.color}`} />
+   <div className="p-7">
+   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-5`}>
+   <Icon size={22} className="text-white" />
+   </div>
+   <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{plan.name}</h4>
+   <div className="flex items-end gap-1 mb-5">
+   <span className="text-4xl font-black text-gray-900 dark:text-white">{plan.price}</span>
+   <span className="text-xs font-bold text-gray-400 mb-1">/ month</span>
+   </div>
+   <ul className="space-y-2 mb-6">
+   {plan.benefits.map(b => (
+   <li key={b} className="flex items-start gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
+   <CheckCircle2 size={13} className="text-primary mt-0.5 shrink-0" />
+   {b}
+   </li>
+   ))}
+   </ul>
+   {isSelected && (
+   <div className="flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest">
+   <CheckCircle2 size={14} /> Selected
+   </div>
+   )}
+   </div>
+   </div>
+   );
+   })}
+   </div>
  )}
- {plan.highlight && (
- <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
- Most Popular
- </div>
- )}
- <div className={`h-2 w-full bg-gradient-to-r ${plan.color}`} />
- <div className="p-7">
- <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-5`}>
- <Icon size={22} className="text-white" />
- </div>
- <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{plan.name}</h4>
- <div className="flex items-end gap-1 mb-5">
- <span className="text-4xl font-black text-gray-900 dark:text-white">{plan.price}</span>
- <span className="text-xs font-bold text-gray-400 mb-1">/ month</span>
- </div>
- <ul className="space-y-2 mb-6">
- {plan.benefits.map(b => (
- <li key={b} className="flex items-start gap-2 text-xs font-bold text-gray-600 dark:text-gray-300">
- <CheckCircle2 size={13} className="text-primary mt-0.5 shrink-0" />
- {b}
- </li>
- ))}
- </ul>
- {isSelected && (
- <div className="flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest">
- <CheckCircle2 size={14} /> Selected
- </div>
- )}
- </div>
- </div>
- );
- })}
- </div>
 
  {/* How It Works & Trust */}
  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-6 mt-4 mb-8 border border-gray-100 dark:border-gray-700">

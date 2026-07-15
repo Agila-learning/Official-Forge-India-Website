@@ -39,72 +39,99 @@ const JobConsultingPage = () => {
  }
  }, []);
 
- const handlePayment = async (e) => {
- if (e) e.preventDefault();
- const userInfo = JSON.parse(localStorage.getItem('userInfo'));
- 
- if (!userInfo) {
- toast.error('Strategic Authorization Required: Please login to proceed.');
- navigate('/login');
- return;
- }
+  const handlePayment = async (e, formDataOverride = null) => {
+    if (e) e.preventDefault();
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    
+    if (!userInfo) {
+      toast.error('Strategic Authorization Required: Please login to proceed.');
+      navigate('/login');
+      return;
+    }
 
- if (!formData.contactNumber || !formData.specificRequirement) {
- toast.error('Mission Parameters Incomplete: Contact number and requirements are mandatory.');
- return;
- }
+    const dataToSubmit = formDataOverride || formData;
 
- setLoading(true);
- try {
- const { data } = await api.post('/job-consulting/submit', formData);
- if (!data.success) {
- throw new Error(data.message || 'Failed to save inquiry.');
- }
- toast.success('Inquiry registered! Redirecting to secure payment...', { duration: 3000 });
- setTimeout(() => {
- window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
- }, 800);
- } catch (err) {
- toast.error(err.response?.data?.message || err.message || 'Gateway Operational Failure');
- } finally {
- setLoading(false);
- }
- };
+    if (!dataToSubmit.contactNumber || !dataToSubmit.specificRequirement) {
+      toast.error('Mission Parameters Incomplete: Contact number and requirements are mandatory.');
+      if (formDataOverride) {
+        document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
 
- const handleQuickPay = async () => {
- const userInfo = JSON.parse(localStorage.getItem('userInfo'));
- if (!userInfo) {
- toast.error('Strategic Authorization Required: Please login for Quick Pay.');
- navigate('/login');
- return;
- }
+    setLoading(true);
+    try {
+      const { data } = await api.post('/job-consulting/submit', dataToSubmit);
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to save inquiry.');
+      }
+      
+      if (!data.razorpayOrderId) {
+        toast.info('Razorpay API busy. Redirecting to secure payment link...', { duration: 3000 });
+        setTimeout(() => {
+          window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
+        }, 800);
+        return;
+      }
 
- if (!formData.contactNumber || !formData.specificRequirement) {
-   toast.error('Please complete the mission parameters below before Quick Pay.');
-   document.getElementById('consulting-form-section').scrollIntoView({ behavior: 'smooth' });
-   return;
- }
- 
- const quickFormData = {
- ...formData,
- specificRequirement: formData.specificRequirement,
- contactNumber: formData.contactNumber,
- };
+      const options = {
+        key: data.keyId,
+        amount: data.amount * 100,
+        currency: data.currency,
+        name: "Forge India Connect",
+        description: `Job Consulting - ${dataToSubmit.consultingType}`,
+        image: "/logo.jpg",
+        order_id: data.razorpayOrderId,
+        handler: async (response) => {
+          try {
+            await api.post('/job-consulting/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              inquiryId: data.inquiryId
+            });
+            toast.success('🎉 Payment Confirmed! Our expert will reach out to you shortly.');
+            setFormData({
+              consultingType: 'Career Guidance',
+              experience: 'Fresher (0-1 yr)',
+              currentRole: '',
+              specificRequirement: '',
+              contactNumber: userInfo.mobile || '',
+            });
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: data.candidateName,
+          email: data.email,
+          contact: data.contactNumber
+        },
+        theme: { color: "#2563eb" },
+        modal: {
+          ondismiss: () => {
+            toast.error('Payment cancelled');
+          }
+        }
+      };
 
- setLoading(true);
- try {
- const { data } = await api.post('/job-consulting/submit', quickFormData);
- if (!data.success) throw new Error(data.message);
- toast.success('Redirecting to secure payment gateway...', { duration: 3000 });
- setTimeout(() => {
- window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
- }, 800);
- } catch (err) {
- toast.error(err.response?.data?.message || err.message || 'Failed to initiate payment.');
- } finally {
- setLoading(false);
- }
- };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Gateway Operational Failure');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuickPay = async () => {
+    await handlePayment(null, {
+      ...formData,
+      specificRequirement: formData.specificRequirement,
+      contactNumber: formData.contactNumber,
+    });
+  };
 
  return (
  <>

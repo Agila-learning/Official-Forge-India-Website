@@ -51,7 +51,9 @@ const Login = () => {
  'Delivery Partner': '/delivery',
  'Candidate': '/candidate/dashboard',
  'Trainer': '/trainer-dashboard',
- 'Customer': '/profile'
+ 'Customer': '/profile',
+ 'Driver': '/ride-partner',
+ 'Ride Provider': '/ride-partner'
  };
  
  navigate(roleMap[data.role] || '/');

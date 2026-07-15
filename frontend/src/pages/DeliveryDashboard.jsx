@@ -202,7 +202,7 @@ const DeliveryDashboard = () => {
       <div className="mb-6 flex justify-end">
         <ServiceModeToggle currentMode={serviceMode} onToggle={(mode) => {
           setServiceMode(mode);
-          if (mode === 'Rides') window.location.href = '/driver-dashboard';
+          if (mode === 'Rides') window.location.href = '/ride-partner';
         }} />
       </div>
       {/* Top Utility Bar */}
