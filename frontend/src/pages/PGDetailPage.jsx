@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation as useRouteLocation } from 'react-router-dom';
 import {
   MapPin, Star, Wifi, Car, Shield, Dumbbell, Coffee, Home,
   ChevronLeft, ChevronRight, Check, Calendar, Users, Phone,
-  Mail, ArrowRight, Loader2, X, BedDouble, Info, Clock
+  Mail, ArrowRight, Loader2, X, BedDouble, Info, Clock, LogIn
 } from 'lucide-react';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -33,6 +33,7 @@ const DEMO = {
 const PGDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const routeLocation = useRouteLocation();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
@@ -40,17 +41,37 @@ const PGDetailPage = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [moveIn, setMoveIn] = useState('');
   const [duration, setDuration] = useState('Monthly');
-  const [guestName, setGuestName] = useState('');
-  const [guestPhone, setGuestPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  const isLoggedIn = !!userInfo;
+
+  // Redirect to login if not authenticated, preserving current path
+  const requireLogin = () => {
+    if (!isLoggedIn) {
+      toast('Please login to book this property', { icon: '🔒' });
+      navigate('/login', { state: { returnUrl: routeLocation.pathname } });
+      return false;
+    }
+    return true;
+  };
+
+  // Build gallery from DB images + viewImages
+  const buildGallery = (prod) => {
+    const imgs = [];
+    if (prod.image) imgs.push(prod.image);
+    if (prod.viewImages) {
+      Object.values(prod.viewImages).forEach(v => { if (v) imgs.push(v); });
+    }
+    if (prod.gallery?.length) prod.gallery.forEach(g => { if (g && !imgs.includes(g)) imgs.push(g); });
+    return imgs.length ? imgs : [DEMO.image];
+  };
 
   useEffect(() => {
     const fetchProperty = async () => {
       try {
         if (id.startsWith('demo')) { setProperty(DEMO); setLoading(false); return; }
         const { data } = await api.get(`/products/${id}`);
-        setProperty({ ...data, gallery: [data.image, ...(data.gallery || [])].filter(Boolean) });
+        setProperty({ ...data, gallery: buildGallery(data) });
       } catch {
         setProperty(DEMO);
       } finally {
@@ -61,25 +82,31 @@ const PGDetailPage = () => {
   }, [id]);
 
   const handleBook = async (e) => {
+
     e.preventDefault();
+    if (!requireLogin()) return;
     if (!selectedRoom) { toast.error('Please select a room type'); return; }
+    if (!moveIn) { toast.error('Please select a move-in date'); return; }
     setSubmitting(true);
     try {
-      const payload = {
-        serviceSlug: 'pg',
-        serviceName: property.name,
-        bookingData: { roomType: selectedRoom.type, moveInDate: moveIn, duration, location: property.location },
-        totalPrice: selectedRoom.price,
-        name: userInfo ? `${userInfo.firstName} ${userInfo.lastName}` : guestName,
-        contactNumber: userInfo ? userInfo.mobile : guestPhone,
-        paymentMethod: 'Online'
-      };
       const token = localStorage.getItem('token');
-      await api.post('/bookings', payload, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+      const payload = {
+        propertyId: property._id,
+        propertyName: property.name,
+        roomType: selectedRoom.type,
+        moveInDate: moveIn,
+        duration,
+        location: property.location,
+        totalPrice: selectedRoom.price,
+        customerName: `${userInfo.firstName} ${userInfo.lastName}`,
+        contactNumber: userInfo.mobile,
+        paymentMethod: 'Offline',
+      };
+      await api.post('/bookings/pg', payload, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Booking request submitted! Our team will contact you within 30 mins.', { duration: 5000 });
       setShowBooking(false);
     } catch (err) {
-      toast.error('Booking failed. Please try again.');
+      toast.error(err.response?.data?.message || 'Booking failed. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -213,6 +240,21 @@ const PGDetailPage = () => {
           {/* Right: Booking Widget */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
+              {/* Login banner for guests */}
+              {!isLoggedIn && (
+                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl flex items-center gap-3">
+                  <LogIn size={18} className="text-blue-600 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-widest">Login Required</p>
+                    <p className="text-[10px] text-blue-500 font-medium">Please login to book this property</p>
+                  </div>
+                  <button onClick={() => navigate('/login', { state: { returnUrl: routeLocation.pathname } })}
+                    className="ml-auto px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+                    Login
+                  </button>
+                </motion.div>
+              )}
               <div className="bg-white dark:bg-dark-card rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl p-8">
                 <div className="text-center mb-8">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Starting From</p>
@@ -226,7 +268,7 @@ const PGDetailPage = () => {
 
                 <div className="space-y-4 mb-6">
                   {roomTypes.map(room => (
-                    <button key={room.type} onClick={() => setSelectedRoom(room)}
+                    <button key={room.type} onClick={() => { if (requireLogin()) setSelectedRoom(room); }}
                       className={`w-full flex justify-between items-center p-4 rounded-2xl border-2 transition-all font-bold text-sm ${selectedRoom?.type === room.type ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'border-slate-100 dark:border-slate-800 text-slate-700 dark:text-white hover:border-blue-300'}`}>
                       <span>{room.type}</span>
                       <span className="font-black">₹{room.price?.toLocaleString()}/mo</span>
@@ -234,9 +276,9 @@ const PGDetailPage = () => {
                   ))}
                 </div>
 
-                <button onClick={() => setShowBooking(true)}
+                <button onClick={() => { if (requireLogin()) setShowBooking(true); }}
                   className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-sm uppercase tracking-widest shadow-xl transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
-                  Book This Property <ArrowRight size={16} />
+                  {isLoggedIn ? <><ArrowRight size={16} /> Book This Property</> : <><LogIn size={16} /> Login to Book</>}
                 </button>
 
                 <div className="mt-6 space-y-3">
@@ -298,19 +340,13 @@ const PGDetailPage = () => {
                   </div>
                 </div>
 
-                {!userInfo && (
-                  <>
-                    <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Your Name *</label>
-                      <input required value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Full Name"
-                        className="w-full p-3 bg-slate-50 dark:bg-dark-bg rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Phone Number *</label>
-                      <input required value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="+91 9XXXXXXXXX" type="tel"
-                        className="w-full p-3 bg-slate-50 dark:bg-dark-bg rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:border-blue-500" />
-                    </div>
-                  </>
+                {/* Logged-in user info display */}
+                {isLoggedIn && (
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-800">
+                    <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Booking as</p>
+                    <p className="font-black text-slate-900 dark:text-white text-sm">{userInfo.firstName} {userInfo.lastName}</p>
+                    <p className="text-[11px] text-slate-500 font-medium">{userInfo.mobile || userInfo.email}</p>
+                  </div>
                 )}
 
                 {selectedRoom && (

@@ -39,15 +39,9 @@ const JobConsultingPage = () => {
  }
  }, []);
 
-  const handlePayment = async (e, formDataOverride = null) => {
+  const handleSubmitInquiry = async (e, formDataOverride = null) => {
     if (e) e.preventDefault();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    
-    if (!userInfo) {
-      toast.error('Strategic Authorization Required: Please login to proceed.');
-      navigate('/login');
-      return;
-    }
 
     const dataToSubmit = formDataOverride || formData;
 
@@ -61,76 +55,32 @@ const JobConsultingPage = () => {
 
     setLoading(true);
     try {
-      const { data } = await api.post('/job-consulting/submit', dataToSubmit);
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to save inquiry.');
-      }
-      
-      if (!data.razorpayOrderId) {
-        toast.info('Razorpay API busy. Redirecting to secure payment link...', { duration: 3000 });
-        setTimeout(() => {
-          window.open(data.paymentLink, '_blank', 'noopener,noreferrer');
-        }, 800);
-        return;
-      }
-
-      const options = {
-        key: data.keyId,
-        amount: data.amount * 100,
-        currency: data.currency,
-        name: "Forge India Connect",
-        description: `Job Consulting - ${dataToSubmit.consultingType}`,
-        image: "/logo.jpg",
-        order_id: data.razorpayOrderId,
-        handler: async (response) => {
-          try {
-            await api.post('/job-consulting/verify-payment', {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              inquiryId: data.inquiryId
-            });
-            toast.success('🎉 Payment Confirmed! Our expert will reach out to you shortly.');
-            setFormData({
-              consultingType: 'Career Guidance',
-              experience: 'Fresher (0-1 yr)',
-              currentRole: '',
-              specificRequirement: '',
-              contactNumber: userInfo.mobile || '',
-            });
-          } catch (err) {
-            toast.error(err.response?.data?.message || 'Verification failed. Please contact support.');
-          }
-        },
-        prefill: {
-          name: data.candidateName,
-          email: data.email,
-          contact: data.contactNumber
-        },
-        theme: { color: "#2563eb" },
-        modal: {
-          ondismiss: () => {
-            toast.error('Payment cancelled');
-          }
-        }
+      const payload = {
+        serviceType: 'Job Consulting',
+        specificRequirement: `[${dataToSubmit.consultingType}] - Exp: ${dataToSubmit.experience}\nRole: ${dataToSubmit.currentRole}\nDetails: ${dataToSubmit.specificRequirement}`,
+        contactNumber: dataToSubmit.contactNumber,
+        name: userInfo ? userInfo.name : 'Guest Candidate',
+        email: userInfo ? userInfo.email : 'guest@example.com',
       };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-
+      
+      await api.post('/inquiries', payload);
+      toast.success('🎉 Request Submitted! Our expert will reach out to you shortly.');
+      setFormData({
+        consultingType: 'Career Guidance',
+        experience: 'Fresher (0-1 yr)',
+        currentRole: '',
+        specificRequirement: '',
+        contactNumber: userInfo ? (userInfo.mobile || userInfo.phone || '') : '',
+      });
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Gateway Operational Failure');
+      toast.error(err.response?.data?.message || 'Submission failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickPay = async () => {
-    await handlePayment(null, {
-      ...formData,
-      specificRequirement: formData.specificRequirement,
-      contactNumber: formData.contactNumber,
-    });
+  const handleQuickSubmit = async () => {
+    await handleSubmitInquiry(null, formData);
   };
 
  return (
@@ -248,9 +198,15 @@ const JobConsultingPage = () => {
  
  <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
  <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Tactical Partners</p>
- <div className="flex flex-wrap gap-x-6 gap-y-3">
+  <div className="flex flex-wrap gap-x-6 gap-y-3 mb-8">
  {sector.companies.map(c => <span key={c} className="text-gray-500 dark:text-gray-400 font-black text-xs md:text-sm uppercase tracking-tight">{c}</span>)}
  </div>
+  <Link 
+    to={sector.name.includes('Banking') ? '/services/category/banking-finance' : '/explore-jobs'} 
+    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-primary hover:text-white transition-all border border-gray-200 dark:border-gray-800 hover:border-primary mt-6"
+  >
+    {sector.name.includes('Banking') ? 'View Jobs' : 'Find Jobs'} <ArrowRight size={14} />
+  </Link>
  </div>
  </div>
  </motion.div>
@@ -297,10 +253,10 @@ const JobConsultingPage = () => {
  </div>
 
  <button 
- onClick={handleQuickPay}
+ onClick={handleQuickSubmit}
  className="w-full py-5 bg-white text-black font-black rounded-2xl text-xs uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-xl shadow-white/10 active:scale-95 flex items-center justify-center gap-2 group"
  >
- Instant Quick Pay <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+ Submit Request <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
  </button>
  </div>
 
@@ -325,7 +281,7 @@ const JobConsultingPage = () => {
  <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-3">Initiate Mission</h3>
  <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.2em]">Define your tactical parameters below to generate your brief.</p>
  </div>
- <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handlePayment} loading={loading} />
+ <ConsultingForm formData={formData} setFormData={setFormData} handlePayment={handleSubmitInquiry} loading={loading} />
  </div>
  </div>
 

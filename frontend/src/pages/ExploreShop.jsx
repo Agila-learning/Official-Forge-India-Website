@@ -175,11 +175,16 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
   const matchesSearch = product.name?.toLowerCase().includes(searchQuery.toLowerCase());
   const matchesShop = !shopFilter || (product.shopName && product.shopName.toLowerCase().includes(shopFilter.toLowerCase()));
 
-  const matchesPincode = !pincodeFilter ||
-    !product.pincode ||
-    product.pincode.length === 0 ||
-    (typeof product.pincode === 'string' ? product.pincode.includes(pincodeFilter) : product.pincode.includes(pincodeFilter)) ||
-    (product.serviceableArea && product.serviceableArea.some(area => area.includes(pincodeFilter)));
+  const matchesPincode = !pincodeFilter || (() => {
+    const term = pincodeFilter.toLowerCase();
+    if (product.pincode && typeof product.pincode === 'string' && product.pincode.toLowerCase().includes(term)) return true;
+    if (product.location && typeof product.location === 'string' && product.location.toLowerCase().includes(term)) return true;
+    if (product.serviceableArea && product.serviceableArea.some(area => area.toLowerCase().includes(term))) return true;
+    if (product.vendorId && product.vendorId.city && product.vendorId.city.toLowerCase().includes(term)) return true;
+    // Allow products with no location specified to show globally, unless strict filtering is preferred
+    if (!product.pincode && !product.location && (!product.serviceableArea || product.serviceableArea.length === 0) && (!product.vendorId || !product.vendorId.city)) return true;
+    return false;
+  })();
 
   const matchesPrice = (product.price || 0) <= priceRange;
 
@@ -313,8 +318,7 @@ import ServiceInquiryForm from '../components/ui/ServiceInquiryForm';
  <MapPin className={`ml-3 transition-colors ${locationStatus === 'serviceable' ? 'text-green-500' : locationStatus === 'not-serviceable' ? 'text-red-500' : 'text-gray-400'}`} size={16} />
  <input 
  type="text" 
- placeholder="Pincode" 
- maxLength={6}
+ placeholder="Location or Pincode" 
  value={pincode}
  onChange={(e) => setPincode(e.target.value)}
  className="w-full py-2 bg-transparent outline-none font-bold text-gray-700 dark:text-white text-[12px]"

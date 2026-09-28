@@ -118,13 +118,6 @@ const DIVISIONS = [
     link: '/explore-jobs',
   },
   {
-    icon: Code2,
-    name: 'Antigraviity Technologies',
-    tagline: 'Full-stack digital engineering & cybersecurity.',
-    services: ['Enterprise Web & Mobile Apps', 'AI-Powered Recruitment Tools', 'Cybersecurity & Penetration Testing', 'Cloud Infrastructure & DevOps', 'UI/UX Design Systems'],
-    link: '/antigraviity',
-  },
-  {
     icon: Layers,
     name: 'FIC Service Arena',
     tagline: 'Unified B2B & B2C service marketplace.',
@@ -212,9 +205,9 @@ const AboutUs = () => {
               <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
                 className="grid grid-cols-2 gap-4"
               >
-                <StatCard icon={Users} value="20000" suffix="+" label="Candidates Placed" color="bg-primary" delay={0.1} />
-                <StatCard icon={Building2} value="180" suffix="+" label="Corporate Partners" color="bg-indigo-500" delay={0.2} />
-                <StatCard icon={Globe} value="3" suffix="+" label="Regional Hubs" color="bg-violet-500" delay={0.3} />
+                <StatCard icon={Users} value="1500" suffix="+" label="Candidates Placed" color="bg-primary" delay={0.1} />
+                <StatCard icon={Building2} value="100" suffix="+" label="Corporate Partners" color="bg-indigo-500" delay={0.2} />
+                <StatCard icon={Globe} value="2" suffix="+" label="Regional Hubs" color="bg-violet-500" delay={0.3} />
                 <StatCard icon={Award} value="95" suffix="%" label="Placement Success" color="bg-emerald-500" delay={0.4} />
               </motion.div>
             </div>
@@ -360,49 +353,6 @@ const AboutUs = () => {
           </div>
         </section>
 
-        {/* ── Antigraviity Showcase ── */}
-        <section className="py-28 px-6">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="relative p-10 md:p-20 bg-slate-900 rounded-[3rem] overflow-hidden group shadow-2xl"
-            >
-              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col lg:flex-row items-center gap-16">
-                <div className="flex-1 space-y-8">
-                  <span className="inline-block px-5 py-2 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full">
-                    The Tech Powerhouse
-                  </span>
-                  <h2 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tighter">
-                    Antigraviity<br />
-                    <span className="text-primary">Technologies.</span>
-                  </h2>
-                  <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
-                    As the technology wing of the FIC Group, Antigraviity engineers the platform infrastructure that powers our regional connectivity — from cybersecurity to next-gen AI recruitment tools.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {['AI & ML', 'Cybersecurity', 'Cloud', 'Web Apps', 'Mobile'].map(tag => (
-                      <span key={tag} className="px-4 py-2 bg-white/10 text-white/70 text-xs font-bold rounded-xl border border-white/10">{tag}</span>
-                    ))}
-                  </div>
-                  <Link to="/antigraviity" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all">
-                    Visit Antigraviity <ArrowRight size={16} />
-                  </Link>
-                </div>
-
-                <div className="w-full lg:w-72 aspect-square bg-white/5 backdrop-blur-xl rounded-[3rem] border border-white/10 flex items-center justify-center relative group-hover:rotate-6 transition-transform duration-700 shrink-0">
-                  <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <Cpu size={100} className="text-primary/60 relative z-10 group-hover:text-primary transition-colors duration-500" />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         {/* ── Location Map ── */}
         <section className="py-28 px-6 bg-slate-50 dark:bg-dark-bg border-t border-slate-100 dark:border-slate-800">
           <div className="max-w-7xl mx-auto">
@@ -415,7 +365,7 @@ const AboutUs = () => {
               </h2>
               <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto flex items-center justify-center gap-2">
                 <MapPin size={18} className="text-primary shrink-0" />
-                <span>No 83, Hyundai Showroom, 1st Floor, Opp Jio Petrol Bunk, Tirupattur, Tamil Nadu - 635853</span>
+                <span>RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002</span>
               </p>
             </div>
             <motion.div
@@ -425,14 +375,14 @@ const AboutUs = () => {
               className="w-full h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 relative z-10"
             >
               <iframe
-                src="https://maps.google.com/maps?q=No%2083,%20hyundai%20showroom,%201st%20floor,%20oppo%20to%20Jio%20petrol%20Bunk,%20Tirupattur,%20Tamil%20Nadu%20-%20635853&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=RK%20Towers,%20Rayakottai%20Rd,%20Wahab%20Nagar,%20Krishnagiri,%20Tamil%20Nadu%20635002&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="FIC Tirupattur Office Location"
+                title="FIC Krishnagiri Head Office"
               ></iframe>
             </motion.div>
           </div>

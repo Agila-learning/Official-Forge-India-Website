@@ -53,7 +53,13 @@ const JobApplicationForm = ({ isOpen, onClose, jobId, onSuccess, jobTitle = "Gen
  }
 
  // POST to backend API - using api instead of axios
- const response = await api.post('/applications/apply', {
+ if (!finalResumeUrl) {
+    toast.error('Resume is mandatory. Please upload a resume.');
+    setIsSubmitting(false);
+    return;
+  }
+
+  const response = await api.post('/applications/apply', {
  ...formData,
  resumeUrl: finalResumeUrl,
  userId: userInfo?._id,

@@ -1,16 +1,23 @@
 const Service = require('../models/Service');
 
-// @desc    Get all active services
+// @desc    Get all active services (supports ?city=Coimbatore or ?location=Chennai)
 // @route   GET /api/services
 // @access  Public
 const getServices = async (req, res) => {
   try {
-    const services = await Service.find({ status: true });
+    const { city, location } = req.query;
+    const filter = { status: true };
+    const locationQuery = city || location;
+    if (locationQuery) {
+      filter.availableCities = { $elemMatch: { $regex: locationQuery, $options: 'i' } };
+    }
+    const services = await Service.find(filter);
     res.json(services);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // @desc    Get a single service by slug
 // @route   GET /api/services/:slug

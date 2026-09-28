@@ -125,14 +125,15 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
  onClick={onClose}
- className="fixed inset-0 bg-dark-bg/80 backdrop-blur-md z-[2000] flex items-center justify-center p-4 md:p-6"
+ className="fixed inset-0 bg-dark-bg/80 backdrop-blur-md z-[2000] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
  >
  <motion.div
  initial={{ opacity: 0, scale: 0.9, y: 20 }}
  animate={{ opacity: 1, scale: 1, y: 0 }}
  exit={{ opacity: 0, scale: 0.9, y: 20 }}
  onClick={e => e.stopPropagation()}
- className="w-full max-w-[600px] max-h-full md:max-h-[90vh] bg-white dark:bg-dark-card rounded-[2.5rem] md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col relative"
+ className="w-full max-w-[600px] my-auto bg-white dark:bg-dark-card rounded-[2.5rem] md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col relative"
+ style={{ maxHeight: 'min(90vh, 700px)' }}
  >
  <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-dark-bg/50">
  <div>

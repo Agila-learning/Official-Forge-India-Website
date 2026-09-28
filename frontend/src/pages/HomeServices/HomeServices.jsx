@@ -226,8 +226,8 @@ const HomeServices = () => {
  <p className="text-3xl font-black tracking-tighter text-blue-500">₹{s.price}</p>
  </div>
  <button 
- onClick={() => navigate(`/home-services/booking/${s._id}`)}
- className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all uppercase text-[10px] tracking-widest"
+ onClick={() => toast.success('Service will launch soon in your area!', { icon: '🚀' })}
+ className="px-10 py-5 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2"
  >
  Book Now
  </button>

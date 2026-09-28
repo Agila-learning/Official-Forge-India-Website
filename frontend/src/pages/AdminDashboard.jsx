@@ -22,6 +22,8 @@ import MissionMap from '../components/ui/MissionMap';
 import AdminTripsManager from '../components/admin/AdminTripsManager';
 import AdminDriverVerification from '../components/admin/AdminDriverVerification';
 import CompanyFeedManager from '../components/admin/CompanyFeedManager';
+import AtomyManager from '../components/admin/AtomyManager';
+import GalleryManager from '../components/admin/GalleryManager';
 
 // ─── Fare Config Editor ───────────────────────────────────────────────────────
 const FareConfigEditor = () => {
@@ -104,13 +106,13 @@ const FareConfigEditor = () => {
 
 
 const AdminDashboard = () => {
- const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [], companyUpdates: [], safetyReports: [] });
+ const [data, setData] = useState({ events: [], jobs: [], products: [], faqs: [], users: [], contacts: [], candidates: [], testimonials: [], tickets: [], inquiries: [], homeCategories: [], homeSubCategories: [], productCategories: [], serviceCategories: [], settlements: [], serviceRegistrations: [], deliveryPartners: [], vehicleTypes: [], bookings: [], companyUpdates: [], safetyReports: [], gallery: [] });
  const [selectedServiceCategoryId, setSelectedServiceCategoryId] = useState('');
  const [locationRequests, setLocationRequests] = useState([]);
  const [loadStatus, setLoadStatus] = useState({ loading: false, error: '' });
  const location = useLocation();
  const [activeTab, setActiveTab] = useState('overview');
- const [editingItem, setEditingItem] = useState({ events: null, jobs: null, products: null, faqs: null, candidates: null, locations: null, testimonials: null });
+ const [editingItem, setEditingItem] = useState({ events: null, jobs: null, products: null, faqs: null, candidates: null, locations: null, testimonials: null, gallery: null });
  const [selectedUserKYC, setSelectedUserKYC] = useState(null);
  const { socket, fetchNotifications } = useNotifications();
  const [managedSlots, setManagedSlots] = useState([]);
@@ -258,7 +260,8 @@ const AdminDashboard = () => {
         homeCategories: '/home-categories',
         homeSubCategories: '/home-categories/sub',
         membershipPlans: '/membership-plans/all',
-        safetyReports: '/rides/admin/safety-reports'
+        safetyReports: '/rides/admin/safety-reports',
+        gallery: '/gallery'
       };
 
       const results = {};
@@ -365,6 +368,12 @@ const AdminDashboard = () => {
  if (endpoint === 'testimonials') {
  payload.featured = payload.featured === 'on';
  payload.rating = Number(payload.rating || 5);
+ }
+ 
+ if (endpoint === 'jobs') {
+ payload.isFeatured = payload.isFeatured === 'on';
+ if (payload.displayOrder) payload.displayOrder = Number(payload.displayOrder);
+ if (payload.openings) payload.openings = Number(payload.openings);
  }
  
  if (endpoint === 'products') {
@@ -554,6 +563,7 @@ const AdminDashboard = () => {
  { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
  { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
  { id: 'media', icon: Image, label: 'Media Manager' },
+ { id: 'gallery', icon: Image, label: 'FIC Gallery' },
  { id: 'company-updates', icon: Image, label: 'Company Updates' },
  { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
  { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
@@ -915,11 +925,30 @@ const AdminDashboard = () => {
  <input name="companyName" defaultValue={editingItem.jobs?.companyName || ''} required type="text" placeholder="Forge India Connect" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Department</label>
+ <input name="department" defaultValue={editingItem.jobs?.department || ''} type="text" placeholder="Engineering" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Job Category</label>
+ <input name="category" defaultValue={editingItem.jobs?.category || ''} type="text" placeholder="IT, Sales, etc." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div>
  <label className="block text-sm font-bold mb-2 uppercase">Location</label>
  <input name="location" defaultValue={editingItem.jobs?.location || ''} required type="text" placeholder="Bangalore / Remote" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div>
- <label className="block text-sm font-bold mb-2 uppercase">Salary Package</label>
+ <label className="block text-sm font-bold mb-2 uppercase">Employment Type</label>
+ <select name="type" defaultValue={editingItem.jobs?.type || ''} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="">Select Type</option>
+ <option value="Full Time">Full Time</option>
+ <option value="Part Time">Part Time</option>
+ <option value="Contract">Contract</option>
+ <option value="Internship">Internship</option>
+ <option value="Freelance">Freelance</option>
+ </select>
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Salary Package / CTC</label>
  <input name="salary" defaultValue={editingItem.jobs?.salary || ''} required type="text" placeholder="2.5 - 3 LPA" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div>
@@ -927,8 +956,52 @@ const AdminDashboard = () => {
  <input name="experience" defaultValue={editingItem.jobs?.experience || ''} required type="text" placeholder="2+ Years" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
  </div>
  <div>
- <label className="block text-sm font-bold mb-2 uppercase">Requirements (Comma Separated)</label>
- <input name="requirements" defaultValue={Array.isArray(editingItem.jobs?.requirements) ? editingItem.jobs.requirements.join(', ') : (editingItem.jobs?.requirements || '')} type="text" placeholder="React, Node.js, AWS" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ <label className="block text-sm font-bold mb-2 uppercase">Education</label>
+ <input name="education" defaultValue={editingItem.jobs?.education || ''} type="text" placeholder="B.Tech, MCA, etc." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Number of Openings</label>
+ <input name="openings" defaultValue={editingItem.jobs?.openings || 1} type="number" min="1" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div className="md:col-span-2">
+ <label className="block text-sm font-bold mb-2 uppercase">Skills Required</label>
+ <input name="skills" defaultValue={editingItem.jobs?.skills || ''} type="text" placeholder="React, Node.js, AWS" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div className="md:col-span-2">
+ <label className="block text-sm font-bold mb-2 uppercase">Requirements</label>
+ <textarea name="requirements" defaultValue={editingItem.jobs?.requirements || ''} rows="3" placeholder="List of requirements..." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none"></textarea>
+ </div>
+ <div className="md:col-span-2">
+ <label className="block text-sm font-bold mb-2 uppercase">Responsibilities</label>
+ <textarea name="responsibilities" defaultValue={editingItem.jobs?.responsibilities || ''} rows="3" placeholder="Key responsibilities..." className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none"></textarea>
+ </div>
+ <div className="md:col-span-2">
+ <label className="block text-sm font-bold mb-2 uppercase">Job Description</label>
+ <textarea name="description" defaultValue={editingItem.jobs?.description || ''} rows="4" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none"></textarea>
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Application Deadline</label>
+ <input name="expiryDate" defaultValue={editingItem.jobs?.expiryDate ? new Date(editingItem.jobs.expiryDate).toISOString().split('T')[0] : ''} type="date" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase">Contact / Application Method</label>
+ <input name="contactMethod" defaultValue={editingItem.jobs?.contactMethod || ''} type="text" placeholder="careers@forgeindiaconnect.com" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase text-purple-500">Job Status</label>
+ <select name="status" defaultValue={editingItem.jobs?.status || 'Draft'} className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none font-bold text-sm">
+ <option value="Published">Published (Live)</option>
+ <option value="Draft">Draft (Hidden)</option>
+ <option value="Closed">Closed</option>
+ </select>
+ </div>
+ <div>
+ <label className="block text-sm font-bold mb-2 uppercase text-purple-500">Display Order</label>
+ <input name="displayOrder" defaultValue={editingItem.jobs?.displayOrder || 0} type="number" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none" />
+ </div>
+ <div className="flex items-center gap-4 mt-6">
+ <input type="checkbox" name="isFeatured" defaultChecked={editingItem.jobs?.isFeatured} id="isFeaturedJob" className="w-5 h-5 accent-primary" />
+ <label htmlFor="isFeaturedJob" className="text-sm font-bold uppercase cursor-pointer">Mark as Featured Job</label>
  </div>
  <div>
  <label className="block text-sm font-bold mb-2 uppercase text-purple-500">Assigned HR Personnel</label>
@@ -939,11 +1012,7 @@ const AdminDashboard = () => {
  ))}
  </select>
  </div>
- <div className="md:col-span-2">
- <label className="block text-sm font-bold mb-2 uppercase">Job Description</label>
- <textarea name="description" defaultValue={editingItem.jobs?.description || ''} rows="3" className="w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-bg outline-none"></textarea>
- </div>
- <button type="submit" className="md:col-span-2 py-5 bg-primary text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all">
+ <button type="submit" className="md:col-span-2 py-5 bg-primary text-white font-black rounded-2xl hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all mt-4">
  {editingItem.jobs ? 'Save Job Modifications' : 'Post Job Opportunity'}
  </button>
  </form>
@@ -955,7 +1024,13 @@ const AdminDashboard = () => {
  {data.jobs.filter(j => ((j.hrId?._id || j.hrId) === userInfo._id || j.hrId?.role === 'Admin') && (!searchQuery || j.title?.toLowerCase().includes(searchQuery.toLowerCase()) || j.companyName?.toLowerCase().includes(searchQuery.toLowerCase()))).map(job => (
  <div key={job._id} className="flex items-center justify-between p-6 bg-white dark:bg-dark-bg rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all group">
  <div>
- <h4 className="font-black text-lg group-hover:text-primary transition-colors">{job.title}</h4>
+ <h4 className="font-black text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+  {job.title} 
+  {job.status === 'Published' && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Live</span>}
+  {job.status === 'Draft' && <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Draft</span>}
+  {job.status === 'Closed' && <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Closed</span>}
+  {job.isFeatured && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Featured</span>}
+ </h4>
  <p className="text-sm text-gray-500">{job.location} | {job.salary}</p>
  </div>
  <div className="flex gap-2">
@@ -2071,6 +2146,11 @@ const AdminDashboard = () => {
  </div>
  )}
 
+ {/* GALLERY MANAGER TAB */}
+ {activeTab === 'gallery' && (
+ <GalleryManager data={data} setData={setData} />
+ )}
+
  {/* MEDIA MANAGER TAB */}
  {activeTab === 'media' && (
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -2821,7 +2901,7 @@ const AdminDashboard = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="border-b border-gray-100 dark:border-gray-800">
- {['Client', 'Type', 'Payment', 'Requirement', 'Contact', 'Status', 'Actions'].map(h => (
+ {['Ref ID', 'Client / Company', 'Service', 'Requirements / Budget', 'Contact', 'Status', 'Actions'].map(h => (
  <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
  ))}
  </tr>
@@ -2830,39 +2910,40 @@ const AdminDashboard = () => {
  {data.inquiries?.filter(inquiry => {
   if (!searchQuery) return true;
   const q = searchQuery.toLowerCase();
-  const name = inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : (inquiry.guestName || '');
+  const name = inquiry.fullName || inquiry.guestName || (inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : '');
   const email = inquiry.user ? inquiry.user.email : (inquiry.guestEmail || '');
-  return (name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || (inquiry.serviceName || '').toLowerCase().includes(q));
+  const ref = inquiry.referenceId || '';
+  return (name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || (inquiry.serviceType || '').toLowerCase().includes(q) || ref.toLowerCase().includes(q));
   }).map(inquiry => (
  <tr key={inquiry._id} className="group hover:bg-gray-50 dark:hover:bg-dark-bg/50 transition-colors">
  <td className="py-5 pr-4">
- <p className="font-bold text-sm">
- {inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : (inquiry.guestName || 'Guest Candidate')}
- </p>
- <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
- {inquiry.user ? inquiry.user.email : (inquiry.guestEmail || 'Email Undisclosed')}
- </p>
+    <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
+       {inquiry.referenceId || 'N/A'}
+    </span>
  </td>
  <td className="py-5 pr-4">
- <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{inquiry.serviceType}</span>
- {inquiry.consultingType && (
- <p className="text-[8px] font-black text-gray-400 uppercase mt-1 tracking-wider">{inquiry.consultingType}</p>
- )}
+   <p className="font-bold text-sm">
+     {inquiry.fullName || inquiry.guestName || (inquiry.user ? `${inquiry.user.firstName} ${inquiry.user.lastName}` : 'Guest')}
+   </p>
+   {inquiry.companyName && <p className="text-[10px] text-gray-500 font-bold uppercase mt-0.5">{inquiry.companyName}</p>}
+   <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate max-w-[120px] mt-0.5">
+     {inquiry.user ? inquiry.user.email : (inquiry.guestEmail || 'No Email')}
+   </p>
  </td>
  <td className="py-5 pr-4">
- <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${inquiry.paymentStatus === 'Paid' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
- {inquiry.paymentStatus || 'Unpaid'}
- </span>
- {inquiry.razorpayPaymentId && (
- <p className="text-[8px] font-mono text-gray-400 mt-1">{inquiry.razorpayPaymentId.slice(-8)}</p>
- )}
+   <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap">{inquiry.serviceType}</span>
+   {inquiry.enquiryType && (
+     <p className="text-[8px] font-black text-gray-400 uppercase mt-1 tracking-wider">{inquiry.enquiryType}</p>
+   )}
+ </td>
+ <td className="py-5 pr-4 max-w-[200px]">
+   <p className="text-xs font-bold text-gray-700 dark:text-gray-300 line-clamp-1">{inquiry.specificRequirement || inquiry.projectType}</p>
+   <p className="text-[9px] text-gray-500 line-clamp-2 mt-0.5" title={inquiry.message}>{inquiry.message}</p>
+   {inquiry.budget && <span className="inline-block mt-1 px-2 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-600 rounded text-[8px] font-bold">Budget: {inquiry.budget}</span>}
  </td>
  <td className="py-5 pr-4">
- <p className="text-xs font-bold text-gray-700 dark:text-gray-300 line-clamp-1">{inquiry.specificRequirement}</p>
- <p className="text-[9px] text-gray-500 line-clamp-1 mt-0.5">{inquiry.message}</p>
- </td>
- <td className="py-5 pr-4">
- <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{inquiry.contactNumber}</p>
+   <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{inquiry.contactNumber}</p>
+   {inquiry.preferredContactMethod && <p className="text-[9px] text-gray-400 mt-0.5">Prefers: {inquiry.preferredContactMethod}</p>}
  </td>
  <td className="py-5 pr-4">
  <select 
@@ -4379,6 +4460,11 @@ const AdminDashboard = () => {
   {activeTab === 'company-updates' && (
     <div className="animate-fade-in">
       <CompanyFeedManager />
+    </div>
+  )}
+  {activeTab === 'atomy' && (
+    <div className="animate-fade-in">
+      <AtomyManager />
     </div>
   )}
  </motion.div>

@@ -1,64 +1,61 @@
 import React, { lazy, Suspense } from 'react';
-import Hero from '../components/sections/Hero';
-import ChoosePath from '../components/sections/ChoosePath';
 import SEOMeta from '../components/ui/SEOMeta';
-import WelcomeModal from '../components/ui/WelcomeModal';
-import GSAPReveal from '../components/ui/GSAPReveal';
-import QuickBookingNav from '../components/sections/QuickBookingNav';
 
-// Below the fold components - Lazy Loaded
-const MetricsSection = lazy(() => import('../components/sections/MetricsSection'));
-const Testimonials = lazy(() => import('../components/sections/Testimonials'));
-const CTA = lazy(() => import('../components/sections/CTA'));
-const LocationMap = lazy(() => import('../components/sections/LocationMap'));
-const CompanyFeed = lazy(() => import('../components/sections/CompanyFeed'));
-const PropertyBanner = lazy(() => import('../components/sections/PropertyBanner'));
-
-const SectionPlaceholder = () => <div className="min-h-[400px] flex items-center justify-center bg-dark-bg/50 backdrop-blur-xl animate-pulse rounded-[3rem] m-6 border border-white/5" />;
+// Home Page Sections
+import Hero from '../components/sections/Hero';
+import AudiencePaths from '../components/sections/AudiencePaths';
+import CoreServices from '../components/sections/CoreServices';
+import CareersLandingSection from '../components/sections/CareersLandingSection';
+import ResumeBuilderSection from '../components/sections/ResumeBuilderSection';
+import BankingCareersSection from '../components/sections/BankingCareersSection';
+import InternshipSection from '../components/sections/InternshipSection';
+import FinalYearProjects from '../components/sections/FinalYearProjects';
+import InstitutionSolutions from '../components/sections/InstitutionSolutions';
+import BusinessSolutions from '../components/sections/BusinessSolutions';
+import FICServiceEcosystem from '../components/sections/FICServiceEcosystem';
+import AtomyPreview from '../components/sections/AtomyPreview';
+import TrustSection from '../components/sections/TrustSection';
+import AboutSection from '../components/sections/AboutSection';
+import LocationsSection from '../components/sections/LocationsSection';
+import Testimonials from '../components/sections/Testimonials';
+import PlacedCandidates from '../components/sections/PlacedCandidates';
+import FinalCTA from '../components/sections/FinalCTA';
+import DigitalTools from '../components/sections/DigitalTools';
+import GallerySection from '../components/sections/GallerySection';
+import FICExperienceCarousel from '../components/sections/FICExperienceCarousel';
 
 const Home = () => {
   return (
     <>
       <SEOMeta
-        title="Forge India Connect | Premium Multi-Service Technology & Career Ecosystem"
-        description="Transforming careers and businesses through innovation. Pincode-verified Jobs, IT Solutions, and Premium Services. India's futuristic technology ecosystem."
-        keywords="Futuristic Technology Ecosystem, AI Job Consulting, Enterprise IT Solutions, Career Transformation India, FIC Premium Marketplace"
+        title="Forge India Connect | IT Solutions, Careers, Training & Business Growth"
+        description="Forge India Connect is a premier IT, software, and recruitment company. We provide advanced IT solutions, web and mobile app development, job consulting, career guidance, banking career programs, student internships, real-time training, CRM/ERP solutions, and digital marketing services in Krishnagiri, Bangalore, and across India."
+        keywords="Forge India Connect, IT company in Krishnagiri, IT company in Bangalore, top software development company, custom software development, web app development, mobile app development, CRM solutions, ERP solutions, business automation, digital marketing services, SEO agency, IT consulting, job portal, career guidance, banking careers, placement support, student internships, final year projects, real-time training programs, corporate training, recruitment agency, staffing solutions, HR services, B2B marketplace, tech startups India, cloud solutions provider, UI/UX design, tech education, online courses"
         canonical="/"
       />
       
-      <main className="bg-dark-bg">
+      <main className="bg-white text-slate-800 font-sans overflow-x-hidden">
         <Hero />
-        <WelcomeModal />
-        <QuickBookingNav />
-        
-        <GSAPReveal direction="up" delay={0.1}>
-          <ChoosePath />
-        </GSAPReveal>
-
-        <Suspense fallback={<SectionPlaceholder />}>
-          <GSAPReveal direction="up" delay={0.2}>
-            <PropertyBanner />
-          </GSAPReveal>
-          <GSAPReveal direction="up" delay={0.2}>
-            <MetricsSection />
-          </GSAPReveal>
-
-          <div id="testimonials">
-            <GSAPReveal>
-              <Testimonials />
-            </GSAPReveal>
-          </div>
-
-          <GSAPReveal>
-            <CompanyFeed />
-          </GSAPReveal>
-
-          <GSAPReveal>
-            <CTA />
-          </GSAPReveal>
-
-          <LocationMap />
-        </Suspense>
+        <AudiencePaths />
+        <CoreServices />
+        <CareersLandingSection />
+        <ResumeBuilderSection />
+        <DigitalTools />
+        <BankingCareersSection />
+        <InternshipSection />
+        <FinalYearProjects />
+        <InstitutionSolutions />
+        <BusinessSolutions />
+        <FICServiceEcosystem />
+        <AtomyPreview />
+        <PlacedCandidates />
+        <Testimonials previewMode={true} />
+        <TrustSection />
+        <AboutSection />
+        <FICExperienceCarousel />
+        <GallerySection previewMode={true} />
+        <LocationsSection />
+        <FinalCTA />
       </main>
     </>
   );

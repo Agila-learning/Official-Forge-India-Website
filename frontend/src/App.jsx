@@ -28,6 +28,7 @@ import ChatWidget from './components/ui/ChatWidget';
 import FICQuippy from './components/ui/FICQuippy';
 import LocationPermissionModal from './components/ui/LocationPermissionModal';
 import CustomCursor from './components/ui/CustomCursor';
+import EnquiryModal from './components/ui/EnquiryModal';
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'));
@@ -49,6 +50,7 @@ const AboutUs = lazy(() => import('./pages/AboutUs'));
 const ExploreJobs = lazy(() => import('./pages/ExploreJobs'));
 const ExploreShop = lazy(() => import('./pages/ExploreShop'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
+const AchievementsPage = lazy(() => import('./pages/AchievementsPage'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Profile = lazy(() => import('./pages/Profile'));
@@ -77,14 +79,28 @@ const AtomyProducts = lazy(() => import('./pages/AtomyProducts'));
 const StayPartnerDashboard = lazy(() => import('./pages/StayPartnerDashboard'));
 const RidePartnerDashboard = lazy(() => import('./pages/RidePartnerDashboard'));
 const ServiceLanding = lazy(() => import('./pages/ServiceLanding'));
-const ITSolutions = lazy(() => import('./pages/ITSolutions'));
-const CloudServices = lazy(() => import('./pages/CloudServices'));
-const CRMSolutions = lazy(() => import('./pages/CRMSolutions'));
-const WebAppDevelopment = lazy(() => import('./pages/WebAppDevelopment'));
-const MobileAppDevelopment = lazy(() => import('./pages/MobileAppDevelopment'));
-const DigitalMarketing = lazy(() => import('./pages/DigitalMarketing'));
+const ITSolutions = lazy(() => import('./pages/solutions/ITSolutions'));
+const CustomSoftware = lazy(() => import('./pages/solutions/CustomSoftware'));
+const WebApplication = lazy(() => import('./pages/solutions/WebApplication'));
+const MobileApp = lazy(() => import('./pages/solutions/MobileApp'));
+const ERPSolutions = lazy(() => import('./pages/solutions/ERPSolutions'));
+const CRMSolutions = lazy(() => import('./pages/solutions/CRMSolutions'));
+const DigitalMarketing = lazy(() => import('./pages/solutions/DigitalMarketing'));
+const SEO = lazy(() => import('./pages/solutions/SEO'));
+const Branding = lazy(() => import('./pages/solutions/Branding'));
+const SocialMedia = lazy(() => import('./pages/solutions/SocialMedia'));
+const Recruitment = lazy(() => import('./pages/solutions/Recruitment'));
+const Staffing = lazy(() => import('./pages/solutions/Staffing'));
+const HRSolutions = lazy(() => import('./pages/solutions/HRSolutions'));
+const WebDevelopment = lazy(() => import('./pages/solutions/WebDevelopment'));
+const MobileApplications = lazy(() => import('./pages/solutions/MobileApplications'));
+const CloudSolutions = lazy(() => import('./pages/solutions/CloudSolutions'));
+const APIDevelopment = lazy(() => import('./pages/solutions/APIDevelopment'));
+const BusinessAutomation = lazy(() => import('./pages/solutions/BusinessAutomation'));
 const InsuranceServices = lazy(() => import('./pages/InsuranceServices'));
 const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
+const FinalYearProjects = lazy(() => import('./pages/FinalYearProjects'));
+const SubServicePage = lazy(() => import('./pages/ServiceLandingPage'));
 const RidesCategoryPage = lazy(() => import('./pages/RidesCategoryPage'));
 
 // New ecosystem pages
@@ -97,6 +113,7 @@ const PGDetailPage = lazy(() => import('./pages/PGDetailPage'));
 const RideBookingPage = lazy(() => import('./pages/RideBookingPage'));
 const RideTrackingPage = lazy(() => import('./pages/RideTrackingPage'));
 const RideHistoryPage = lazy(() => import('./pages/RideHistoryPage'));
+const MembershipHub = lazy(() => import('./pages/MembershipHub'));
 
 // Context
 import { NotificationProvider } from './context/NotificationContext';
@@ -157,6 +174,7 @@ const ContentWrapper = ({ loading }) => {
  {(!userInfo || userInfo?.role === 'Candidate' || location.pathname === '/') && !isDashboard && <FICQuippy />}
  {(!userInfo && location.pathname === '/') && <CookieConsent />}
  <LocationPermissionModal />
+ <EnquiryModal />
  
  {/* 2-Minute Activity Popup */}
  {showInactivityPopup && !shouldHide && (
@@ -213,6 +231,8 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/home-services/booking/:serviceId" element={<ProtectedRoute allowedRoles={['Candidate', 'Admin', 'Vendor', 'Customer']}><ServiceWizard /></ProtectedRoute>} />
  <Route path="/explore-shop" element={<ExploreShop />} />
  <Route path="/testimonials" element={<Testimonials />} />
+ <Route path="/achievements" element={<AchievementsPage />} />
+              <Route path="/achievements" element={<AchievementsPage />} />
  <Route path="/faq" element={<FAQ />} />
  <Route path="/about" element={<AboutUs />} />
  <Route path="/about-us" element={<AboutUs />} />
@@ -226,9 +246,11 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/track-mission" element={<TrackMission />} />
  <Route path="/job-consulting" element={<JobConsultingPage />} />
  <Route path="/training-placement" element={<TrainingPlacementPage />} />
+ <Route path="/final-year-projects" element={<FinalYearProjects />} />
  <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
  <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
         <Route path="/agent-network" element={<AgentPortalWrapper />} />
+ <Route path="/membership" element={<MembershipHub />} />
  <Route path="/products/:id" element={<ProductRedirect />} />
  <Route path="/refund-policy" element={<RefundPolicy />} />
  <Route path="/yet-to-launch" element={<YetToLaunch />} />
@@ -236,12 +258,36 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/atomy" element={<AtomyProducts />} />
  <Route path="/services/rides" element={<Suspense fallback={<PageLoader />}><RidesCategoryPage /></Suspense>} />
  <Route path="/services/landing/:slug" element={<Suspense fallback={<PageLoader />}><ServiceLanding /></Suspense>} />
- <Route path="/it-solutions" element={<Suspense fallback={<PageLoader />}><ITSolutions /></Suspense>} />
-  <Route path="/cloud-services" element={<Suspense fallback={<PageLoader />}><CloudServices /></Suspense>} />
-  <Route path="/crm-solutions" element={<Suspense fallback={<PageLoader />}><CRMSolutions /></Suspense>} />
- <Route path="/web-development" element={<Suspense fallback={<PageLoader />}><WebAppDevelopment /></Suspense>} />
-        <Route path="/app-development" element={<Suspense fallback={<PageLoader />}><MobileAppDevelopment /></Suspense>} />
-        <Route path="/digital-marketing" element={<Suspense fallback={<PageLoader />}><DigitalMarketing /></Suspense>} />
+  <Route path="/solutions/it-solutions" element={<Suspense fallback={<PageLoader />}><ITSolutions /></Suspense>} />
+  <Route path="/solutions/custom-software-development" element={<Suspense fallback={<PageLoader />}><CustomSoftware /></Suspense>} />
+  <Route path="/solutions/web-application-development" element={<Suspense fallback={<PageLoader />}><WebApplication /></Suspense>} />
+  <Route path="/solutions/mobile-app-development" element={<Suspense fallback={<PageLoader />}><MobileApp /></Suspense>} />
+  <Route path="/solutions/erp-solutions" element={<Suspense fallback={<PageLoader />}><ERPSolutions /></Suspense>} />
+  <Route path="/solutions/crm-solutions" element={<Suspense fallback={<PageLoader />}><CRMSolutions /></Suspense>} />
+  <Route path="/solutions/digital-marketing" element={<Suspense fallback={<PageLoader />}><DigitalMarketing /></Suspense>} />
+  <Route path="/solutions/seo" element={<Suspense fallback={<PageLoader />}><SEO /></Suspense>} />
+  <Route path="/solutions/branding" element={<Suspense fallback={<PageLoader />}><Branding /></Suspense>} />
+  <Route path="/solutions/social-media-marketing" element={<Suspense fallback={<PageLoader />}><SocialMedia /></Suspense>} />
+  <Route path="/solutions/recruitment" element={<Suspense fallback={<PageLoader />}><Recruitment /></Suspense>} />
+  <Route path="/solutions/staffing" element={<Suspense fallback={<PageLoader />}><Staffing /></Suspense>} />
+  <Route path="/solutions/hr-solutions" element={<Suspense fallback={<PageLoader />}><HRSolutions /></Suspense>} />
+  <Route path="/solutions/web-development" element={<Suspense fallback={<PageLoader />}><WebDevelopment /></Suspense>} />
+  <Route path="/solutions/mobile-applications" element={<Suspense fallback={<PageLoader />}><MobileApplications /></Suspense>} />
+  <Route path="/solutions/cloud-solutions" element={<Suspense fallback={<PageLoader />}><CloudSolutions /></Suspense>} />
+  <Route path="/solutions/api-development" element={<Suspense fallback={<PageLoader />}><APIDevelopment /></Suspense>} />
+  <Route path="/solutions/business-automation" element={<Suspense fallback={<PageLoader />}><BusinessAutomation /></Suspense>} />
+  
+  {/* Legacy Route Redirects */}
+  <Route path="/it-solutions" element={<Navigate to="/solutions/it-solutions" replace />} />
+  <Route path="/cloud-services" element={<Navigate to="/solutions/cloud-solutions" replace />} />
+  <Route path="/crm-solutions" element={<Navigate to="/solutions/crm-solutions" replace />} />
+  <Route path="/erp-solutions" element={<Navigate to="/solutions/erp-solutions" replace />} />
+  <Route path="/recruitment-solutions" element={<Navigate to="/solutions/recruitment" replace />} />
+  <Route path="/web-development" element={<Navigate to="/solutions/web-development" replace />} />
+  <Route path="/app-development" element={<Navigate to="/solutions/mobile-app-development" replace />} />
+  <Route path="/digital-marketing" element={<Navigate to="/solutions/digital-marketing" replace />} />
+        {/* Sub-service routes for navbar Marketing & Branding + Insurance links */}
+        <Route path="/services/sub/:categorySlug" element={<Suspense fallback={<PageLoader />}><SubServicePage /></Suspense>} />
         <Route path="/insurance-services" element={<Suspense fallback={<PageLoader />}><InsuranceServices /></Suspense>} />
         <Route path="/services/category/app-development" element={<Navigate to="/app-development" replace />} />
  <Route path="/services/category/website-development" element={<Navigate to="/web-development" replace />} />
@@ -295,7 +341,15 @@ const ContentWrapper = ({ loading }) => {
 };
 
 function App() {
- const [loading, setLoading] = useState(true);
+ const [loading, setLoading] = useState(() => {
+    const path = window.location.pathname;
+    const isFirstTime = !sessionStorage.getItem('fic_has_loaded_before');
+    if (path === '/' || path === '/login' || path === '/register' || isFirstTime) {
+      sessionStorage.setItem('fic_has_loaded_before', 'true');
+      return true;
+    }
+    return false;
+  });
 
  useEffect(() => {
  console.log("%c FIC DEPLOYMENT VERSION: 1.0.9 - PAYMENT_SOCKET_STABILIZE_V1 ", "color: white; background: #2563eb; font-weight: bold; padding: 4px; border-radius: 4px;");

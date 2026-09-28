@@ -5,7 +5,7 @@ const JobPost = require('../models/JobPost');
 
 const getJobs = async (req, res) => {
   try {
-    let query = { status: 'Active' }; // Public view default
+    let query = { status: { $in: ['Published', 'Active'] } }; // Public view default
     
     // Manually extract token to isolate jobs if user is logged in
     let user;
@@ -46,6 +46,12 @@ const createJob = async (req, res) => {
     education: Joi.string().optional().allow(''),
     experience: Joi.string().optional().allow(''),
     type: Joi.string().optional().allow(''),
+    department: Joi.string().optional().allow(''),
+    category: Joi.string().optional().allow(''),
+    skills: Joi.string().optional().allow(''),
+    contactMethod: Joi.string().optional().allow(''),
+    isFeatured: Joi.boolean().optional(),
+    displayOrder: Joi.number().optional(),
     openings: Joi.number().integer().min(1).optional().allow('', null),
     expiryDate: Joi.date().optional().allow('', null),
     companyWebsite: Joi.string().uri().optional().allow(''),
@@ -58,20 +64,9 @@ const createJob = async (req, res) => {
     return res.status(400).json({ message: 'Validation error', details: error.details.map(d => d.message) });
   }
   const {
-    title,
-    companyName,
-    location,
-    salary,
-    description,
-    responsibilities,
-    requirements,
-    education,
-    experience,
-    openings,
-    expiryDate,
-    companyWebsite,
-    hrId,
-    type
+    title, companyName, location, salary, description,
+    responsibilities, requirements, education, experience, openings, expiryDate, companyWebsite, hrId, type,
+    department, category, skills, contactMethod, isFeatured, displayOrder, status
   } = value;
 
   try {
@@ -90,6 +85,13 @@ const createJob = async (req, res) => {
       education,
       experience,
       type,
+      department,
+      category,
+      skills,
+      contactMethod,
+      isFeatured,
+      displayOrder,
+      status: status || 'Draft',
       openings: openings || 1,
       companyWebsite,
       expiryDate,
@@ -113,22 +115,31 @@ const updateJob = async (req, res) => {
 
     const { 
       title, companyName, location, salary, description, 
-      requirements, responsibilities, education, experience, openings, expiryDate, status, companyWebsite, hrId 
+      requirements, responsibilities, education, experience, openings, expiryDate, status, companyWebsite, hrId, type,
+      department, category, skills, contactMethod, isFeatured, displayOrder
     } = req.body;
 
-    job.title = title || job.title;
-    job.companyName = companyName || job.companyName;
-    job.location = location || job.location;
-    job.salary = salary || job.salary;
-    job.description = description || job.description;
-    job.requirements = requirements || job.requirements;
-    job.responsibilities = responsibilities || job.responsibilities;
-    job.education = education || job.education;
-    job.experience = experience || job.experience;
-    job.openings = openings || job.openings;
-    job.expiryDate = expiryDate || job.expiryDate;
-    job.status = status || job.status;
-    job.companyWebsite = companyWebsite || job.companyWebsite;
+    if (title !== undefined) job.title = title;
+    if (companyName !== undefined) job.companyName = companyName;
+    if (location !== undefined) job.location = location;
+    if (salary !== undefined) job.salary = salary;
+    if (description !== undefined) job.description = description;
+    if (requirements !== undefined) job.requirements = requirements;
+    if (responsibilities !== undefined) job.responsibilities = responsibilities;
+    if (education !== undefined) job.education = education;
+    if (experience !== undefined) job.experience = experience;
+    if (openings !== undefined) job.openings = openings;
+    if (expiryDate !== undefined) job.expiryDate = expiryDate;
+    if (status !== undefined) job.status = status;
+    if (companyWebsite !== undefined) job.companyWebsite = companyWebsite;
+    if (type !== undefined) job.type = type;
+    if (department !== undefined) job.department = department;
+    if (category !== undefined) job.category = category;
+    if (skills !== undefined) job.skills = skills;
+    if (contactMethod !== undefined) job.contactMethod = contactMethod;
+    if (isFeatured !== undefined) job.isFeatured = isFeatured;
+    if (displayOrder !== undefined) job.displayOrder = displayOrder;
+    
     if (req.user.role === 'Admin' && hrId && hrId !== "") {
       job.hrId = hrId;
     }

@@ -60,6 +60,14 @@ const ServiceCard = ({ product, onBook }) => {
  <Star size={10} className="text-secondary fill-secondary" />
  {product.rating || '4.9'}
  </div>
+ 
+ {product.willLaunchSoon && (
+  <div className="absolute inset-0 bg-dark-bg/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+    <div className="px-6 py-2 bg-gradient-to-r from-orange-500/80 to-pink-600/80 border border-white/30 backdrop-blur-md rounded-2xl transform -rotate-12 shadow-2xl scale-110">
+       <span className="text-white font-black uppercase tracking-[0.3em] text-xs shadow-black drop-shadow-md">Launching Soon</span>
+    </div>
+  </div>
+ )}
  </div>
 
  <div className="p-8 flex flex-col flex-grow">
@@ -90,16 +98,17 @@ const ServiceCard = ({ product, onBook }) => {
  <div className="pt-6 border-t border-white/5 flex items-center justify-between gap-4">
  <div className="flex flex-col">
  <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Valuation</span>
- <span className={`text-2xl font-black tracking-tighter ${isIncluded ? 'text-primary' : 'text-white'}`}>
- {isIncluded ? 'ELITE' : `₹${(product.price || 0).toLocaleString()}`}
+ <span className={`text-2xl font-black tracking-tighter ${isIncluded && !product.willLaunchSoon ? 'text-primary' : 'text-white'}`}>
+ {product.willLaunchSoon ? 'TBA' : (isIncluded ? 'ELITE' : `₹${(product.price || 0).toLocaleString()}`)}
  </span>
  </div>
  <button 
+ disabled={product.willLaunchSoon}
  onClick={(e) => {
  e.stopPropagation();
- onBook(product);
+ if(!product.willLaunchSoon) onBook(product);
  }}
- className="w-12 h-12 bg-white/5 hover:bg-primary hover:text-white border border-white/10 rounded-2xl flex items-center justify-center text-white transition-all group-hover:scale-110"
+ className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white transition-all ${product.willLaunchSoon ? 'bg-white/5 border border-white/5 opacity-50 cursor-not-allowed' : 'bg-white/5 hover:bg-primary hover:text-white border border-white/10 group-hover:scale-110'}`}
  >
  <ArrowRight size={20} />
  </button>

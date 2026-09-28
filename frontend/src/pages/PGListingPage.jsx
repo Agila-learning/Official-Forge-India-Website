@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import SEOMeta from '../components/ui/SEOMeta';
+import { useLocation as useUserLocation } from '../context/LocationContext';
+import toast from 'react-hot-toast';
 
 const CATEGORIES = ['All', 'PG / Hostel', 'Rental Flat', 'Hotel', 'Villa', 'Service Apartment'];
 const PRICE_RANGES = ['Any', 'Under ₹5,000', '₹5,000 - ₹10,000', '₹10,000 - ₹20,000', '₹20,000+'];
@@ -106,6 +108,24 @@ const PGListingPage = () => {
   const [priceRange, setPriceRange] = useState('Any');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { location: appLocation } = useUserLocation();
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+
+  // Pre-populate search from app location
+  useEffect(() => {
+    if (appLocation?.city && !search) {
+      setSearch(appLocation.city);
+    }
+  }, [appLocation]);
+
+  const handlePropertyClick = (property) => {
+    if (!userInfo) {
+      toast('Please login to book a stay', { icon: '🔒' });
+      navigate('/login', { state: { returnUrl: `/pg-stays/${property._id}` } });
+      return;
+    }
+    navigate(`/pg-stays/${property._id}`);
+  };
 
   useEffect(() => {
     fetchProperties();
@@ -255,7 +275,7 @@ const PGListingPage = () => {
                 <PropertyCard
                   key={p._id}
                   property={p}
-                  onClick={() => navigate(`/pg-stays/${p._id}`)}
+                  onClick={() => handlePropertyClick(p)}
                 />
               ))}
             </div>

@@ -5,7 +5,7 @@ import {
   Menu, X, ChevronDown, ChevronRight, Briefcase, Globe, Cpu, Smartphone, 
   Zap, ShoppingBag, User, Users, LogOut, LayoutDashboard, ShoppingCart, 
   Heart, MapPin, Wrench, Bell, CheckSquare, Sparkles, Rocket, Building2, Shield, Code, Layout, Network, Droplets, Paintbrush, GraduationCap, Truck, Search, FileText, FileSpreadsheet, Gift, ShieldAlert, BadgeInfo, Wallet,
-  Home, Settings, Headphones, Info, PhoneCall, ExternalLink, Compass
+  Home, Settings, Headphones, Info, PhoneCall, ExternalLink, Compass, Monitor, Car, ArrowUpRight
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -52,7 +52,7 @@ const AnimatedConnectText = () => (
       initial={{ opacity: 0, letterSpacing: "-0.1em", filter: "blur(4px)", scale: 0.9 }}
       animate={{ opacity: 1, letterSpacing: "0.2em", filter: "blur(0px)", scale: 1 }}
       transition={{ duration: 0.8, ease: "easeOut", delay: 1.1 }}
-      className="text-amber-500 font-black uppercase tracking-[0.2em] text-[11px] lg:text-xs absolute w-[90px] text-left drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]"
+      className="text-[#074da1] dark:text-[#3B82F6] font-black uppercase tracking-[0.2em] text-[11px] lg:text-xs absolute w-[90px] text-left drop-shadow-[0_0_8px_rgba(7,77,161,0.4)]"
     >
       CONNECT
     </motion.div>
@@ -64,6 +64,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const location = useLocation();
+  const showCartButton = ['/products', '/atomy', '/home-services', '/cart', '/checkout', '/product', '/service', '/explore-shop', '/shop'].some(path => location.pathname.startsWith(path));
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
   const { favorites } = useWishlist();
@@ -149,98 +150,148 @@ const Navbar = () => {
   const getNavLinks = () => {
     const iconClass = "w-3 h-3 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 mr-1 lg:mr-1.5 shrink-0";
     return [
-      { name: 'Home', path: '/', icon: <Home className={iconClass} /> },
+      { name: 'Home', path: '/' },
+      { name: 'About', path: '/about' },
       {
-        name: 'Forge Services',
+        name: 'Solutions',
         isMega: true,
-        icon: <Settings className={iconClass} />,
-        widthClass: 'w-[95vw] max-w-[1200px]',
+        widthClass: 'w-[800px]',
         alignClass: 'left-1/2 -translate-x-1/2',
-        gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+        gridClass: 'grid-cols-3',
         categories: [
           {
-            title: 'Recruitment & HR Solutions',
+            title: 'IT SOLUTIONS',
             items: [
-              { name: 'Job Consulting', path: '/job-consulting', icon: <Briefcase size={16} /> },
-              { name: 'Recruitment Solutions', path: '/contact', icon: <Users size={16} /> },
-              { name: 'HRMS Console', path: '/login', icon: <GraduationCap size={16} /> },
-              { name: 'Staffing Solutions', path: '/contact', icon: <Building2 size={16} /> },
-              { name: 'Payroll Services', path: '/contact', icon: <FileSpreadsheet size={16} /> },
-              { name: 'Employee Management', path: '/login', icon: <Shield size={16} /> },
+              { name: 'IT Solutions', path: '/solutions/it-solutions' },
+              { name: 'Custom Software Development', path: '/solutions/custom-software-development' },
+              { name: 'Web Application Development', path: '/solutions/web-application-development' },
+              { name: 'Mobile App Development', path: '/solutions/mobile-app-development' },
+              { name: 'ERP Solutions', path: '/solutions/erp-solutions' },
+              { name: 'CRM Solutions', path: '/solutions/crm-solutions' }
             ]
           },
           {
-            title: 'IT & Digital Solutions',
+            title: 'BUSINESS GROWTH',
             items: [
-              { name: 'IT Solutions', path: '/it-solutions', icon: <Cpu size={16} /> },
-              { name: 'Cloud Services', path: '/cloud-services', icon: <Network size={16} /> },
-              { name: 'CRM Solutions', path: '/crm-solutions', icon: <Zap size={16} /> },
-              { name: 'Website Development', path: '/web-development', icon: <Code size={16} /> },
-              { name: 'Mobile App Development', path: '/app-development', icon: <Smartphone size={16} /> },
-              { name: 'ERP Solutions', path: '/services/category/erp-solutions', icon: <Layout size={16} /> },
+              { name: 'Digital Marketing', path: '/solutions/digital-marketing' },
+              { name: 'SEO', path: '/solutions/seo' },
+              { name: 'Branding', path: '/solutions/branding' },
+              { name: 'Social Media Marketing', path: '/solutions/social-media-marketing' },
+              { name: 'Recruitment', path: '/solutions/recruitment' },
+              { name: 'Staffing', path: '/solutions/staffing' },
+              { name: 'HR Solutions', path: '/solutions/hr-solutions' }
             ]
           },
           {
-            title: 'Marketing & Branding',
+            title: 'TECHNOLOGY',
             items: [
-              { name: 'Digital Marketing', path: '/digital-marketing', icon: <Paintbrush size={16} /> },
-              { name: 'SEO Services', path: '/services/sub/seo-optimization', icon: <Search size={16} /> },
-              { name: 'Social Media Management', path: '/services/sub/social-media', icon: <Globe size={16} /> },
-              { name: 'Branding & Design', path: '/services/sub/brand-identity', icon: <Sparkles size={16} /> },
-              { name: 'Advertising Services', path: '/services/sub/advertising-services', icon: <Rocket size={16} /> },
-            ]
-          },
-          {
-            title: 'Insurance & Business Support',
-            items: [
-              { name: 'Insurance Services', path: '/insurance-services', icon: <Shield size={16} /> },
-              { name: 'Financial Assistance', path: '/services/sub/financial-assistance', icon: <FileText size={16} /> },
-              { name: 'Documentation Support', path: '/services/sub/documentation-support', icon: <FileText size={16} /> },
-              { name: 'Business Registration', path: '/services/sub/business-registration', icon: <Building2 size={16} /> },
-              { name: 'Business Compliance', path: '/services/sub/business-compliance', icon: <CheckSquare size={16} /> },
+              { name: 'Web Development', path: '/solutions/web-development' },
+              { name: 'Mobile Applications', path: '/solutions/mobile-applications' },
+              { name: 'Cloud Solutions', path: '/solutions/cloud-solutions' },
+              { name: 'API Development', path: '/solutions/api-development' },
+              { name: 'Business Automation', path: '/solutions/business-automation' }
             ]
           }
-        ]
+        ],
+        footerCta: { text: 'Talk to FIC →', path: '/contact' }
       },
       {
-        name: 'Explore More',
+        name: 'Careers',
         isMega: true,
-        icon: <Compass className={iconClass} />,
-        widthClass: 'w-[90vw] max-w-[1000px]',
+        widthClass: 'w-[1000px]',
         alignClass: 'left-1/2 -translate-x-1/2',
-        gridClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+        gridClass: 'grid-cols-5',
         categories: [
           {
-            title: 'Customer Services',
+            title: 'FOR JOB SEEKERS',
             items: [
-              { name: 'Product Ordering', path: '/explore-shop', icon: <ShoppingBag size={16} /> },
-              { name: 'Job Openings', path: '/explore-jobs', icon: <Briefcase size={16} /> },
-              { name: 'Ride Booking', path: '/rides/book', icon: <Truck size={16} /> },
-              { name: 'Stay Bookings', path: '/pg-stays', icon: <Home size={16} /> },
-              { name: 'Home Cleaning', path: '/home-services?category=cleaning', icon: <Sparkles size={16} /> },
-              { name: 'Expert Repairs', path: '/home-services?category=repairs', icon: <Wrench size={16} /> },
-              { name: 'Service Tracking', path: '/track-mission', icon: <Zap size={16} /> }
+              { name: 'Find Jobs', path: '/explore-jobs' },
+              { name: 'IT Jobs', path: '/explore-jobs' },
+              { name: 'Fresher Jobs', path: '/explore-jobs' },
+              { name: 'Career Guidance', path: '/contact' },
+              { name: 'Interview Preparation', path: '/training-placement' }
             ]
           },
           {
-            title: 'Partner Network',
+            title: 'CAREER TOOLS',
             items: [
-              { name: 'Vendor Registration', path: '/register', state: { presetRole: 'Vendor' }, icon: <Building2 size={16} /> },
-              { name: 'Delivery Partner', path: '/register', state: { presetRole: 'Delivery Partner' }, icon: <Truck size={16} /> },
-              { name: 'Agent Network', path: '/agent-network', icon: <Users size={16} /> },
-              { name: 'Partner Dashboard', path: '/login', icon: <LayoutDashboard size={16} /> }
+              { name: 'AI Resume Builder', path: 'https://resume-ai-mocha-three.vercel.app/', isExternal: true },
+              { name: 'ATS Resume', path: 'https://resume-ai-mocha-three.vercel.app/', isExternal: true },
+              { name: 'Resume Guidance', path: '/contact' }
             ]
           },
           {
-            title: 'About & Support',
+            title: 'BANKING CAREERS',
             items: [
-              { name: 'About Forge India', path: '/about', icon: <Info size={16} /> },
-              { name: 'Contact Support', path: '/contact', icon: <PhoneCall size={16} /> },
-              { name: 'Atomy Wellness', path: '/atomy', icon: <Gift size={16} /> }
+              { name: 'Banking Jobs', path: 'https://jobs.forgeindiaconnect.in', isExternal: true },
+              { name: 'Private Bank Opportunities', path: 'https://jobs.forgeindiaconnect.in', isExternal: true },
+              { name: 'Banking Career Programs', path: 'https://jobs.forgeindiaconnect.in', isExternal: true }
+            ]
+          },
+          {
+            title: 'STUDENTS',
+            items: [
+              { name: 'Internships', path: 'https://forms.gle/hJfT8Yna5De5ttwv8', isExternal: true },
+              { name: 'Final-Year Projects', path: '/final-year-projects' },
+              { name: 'Technical Training', path: '/training-placement' },
+              { name: 'Skill Development', path: '/training-placement' }
+            ]
+          },
+          {
+            title: 'JOB CONSULTING',
+            items: [
+              { name: 'Job Consulting', path: '/job-consulting' }
             ]
           }
-        ]
-      }
+        ],
+        footerCta: { text: 'Explore Career Opportunities →', path: '/training-placement' }
+      },
+      {
+        name: 'Explore',
+        isMega: true,
+        widthClass: 'w-[800px]',
+        alignClass: 'left-1/2 -translate-x-1/2',
+        gridClass: 'grid-cols-4',
+        categories: [
+          {
+            title: 'COMPANY',
+            items: [
+              { name: 'About FIC', path: '/about' },
+              { name: 'Company Portfolio', path: 'https://fic-hrms.lovable.app/', isExternal: true },
+              { name: 'Locations', path: '/contact' },
+              { name: 'Contact', path: '/contact' }
+            ]
+          },
+          {
+            title: 'SERVICES',
+            items: [
+              { name: 'Service Booking', path: '/services' },
+              { name: 'Product Ordering', path: '/explore-shop' },
+              { name: 'Ride Booking', path: '/services/rides' },
+              { name: 'Stay Booking', path: '/pg-stays' },
+              { name: 'Other Existing Services', path: '/services' }
+            ]
+          },
+          {
+            title: 'WELLNESS',
+            items: [
+              { name: 'Atomy Wellness', path: '/atomy' },
+              { name: 'Atomy Products', path: '/atomy' }
+            ]
+          },
+          {
+            title: 'STUDENTS & INSTITUTIONS',
+            items: [
+              { name: 'Internships', path: 'https://forms.gle/hJfT8Yna5De5ttwv8', isExternal: true },
+              { name: 'Final-Year Projects', path: '/final-year-projects' },
+              { name: 'Training', path: '/training-placement' },
+              { name: 'Institution Programs', path: '/contact' }
+            ]
+          }
+        ],
+        footerCta: { text: 'Explore All FIC Services →', path: '/services' }
+      },
+      { name: 'Contact', path: '/contact' }
     ];
   };
 
@@ -252,29 +303,36 @@ const Navbar = () => {
         <div className="flex flex-nowrap items-center justify-between w-full gap-1 lg:gap-2 xl:gap-4 whitespace-nowrap overflow-visible h-16 lg:h-20">
           
           <div className="flex items-center justify-start shrink-0">
-            <Link to="/" className="flex items-center gap-2 group relative shrink-0">
-            <div className="w-8 h-8 lg:w-9 lg:h-9 bg-white dark:bg-dark-card rounded-xl flex items-center justify-center p-1 shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
-              <motion.img 
-                src="/logo.jpg" 
-                alt="Forge India Connect" 
+            <Link to="/" className="flex items-center gap-2 md:gap-3 group relative shrink-0 transition-opacity hover:opacity-90">
+              <img 
+                src="/fic-symbol.png" 
+                alt="FIC Mark" 
                 decoding="async"
-                className="w-[90%] h-[90%] object-contain rounded-lg"
+                className="h-10 lg:h-12 xl:h-14 w-auto object-contain shrink-0"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/logo.jpg";
                 }}
-                animate={{ scale: [1, 1.08, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               />
-            </div>
-            <div className="flex flex-col justify-center min-w-0">
-              <span className="text-[10px] md:text-sm lg:text-[13px] xl:text-lg 2xl:text-xl font-black tracking-tighter block leading-none uppercase truncate">
-                <span className="text-blue-600 dark:text-blue-400">FORGE INDIA</span>
-              </span>
-              <div className="mt-0.5 scale-[0.5] md:scale-[0.8] lg:scale-[0.7] xl:scale-100 origin-left flex justify-start">
-                <AnimatedConnectText key={location.pathname} />
+              <div className="flex flex-col justify-center min-w-0 pt-0.5">
+                <span className="text-[14px] md:text-[16px] lg:text-[20px] xl:text-[24px] font-extrabold tracking-tight block leading-none uppercase font-sans flex items-center" style={{ letterSpacing: '0.03em' }}>
+                  <span className="text-[#074da1] dark:text-[#3B82F6] mr-1.5">FORGE</span>
+                  <span className="text-[#FFC107] flex items-center relative">
+                    <motion.img 
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.8, type: 'spring' }}
+                      src="/india-map.svg" 
+                      className="h-[0.85em] w-auto mr-[0.08em] -mt-[0.1em] drop-shadow-[0_1px_3px_rgba(255,193,7,0.5)]" 
+                      alt="I" 
+                    />
+                    NDIA
+                  </span>
+                </span>
+                <div className="mt-0.5 md:mt-1 scale-[0.6] md:scale-[0.7] lg:scale-[0.85] xl:scale-[1.1] origin-left flex justify-start">
+                  <AnimatedConnectText key={location.pathname} />
+                </div>
               </div>
-            </div>
             </Link>
           </div>
 
@@ -292,10 +350,10 @@ const Navbar = () => {
                     </button>
                     
                     <div className={`absolute top-[85%] ${link.alignClass || 'left-1/2 -translate-x-1/2'} mt-4 ${link.widthClass} bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] p-8 transition-all duration-500 border border-gray-100 dark:border-gray-800 text-left z-50 max-h-[85vh] overflow-y-auto ${forceClose ? 'opacity-0 invisible pointer-events-none' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-4 group-hover:translate-y-0'}`}>
-                      <div className={`grid ${link.gridClass} gap-8`}>
+                      <div className={`grid ${link.gridClass} gap-8 mb-6`}>
                         {link.categories.map((cat) => (
                           <div key={cat.title} className="space-y-4">
-                            <h4 className="text-[10px] font-black text-primary dark:text-orange-500 uppercase tracking-[0.2em] pb-2 border-b border-gray-100 dark:border-gray-800/50 flex items-center gap-2">
+                            <h4 className="text-[10px] font-black text-primary dark:text-orange-500 uppercase tracking-[0.2em] pb-2 border-b border-gray-100 dark:border-gray-800/50">
                               {cat.title}
                             </h4>
                             <div className="space-y-2">
@@ -309,15 +367,10 @@ const Navbar = () => {
                                   key={item.name} 
                                   {...linkProps}
                                   onClick={() => setForceClose(true)}
-                                  className="flex items-center gap-3 p-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-2xl transition-all group/item border border-transparent hover:border-gray-100/50 dark:hover:border-gray-800"
+                                  className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-xl transition-all group/item text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary"
                                 >
-                                  <div className="w-8 h-8 bg-primary/10 text-primary dark:text-primary/90 rounded-xl flex items-center justify-center group-hover/item:scale-110 group-hover/item:bg-primary group-hover/item:text-white transition-all shrink-0">
-                                    {item.icon}
-                                  </div>
-                                  <div>
-                                    <p className="font-black text-gray-900 dark:text-white text-[11px] uppercase tracking-tight leading-tight">{item.name}</p>
-                                    <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Access System</p>
-                                  </div>
+                                  <span className="font-bold text-xs">{item.name}</span>
+                                  {isExternal && <ExternalLink size={12} className="opacity-50 group-hover/item:opacity-100" />}
                                 </LinkComponent>
                                 )
                               })}
@@ -325,6 +378,18 @@ const Navbar = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {link.footerCta && (
+                        <div className="pt-6 border-t border-gray-100 dark:border-gray-800/50 flex justify-end">
+                          <Link 
+                            to={link.footerCta.path} 
+                            onClick={() => setForceClose(true)}
+                            className="inline-flex items-center text-xs font-black uppercase tracking-widest text-primary hover:text-blue-800 transition-colors"
+                          >
+                            {link.footerCta.text}
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -347,14 +412,21 @@ const Navbar = () => {
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0 h-10 relative">
 
+              <Link 
+                to="/contact" 
+                className="flex items-center h-8 lg:h-9 px-4 bg-primary text-white rounded-lg font-black text-[10px] uppercase tracking-widest shadow-md hover:bg-blue-800 transition-colors whitespace-nowrap shrink-0"
+              >
+                Hire Through FIC <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
+              </Link>
+
               {isLoggedIn ? (
                 <div className="relative group/profile">
-                  <button className="flex items-center justify-center w-10 h-10 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary/50 transition-all shadow-sm">
-                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-sm uppercase shadow-sm">
+                  <button className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary/50 transition-all shadow-sm">
+                    <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center font-black text-xs uppercase shadow-sm">
                       {userInfo.firstName?.[0] ?? '?'}
                     </div>
                   </button>
-                  <div className="absolute top-[100%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500">
+                  <div className="absolute top-[100%] right-0 mt-4 w-64 bg-white dark:bg-dark-card shadow-3xl rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-3 opacity-0 translate-y-4 pointer-events-none group-hover/profile:opacity-100 group-hover/profile:translate-y-0 group-hover/profile:pointer-events-auto transition-all duration-500 z-[100]">
                     <button onClick={() => navigate('/profile')} className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-left rounded-2xl group/sub">
                       <User size={20} className="text-gray-400 group-hover/sub:text-primary" />
                       <span className="text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-300">Account Profile</span>
@@ -375,35 +447,14 @@ const Navbar = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-1 xl:gap-2 shrink-0">
-                  <Link to="/login" className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-gray-50 hover:bg-primary/10 text-gray-500 hover:text-primary rounded-full transition-all" title="Login">
-                    <User className="w-4 h-4" />
-                  </Link>
-                  <Link 
-                    to="/contact" 
-                    className="flex items-center h-7 lg:h-8 xl:h-9 px-2 lg:px-3 xl:px-4 bg-primary text-white rounded-full font-black text-[7px] lg:text-[7.5px] xl:text-[9px] 2xl:text-[10px] uppercase tracking-wide xl:tracking-wider 2xl:tracking-[0.1em] shadow-lg shadow-primary/30 hover:-translate-y-1 active:translate-y-0 transition-all whitespace-nowrap shrink-0"
-                  >
-                    Hire Through FIC <ExternalLink className="w-2.5 h-2.5 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 ml-1" />
-                  </Link>
-                </div>
+                <Link to="/login" className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 hover:bg-white border border-gray-200/50 dark:border-gray-800/50 text-gray-600 dark:text-gray-300 hover:text-primary rounded-full transition-all shadow-sm" title="Login">
+                  <User size={16} />
+                </Link>
               )}
               
-              {/* Location, Cart, Notifications (Moved out of dropdown) */}
-              <button 
-                onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 h-8 lg:h-9 px-3 bg-white/60 dark:bg-dark-card/60 hover:bg-white dark:hover:bg-dark-card border border-gray-200/50 dark:border-gray-800/50 rounded-full transition-all group/loc shadow-sm shrink-0"
-                title="Location"
-              >
-                <MapPin size={16} className="text-primary group-hover/loc:scale-110 transition-transform" />
-                <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 truncate max-w-[80px] hidden md:block">
-                  {appLocation?.city || 'Location'}
-                </span>
-              </button>
-
-              {!['Admin', 'Sub-Admin'].includes(userInfo?.role) && (
-                <Link to="/cart" className="relative flex items-center justify-center h-8 lg:h-9 px-3 lg:px-4 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
-                  <ShoppingCart size={16} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors mr-1 lg:mr-2" />
-                  <span className="text-[9px] lg:text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-gray-200 hidden sm:block">Cart</span>
+              {showCartButton && (
+                <Link to="/cart" className="relative flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 bg-white/60 dark:bg-dark-card/60 border border-gray-200/50 dark:border-gray-800/50 rounded-full hover:border-primary transition-all shadow-sm group/cart shrink-0">
+                  <ShoppingCart size={16} className="text-gray-600 dark:text-gray-300 group-hover/cart:text-primary transition-colors" />
                   {cartItems.length > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white dark:border-dark-bg shadow-lg animate-bounce">
                       {cartItems.length}
@@ -487,14 +538,16 @@ const Navbar = () => {
             </div>
 
             <div className="lg:hidden flex items-center gap-2 md:gap-3 relative z-[9999]">
-              <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
-                <ShoppingCart size={18} />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center">
-                    {cartItems.length}
-                  </span>
-                )}
-              </Link>
+              {showCartButton && (
+                <Link to="/cart" className="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center bg-gray-50 dark:bg-dark-card border border-gray-100 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white relative">
+                  <ShoppingCart size={18} />
+                  {cartItems.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                      {cartItems.length}
+                    </span>
+                  )}
+                </Link>
+              )}
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -581,7 +634,7 @@ const Navbar = () => {
                                       className="flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-dark-card/30 rounded-2xl border border-gray-100 dark:border-gray-800/50"
                                     >
                                       <div className="w-7 h-7 bg-primary/10 text-primary rounded-lg flex items-center justify-center shrink-0">
-                                        {React.cloneElement(item.icon, { size: 14 })}
+                                        {item.icon ? React.cloneElement(item.icon, { size: 14 }) : <ChevronRight size={14} />}
                                       </div>
                                       <span className="font-bold text-gray-700 dark:text-gray-300 text-[10px] uppercase tracking-tight">{item.name}</span>
                                     </Link>
@@ -657,15 +710,18 @@ const Navbar = () => {
                     >
                       Member Login
                     </Link>
-                    <Link 
-                      to="/contact" 
-                      onClick={() => setIsOpen(false)}
-                      className="w-full py-4 bg-primary text-white rounded-2xl text-center font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
-                    >
-                      Hire Through FIC
-                    </Link>
                   </div>
                 )}
+                
+                <div className="mt-3">
+                  <Link 
+                    to="/contact" 
+                    onClick={() => setIsOpen(false)}
+                    className="w-full py-4 bg-primary text-white rounded-2xl text-center font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-primary/20 active:scale-95 transition-all block"
+                  >
+                    Hire Through FIC
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </>

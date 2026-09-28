@@ -427,14 +427,23 @@ const RegistrationModal = ({ isOpen, onClose, serviceSlug, serviceName }) => {
   );
 };
 
+const SLUG_ALIASES = {
+  'seo-optimization': 'seo-services',
+  'social-media': 'social-media-management',
+  'brand-identity': 'branding-design',
+  'advertising': 'advertising-services',
+};
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 const ServiceLandingPage = () => {
   const { categorySlug } = useParams();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
-  const data = serviceData[categorySlug] || serviceData['it-solutions'];
+  const resolvedSlug = SLUG_ALIASES[categorySlug] || categorySlug;
+  const data = serviceData[resolvedSlug] || serviceData['it-solutions'];
   const Icon = data.icon;
+
 
   return (
     <div className="bg-dark-bg min-h-screen pb-32">

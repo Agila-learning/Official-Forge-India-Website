@@ -9,7 +9,7 @@ const applicationSchema = new mongoose.Schema(
     phone: { type: String },
     domain: { type: String, required: true },
     jobRole: { type: String, required: true },
-    resumeUrl: { type: String }, // PDF resume URL
+    resumeUrl: { type: String, required: false }, // PDF resume URL
     coverLetter: { type: String },
     atsScore: { type: Number, default: 0 },
     atsFeedback: { type: String },
@@ -17,7 +17,7 @@ const applicationSchema = new mongoose.Schema(
     interviewLink: { type: String },
     status: {
       type: String,
-      enum: ['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Rejected'],
+      enum: ['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Selected', 'Hired', 'Rejected'],
       default: 'Pending',
     },
     hrNotes: { type: String }, // Internal notes from HR

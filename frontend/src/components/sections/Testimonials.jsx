@@ -46,7 +46,7 @@ const TestimonialCard = ({ rev, idx }) => (
  </motion.div>
 );
 
-const Testimonials = () => {
+const Testimonials = ({ previewMode = false }) => {
  const [reviews, setReviews] = useState([]);
  const [loading, setLoading] = useState(true);
 
@@ -70,16 +70,9 @@ const Testimonials = () => {
  fetchData();
  }, []);
 
- const mockFallbacks = [
- { name: "Vikram Malhotra", comment: "The AI ATS analysis gave me the edge I needed. Secured an Associate VP role at a global fintech hub within 2 weeks of optimization.", rating: 5, role: 'Associate VP' },
- { name: "Sanya Gupta", comment: "Atomy's Absolute Skincare line via FIC is revolutionary. Premium quality paired with seamless local delivery. A wellness game-changer.", rating: 5, role: 'Elite Member' },
- { name: "Anand R.", comment: "Our enterprise IT infrastructure was completely overhauled by FIC. Scalability increased by 300% with zero downtime transitions.", rating: 5, role: 'CTO, TechCorp' },
- { name: "Priya Das", comment: "The bike taxi and PG booking ecosystem in Chennai is incredibly smooth. FIC is my daily essential for urban living.", rating: 5, role: 'Tech Consultant' },
- { name: "Karthik S.", comment: "As a vendor, the real-time analytics dashboard provided by FIC is world-class. My business throughput doubled in 6 months.", rating: 5, role: 'Verified Merchant' },
- { name: "Elena V.", comment: "The recruitment pipeline through FIC's Skill Academy is the most efficient I've seen in India. Top-tier candidates every time.", rating: 5, role: 'HR Director' }
- ];
+ 
 
- const displayReviews = reviews.length > 0 ? reviews : mockFallbacks;
+ const displayReviews = reviews;
 
  return (
  <section id="testimonials" className="py-32 bg-dark-bg relative overflow-hidden">
@@ -103,12 +96,20 @@ const Testimonials = () => {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
- {displayReviews.slice(0, 6).map((rev, idx) => (
+ {displayReviews.slice(0, previewMode ? 3 : undefined).map((rev, idx) => (
  <TestimonialCard key={idx} rev={rev} idx={idx} />
  ))}
  </div>
 
- <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-10">
+  {previewMode && (
+    <div className="mt-12 text-center">
+      <a href="/achievements" className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-full hover:bg-blue-600 transition-colors shadow-xl shadow-primary/20">
+        View More Achievements <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  )}
+
+<div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-10">
  <div className="flex -space-x-4">
  {[1, 2, 3, 4, 5, 6].map(i => (
  <div key={i} className="w-14 h-14 rounded-full border-4 border-dark-bg bg-white/10 overflow-hidden ring-2 ring-primary/20">

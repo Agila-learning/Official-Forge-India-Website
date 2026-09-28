@@ -52,6 +52,7 @@ const membershipPlanRoutes = require('./routes/membershipPlanRoutes');
 const companyUpdateRoutes = require('./routes/companyUpdateRoutes');
 const marketplaceRoutes = require('./routes/marketplaceRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
 const { initializeServices } = require('./controllers/serviceController');
 const { initializePlans } = require('./controllers/membershipPlanController');
 const { initializeFareConfigs } = require('./controllers/fareConfigController');
@@ -208,6 +209,7 @@ app.use('/api/membership-plans', membershipPlanRoutes);
 app.use('/api/company-updates', companyUpdateRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // Static Uploads Folder
 const __dirnameBase = path.resolve();

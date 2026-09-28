@@ -162,13 +162,12 @@ const ContactPage = () => {
  <span className="section-eyebrow">Our Presence</span>
  <h2 className="section-title">Serving South India</h2>
  <p className="section-subtitle">
- Job consultancy and business services in Chennai, Krishnagiri & Bangalore — with plans to expand across Tamil Nadu.
+ Job consultancy and business services in Krishnagiri & Bangalore — with plans to expand across Tamil Nadu.
  </p>
  </div>
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
  {[
  { city: 'Krishnagiri', type: 'Head Office', address: 'RK Towers, Rayakottai Rd, opposite to HP Petrol Bunk, Wahab Nagar, Krishnagiri, Tamil Nadu 635002.', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=RK+Towers,Rayakottai+Rd,opposite+to+HP+Petrol+Bunk,Wahab+Nagar,Krishnagiri,Tamil+Nadu+635002&output=embed' },
- { city: 'Chennai', type: 'Branch Office', address: '22, VVM Towers, 3rd Floor, Pattullos Rd, Anna Salai, Royapettah, Chennai, Tamil Nadu 600002', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=22,+VVM+Towers,+3rd+Floor,+Pattullos+Rd,+Anna+Salai,+Royapettah,+Chennai,+Tamil+Nadu+600002&output=embed' },
  { city: 'Bangalore', type: 'Liaison Office', address: 'Excel coworks, Marilingappa layout, Nagarbhavi, Papareddypalya , Bangalore.', phone: '+91 63694 06416', map: 'https://maps.google.com/maps?q=Excel+coworks,+Marilingappa+layout,+Nagarbhavi,+Papareddypalya+,+Bangalore&output=embed' },
  ].map((branch, i) => (
  <motion.div

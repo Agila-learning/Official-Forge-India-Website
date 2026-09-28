@@ -163,14 +163,14 @@ const INTENTS = {
  patterns: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'howdy', 'sup', 'hola', 'namaste', 'vanakkam'],
  response: () => ({
  text: `Hello! 👋 Welcome to **Forge India Connect**!\n\nI'm **FIC Quippy**, your personal assistant. I can help you with:\n\n🏢 **Job Consulting** — IT, Banking, Non-IT, Insurance, BPO\n💻 **IT Solutions & Digital Marketing**\n🛍️ **Atomy Product Marketing**\n🏠 **Home Services** — Cleaning, Painting & more\n🤝 **Join as Agent** — Start earning today!\n📋 **Platform Actions** — Post/Apply jobs, Vendor access\n\nWhat would you like to know about?`,
- quickReplies: ['Job Consulting', 'IT Solutions', 'Home Services', 'Join as Agent', 'Atomy Products', 'All Services']
+ quickReplies: ['IT Solutions', 'Find Jobs', 'Internships', 'Banking Careers', 'AI Resume Builder', 'Hire Through FIC']
  })
  },
  about_fic: {
  patterns: ['what is fic', 'about fic', 'forge india', 'what do you do', 'what services', 'tell me about', 'what is forge india connect', 'what you offer', 'your company', 'company info', 'all services', 'what do you provide', 'provide services', 'fic provide', 'services provided'],
  response: () => ({
  text: `**Forge India Connect (FIC)** is a Technology-First IT Solutions company! 🇮🇳\n\nHere's what we specialize in:\n\n**💻 IT & Digital Solutions:**\n• Web & Mobile App Development\n• Enterprise Software (ERP/CRM)\n• AI & Machine Learning Solutions\n• UI/UX Design & Branding\n\n**📋 Consulting & Platforms:**\n• IT, Banking, & BPO Consulting\n• **Agent Platform** — Empowering Local Partners\n• **Atomy Marketplace** — Premium Global Products\n\n**🏠 Home Services:**\n• Cleaning, Painting, & Maintenance\n\nWhat can I help you build or find today? 👇`,
- quickReplies: ['Web Development', 'App Development', 'Agent Platform', 'Atomy Products', 'Insurance', 'Apply for Jobs']
+ quickReplies: ['IT Solutions', 'Find Jobs', 'Internships', 'Banking Careers', 'Hire Through FIC', 'AI Resume Builder']
  })
  },
  kyc_info: {
@@ -225,6 +225,38 @@ const INTENTS = {
  response: () => ({
  text: `I'm genuinely sorry to hear that you're facing an issue. 🕊️ Please stay calm — I'm here to ensure we get this resolved for you right away.\n\nTo help you faster, could you tell me if the issue is with:\n\n🛠️ **A Home Service/Consulting** (Cleaning, Painting, IT, Banking)\n🛍️ **A Marketplace Product/Order** (from a Vendor shop)\n\nI'll provide the direct contact details for the respective team immediately.`,
  quickReplies: ['Service Issue', 'Product Issue', 'Technical Help', 'Talk to Human']
+ })
+ },
+ internship: {
+ patterns: ['internship', 'intern', 'student program', 'final year', 'final-year', 'project', 'training', 'student'],
+ response: () => ({
+ text: `🎓 **Student & Internship Programs at FIC**\n\nForge India Connect offers exciting opportunities for students:\n\n• **Internship Applications** — Real-world IT industry exposure\n• **Final-Year Projects** — Industry-guided project mentorship\n• **Technical Training** — Hands-on skill development\n• **Banking Career Programs** — UNext Manipal Partnership\n• **Career Guidance & Placement Support**\n\nReady to kickstart your career?`,
+ quickReplies: ['Apply for Internship', 'Final-Year Projects', 'Banking Programs', 'Contact Us'],
+ actions: [{ label: 'Apply for Internship', route: 'https://forms.gle/hJfT8Yna5De5ttwv8', icon: 'arrow' }]
+ })
+ },
+ banking_careers: {
+ patterns: ['banking career', 'banking job', 'bank job', 'unext', 'manipal', 'bfsi', 'banking program', 'private bank'],
+ response: () => ({
+ text: `🏦 **Banking Career Programs at FIC**\n\nFIC is an **Authorized Partner of UNext Manipal Academy of BFSI**!\n\n✅ Professional banking training programs\n✅ Access to recruitment in leading private banks\n✅ Industry-recognized certification\n✅ Placement support upon successful completion\n\nBuild a solid career in banking & finance with our curated programs.`,
+ quickReplies: ['Explore Banking Jobs', 'Internship', 'Contact Us'],
+ actions: [{ label: 'View Banking Careers', route: '/job-consulting', icon: 'arrow' }]
+ })
+ },
+ resume_builder: {
+ patterns: ['resume', 'cv', 'ai resume', 'ats', 'resume builder', 'build resume', 'resume help'],
+ response: () => ({
+ text: `📄 **AI Resume Builder — Free Tool by FIC**\n\n✅ Create ATS-Friendly resumes\n✅ AI-assisted content suggestions\n✅ Professional templates\n✅ Resume improvement tips\n✅ Skills & experience guidance\n✅ Instant download\n\nBuild a resume that gets you noticed by top companies!`,
+ quickReplies: ['Build My Resume', 'Find Jobs', 'Contact Us'],
+ actions: [{ label: 'Launch AI Resume Builder', route: 'https://ai-resume-builder-fic.vercel.app/', icon: 'arrow' }]
+ })
+ },
+ hire_through_fic: {
+ patterns: ['hire', 'hiring', 'recruit', 'staffing', 'employer', 'post job', 'talent', 'hire through fic', 'company hiring'],
+ response: () => ({
+ text: `🤝 **Hire Through Forge India Connect**\n\nLooking for the right talent? FIC offers end-to-end hiring solutions:\n\n• **Mass Recruitment Drives** across South India\n• **Executive Search & Headhunting**\n• **Campus Hiring Programs**\n• **Contract Staffing Solutions**\n• **Background Verification**\n\nWe connect top talent with the best companies — fast and reliably.`,
+ quickReplies: ['Post a Job', 'Learn More', 'Contact Us'],
+ actions: [{ label: 'Hire Through FIC', route: '/contact', icon: 'arrow' }]
  })
  }
 };
@@ -604,7 +636,7 @@ const FICQuippy = () => {
  whileHover={{ scale: 1.1 }}
  whileTap={{ scale: 0.92 }}
  onClick={() => setIsOpen(o => !o)}
- className="fixed bottom-12 left-6 md:bottom-16 md:left-12 z-[998] w-[65px] h-[65px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
+ className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[998] w-[65px] h-[65px] rounded-full flex items-center justify-center shadow-2xl transition-all group"
  style={{
  background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
  boxShadow: '0 8px 32px rgba(99,102,241,0.4), 0 0 0 4px rgba(99,102,241,0.1)'
@@ -641,7 +673,7 @@ const FICQuippy = () => {
  initial={{ opacity: 0, x: 20, scale: 0.9 }}
  animate={{ opacity: 1, x: 0, scale: 1 }}
  exit={{ opacity: 0, x: -20, scale: 0.9 }}
- className="fixed bottom-24 left-24 md:bottom-28 md:left-28 z-[997] max-w-[200px]"
+ className="fixed bottom-24 left-24 md:bottom-28 md:left-28 z-[44] max-w-[200px]"
  >
  <div className="bg-white dark:bg-gray-900 p-3 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800">
  <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
@@ -661,7 +693,7 @@ const FICQuippy = () => {
  animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
  exit={{ opacity: 0, scale: 0.85, y: 30, x: -20 }}
  transition={{ type: 'spring', damping: 28, stiffness: 320 }}
- className="fixed bottom-32 left-4 md:bottom-36 md:left-12 z-[998] w-[420px] max-w-[95vw] h-[600px] max-h-[calc(100vh-160px)] flex flex-col overflow-hidden"
+ className="fixed bottom-32 left-4 md:bottom-36 md:left-10 z-[45] w-[420px] max-w-[95vw] h-[600px] max-h-[calc(100vh-200px)] flex flex-col overflow-hidden"
  style={{
  background: QUIPPY_BG,
  borderRadius: '1.8rem',

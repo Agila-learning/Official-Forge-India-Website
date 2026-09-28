@@ -58,8 +58,33 @@ const serviceInquirySchema = new mongoose.Schema({
   razorpayPaymentId: { type: String },
   emailSent: { type: Boolean, default: false },
 
+  // New Ecosystem Fields
+  fullName: { type: String }, // To map to guestName if needed, but explicit
+  companyName: { type: String },
+  location: { type: String },
+  serviceSlug: { type: String },
+  enquiryType: { type: String, default: 'Service' },
+  budget: { type: String },
+  projectType: { type: String },
+  preferredContactMethod: { type: String, enum: ['Email', 'Phone', 'WhatsApp'], default: 'Phone' },
+  websiteUrl: { type: String },
+  additionalData: { type: mongoose.Schema.Types.Mixed }, // To store flexible fields like modules, timeline, etc.
+  adminNotes: { type: String },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  referenceId: { type: String, unique: true },
+
 }, {
   timestamps: true
+});
+
+// Auto-generate referenceId before save
+serviceInquirySchema.pre('save', async function (next) {
+  if (this.isNew && !this.referenceId) {
+    const dateStr = new Date().getFullYear();
+    const count = await this.constructor.countDocuments();
+    this.referenceId = `FIC-ENQ-${dateStr}-${String(count + 1).padStart(6, '0')}`;
+  }
+  next();
 });
 
 module.exports = mongoose.model('ServiceInquiry', serviceInquirySchema);

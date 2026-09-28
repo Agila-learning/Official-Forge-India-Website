@@ -90,7 +90,12 @@ const productSchema = mongoose.Schema(
     location: { type: String },
     sharingType: { type: String, enum: ['Single', 'Double', 'Triple', 'Quad', 'None'], default: 'None' },
     amenities: [{ type: String }],
-    bookingDuration: { type: String, enum: ['Hourly', 'Daily', 'Nightly', 'Weekly', 'Monthly', 'Yearly', 'None'], default: 'None' }
+    bookingDuration: { type: String, enum: ['Hourly', 'Daily', 'Nightly', 'Weekly', 'Monthly', 'Yearly', 'None'], default: 'None' },
+    // Atomy Specific Fields
+    sku: { type: String },
+    externalUrl: { type: String },
+    isFeatured: { type: Boolean, default: false },
+    shortDescription: { type: String }
   },
   { timestamps: true }
 );

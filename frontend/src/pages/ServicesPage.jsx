@@ -18,6 +18,17 @@ import ServiceCard from '../components/ui/ServiceCard';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
+const mockPremiumServices = [
+  { _id: 'm1', name: 'Elite Deep Cleaning', category: 'Home Services', serviceName: 'Elite Deep Cleaning', basePrice: 2999, price: 2999, rating: 4.9, image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80', description: 'Comprehensive sanitization and deep cleaning for your entire home by certified professionals.', highlights: ['Eco-friendly', '100% Sanitization'], isService: true, willLaunchSoon: false },
+  { _id: 'm2', name: 'Premium Salon at Home', category: 'Beauty', serviceName: 'Premium Salon at Home', basePrice: 1499, price: 1499, rating: 4.8, image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80', description: 'Luxury grooming, styling, and spa services delivered directly to your doorstep.', highlights: ['Top Stylists', 'Premium Products'], isService: true, willLaunchSoon: false },
+  { _id: 'm3', name: 'Smart Home Automation setup', category: 'IT Solutions', serviceName: 'Smart Home Automation setup', basePrice: 8999, price: 8999, rating: 5.0, image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=800&q=80', description: 'Transform your house into a smart home with IoT devices, voice control, and automation.', highlights: ['IoT Integration', 'Voice Control'], isService: true, willLaunchSoon: true },
+  { _id: 'm4', name: 'Full-Stack Web Development', category: 'Web Development', serviceName: 'Full-Stack Web Development', basePrice: 45000, price: 45000, rating: 4.9, image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80', description: 'Custom, scalable, and high-performance web applications built on modern tech stacks.', highlights: ['React / Node.js', 'AWS Hosted'], isService: true, willLaunchSoon: false },
+  { _id: 'm5', name: 'Executive Job Consulting', category: 'Job Consulting', serviceName: 'Executive Job Consulting', basePrice: 3500, price: 3500, rating: 4.7, image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80', description: '1-on-1 strategic career coaching and placement assistance for top-tier roles.', highlights: ['Resume Building', 'Mock Interviews'], isService: true, willLaunchSoon: false },
+  { _id: 'm6', name: 'Expert Plumbing Solutions', category: 'Home Services', serviceName: 'Expert Plumbing Solutions', basePrice: 599, price: 599, rating: 4.8, image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800&q=80', description: 'Fix leaks, install fixtures, and perform comprehensive pipe maintenance safely.', highlights: ['Quick Response', 'Certified Plumbers'], isService: true, willLaunchSoon: true },
+  { _id: 'm7', name: 'Advanced UI/UX Design', category: 'Design', serviceName: 'Advanced UI/UX Design', basePrice: 25000, price: 25000, rating: 5.0, image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80', description: 'User-centric interface design and prototyping to maximize engagement.', highlights: ['Figma Prototyping', 'User Research'], isService: true, willLaunchSoon: false },
+  { _id: 'm8', name: 'Corporate AC Servicing', category: 'Home Services', serviceName: 'Corporate AC Servicing', basePrice: 1299, price: 1299, rating: 4.6, image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&q=80', description: 'Professional AC cleaning, gas refilling, and maintenance for optimal cooling.', highlights: ['Jet Cleaning', 'Cooling Check'], isService: true, willLaunchSoon: false }
+];
+
 const HorizontalCarousel = ({ title, items, onBook }) => {
   const scrollRef = React.useRef(null);
 
@@ -100,10 +111,12 @@ const ServicesPage = () => {
         setLoading(true);
         // Fetch unified services catalog
         const { data } = await api.get('/services');
-        setServices(data || []);
+        const dbServices = Array.isArray(data) ? data : [];
+        const combined = [...mockPremiumServices, ...dbServices];
+        setServices(combined);
         
-        // Extract unique categories from the DB
-        const uniqueCats = Array.from(new Set(data.map(s => s.category))).filter(Boolean);
+        // Extract unique categories from the DB + Mock
+        const uniqueCats = Array.from(new Set(combined.map(s => s.category))).filter(Boolean);
         const catObjects = uniqueCats.map(c => ({
           id: c.toLowerCase().replace(/\s+/g, '-'),
           label: c,

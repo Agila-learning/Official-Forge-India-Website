@@ -109,6 +109,7 @@ const DashboardLayout = ({
  { id: 'locations', icon: LinkIcon, label: 'Service Areas' },
  { id: 'location-requests', icon: MapPin, label: 'Integration Requests' },
  { id: 'media', icon: Image, label: 'Media Manager' },
+ { id: 'gallery', icon: Image, label: 'FIC Gallery' },
  { id: 'tickets', icon: ReviewIcon, label: 'Support Tickets' },
  { id: 'inquiries', icon: ClipboardList, label: 'Service Inquiries' },
  { id: 'contacts', icon: Mail, label: 'Contact Queries' },

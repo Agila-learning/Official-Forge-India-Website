@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Briefcase, FileText, Bell, User, LogOut, Upload, ChevronRight,
@@ -17,7 +17,10 @@ import QuickDeliveryComponent from '../components/ui/QuickDeliveryComponent';
 
 const statusConfig = {
  Pending: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400', icon: Clock },
- Shortlisted:{ color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Star },
+ Reviewed: { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: User },
+ Shortlisted: { color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: Star },
+ 'Interview Scheduled': { color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: Phone },
+ Selected: { color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: Award },
  Hired: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle2 },
  Rejected: { color: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
 };
@@ -632,6 +635,42 @@ const CandidateDashboard = () => {
  <Icon size={12} /> {app.status}
  </span>
  </div>
+ 
+ {/* Status Tracker */}
+ <div className="mb-6 overflow-x-auto">
+   <div className="flex items-center min-w-[500px]">
+     {['Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Hired'].map((step, idx, arr) => {
+       const currentIndex = arr.indexOf(app.status === 'Selected' ? 'Hired' : app.status);
+       const isCompleted = currentIndex >= idx;
+       const isRejected = app.status === 'Rejected';
+       return (
+         <React.Fragment key={step}>
+           <div className="flex flex-col items-center relative z-10 w-24">
+             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs mb-2 transition-colors ${
+               isRejected ? (idx === 0 ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-400') : 
+               isCompleted ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'
+             }`}>
+               {isCompleted && !isRejected ? <CheckCircle2 size={16} /> : idx + 1}
+             </div>
+             <span className={`text-[9px] font-black uppercase tracking-widest text-center ${
+               isRejected && idx === 0 ? 'text-red-500' : 
+               isCompleted ? 'text-primary' : 'text-gray-400'
+             }`}>
+               {isRejected && idx === 0 ? 'Rejected' : step}
+             </span>
+           </div>
+           {idx < arr.length - 1 && (
+             <div className={`flex-1 h-1 -ml-6 -mr-6 mt-[-20px] rounded-full z-0 ${
+               isRejected ? 'bg-gray-200 dark:bg-gray-800' :
+               currentIndex > idx ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-800'
+             }`} />
+           )}
+         </React.Fragment>
+       );
+     })}
+   </div>
+ </div>
+ 
 
  {app.hrNotes && (
  <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800">

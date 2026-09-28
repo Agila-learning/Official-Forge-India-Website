@@ -11,6 +11,24 @@ const ServiceProviderDashboard = () => {
  const [isOnline, setIsOnline] = useState(user.isOnline || false);
  const [rides, setRides] = useState([]);
  const [loading, setLoading] = useState(true);
+ const [settingsData, setSettingsData] = useState({
+   firstName: user.firstName || '',
+   lastName: user.lastName || '',
+   mobile: user.mobile || '',
+   city: user.city || ''
+ });
+
+ const handleSaveSettings = async () => {
+   try {
+     const { data } = await api.put('/users/profile', settingsData);
+     const updatedInfo = { ...user, ...data };
+     localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
+     setUser(updatedInfo);
+     toast.success('Profile updated successfully!');
+   } catch (err) {
+     toast.error('Failed to update profile');
+   }
+ };
 
  useEffect(() => {
  // Mocking some ride data for now
@@ -136,6 +154,33 @@ const ServiceProviderDashboard = () => {
  </div>
  <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Ride History</h3>
  <p className="text-slate-500 font-medium text-sm">You haven't completed any rides today.</p>
+ </motion.div>
+ )}
+ {activeTab === 'Profile' && (
+ <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key="profile" className="space-y-8">
+   <div className="flex items-center justify-between border-b border-slate-50 dark:border-slate-800 pb-8">
+     <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Service Provider <span className="text-primary">Profile</span></h2>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+     <div className="space-y-2">
+       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">First Name</label>
+       <input value={settingsData.firstName} onChange={e => setSettingsData({...settingsData, firstName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg outline-none font-bold" />
+     </div>
+     <div className="space-y-2">
+       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Name</label>
+       <input value={settingsData.lastName} onChange={e => setSettingsData({...settingsData, lastName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg outline-none font-bold" />
+     </div>
+     <div className="space-y-2">
+       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mobile</label>
+       <input value={settingsData.mobile} onChange={e => setSettingsData({...settingsData, mobile: e.target.value})} className="w-full px-6 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-dark-bg outline-none font-bold" />
+     </div>
+     <div className="space-y-2 md:col-span-2 mt-4">
+       <label className="text-[10px] font-black text-primary uppercase tracking-widest">Serviceable Location (City)</label>
+       <input value={settingsData.city} onChange={e => setSettingsData({...settingsData, city: e.target.value})} placeholder="e.g., Chennai" className="w-full px-6 py-4 rounded-2xl border border-primary/20 bg-primary/5 outline-none font-bold text-primary" />
+       <p className="text-[10px] font-bold text-slate-400 mt-1">This location will be used to show your services to local customers.</p>
+     </div>
+   </div>
+   <button onClick={handleSaveSettings} className="w-full py-5 bg-primary text-white rounded-[2rem] font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all mt-4">Save Profile Changes</button>
  </motion.div>
  )}
  {activeTab === 'Subscription' && (

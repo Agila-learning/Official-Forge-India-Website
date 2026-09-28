@@ -10,7 +10,10 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // @access  Private
 router.post('/', async (req, res) => {
   try {
-    const { serviceType, specificRequirement, message, contactNumber, name, email, requestType } = req.body;
+    const { 
+      serviceType, specificRequirement, message, contactNumber, name, email, requestType,
+      companyName, location, serviceSlug, budget, projectType, preferredContactMethod, websiteUrl, additionalData 
+    } = req.body;
 
     let userId = null;
     const authHeader = req.headers.authorization;
@@ -27,12 +30,21 @@ router.post('/', async (req, res) => {
     const inquiry = new ServiceInquiry({
       user: userId,
       guestName: userId ? null : name,
+      fullName: name, // always store explicitly
       guestEmail: userId ? null : email,
       serviceType,
-      specificRequirement,
-      message,
+      specificRequirement: specificRequirement || (projectType || 'General Inquiry'),
+      message: message || 'No message provided',
       contactNumber,
-      requestType
+      requestType,
+      companyName,
+      location,
+      serviceSlug,
+      budget,
+      projectType,
+      preferredContactMethod,
+      websiteUrl,
+      additionalData
     });
 
     const createdInquiry = await inquiry.save();

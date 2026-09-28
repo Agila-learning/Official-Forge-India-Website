@@ -275,31 +275,7 @@ const ChatWidget = () => {
 
  return (
  <>
- {/* Floating Chat Button */}
- <motion.button
- whileHover={{ scale: 1.1 }}
- whileTap={{ scale: 0.95 }}
- onClick={() => setIsOpen((o) => !o)}
- className="fixed bottom-10 right-10 md:bottom-12 md:right-12 z-50 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-blue-700 text-white flex items-center justify-center shadow-2xl shadow-primary/40 border border-white/20"
- aria-label="Open Chat"
- >
- <AnimatePresence mode="wait">
- {isOpen ? (
- <motion.div key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
- <X size={26} />
- </motion.div>
- ) : (
- <motion.div key="msg" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} className="relative">
- <MessageCircle size={26} />
- {unreadCount > 0 && (
- <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-primary">
- {unreadCount}
- </span>
- )}
- </motion.div>
- )}
- </AnimatePresence>
- </motion.button>
+ {/* FAB Removed */}
 
  {/* Chat Panel */}
  <AnimatePresence>
@@ -341,6 +317,9 @@ const ChatWidget = () => {
  >
  {tab === 'threads' ? 'New Chat' : 'Chats'}
  </button>
+  <button onClick={() => setIsOpen(false)} className="px-2 py-1.5 rounded-xl text-zinc-400 hover:text-white transition-all">
+    <X size={18} />
+  </button>
  </div>
  </div>
 
