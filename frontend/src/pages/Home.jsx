@@ -18,7 +18,7 @@ import TrustSection from '../components/sections/TrustSection';
 import AboutSection from '../components/sections/AboutSection';
 import LocationsSection from '../components/sections/LocationsSection';
 import Testimonials from '../components/sections/Testimonials';
-import PlacedCandidates from '../components/sections/PlacedCandidates';
+
 import FinalCTA from '../components/sections/FinalCTA';
 import DigitalTools from '../components/sections/DigitalTools';
 import GallerySection from '../components/sections/GallerySection';
@@ -48,7 +48,7 @@ const Home = () => {
         <BusinessSolutions />
         <FICServiceEcosystem />
         <AtomyPreview />
-        <PlacedCandidates />
+
         <Testimonials previewMode={true} />
         <TrustSection />
         <AboutSection />

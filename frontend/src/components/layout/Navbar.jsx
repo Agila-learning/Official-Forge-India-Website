@@ -514,11 +514,11 @@ const Navbar = () => {
                                       <Zap size={14} />
                                     </div>
                                   )}
-                                  <div className="flex-1">
-                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${n.isRead ? 'text-gray-400' : 'text-secondary'}`}>
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-[10px] font-black uppercase tracking-widest mb-1 truncate ${n.isRead ? 'text-gray-400' : 'text-secondary'}`}>
                                       {n.title || (isOTP ? 'Security Alert' : 'System Message')}
                                     </p>
-                                    <p className={`text-xs font-bold leading-tight ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
+                                    <p className={`text-xs font-bold leading-tight break-words whitespace-normal ${n.isRead ? 'text-gray-500' : 'text-gray-900 dark:text-white'}`}>{n.message}</p>
                                     <div className="flex items-center justify-between mt-2">
                                       <p className="text-[8px] font-black text-gray-400 uppercase">{new Date(n.createdAt).toLocaleTimeString()}</p>
                                       {!n.isRead && <div className="w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_8px_#0d9488]" />}
