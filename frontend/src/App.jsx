@@ -98,6 +98,8 @@ const CloudSolutions = lazy(() => import('./pages/solutions/CloudSolutions'));
 const APIDevelopment = lazy(() => import('./pages/solutions/APIDevelopment'));
 const BusinessAutomation = lazy(() => import('./pages/solutions/BusinessAutomation'));
 const InsuranceServices = lazy(() => import('./pages/InsuranceServices'));
+const KrishnagiriITCompany = lazy(() => import('./pages/KrishnagiriITCompany'));
+const BangaloreITCompany = lazy(() => import('./pages/BangaloreITCompany'));
 const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
 const FinalYearProjects = lazy(() => import('./pages/FinalYearProjects'));
 const SubServicePage = lazy(() => import('./pages/ServiceLandingPage'));
@@ -235,7 +237,9 @@ const ContentWrapper = ({ loading }) => {
               <Route path="/achievements" element={<AchievementsPage />} />
  <Route path="/faq" element={<FAQ />} />
  <Route path="/about" element={<AboutUs />} />
- <Route path="/about-us" element={<AboutUs />} />
+  <Route path="/about-us" element={<AboutUs />} />
+  <Route path="/it-company-in-krishnagiri" element={<KrishnagiriITCompany />} />
+  <Route path="/it-company-in-bangalore" element={<BangaloreITCompany />} />
  <Route path="/antigraviity" element={<Antigraviity />} />
  <Route path="/cart" element={<Cart />} />
  <Route path="/wishlist" element={<Wishlist />} />

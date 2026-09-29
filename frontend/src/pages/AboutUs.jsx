@@ -190,7 +190,7 @@ const AboutUs = () => {
                   </span>
                 </h1>
                 <p className="text-lg text-white/60 font-medium leading-relaxed mb-10 max-w-xl">
-                  From Krishnagiri to pan-India — FIC is a multi-vertical platform standardizing recruitment, technology, services, and training for millions of professionals and businesses.
+                  From <Link to="/it-company-in-krishnagiri" className="text-primary font-bold hover:underline">Krishnagiri</Link> to pan-India — FIC is a multi-vertical platform standardizing recruitment, technology, services, and training for millions of professionals and businesses.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link to="/contact" className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-2xl shadow-primary/30 hover:bg-primary/90 transition-all text-sm uppercase tracking-widest">

@@ -42,9 +42,9 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1.05] mb-8 drop-shadow-lg"
           >
-            Technology. Careers.<br />
+            Technology, Careers & <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-primary to-cyan-300">
-              Opportunities. Growth.
+              Business Solutions That Move You Forward.
             </span>
           </motion.h1>
 
@@ -54,7 +54,7 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-300 font-medium max-w-3xl mx-auto mb-12 leading-relaxed"
           >
-            Forge India Connect brings technology solutions, career opportunities, student programs and business growth services together under one trusted platform.
+            Forge India Connect brings technology solutions, career opportunities, student programs and business growth services together under one trusted platform. <br/><span className="text-sm mt-2 block opacity-80">Looking for our core IT services? <Link to="/it-company-in-krishnagiri" className="text-primary hover:underline font-bold">Explore our Krishnagiri IT services</Link>.</span>
           </motion.p>
 
           <motion.div 

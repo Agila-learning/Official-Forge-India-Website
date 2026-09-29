@@ -37,6 +37,9 @@ const LocationsSection = () => {
                   </span>
                 ))}
               </div>
+              <Link to="/it-company-in-krishnagiri" className="text-primary font-bold inline-flex items-center gap-2 hover:gap-3 transition-all">
+                Explore our Krishnagiri IT services <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
 
@@ -62,6 +65,9 @@ const LocationsSection = () => {
                   </span>
                 ))}
               </div>
+              <Link to="/it-company-in-bangalore" className="text-primary font-bold inline-flex items-center gap-2 hover:gap-3 transition-all">
+                Discover our Bangalore tech solutions <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
 
