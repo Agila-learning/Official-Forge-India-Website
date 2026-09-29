@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ArrowUpRight, Code, ShieldCheck, Briefcase, Play, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { EXTERNAL_APPS } from '../../config/externalApps';
 
 const Hero = () => {
