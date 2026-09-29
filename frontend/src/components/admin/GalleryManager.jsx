@@ -23,7 +23,7 @@ const GalleryManager = ({ data, setData }) => {
         formData.append('file', file);
         const uploadRes = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         imageUrl = uploadRes.data.url;
-        if (imageUrl.startsWith('/')) imageUrl = `${api.defaults.baseURL}${imageUrl}`;
+        imageUrl = uploadRes.data.url;
       }
 
       if (!imageUrl && !editingId) {
@@ -46,7 +46,7 @@ const GalleryManager = ({ data, setData }) => {
       
       resetForm();
     } catch (error) {
-      toast.error('Failed to save gallery item');
+      toast.error('Failed to save gallery item: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

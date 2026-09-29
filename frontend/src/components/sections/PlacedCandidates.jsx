@@ -21,13 +21,7 @@ const PlacedCandidates = () => {
  fetchHired();
  }, []);
 
- const mockCandidates = [
- { _id: '1', user: { firstName: 'Rahul', lastName: 'V.' }, jobRole: 'Senior Cloud Architect', job: { company: 'Google Cloud' }, date: 'April 2026' },
- { _id: '2', user: { firstName: 'Sneha', lastName: 'M.' }, jobRole: 'Full Stack Engineer', job: { company: 'Atlassian' }, date: 'May 2026' },
- { _id: '3', user: { firstName: 'Arjun', lastName: 'S.' }, jobRole: 'AI Research Lead', job: { company: 'OpenAI' }, date: 'March 2026' }
- ];
-
- const displayCandidates = candidates.length > 0 ? candidates : mockCandidates;
+ const displayCandidates = candidates;
 
  return (
  <section className="py-32 bg-dark-bg relative overflow-hidden">
