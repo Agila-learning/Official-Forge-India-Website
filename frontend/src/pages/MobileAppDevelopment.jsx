@@ -8,7 +8,7 @@ import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
 const MobileAppDevelopment = () => {
   return (
     <div className="bg-slate-50 min-h-screen pb-32 pt-20">
-      <SEOMeta title="Mobile App Development | Forge India Connect" description="Native iOS and Android application development services. Build powerful mobile experiences." />
+      <SEOMeta title="Mobile App Development | Forge India Connect" description="Native iOS and Android application development services. Build powerful mobile experiences." keywords="mobile app development company in Krishnagiri, mobile app development company in Bangalore, Android app development company, mobile application development services" />
 
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden py-20 bg-white">

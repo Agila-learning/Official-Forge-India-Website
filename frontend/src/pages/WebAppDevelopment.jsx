@@ -8,7 +8,7 @@ import ServiceInquiryForm from '../components/forms/ServiceInquiryForm';
 const WebAppDevelopment = () => {
   return (
     <div className="bg-[#0f172a] min-h-screen pb-32 pt-20">
-      <SEOMeta title="Web App Development | Forge India Connect" description="Custom web application development, responsive websites, and enterprise web solutions." />
+      <SEOMeta title="Web App Development | Forge India Connect" description="Custom web application development, responsive websites, and enterprise web solutions." keywords="web development company in Krishnagiri, web development company in Bangalore, custom web application development, web application development company" />
 
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center overflow-hidden py-20">

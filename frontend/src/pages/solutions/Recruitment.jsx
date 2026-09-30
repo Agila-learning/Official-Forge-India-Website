@@ -6,6 +6,7 @@ const Recruitment = () => (
   <ServicePageTemplate
     title="Corporate & IT Recruitment"
     description="End-to-end recruitment across IT, banking, FMCG, and manufacturing. Source, screen, and deliver ready-to-contribute candidates."
+    keywords="recruitment company in Krishnagiri, recruitment consultancy in Krishnagiri, HR recruitment services, staffing solutions in Krishnagiri, recruitment services in Bangalore"
     tagline="Talent Acquisition Experts"
     heroTitle="Hire the"
     heroHighlight="Right Talent"

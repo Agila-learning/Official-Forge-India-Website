@@ -6,6 +6,7 @@ const WebDevelopment = () => (
   <ServicePageTemplate
     title="Corporate Web Development"
     description="Premium corporate websites, CMS-powered platforms, and conversion-optimized landing pages that make lasting first impressions."
+    keywords="web development company in Krishnagiri, web development company in Bangalore, custom web application development, web application development company, website development company in Krishnagiri"
     tagline="Website Design & Development"
     heroTitle="Websites That"
     heroHighlight="Win Business"

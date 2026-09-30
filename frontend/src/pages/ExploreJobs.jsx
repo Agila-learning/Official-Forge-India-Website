@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Briefcase, DollarSign, Clock, ArrowRight, Filter, ChevronRight, Loader2, Sparkles, XCircle, CheckCircle2, X, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import JobApplicationForm from '../components/ui/JobApplicationForm';
+import SEOMeta from '../components/ui/SEOMeta';
 import toast from 'react-hot-toast';
 import { useLocation as useRouterLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
@@ -120,6 +121,7 @@ const ExploreJobs = () => {
 
  return (
  <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-20 pb-24 px-4 overflow-x-hidden relative">
+ <SEOMeta title="Explore Jobs & Internships | Forge India Connect" description="Discover career opportunities, software jobs, and internships in Krishnagiri and Bangalore." keywords="internship for B.Tech students, IT internship in Krishnagiri, fresher jobs, software jobs, private jobs in Krishnagiri, career opportunities" />
  <JobApplicationForm 
  isOpen={isFormOpen} 
  onClose={() => setIsFormOpen(false)} 

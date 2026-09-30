@@ -6,6 +6,7 @@ const ITSolutions = () => (
   <ServicePageTemplate
     title="End-to-End IT Solutions"
     description="From bespoke software to robust infrastructure, we architect scalable IT systems that power modern enterprises."
+    keywords="IT company in Krishnagiri, best IT company in Krishnagiri, software company in Krishnagiri, software development company in Krishnagiri, IT services in Bangalore"
     tagline="Enterprise IT Architecture"
     heroTitle="Engineering"
     heroHighlight="Digital Excellence"

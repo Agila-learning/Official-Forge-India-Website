@@ -86,6 +86,7 @@ const TrainingPlacementPage = () => {
  <SEOMeta 
  title="Training & Placement | Forge India Connect"
  description="Elite career transformation ecosystem. Industry-aligned training with guaranteed placement support."
+ keywords="private bank jobs, private bank jobs for freshers, banking jobs for freshers, banking jobs in Tamil Nadu, private banking jobs in Tamil Nadu, banking career opportunities, BFSI jobs in Tamil Nadu, relationship manager jobs, assistant manager bank jobs"
  />
 
  <TrainingRegistrationForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} selectedCourse={selectedCourse} />

@@ -1,5 +1,36 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(jpg|jpeg|png|gif|svg|webp|js|css|woff2)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "forgeindiaconnect.com"
+        }
+      ],
+      "destination": "https://www.forgeindiaconnect.com/$1",
+      "permanent": true
+    },
     { "source": "/app-development.html", "destination": "/app-development", "permanent": true },
     { "source": "/digital-marketing.html", "destination": "/digital-marketing", "permanent": true },
     { "source": "/insurance-services.html", "destination": "/insurance-services", "permanent": true },

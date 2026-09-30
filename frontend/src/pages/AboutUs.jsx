@@ -163,6 +163,7 @@ const AboutUs = () => {
       <SEOMeta
         title="About Us | Our Story & Vision | Forge India Connect"
         description="Learn about Forge India Connect's journey from a local consultancy to South India's premier business and career ecosystem. Discover our mission, divisions, and values."
+        keywords="Forge India Connect Krishnagiri, Forge India Connect Bangalore, Forge India Connect IT company, Forge India Connect jobs, industrial visit in Krishnagiri"
         canonical="/about"
       />
 

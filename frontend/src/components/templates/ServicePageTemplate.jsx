@@ -32,7 +32,7 @@ const ServicePageTemplate = ({
   accentBorder = 'border-blue-200 dark:border-blue-500/30', stats = [], 
   servicesTitle = 'What We Deliver', services = [], processTitle = 'Our Approach', 
   processSteps = [], whyTitle = 'Why Choose FIC?', whyPoints = [], serviceType, 
-  serviceSlug, formTitle, formBullets = [],
+  serviceSlug, formTitle, formBullets = [], keywords = ''
 }) => {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -41,7 +41,7 @@ const ServicePageTemplate = ({
 
   return (
     <div className="bg-slate-50 dark:bg-[#070b14] min-h-screen text-slate-900 dark:text-white overflow-x-hidden transition-colors duration-300">
-      <SEOMeta title={`${title} | Forge India Connect`} description={description} />
+      <SEOMeta title={`${title} | Forge India Connect`} description={description} keywords={keywords} />
 
       {/* ── HERO ── */}
       <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden pt-20">

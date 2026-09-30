@@ -6,6 +6,7 @@ const ERPSolutions = () => (
   <ServicePageTemplate
     title="ERP Solutions for Business"
     description="Comprehensive ERP systems for schools, manufacturers, retailers, and enterprises. One platform, every module."
+    keywords="ERP software company in Krishnagiri, custom ERP development, school ERP software, business ERP software, ERP solutions in Krishnagiri"
     tagline="Enterprise Resource Planning"
     heroTitle="Unify Your"
     heroHighlight="Entire Business"

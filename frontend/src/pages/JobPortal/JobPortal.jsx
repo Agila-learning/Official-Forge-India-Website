@@ -3,12 +3,14 @@ import { motion } from 'framer-motion';
 import { Briefcase, Building, ArrowRight, Search, Users, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ResumeAnalyzer from '../../components/ui/ResumeAnalyzer';
+import SEOMeta from '../../components/ui/SEOMeta';
 
 const JobPortal = () => {
  const navigate = useNavigate();
 
  return (
  <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pt-20 pb-24 overflow-x-hidden relative">
+ <SEOMeta title="Job Portal | Forge India Connect" description="Explore IT jobs, software jobs, and recruitment opportunities in Krishnagiri and Bangalore." keywords="IT jobs in Krishnagiri, fresher jobs in Tamil Nadu, IT jobs in Bangalore, software jobs in Krishnagiri, fresher jobs in Krishnagiri, private jobs in Krishnagiri, job consultancy in Krishnagiri, software jobs in Bangalore" />
  {/* Ambient Background Elements */}
  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
  <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>

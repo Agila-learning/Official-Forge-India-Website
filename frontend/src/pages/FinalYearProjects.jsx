@@ -105,6 +105,7 @@ const FinalYearProjects = () => {
       <SEOMeta 
         title="Final Year Projects | Forge India Connect"
         description="Premium final year project guidance and development for IT/CS students. Explore MERN, AI, Python, SaaS, and Web3 domains."
+        keywords="final year projects for engineering students, B.Tech final year projects, IT final year projects, college project development, MERN stack projects for students"
       />
 
       {/* ── HERO SECTION ── */}

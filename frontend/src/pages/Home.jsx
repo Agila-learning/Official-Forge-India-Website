@@ -28,10 +28,10 @@ const Home = () => {
   return (
     <>
       <SEOMeta
-        title="Forge India Connect | IT Solutions, Careers, Training & Business Growth"
-        description="Forge India Connect is a premier IT, software, and recruitment company. We provide advanced IT solutions, web and mobile app development, job consulting, career guidance, banking career programs, student internships, real-time training, CRM/ERP solutions, and digital marketing services in Krishnagiri, Bangalore, and across India."
-        keywords="Forge India Connect, IT company in Krishnagiri, IT company in Bangalore, top software development company, custom software development, web app development, mobile app development, CRM solutions, ERP solutions, business automation, digital marketing services, SEO agency, IT consulting, job portal, career guidance, banking careers, placement support, student internships, final year projects, real-time training programs, corporate training, recruitment agency, staffing solutions, HR services, B2B marketplace, tech startups India, cloud solutions provider, UI/UX design, tech education, online courses"
-        canonical="/"
+        title="Forge India Connect | IT Solutions & Careers"
+        description="Forge India Connect is a premier IT, software, and recruitment company providing custom solutions, web development, job consulting, and training across India."
+        keywords="Forge India Connect, IT company in Krishnagiri, IT company in Bangalore, top software development company, custom software development, web app development, mobile app development, CRM solutions, ERP solutions, business automation, digital marketing services, SEO agency, IT consulting, job portal, career guidance, banking careers, placement support, student internships, final year projects, real-time training programs, corporate training, recruitment agency, staffing solutions, HR services, B2B marketplace, tech startups India, cloud solutions provider, UI/UX design, tech education, online courses, IT solutions company in Krishnagiri, best IT company in Krishnagiri"
+        canonical="https://www.forgeindiaconnect.com/"
       />
       
       <main className="bg-white text-slate-800 font-sans overflow-x-hidden">
