@@ -215,17 +215,17 @@ const Navbar = () => {
           {
             title: 'CAREER TOOLS',
             items: [
-              { name: 'AI Resume Builder', path: 'https://resume-ai-mocha-three.vercel.app/', isExternal: true },
-              { name: 'ATS Resume', path: 'https://resume-ai-mocha-three.vercel.app/', isExternal: true },
+              { name: 'AI Resume Builder', path: '/ai-resume-builder' },
+              { name: 'ATS Resume', path: '/ats-resume' },
               { name: 'Resume Guidance', path: '/contact' }
             ]
           },
           {
             title: 'BANKING CAREERS',
             items: [
-              { name: 'Banking Jobs', path: 'https://jobs.forgeindiaconnect.in', isExternal: true },
-              { name: 'Private Bank Opportunities', path: 'https://jobs.forgeindiaconnect.in', isExternal: true },
-              { name: 'Banking Career Programs', path: 'https://jobs.forgeindiaconnect.in', isExternal: true }
+              { name: 'Banking Jobs', path: '/banking-jobs' },
+              { name: 'Private Bank Opportunities', path: '/private-bank-opportunities' },
+              { name: 'Banking Career Programs', path: '/banking-career-programs' }
             ]
           },
           {

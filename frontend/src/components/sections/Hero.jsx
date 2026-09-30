@@ -41,7 +41,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter leading-[1.05] mb-8 drop-shadow-lg"
+            className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[1.05] mb-6 drop-shadow-lg"
           >
             Technology, Careers & <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-primary to-cyan-300">

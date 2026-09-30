@@ -104,6 +104,11 @@ const ServiceLandingPage = lazy(() => import('./pages/ServiceLandingPage'));
 const FinalYearProjects = lazy(() => import('./pages/FinalYearProjects'));
 const SubServicePage = lazy(() => import('./pages/ServiceLandingPage'));
 const RidesCategoryPage = lazy(() => import('./pages/RidesCategoryPage'));
+const AIResumeBuilder = lazy(() => import('./pages/AIResumeBuilder'));
+const ATSResume = lazy(() => import('./pages/ATSResume'));
+const BankingJobs = lazy(() => import('./pages/BankingJobs'));
+const PrivateBankOpportunities = lazy(() => import('./pages/PrivateBankOpportunities'));
+const BankingCareerPrograms = lazy(() => import('./pages/BankingCareerPrograms'));
 
 // New ecosystem pages
 const CourseCatalogPage = lazy(() => import('./pages/CourseCatalogPage'));
@@ -251,6 +256,11 @@ const ContentWrapper = ({ loading }) => {
  <Route path="/job-consulting" element={<JobConsultingPage />} />
  <Route path="/training-placement" element={<TrainingPlacementPage />} />
  <Route path="/final-year-projects" element={<FinalYearProjects />} />
+ <Route path="/ai-resume-builder" element={<AIResumeBuilder />} />
+ <Route path="/ats-resume" element={<ATSResume />} />
+ <Route path="/banking-jobs" element={<BankingJobs />} />
+ <Route path="/private-bank-opportunities" element={<PrivateBankOpportunities />} />
+ <Route path="/banking-career-programs" element={<BankingCareerPrograms />} />
  <Route path="/service-provider" element={<ProtectedRoute allowedRoles={['Service Provider', 'Admin']}><ServiceProviderDashboard /></ProtectedRoute>} />
  <Route path="/agent-admin" element={<ProtectedRoute allowedRoles={['Agent', 'Admin']}><AgentDashboard /></ProtectedRoute>} />
         <Route path="/agent-network" element={<AgentPortalWrapper />} />
