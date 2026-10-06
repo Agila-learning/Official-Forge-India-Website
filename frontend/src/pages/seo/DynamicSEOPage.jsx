@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import SEOMeta from '../../components/SEOMeta';
+import SEOMeta from '../../components/ui/SEOMeta';
 import { motion } from 'framer-motion';
 import { CheckCircle, MapPin, Code, Star, ArrowRight } from 'lucide-react';
 
