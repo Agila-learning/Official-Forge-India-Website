@@ -132,32 +132,32 @@ const TrainingRegistrationForm = ({ isOpen, onClose, selectedCourse = '' }) => {
  animate={{ opacity: 1, scale: 1, y: 0 }}
  exit={{ opacity: 0, scale: 0.9, y: 20 }}
  onClick={e => e.stopPropagation()}
- className="w-full max-w-[600px] my-auto bg-white dark:bg-dark-card rounded-[2.5rem] md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col relative"
- style={{ maxHeight: 'min(90vh, 700px)' }}
+ className="w-full max-w-[700px] mt-10 mb-10 mx-auto bg-white dark:bg-dark-card rounded-[2rem] md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col relative"
+ style={{ maxHeight: '85vh' }}
  >
- <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-dark-bg/50">
+ <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-dark-bg/50 shrink-0">
  <div>
- <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Register for Training</h3>
+ <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Register for Training</h3>
  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Accelerate your career with FIC</p>
  </div>
- <button onClick={onClose} className="w-12 h-12 flex items-center justify-center bg-white dark:bg-dark-bg rounded-2xl text-gray-400 hover:text-red-500 transition-colors shadow-sm">
- <X size={24} />
+ <button onClick={onClose} className="w-10 h-10 flex items-center justify-center bg-white dark:bg-dark-bg rounded-xl text-gray-400 hover:text-red-500 transition-colors shadow-sm shrink-0">
+ <X size={20} />
  </button>
  </div>
 
- <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar min-h-0">
+ <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
  {submitted ? (
  <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-12">
  <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center animate-bounce">
  <CheckCircle size={48} />
  </div>
- <h4 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Registration Complete!</h4>
+ <h4 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Registration Complete!</h4>
  <p className="text-gray-500 font-medium max-w-xs mx-auto">
  We've received your application. Our academic coordinator will contact you within 24 hours for the next steps.
  </p>
  </div>
  ) : (
- <form onSubmit={handleInitialSubmit} className="space-y-6 pb-12">
+ <form onSubmit={handleInitialSubmit} className="space-y-8 pb-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Name */}
  <div className="space-y-2">

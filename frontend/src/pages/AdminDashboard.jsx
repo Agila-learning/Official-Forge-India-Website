@@ -2901,7 +2901,7 @@ const AdminDashboard = () => {
  <table className="w-full text-left">
  <thead>
  <tr className="border-b border-gray-100 dark:border-gray-800">
- {['Ref ID', 'Client / Company', 'Service', 'Requirements / Budget', 'Contact', 'Status', 'Actions'].map(h => (
+ {['Ref ID', 'Client / Company', 'Service', 'Requirements / Budget', 'Contact', 'Date', 'Status', 'Actions'].map(h => (
  <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
  ))}
  </tr>
@@ -2944,6 +2944,9 @@ const AdminDashboard = () => {
  <td className="py-5 pr-4">
    <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{inquiry.contactNumber}</p>
    {inquiry.preferredContactMethod && <p className="text-[9px] text-gray-400 mt-0.5">Prefers: {inquiry.preferredContactMethod}</p>}
+ </td>
+ <td className="py-5 pr-4">
+    <p className="text-xs font-bold text-gray-500">{new Date(inquiry.createdAt).toLocaleDateString()}</p>
  </td>
  <td className="py-5 pr-4">
  <select 
@@ -3005,7 +3008,7 @@ const AdminDashboard = () => {
   <table className="w-full text-left">
   <thead>
   <tr className="border-b border-gray-100 dark:border-gray-800">
-  {['Lead', 'Service', 'Timeline/Budget', 'Contact', 'Status', 'Actions'].map(h => (
+  {['Lead', 'Service', 'Timeline/Budget', 'Contact', 'Date', 'Status', 'Actions'].map(h => (
   <th key={h} className="pb-5 text-[9px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 pr-4">{h}</th>
   ))}
   </tr>
@@ -3032,6 +3035,9 @@ const AdminDashboard = () => {
   <td className="py-5 pr-4">
   <p className="text-xs font-mono font-bold text-gray-600 dark:text-gray-400">{reg.phone}</p>
   {reg.company && <p className="text-[9px] text-gray-400 uppercase mt-0.5">{reg.company}</p>}
+  </td>
+  <td className="py-5 pr-4">
+    <p className="text-xs font-bold text-gray-500">{new Date(reg.createdAt).toLocaleDateString()}</p>
   </td>
   <td className="py-5 pr-4">
   <select 

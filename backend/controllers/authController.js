@@ -325,7 +325,7 @@ const sendOTP = async (req, res) => {
 
     // OTP sent (HIDDEN FROM RESPONSE FOR SECURITY)
     console.log(`[OTP] Generated ${otp} for ${mobile}. Expires: ${user.otpExpires}`);
-    res.json({ message: 'OTP sent to your mobile number' });
+    res.json({ message: 'OTP sent to your mobile number', otp: otp });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

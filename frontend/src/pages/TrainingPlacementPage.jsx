@@ -169,8 +169,8 @@ const TrainingPlacementPage = () => {
  
  <div className="relative z-10 rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border-[12px] border-white dark:border-dark-card">
  <img 
- src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1200" 
- alt="Success" 
+ src="/images/training-placement-hero.png" 
+ alt="Success Journey" 
  className="w-full h-auto"
  />
  </div>

@@ -109,6 +109,7 @@ const ATSResume = lazy(() => import('./pages/ATSResume'));
 const BankingJobs = lazy(() => import('./pages/BankingJobs'));
 const PrivateBankOpportunities = lazy(() => import('./pages/PrivateBankOpportunities'));
 const BankingCareerPrograms = lazy(() => import('./pages/BankingCareerPrograms'));
+const DynamicSEOPage = lazy(() => import('./pages/seo/DynamicSEOPage'));
 
 // New ecosystem pages
 const CourseCatalogPage = lazy(() => import('./pages/CourseCatalogPage'));
@@ -282,6 +283,12 @@ const ContentWrapper = ({ loading }) => {
   <Route path="/solutions/seo" element={<Suspense fallback={<PageLoader />}><SEO /></Suspense>} />
   <Route path="/solutions/branding" element={<Suspense fallback={<PageLoader />}><Branding /></Suspense>} />
   <Route path="/solutions/social-media-marketing" element={<Suspense fallback={<PageLoader />}><SocialMedia /></Suspense>} />
+  
+  {/* SEO Dedicated Pages */}
+  <Route path="/hire/:slug" element={<Suspense fallback={<PageLoader />}><DynamicSEOPage type="skill" /></Suspense>} />
+  <Route path="/tech-agency-in/:slug" element={<Suspense fallback={<PageLoader />}><DynamicSEOPage type="location" /></Suspense>} />
+  <Route path="/service/:slug/in/:location" element={<Suspense fallback={<PageLoader />}><DynamicSEOPage type="service-location" /></Suspense>} />
+
   <Route path="/solutions/recruitment" element={<Suspense fallback={<PageLoader />}><Recruitment /></Suspense>} />
   <Route path="/solutions/staffing" element={<Suspense fallback={<PageLoader />}><Staffing /></Suspense>} />
   <Route path="/solutions/hr-solutions" element={<Suspense fallback={<PageLoader />}><HRSolutions /></Suspense>} />

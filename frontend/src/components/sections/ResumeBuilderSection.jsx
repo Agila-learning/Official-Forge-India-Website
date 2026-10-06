@@ -49,7 +49,7 @@ const ResumeBuilderSection = () => {
           <div className="lg:w-1/2 w-full">
             <div className="bg-slate-50 p-2 md:p-4 rounded-[3rem] border border-slate-200 shadow-2xl relative overflow-hidden group">
                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-[3rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-               <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop" alt="Resume Builder" className="w-full h-auto rounded-[2.5rem] object-cover group-hover:scale-[1.02] transition-transform duration-700 relative z-10" />
+               <img src="/images/resume-builder-hired.jpg" alt="Resume Builder" className="w-full h-auto rounded-[2.5rem] object-cover group-hover:scale-[1.02] transition-transform duration-700 relative z-10" />
             </div>
           </div>
         </div>

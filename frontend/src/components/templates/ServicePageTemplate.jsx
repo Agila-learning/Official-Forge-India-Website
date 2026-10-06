@@ -45,48 +45,65 @@ const ServicePageTemplate = ({
 
       {/* ── HERO ── */}
       <section ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden pt-20">
-        <motion.div style={{ y: heroY }} className="absolute inset-0 z-0">
-          <img src={heroImage} alt={heroTitle} className="w-full h-full object-cover opacity-80 dark:opacity-40 filter saturate-150" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/80 to-slate-50 dark:from-[#070b14]/50 dark:via-[#070b14]/70 dark:to-[#070b14]" />
-        </motion.div>
-
         <div className={`absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 dark:opacity-20 bg-gradient-to-br ${accentFrom} ${accentTo} pointer-events-none`} />
         
         <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.04]"
           style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.5) 1px,transparent 1px)', backgroundSize: '60px 60px' }}
         />
 
-        <motion.div style={{ opacity: heroOpacity }} className="container-xl px-6 relative z-10 py-32">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${accentBorder} ${accentBg} mb-8`}
-          >
-            <Sparkles size={13} className={accentText} />
-            <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${accentText}`}>{tagline}</span>
-          </motion.div>
+        <motion.div style={{ opacity: heroOpacity }} className="container-xl px-6 relative z-10 py-20 lg:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left Content */}
+            <div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${accentBorder} ${accentBg} mb-8`}
+              >
+                <Sparkles size={13} className={accentText} />
+                <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${accentText}`}>{tagline}</span>
+              </motion.div>
 
-          <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter leading-[0.9] mb-8 max-w-5xl text-slate-900 dark:text-white"
-          >
-            {heroTitle}{' '}
-            <span className={`bg-gradient-to-r ${accentFrom} ${accentTo} bg-clip-text text-transparent`}>
-              {heroHighlight}
-            </span>
-          </motion.h1>
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
+                className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[1] mb-8 text-slate-900 dark:text-white"
+              >
+                {heroTitle}{' '}
+                <span className={`bg-gradient-to-r ${accentFrom} ${accentTo} bg-clip-text text-transparent`}>
+                  {heroHighlight}
+                </span>
+              </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-600 dark:text-white/50 font-medium leading-relaxed max-w-2xl mb-12"
-          >
-            {heroSubtitle}
-          </motion.p>
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-lg md:text-xl text-slate-600 dark:text-white/50 font-medium leading-relaxed max-w-xl mb-12"
+              >
+                {heroSubtitle}
+              </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-wrap gap-4">
-            <button onClick={() => document.getElementById('inquiry').scrollIntoView({ behavior: 'smooth' })} className={`px-8 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest bg-gradient-to-r ${accentFrom} ${accentTo} hover:opacity-90 transition-all shadow-2xl flex items-center gap-3 hover:gap-5`}>
-              Get Started <ArrowRight size={18} />
-            </button>
-            <Link to="/contact" className="px-8 py-4 rounded-2xl text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-3 shadow-sm dark:shadow-none">
-              Talk to Expert
-            </Link>
-          </motion.div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-wrap gap-4">
+                <button onClick={() => document.getElementById('inquiry').scrollIntoView({ behavior: 'smooth' })} className={`px-8 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest bg-gradient-to-r ${accentFrom} ${accentTo} hover:opacity-90 transition-all shadow-2xl flex items-center gap-3 hover:gap-5`}>
+                  Get Started <ArrowRight size={18} />
+                </button>
+                <Link to="/contact" className="px-8 py-4 rounded-2xl text-slate-900 dark:text-white font-black text-sm uppercase tracking-widest bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 transition-all flex items-center gap-3 shadow-sm dark:shadow-none">
+                  Talk to Expert
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Right Image */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, rotate: -2 }} 
+              animate={{ opacity: 1, scale: 1, rotate: 0 }} 
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <div className={`absolute -inset-4 bg-gradient-to-tr ${accentFrom} ${accentTo} opacity-20 blur-2xl rounded-full`} />
+              <div className={`relative aspect-square w-full max-w-lg mx-auto rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800`}>
+                <img 
+                  src={heroImage} 
+                  alt={heroTitle} 
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+                />
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </section>
 

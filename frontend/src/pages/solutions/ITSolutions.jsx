@@ -11,7 +11,7 @@ const ITSolutions = () => (
     heroTitle="Engineering"
     heroHighlight="Digital Excellence"
     heroSubtitle="From bespoke software to robust infrastructure, we architect scalable IT systems that power modern enterprises."
-    heroImage="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1920&auto=format&fit=crop"
+    heroImage="/images/it-solutions-hero.jpg"
     accentFrom="from-blue-600"
     accentTo="to-cyan-500"
     accentText="text-blue-400"

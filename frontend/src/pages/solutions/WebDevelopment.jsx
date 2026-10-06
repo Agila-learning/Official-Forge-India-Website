@@ -11,7 +11,7 @@ const WebDevelopment = () => (
     heroTitle="Websites That"
     heroHighlight="Win Business"
     heroSubtitle="Premium corporate websites, CMS-powered platforms, and conversion-optimized landing pages that make lasting first impressions."
-    heroImage="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1920&auto=format&fit=crop"
+    heroImage="https://img.freepik.com/free-vector/web-development-programmer-engineering-coding-website-augmented-reality-interface-screens-developer-project-engineer-programming-software-application-design-cartoon-illustration_107791-3863.jpg?w=1920"
     accentFrom="from-cyan-600"
     accentTo="to-blue-500"
     accentText="text-cyan-400"

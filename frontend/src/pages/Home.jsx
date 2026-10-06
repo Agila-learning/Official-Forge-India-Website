@@ -3,6 +3,7 @@ import SEOMeta from '../components/ui/SEOMeta';
 
 // Home Page Sections
 import Hero from '../components/sections/Hero';
+import ClientMarquee from '../components/sections/ClientMarquee';
 import AudiencePaths from '../components/sections/AudiencePaths';
 import CoreServices from '../components/sections/CoreServices';
 import CareersLandingSection from '../components/sections/CareersLandingSection';
@@ -23,6 +24,9 @@ import FinalCTA from '../components/sections/FinalCTA';
 import DigitalTools from '../components/sections/DigitalTools';
 import GallerySection from '../components/sections/GallerySection';
 import FICExperienceCarousel from '../components/sections/FICExperienceCarousel';
+import SurveyPopup from '../components/ui/SurveyPopup';
+import CurrentEvents from '../components/sections/CurrentEvents';
+import NetworkBanner from '../components/sections/NetworkBanner';
 
 const Home = () => {
   return (
@@ -36,14 +40,17 @@ const Home = () => {
       
       <main className="bg-white text-slate-800 font-sans overflow-x-hidden">
         <Hero />
+        <ClientMarquee />
         <AudiencePaths />
         <CoreServices />
         <CareersLandingSection />
         <ResumeBuilderSection />
         <DigitalTools />
         <BankingCareersSection />
+        <CurrentEvents />
         <InternshipSection />
         <FinalYearProjects />
+        <NetworkBanner />
         <InstitutionSolutions />
         <BusinessSolutions />
         <FICServiceEcosystem />
@@ -56,6 +63,7 @@ const Home = () => {
         <GallerySection previewMode={true} />
         <LocationsSection />
         <FinalCTA />
+        <SurveyPopup />
       </main>
     </>
   );

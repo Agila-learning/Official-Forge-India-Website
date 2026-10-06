@@ -37,13 +37,19 @@ const clientsData = [
  { name: 'Ather Energy', url: '/Clientele/ather.webp' },
  ] 
  },
- { 
- category: 'Professional Services', 
- logos: [
- { name: 'Ma Foi', url: '/Clientele/mafoi.webp' },
- { name: 'Polaris', url: '/Clientele/polaris.webp' },
- ] 
- }
+  { 
+  category: 'Professional Services', 
+  logos: [
+  { name: 'Ma Foi', url: '/Clientele/mafoi.webp' },
+  { name: 'Polaris', url: '/Clientele/polaris.webp' },
+  ] 
+  },
+  { 
+  category: 'Direct Vendorship Partner', 
+  logos: [
+  { name: 'Manipal Unext', url: '/Clientele/manipal-unext.webp' }
+  ] 
+  }
 ];
 
 const Clientele = () => {
